@@ -13,7 +13,7 @@ from alembic import command
 from alembic.config import Config
 from sqlalchemy import create_engine, inspect, text
 
-from app.core.common.config import ALL_SCHEMAS, PROJECT_ROOT
+from app.core.common.config import ALL_SCHEMAS, PROJECT_ROOT, SCHEMA_COMPLAINTS
 from app.core.common.dtos.data_ingest_dtos import DataIngestCtx, DataIngestReq
 from app.core.common.return_codes import CONFLICT, SUCCESS
 from app.core.dao.impl.database import reset_engine
@@ -35,10 +35,10 @@ def postgres(monkeypatch, tmp_path):
     reset_engine()
 
 
-def _tables(schema):
+def _complaint_tables():
     engine = create_engine(URL)
     try:
-        return set(inspect(engine).get_table_names(schema=schema))
+        return set(inspect(engine).get_table_names(schema=SCHEMA_COMPLAINTS))
     finally:
         engine.dispose()
 
@@ -50,13 +50,13 @@ def test_upgrade_downgrade_upgrade(postgres):
         schemas = {r[0] for r in c.execute(text("select schema_name from information_schema.schemata"))}
     engine.dispose()
     assert set(ALL_SCHEMAS) <= schemas
-    assert "data_ingest_log" in _tables("consumer_comp_db")
+    assert "data_ingest_log" in _complaint_tables()
 
     command.downgrade(postgres, "base")
-    assert "data_ingest_log" not in _tables("consumer_comp_db")
+    assert "data_ingest_log" not in _complaint_tables()
 
     command.upgrade(postgres, "head")
-    assert "data_ingest_log" in _tables("consumer_comp_db")
+    assert "data_ingest_log" in _complaint_tables()
 
 
 def test_dao_works_on_postgres(postgres):

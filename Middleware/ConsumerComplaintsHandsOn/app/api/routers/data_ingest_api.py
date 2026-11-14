@@ -1,13 +1,21 @@
 """Data ingest log endpoints, as a class. It is a singleton (like every class in api, facades, services and dao).
 
-Each method builds a ctx, calls the facade interface, and turns the integer code into an HTTP status. Methods are
-plain `def` so FastAPI runs the blocking database calls in a worker thread. HTTP parameters cannot be a ctx, so the
-methods take the request pieces FastAPI gives them and put them into the facade ctx straight away.
+Every method takes exactly one request object (FastAPI fills it from the path, query string or body), builds a facade
+ctx from it, calls the facade interface, and turns the facade's result code into an HTTP status. Methods are plain
+`def` so FastAPI runs the blocking database calls in a worker thread.
 """
 
-from fastapi import APIRouter, HTTPException, Response, status
+from typing import Annotated
 
-from app.api.models.data_ingest_models import DataIngestLogCreate, DataIngestLogOut, DataIngestLogUpdate
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+
+from app.api.models.data_ingest_models import (
+    DataIngestLogCreate,
+    DataIngestLogIdReq,
+    DataIngestLogListReq,
+    DataIngestLogOut,
+    DataIngestLogUpdateReq,
+)
 from app.core.common.dtos.data_ingest_facade_dtos import DataIngestFacadeCtx, DataIngestFacadeReq
 from app.core.common.return_codes import CONFLICT, INVALID_INPUT, NOT_FOUND, SUCCESS
 from app.core.common.singleton import SingletonMeta
@@ -27,39 +35,40 @@ class DataIngestApi(metaclass=SingletonMeta):
             "/{log_id}", self.delete_log, methods=["DELETE"], status_code=status.HTTP_204_NO_CONTENT
         )
 
-    def create_log(self, body: DataIngestLogCreate) -> DataIngestLogOut:
-        ctx = DataIngestFacadeCtx(req=DataIngestFacadeReq(**body.model_dump()))
-        self._check(FacadesObjectsFactory.get_data_ingest_facade().create(ctx))
-        return DataIngestLogOut.model_validate(ctx.resp.records[0])
+    def create_log(self, req: DataIngestLogCreate) -> DataIngestLogOut:
+        ctx = DataIngestFacadeCtx(req=DataIngestFacadeReq(**req.model_dump()))
+        FacadesObjectsFactory.get_data_ingest_facade().create(ctx)
+        return self._one(ctx)
 
-    def list_logs(
-        self,
-        purpose: str | None = None,
-        status_: str | None = None,
-        limit: int | None = None,
-        offset: int | None = None,
-    ) -> list[DataIngestLogOut]:
-        ctx = DataIngestFacadeCtx(req=DataIngestFacadeReq(purpose=purpose, status=status_, limit=limit, offset=offset))
-        self._check(FacadesObjectsFactory.get_data_ingest_facade().list(ctx))
+    def list_logs(self, req: Annotated[DataIngestLogListReq, Query()]) -> list[DataIngestLogOut]:
+        ctx = DataIngestFacadeCtx(req=DataIngestFacadeReq(**req.model_dump()))
+        FacadesObjectsFactory.get_data_ingest_facade().list(ctx)
+        self._check(ctx)
         return [DataIngestLogOut.model_validate(r) for r in ctx.resp.records]
 
-    def get_log(self, log_id: str) -> DataIngestLogOut:
-        ctx = DataIngestFacadeCtx(req=DataIngestFacadeReq(id=log_id))
-        self._check(FacadesObjectsFactory.get_data_ingest_facade().get(ctx))
-        return DataIngestLogOut.model_validate(ctx.resp.records[0])
+    def get_log(self, req: Annotated[DataIngestLogIdReq, Depends()]) -> DataIngestLogOut:
+        ctx = DataIngestFacadeCtx(req=DataIngestFacadeReq(id=req.log_id))
+        FacadesObjectsFactory.get_data_ingest_facade().get(ctx)
+        return self._one(ctx)
 
-    def update_log(self, log_id: str, body: DataIngestLogUpdate) -> DataIngestLogOut:
-        ctx = DataIngestFacadeCtx(req=DataIngestFacadeReq(id=log_id, **body.model_dump()))
-        self._check(FacadesObjectsFactory.get_data_ingest_facade().update(ctx))
-        return DataIngestLogOut.model_validate(ctx.resp.records[0])
+    def update_log(self, req: Annotated[DataIngestLogUpdateReq, Depends()]) -> DataIngestLogOut:
+        ctx = DataIngestFacadeCtx(req=DataIngestFacadeReq(id=req.log_id, **req.body.model_dump()))
+        FacadesObjectsFactory.get_data_ingest_facade().update(ctx)
+        return self._one(ctx)
 
-    def delete_log(self, log_id: str) -> Response:
-        ctx = DataIngestFacadeCtx(req=DataIngestFacadeReq(id=log_id))
-        self._check(FacadesObjectsFactory.get_data_ingest_facade().delete(ctx))
+    def delete_log(self, req: Annotated[DataIngestLogIdReq, Depends()]) -> Response:
+        ctx = DataIngestFacadeCtx(req=DataIngestFacadeReq(id=req.log_id))
+        FacadesObjectsFactory.get_data_ingest_facade().delete(ctx)
+        self._check(ctx)
         return Response(status_code=status.HTTP_204_NO_CONTENT)
 
+    def _one(self, ctx: DataIngestFacadeCtx) -> DataIngestLogOut:
+        self._check(ctx)
+        return DataIngestLogOut.model_validate(ctx.resp.records[0])
+
     @staticmethod
-    def _check(code: int) -> None:
+    def _check(ctx: DataIngestFacadeCtx) -> None:
+        code = ctx.resp.code
         if code == SUCCESS:
             return
         if code == NOT_FOUND:

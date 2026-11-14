@@ -26,23 +26,15 @@ def _now() -> datetime:
     return datetime.now(timezone.utc)
 
 
-def _utc(value: datetime | None) -> datetime | None:
-    # SQLite hands timestamps back without a time zone; they were stored as UTC.
-    if value is not None and value.tzinfo is None:
-        return value.replace(tzinfo=timezone.utc)
-    return value
-
-
 def _to_record(row: DataIngestLogModel) -> DataIngestRecord:
+    # SQLite hands timestamps back without a time zone; they were stored as UTC.
+    times = {name: getattr(row, name) for name in ("requested_at", "started_at", "finished_at")}
+    times = {
+        name: value.replace(tzinfo=timezone.utc) if value is not None and value.tzinfo is None else value
+        for name, value in times.items()
+    }
     return DataIngestRecord(
-        id=row.id,
-        purpose=row.purpose,
-        status=row.status,
-        run_id=row.run_id,
-        message=row.message,
-        requested_at=_utc(row.requested_at),
-        started_at=_utc(row.started_at),
-        finished_at=_utc(row.finished_at),
+        id=row.id, purpose=row.purpose, status=row.status, run_id=row.run_id, message=row.message, **times
     )
 
 

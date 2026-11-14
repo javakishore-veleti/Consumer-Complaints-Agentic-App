@@ -7,7 +7,7 @@ def test_create_get_list_update_delete(client):
 
     assert client.get(f"/data-ingest-logs/{log_id}").json() == body
     assert [r["id"] for r in client.get("/data-ingest-logs").json()] == [log_id]
-    assert client.get("/data-ingest-logs", params={"status_": "started"}).json() == []
+    assert client.get("/data-ingest-logs", params={"status": "started"}).json() == []
 
     updated = client.patch(f"/data-ingest-logs/{log_id}", json={"status": "started", "run_id": "run-1"})
     assert updated.status_code == 200

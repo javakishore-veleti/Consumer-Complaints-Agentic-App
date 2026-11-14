@@ -263,18 +263,24 @@
           },
           {
             "in": "query",
-            "name": "status_",
+            "name": "status",
             "required": false,
             "schema": {
               "anyOf": [
                 {
+                  "enum": [
+                    "requested",
+                    "started",
+                    "completed",
+                    "failed"
+                  ],
                   "type": "string"
                 },
                 {
                   "type": "null"
                 }
               ],
-              "title": "Status "
+              "title": "Status"
             }
           },
           {

@@ -7,6 +7,7 @@ and hand to the DAO (DESIGN.md, section 2.1).
 from dataclasses import dataclass, field
 
 from app.core.common.dtos.data_ingest_dtos import DataIngestCtx, DataIngestRecord
+from app.core.common.return_codes import SUCCESS
 
 
 @dataclass
@@ -27,6 +28,7 @@ class DataIngestFacadeResp:
     """What the facade hands back to the API."""
 
     records: list[DataIngestRecord] = field(default_factory=list)
+    code: int = SUCCESS  # the result code of the call (also returned by the facade method)
 
 
 @dataclass

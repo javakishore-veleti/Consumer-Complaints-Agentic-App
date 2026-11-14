@@ -21,24 +21,30 @@ class DataIngestFacadeImpl(DataIngestFacade):
         ]
 
     def create(self, ctx: DataIngestFacadeCtx) -> int:
-        return self._run(OP_CREATE, ctx)
+        ctx.operation = OP_CREATE
+        return self._run(ctx)
 
     def get(self, ctx: DataIngestFacadeCtx) -> int:
-        return self._run(OP_GET, ctx)
+        ctx.operation = OP_GET
+        return self._run(ctx)
 
     def list(self, ctx: DataIngestFacadeCtx) -> int:
-        return self._run(OP_LIST, ctx)
+        ctx.operation = OP_LIST
+        return self._run(ctx)
 
     def update(self, ctx: DataIngestFacadeCtx) -> int:
-        return self._run(OP_UPDATE, ctx)
+        ctx.operation = OP_UPDATE
+        return self._run(ctx)
 
     def delete(self, ctx: DataIngestFacadeCtx) -> int:
-        return self._run(OP_DELETE, ctx)
+        ctx.operation = OP_DELETE
+        return self._run(ctx)
 
-    def _run(self, operation: str, ctx: DataIngestFacadeCtx) -> int:
-        ctx.operation = operation
+    def _run(self, ctx: DataIngestFacadeCtx) -> int:
+        ctx.resp.code = SUCCESS
         for task in self._tasks:
             code = task.execute(ctx)
             if code != SUCCESS:
-                return code
-        return SUCCESS
+                ctx.resp.code = code
+                break
+        return ctx.resp.code

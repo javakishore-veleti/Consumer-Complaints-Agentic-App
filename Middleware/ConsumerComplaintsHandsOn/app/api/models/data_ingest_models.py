@@ -1,4 +1,6 @@
-"""Request and response bodies of the data ingest log endpoints (these produce the OpenAPI schema)."""
+"""Request and response models of the data ingest log endpoints (these produce the OpenAPI schema).
+
+Every endpoint method takes exactly one of these request objects, never separate arguments (DESIGN.md, D37)."""
 
 from datetime import datetime
 from typing import Literal
@@ -19,6 +21,28 @@ class DataIngestLogUpdate(BaseModel):
     status: Status | None = None
     run_id: str | None = None
     message: str | None = None
+
+
+class DataIngestLogIdReq(BaseModel):
+    """The id in the path of get and delete."""
+
+    log_id: str
+
+
+class DataIngestLogUpdateReq(BaseModel):
+    """The id in the path plus the changes in the body of update."""
+
+    log_id: str
+    body: DataIngestLogUpdate
+
+
+class DataIngestLogListReq(BaseModel):
+    """The filters and paging in the query string of list."""
+
+    purpose: str | None = None
+    status: Status | None = None
+    limit: int | None = None
+    offset: int | None = None
 
 
 class DataIngestLogOut(BaseModel):
