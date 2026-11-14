@@ -157,8 +157,8 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #55 | 3 | `/verification-before-completion Story #55` | Done | 2026-11-14 | 2026-11-14 |
 | #55 | 4 | `/ccaa-commit-push 55` | Done | 2026-11-14 | 2026-11-14 |
 | #55 | 5 | `/ccaa-story-complete 55` | Done | 2026-11-14 | 2026-11-14 |
-| #47 | 1 | `/ccaa-story-start 47` | Planned | - | - |
-| #47 | 2 | `/brainstorming Story #47: source location interface and factory; ctx in, integer out; type chosen from configuration (D42)` | Planned | - | - |
+| #47 | 1 | `/ccaa-story-start 47` | Done | 2026-11-14 | 2026-11-14 |
+| #47 | 2 | `/brainstorming Story #47: source location interface and factory; ctx in, integer out; type chosen from configuration (D42)` | In progress | 2026-11-14 | - |
 | #47 | 3 | `/writing-plans Story #47` | Planned | - | - |
 | #47 | 4 | `/subagent-driven-development Story #47` | Planned | - | - |
 | #47 | 5 | `/ccaa-commit-push 47` after every task (repeat) | Planned | - | - |
