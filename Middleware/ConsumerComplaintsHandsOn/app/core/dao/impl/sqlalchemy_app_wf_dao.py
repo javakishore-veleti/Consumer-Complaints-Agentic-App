@@ -115,7 +115,48 @@ class SqlAlchemyAppWfDao(AppWfDao):
             return FAILURE
 
     def update(self, ctx: AppWfCtx) -> int:
-        return FAILURE  # replaced in Task 4
+        req = ctx.req
+        if not req.id or _has_invalid_field(req):
+            return INVALID_INPUT
+        try:
+            with unit_of_work(ctx) as session:
+                row = session.get(AppWfModel, req.id)
+                if row is None:
+                    return NOT_FOUND
+                if req.workflow_name is not None and req.workflow_name != row.workflow_name:
+                    if session.scalars(_by_name_query(req)).first() is not None:
+                        return CONFLICT
+                if req.workflow_name is not None:
+                    row.workflow_name = req.workflow_name
+                if req.engine_type is not None:
+                    row.engine_type = req.engine_type
+                if req.engine_workflow_id is not None:
+                    row.engine_workflow_id = req.engine_workflow_id
+                if req.config is not None:
+                    row.config = req.config
+                if req.enabled is not None:
+                    row.enabled = req.enabled
+                row.updated_at = datetime.now(timezone.utc)
+                session.flush()
+                ctx.resp.records = [_to_record(row)]
+            return SUCCESS
+        except Exception:
+            log.exception("app_workflows update failed")
+            return FAILURE
 
     def delete(self, ctx: AppWfCtx) -> int:
-        return FAILURE  # replaced in Task 4
+        req = ctx.req
+        if not req.id:
+            return INVALID_INPUT
+        try:
+            with unit_of_work(ctx) as session:
+                row = session.get(AppWfModel, req.id)
+                if row is None:
+                    return NOT_FOUND
+                ctx.resp.records = [_to_record(row)]
+                session.delete(row)
+                session.flush()
+            return SUCCESS
+        except Exception:
+            log.exception("app_workflows delete failed")
+            return FAILURE
