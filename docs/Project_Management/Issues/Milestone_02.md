@@ -2,7 +2,7 @@
 
 **Scope (decision D38 in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`):** download the free CFPB dataset on demand from the admin portal, asynchronously through Airflow, through registered workflows (D43), and always show whether it has been downloaded. Everything runs locally. Cloud work is M03.
 
-**Status: in progress.** 1 epic, 5 features and 24 stories. 4 stories (and 1 feature) are already done, 20 stories are left to build.
+**Status: in progress.** 1 epic, 5 features and 27 stories. 4 stories (and 1 feature) are already done, 23 stories are left to build.
 
 How to read this file:
 - `#42` is the GitHub issue number in this repository. The `M02-00NN` key is the sequence tag at the start of the issue title. Keys are not in build order.
@@ -13,22 +13,26 @@ How to read this file:
 
 - [1. Table of contents (build order)](#1-table-of-contents-build-order)
   - [Phase 0 - Dataset status, already built (commit `eec398d`)](#phase-0---dataset-status-already-built-commit-eec398d)
-  - [Phase 1 - Workflow registry](#phase-1---workflow-registry-nothing-else-can-list-start-or-log-a-workflow-without-it)
-  - [Phase 2 - Download API, the status and listing side](#phase-2---download-api-the-status-and-listing-side)
+  - [Phase 1 - Workflow registry and catalog](#phase-1---workflow-registry-and-catalog-the-mvps-tables)
+  - [Phase 2 - Download API, the status side](#phase-2---download-api-the-status-side)
   - [Phase 3 - Airflow download DAG](#phase-3---airflow-download-dag)
-  - [Phase 4 - Start a workflow (closes the Download API feature)](#phase-4---start-a-workflow-closes-the-download-api-feature)
+  - [Phase 4 - Start a workflow](#phase-4---start-a-workflow)
   - [Phase 5 - Admin portal](#phase-5---admin-portal)
+  - [Phase 6 - After the MVP](#phase-6---after-the-mvp)
 - [2. The same issues grouped by epic and feature](#2-the-same-issues-grouped-by-epic-and-feature)
 - [3. Superpowers workflow](#3-superpowers-workflow)
-  - [Phase 1 - Workflow registry](#phase-1---workflow-registry)
-  - [Phase 2 - Download API, the status and listing side](#phase-2---download-api-the-status-and-listing-side-1)
+  - [Phase 1 - Workflow registry and catalog](#phase-1---workflow-registry-and-catalog)
+  - [Phase 2 - Download API, the status side](#phase-2---download-api-the-status-side-1)
   - [Phase 3 - Airflow download DAG](#phase-3---airflow-download-dag-1)
-  - [Phase 4 - Start a workflow (closes the Download API feature)](#phase-4---start-a-workflow-closes-the-download-api-feature-1)
+  - [Phase 4 - Start a workflow](#phase-4---start-a-workflow-1)
   - [Phase 5 - Admin portal](#phase-5---admin-portal-1)
+  - [Phase 6 - After the MVP](#phase-6---after-the-mvp-1)
 - [4. Project skills](#4-project-skills-ccaa---consumer-complaints-agentic-app)
 - [5. Notes](#5-notes)
 
 ## 1. Table of contents (build order)
+
+The MVP is Phases 1 to 5: the smallest flow that runs end to end (start a workflow from the portal, Airflow downloads, the status comes back). Phase 6 is built after it works; some of it is refactoring on purpose.
 
 ### Phase 0 - Dataset status, already built (commit `eec398d`)
 
@@ -40,94 +44,105 @@ How to read this file:
 | 4 | #39 | M02-0004 | Story | system_datasets DAO | Done |
 | 5 | #40 | M02-0005 | Story | Record outcome in one transaction | Done |
 
-### Phase 1 - Workflow registry (nothing else can list, start or log a workflow without it)
+### Phase 1 - Workflow registry and catalog (the MVP's tables)
 
 | # | Issue | Key | Type | Title | Why here |
 |---|---|---|---|---|---|
-| 6 | #78 | M02-0028 | Feature | Workflow registry | Parent of the stories below |
-| 7 | #79 | M02-0029 | Story | Decide how usecases map to workflows, the admin schema name and the fate of the old log tables | Decision first: the tables and the stories after it depend on the answers |
-| 8 | #80 | M02-0030 | Story | Object factory init() and bean registry (D45) | Every class added after it registers itself this way (D45) |
-| 9 | #81 | M02-0031 | Story | Admin schema and app_workflows table with its DAO | The registry the portal lists from |
-| 10 | #82 | M02-0032 | Story | app_workflows_exec_log table with its DAO | Every run is logged here |
+| 6 | #78 | M02-0028 | Feature | Workflow registry | Parent of the stories below (it finishes after the MVP, with #80 and #88) |
+| 7 | #79 | M02-0029 | Story | Decide how usecases map to workflows, the admin schema name and the fate of the old log tables | Decision first: the model the rest builds on (D46 to D53) |
+| 8 | #81 | M02-0031 | Story | Admin schema and app_workflows table with its DAO | The registry: workflows and the admin schema |
+| 9 | #82 | M02-0032 | Story | app_workflows_exec_log table with its DAO | Every run is logged here |
+| 10 | #86 | M02-0036 | Story | Catalog tables: datasets, datasets_location, mios and mios_datasets, with the seed MIOs | The MIOs, datasets and locations the DAG reads |
+| 11 | #87 | M02-0037 | Story | mios_ingest_log table and DAO | The MIO's ingest record; executions point to it |
 
-### Phase 2 - Download API, the status and listing side
+### Phase 2 - Download API, the status side
 
 | # | Issue | Key | Type | Title | Why here |
 |---|---|---|---|---|---|
-| 11 | #41 | M02-0006 | Feature | Download API | Parent of the stories below (it finishes in Phase 4) |
-| 12 | #44 | M02-0009 | Story | Shared-secret authentication for callbacks | The callback endpoint must be protected from day one |
-| 13 | #43 | M02-0008 | Story | Airflow status callback endpoint | Uses #44 and the built `system_datasets` service |
-| 14 | #45 | M02-0010 | Story | Read dataset status endpoint | Reads the Phase 0 table; the portal needs it |
-| 15 | #83 | M02-0033 | Story | Workflow engine interface and lookup | The Airflow engine (#60) implements it |
-| 16 | #84 | M02-0034 | Story | List workflows endpoint | Reads the registry of #81; the portal needs it |
+| 12 | #41 | M02-0006 | Feature | Download API | Parent of the stories below (it finishes after the MVP, with #83 and #84) |
+| 13 | #44 | M02-0009 | Story | Shared-secret authentication for callbacks | The callback endpoint must be protected from day one |
+| 14 | #43 | M02-0008 | Story | Airflow status callback endpoint | Updates the exec log (#82) and the ingest log (#87) |
+| 15 | #45 | M02-0010 | Story | Read MIO status endpoint | Reads the MIO status; the portal needs it |
 
 ### Phase 3 - Airflow download DAG
 
 | # | Issue | Key | Type | Title | Why here |
 |---|---|---|---|---|---|
-| 17 | #56 | M02-0017 | Feature | Airflow download DAG | Parent of the stories below |
-| 18 | #55 | M02-0016 | Story | Decide where the location and credentials are stored | Done: decision D42 (values in `.env`, copied into Airflow Variables); #77 builds it |
-| 19 | #85 | M02-0035 | Story | Move the DAGs to Middleware/Airflow-dags and mount them by relative path | The DAGs must live in the mounted folder before any is written (D44) |
-| 20 | #77 | M02-0027 | Story | Push .env values to Airflow Variables (upsert-secrets endpoint) | Decision D42. Uses the #44 secret; the DAG reads the Variables it creates |
-| 21 | #57 | M02-0018 | Story | Download DAG for the All dataset | Reads its own source from the Variables of #77 and is registered in the registry (#81) |
-| 22 | #58 | M02-0019 | Story | 3 months dataset: filter the All file by Date received | Derived from the All file, so it follows #57 |
-| 23 | #59 | M02-0020 | Story | Report started, completed and failed to the API, even when a task crashes | Calls the Phase 2 callback and uses its secret |
-| 24 | #60 | M02-0021 | Story | Airflow engine: start a DAG run asynchronously | Implements the engine interface of #83; the DAG must exist before it can be started |
+| 16 | #56 | M02-0017 | Feature | Airflow download DAG | Parent of the stories below (it finishes after the MVP, with #58) |
+| 17 | #55 | M02-0016 | Story | Decide where the location and credentials are stored | Done: decision D42 (credentials in `.env`, copied into Airflow Variables); #77 builds it |
+| 18 | #85 | M02-0035 | Story | Move the DAGs to Middleware/Airflow-dags and mount them by relative path | The DAGs must live in the mounted folder before any is written (D44) |
+| 19 | #77 | M02-0027 | Story | Push .env values to Airflow Variables (upsert-secrets endpoint) | Decision D42. Uses the #44 secret; the DAG reads the Variables it creates |
+| 20 | #57 | M02-0018 | Story | Download DAG for the All dataset | Reads its workflow, MIO and dataset location from the tables (D51) |
+| 21 | #60 | M02-0021 | Story | Airflow engine: start a DAG run asynchronously | Starts the DAG run; the DAG must exist before it can be started |
+| 22 | #59 | M02-0020 | Story | Report started, completed and failed to the API, even when a task crashes | Calls the Phase 2 callback and uses its secret |
 
-### Phase 4 - Start a workflow (closes the Download API feature)
+### Phase 4 - Start a workflow
 
 | # | Issue | Key | Type | Title | Why here |
 |---|---|---|---|---|---|
-| 25 | #42 | M02-0007 | Story | Start-workflow endpoint (one endpoint, any registered workflow) | Starts a registered workflow through the engine of #60 and the lookup of #83 |
+| 23 | #42 | M02-0007 | Story | Start-workflow endpoint (one endpoint, any registered workflow) | Starts a registered workflow through #60 |
 
 ### Phase 5 - Admin portal
 
 | # | Issue | Key | Type | Title | Why here |
 |---|---|---|---|---|---|
-| 26 | #61 | M02-0022 | Feature | Admin portal: DataSets and Imports | Parent of the stories below |
-| 27 | #62 | M02-0023 | Story | Angular app scaffold (consumer-complaints-admin) | Everything in the portal builds on it |
-| 28 | #63 | M02-0024 | Story | DataSets top menu and Imports left navigation | Shell for the accordions |
-| 29 | #64 | M02-0025 | Story | Two accordions: 3 months and All, with status from the API | Reads the Phase 2 status endpoint (#45) |
-| 30 | #65 | M02-0026 | Story | Start download button and status refresh | Calls the Phase 4 endpoint (#42) |
+| 24 | #61 | M02-0022 | Feature | Admin portal: DataSets and Imports | Parent of the stories below |
+| 25 | #62 | M02-0023 | Story | Angular app scaffold (consumer-complaints-admin) | Everything in the portal builds on it |
+| 26 | #63 | M02-0024 | Story | DataSets top menu and Imports left navigation | Shell for the accordions |
+| 27 | #64 | M02-0025 | Story | MIO accordions with status from the API | Reads the Phase 2 status endpoint (#45) |
+| 28 | #65 | M02-0026 | Story | Start workflow button and status refresh | Calls the Phase 4 endpoint (#42) |
+
+### Phase 6 - After the MVP
+
+| # | Issue | Key | Type | Title | Why here |
+|---|---|---|---|---|---|
+| 29 | #80 | M02-0030 | Story | Object factory init() and bean registry (D45) | Refactor: object factories get `init()` and the bean registry (D45) |
+| 30 | #83 | M02-0033 | Story | Workflow engine interface and lookup | Refactor: the engine interface; #60 is wrapped behind it |
+| 31 | #84 | M02-0034 | Story | List workflows endpoint | The portal can list workflows |
+| 32 | #58 | M02-0019 | Story | 3 months dataset: filter the All file by Date received | The 3 months dataset is derived from the All file |
+| 33 | #88 | M02-0038 | Story | Remove system_datasets and data_ingest_log (retired by D47) | Drop the retired tables once nothing uses them (D47) |
 
 ## 2. The same issues grouped by epic and feature
 
 ```
 Epic #29  M02-0001  Downloads Management
 |
-+-- Feature #37  M02-0002  Dataset status (system_datasets)            [done]
++-- Feature #37  M02-0002  Dataset status (system_datasets)            [done, retired by D47]
 |     +-- #38  system_datasets table and migration                     [done]
 |     +-- #39  system_datasets DAO                                     [done]
 |     +-- #40  Record outcome in one transaction                       [done]
 |
 +-- Feature #78  M02-0028  Workflow registry
 |     +-- #79  Decide how usecases map to workflows, the admin schema name and the fate of the old log tables
-|     +-- #80  Object factory init() and bean registry (D45)
 |     +-- #81  Admin schema and app_workflows table with its DAO
 |     +-- #82  app_workflows_exec_log table with its DAO
+|     +-- #86  Catalog tables: datasets, datasets_location, mios and mios_datasets, with the seed MIOs
+|     +-- #87  mios_ingest_log table and DAO
+|     +-- #80  Object factory init() and bean registry (D45)           (after the MVP)
+|     +-- #88  Remove system_datasets and data_ingest_log (retired by D47)   (after the MVP)
 |
 +-- Feature #41  M02-0006  Download API
 |     +-- #44  Shared-secret authentication for callbacks
 |     +-- #43  Airflow status callback endpoint
-|     +-- #45  Read dataset status endpoint
-|     +-- #83  Workflow engine interface and lookup
-|     +-- #84  List workflows endpoint
+|     +-- #45  Read MIO status endpoint
 |     +-- #42  Start-workflow endpoint (one endpoint, any registered workflow)   (built in Phase 4)
+|     +-- #83  Workflow engine interface and lookup                    (after the MVP)
+|     +-- #84  List workflows endpoint                                 (after the MVP)
 |
 +-- Feature #56  M02-0017  Airflow download DAG
 |     +-- #55  Decide where the location and credentials are stored    [done]
 |     +-- #85  Move the DAGs to Middleware/Airflow-dags and mount them by relative path
 |     +-- #77  Push .env values to Airflow Variables (upsert-secrets endpoint)
 |     +-- #57  Download DAG for the All dataset
-|     +-- #58  3 months dataset: filter the All file by Date received
-|     +-- #59  Report started, completed and failed to the API, even when a task crashes
 |     +-- #60  Airflow engine: start a DAG run asynchronously
+|     +-- #59  Report started, completed and failed to the API, even when a task crashes
+|     +-- #58  3 months dataset: filter the All file by Date received  (after the MVP)
 |
 +-- Feature #61  M02-0022  Admin portal: DataSets and Imports
       +-- #62  Angular app scaffold (consumer-complaints-admin)
       +-- #63  DataSets top menu and Imports left navigation
-      +-- #64  Two accordions: 3 months and All, with status from the API
-      +-- #65  Start download button and status refresh
+      +-- #64  MIO accordions with status from the API
+      +-- #65  Start workflow button and status refresh
 
 Superseded by D43 and closed as not planned (no source-location types in the API):
   Feature #46 M02-0011 Configurable source location
@@ -162,29 +177,17 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 
 Every command carries its issue number (`Story #N` or `N`), so a chat history or a commit log always shows which story a command was run for.
 
-### Phase 1 - Workflow registry
+### Phase 1 - Workflow registry and catalog
 
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
 | #79 (decision only, no code) | 1 | `/ccaa-story-start 79` | Done | 2026-11-14 | 2026-11-14 |
 | #79 | 2 | `/brainstorming Story #79: decide the admin schema name, how a usecase maps to a workflow, the fate of data_ingest_log and system_datasets, how a workflow reads its config, the other columns and engine types, and the first engines. Record each as a decision in Middleware/ConsumerComplaintsHandsOn/DESIGN.md` | Done | 2026-11-14 | 2026-11-14 |
-| #79 | 3 | `/verification-before-completion Story #79` | In progress | 2026-11-14 | - |
-| #79 | 4 | `/ccaa-commit-push 79` | Planned | - | - |
+| #79 | 3 | `/verification-before-completion Story #79` | Done | 2026-11-14 | 2026-11-14 |
+| #79 | 4 | `/ccaa-commit-push 79` | In progress | 2026-11-14 | - |
 | #79 | 5 | `/ccaa-story-complete 79` | Planned | - | - |
-| #80 | 1 | `/ccaa-story-start 80` | Planned | - | - |
-| #80 | 2 | `/brainstorming Story #80: a shared registry and init() on the object factories, called from main (D45); one implementation returns the instance, several return a list in a fixed order` | Planned | - | - |
-| #80 | 3 | `/using-git-worktrees Story #80: branch m02-0030-object-factory-init-and-bean-registry` | Planned | - | - |
-| #80 | 4 | `/writing-plans Story #80` | Planned | - | - |
-| #80 | 5 | `/test-driven-development Story #80` | Planned | - | - |
-| #80 | 6 | `/subagent-driven-development Story #80` | Planned | - | - |
-| #80 | 7 | `/ccaa-commit-push 80` after every task (repeat) | Planned | - | - |
-| #80 | 8 | `/verification-before-completion Story #80` | Planned | - | - |
-| #80 | 9 | `/requesting-code-review Story #80` | Planned | - | - |
-| #80 | 10 | `/ccaa-commit-push 80` | Planned | - | - |
-| #80 | 11 | `/finishing-a-development-branch Story #80` | Planned | - | - |
-| #80 | 12 | `/ccaa-story-complete 80` | Planned | - | - |
 | #81 | 1 | `/ccaa-story-start 81` | Planned | - | - |
-| #81 | 2 | `/brainstorming Story #81: admin schema and app_workflows table (name up to 100 characters, engine type, engine workflow id, JSON config) with its DAO; use the schema name decided in #79` | Planned | - | - |
+| #81 | 2 | `/brainstorming Story #81: consumer_comp_admin_db schema (D48) and app_workflows table (name up to 100 characters, engine type, engine workflow id, JSON config) with its DAO` | Planned | - | - |
 | #81 | 3 | `/using-git-worktrees Story #81: branch m02-0031-admin-schema-and-app-workflows-table` | Planned | - | - |
 | #81 | 4 | `/writing-plans Story #81` | Planned | - | - |
 | #81 | 5 | `/test-driven-development Story #81` | Planned | - | - |
@@ -207,9 +210,32 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #82 | 10 | `/ccaa-commit-push 82` | Planned | - | - |
 | #82 | 11 | `/finishing-a-development-branch Story #82` | Planned | - | - |
 | #82 | 12 | `/ccaa-story-complete 82` | Planned | - | - |
-| Feature #78 | 1 | `/ccaa-feature-complete 78` | In progress | 2026-11-14 | - |
+| #86 | 1 | `/ccaa-story-start 86` | Planned | - | - |
+| #86 | 2 | `/brainstorming Story #86: catalog tables datasets, datasets_location, mios and mios_datasets in consumer_comp_admin_db with one DAO each, plus the seeded MIOs (customer complaints 3, 6, 9, 12 months and 2026)` | Planned | - | - |
+| #86 | 3 | `/using-git-worktrees Story #86: branch m02-0036-catalog-tables-datasets-datasets` | Planned | - | - |
+| #86 | 4 | `/writing-plans Story #86` | Planned | - | - |
+| #86 | 5 | `/test-driven-development Story #86` | Planned | - | - |
+| #86 | 6 | `/subagent-driven-development Story #86` | Planned | - | - |
+| #86 | 7 | `/ccaa-commit-push 86` after every task (repeat) | Planned | - | - |
+| #86 | 8 | `/verification-before-completion Story #86` | Planned | - | - |
+| #86 | 9 | `/requesting-code-review Story #86` | Planned | - | - |
+| #86 | 10 | `/ccaa-commit-push 86` | Planned | - | - |
+| #86 | 11 | `/finishing-a-development-branch Story #86` | Planned | - | - |
+| #86 | 12 | `/ccaa-story-complete 86` | Planned | - | - |
+| #87 | 1 | `/ccaa-story-start 87` | Planned | - | - |
+| #87 | 2 | `/brainstorming Story #87: mios_ingest_log table and DAO; status rules of D30; volume columns; adds the reference from app_workflows_exec_log` | Planned | - | - |
+| #87 | 3 | `/using-git-worktrees Story #87: branch m02-0037-mios-ingest-log-table-and-dao` | Planned | - | - |
+| #87 | 4 | `/writing-plans Story #87` | Planned | - | - |
+| #87 | 5 | `/test-driven-development Story #87` | Planned | - | - |
+| #87 | 6 | `/subagent-driven-development Story #87` | Planned | - | - |
+| #87 | 7 | `/ccaa-commit-push 87` after every task (repeat) | Planned | - | - |
+| #87 | 8 | `/verification-before-completion Story #87` | Planned | - | - |
+| #87 | 9 | `/requesting-code-review Story #87` | Planned | - | - |
+| #87 | 10 | `/ccaa-commit-push 87` | Planned | - | - |
+| #87 | 11 | `/finishing-a-development-branch Story #87` | Planned | - | - |
+| #87 | 12 | `/ccaa-story-complete 87` | Planned | - | - |
 
-### Phase 2 - Download API, the status and listing side
+### Phase 2 - Download API, the status side
 
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
@@ -226,7 +252,7 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #44 | 11 | `/finishing-a-development-branch Story #44` | Planned | - | - |
 | #44 | 12 | `/ccaa-story-complete 44` | Planned | - | - |
 | #43 | 1 | `/ccaa-story-start 43` | Planned | - | - |
-| #43 | 2 | `/brainstorming Story #43: Airflow status callback (usecase, status started/completed/failed, optional run_id and message); duplicate and out-of-order calls are harmless; updates the log and system_datasets; uses the #44 secret` | Planned | - | - |
+| #43 | 2 | `/brainstorming Story #43: status callback taking the execution id, status (started, completed, failed), optional engine run id and message; duplicate and out-of-order calls harmless (D30); updates the execution log and the MIO ingest log` | Planned | - | - |
 | #43 | 3 | `/using-git-worktrees Story #43: branch m02-0008-airflow-status-callback-endpoint` | Planned | - | - |
 | #43 | 4 | `/writing-plans Story #43` | Planned | - | - |
 | #43 | 5 | `/test-driven-development Story #43` | Planned | - | - |
@@ -238,8 +264,8 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #43 | 11 | `/finishing-a-development-branch Story #43` | Planned | - | - |
 | #43 | 12 | `/ccaa-story-complete 43` | Planned | - | - |
 | #45 | 1 | `/ccaa-story-start 45` | Planned | - | - |
-| #45 | 2 | `/brainstorming Story #45: read dataset status endpoint; one call returns all dataset rows` | Planned | - | - |
-| #45 | 3 | `/using-git-worktrees Story #45: branch m02-0010-read-dataset-status-endpoint` | Planned | - | - |
+| #45 | 2 | `/brainstorming Story #45: read MIO status endpoint; one call returns every MIO with the status of its latest ingest and executions` | Planned | - | - |
+| #45 | 3 | `/using-git-worktrees Story #45: branch m02-0010-read-mio-status-endpoint` | Planned | - | - |
 | #45 | 4 | `/writing-plans Story #45` | Planned | - | - |
 | #45 | 5 | `/test-driven-development Story #45` | Planned | - | - |
 | #45 | 6 | `/subagent-driven-development Story #45` | Planned | - | - |
@@ -249,30 +275,6 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #45 | 10 | `/ccaa-commit-push 45` | Planned | - | - |
 | #45 | 11 | `/finishing-a-development-branch Story #45` | Planned | - | - |
 | #45 | 12 | `/ccaa-story-complete 45` | Planned | - | - |
-| #83 | 1 | `/ccaa-story-start 83` | Planned | - | - |
-| #83 | 2 | `/brainstorming Story #83: workflow engine interface in services, one implementation per engine type, looked up through the factory (D45); unknown engine type returns INVALID_INPUT` | Planned | - | - |
-| #83 | 3 | `/using-git-worktrees Story #83: branch m02-0033-workflow-engine-interface-and-lookup` | Planned | - | - |
-| #83 | 4 | `/writing-plans Story #83` | Planned | - | - |
-| #83 | 5 | `/test-driven-development Story #83` | Planned | - | - |
-| #83 | 6 | `/subagent-driven-development Story #83` | Planned | - | - |
-| #83 | 7 | `/ccaa-commit-push 83` after every task (repeat) | Planned | - | - |
-| #83 | 8 | `/verification-before-completion Story #83` | Planned | - | - |
-| #83 | 9 | `/requesting-code-review Story #83` | Planned | - | - |
-| #83 | 10 | `/ccaa-commit-push 83` | Planned | - | - |
-| #83 | 11 | `/finishing-a-development-branch Story #83` | Planned | - | - |
-| #83 | 12 | `/ccaa-story-complete 83` | Planned | - | - |
-| #84 | 1 | `/ccaa-story-start 84` | Planned | - | - |
-| #84 | 2 | `/brainstorming Story #84: list workflows endpoint for the portal; no secret or config value in the response` | Planned | - | - |
-| #84 | 3 | `/using-git-worktrees Story #84: branch m02-0034-list-workflows-endpoint` | Planned | - | - |
-| #84 | 4 | `/writing-plans Story #84` | Planned | - | - |
-| #84 | 5 | `/test-driven-development Story #84` | Planned | - | - |
-| #84 | 6 | `/subagent-driven-development Story #84` | Planned | - | - |
-| #84 | 7 | `/ccaa-commit-push 84` after every task (repeat) | Planned | - | - |
-| #84 | 8 | `/verification-before-completion Story #84` | Planned | - | - |
-| #84 | 9 | `/requesting-code-review Story #84` | Planned | - | - |
-| #84 | 10 | `/ccaa-commit-push 84` | Planned | - | - |
-| #84 | 11 | `/finishing-a-development-branch Story #84` | Planned | - | - |
-| #84 | 12 | `/ccaa-story-complete 84` | Planned | - | - |
 
 ### Phase 3 - Airflow download DAG
 
@@ -308,7 +310,7 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #77 | 11 | `/finishing-a-development-branch Story #77` | Planned | - | - |
 | #77 | 12 | `/ccaa-story-complete 77` | Planned | - | - |
 | #57 | 1 | `/ccaa-story-start 57` | Planned | - | - |
-| #57 | 2 | `/brainstorming Story #57: download DAG for the All dataset; the DAG reads its own source from its config and the Airflow Variables of #77 (D42, D43); registered in app_workflows; file lands in the agreed place` | Planned | - | - |
+| #57 | 2 | `/brainstorming Story #57: download DAG for the All dataset; the DAG reads its workflow, the MIO and the dataset location from the tables (D51); registered in app_workflows; file lands in the agreed place` | Planned | - | - |
 | #57 | 3 | `/using-git-worktrees Story #57: branch m02-0018-download-dag-for-the-all-dataset` | Planned | - | - |
 | #57 | 4 | `/writing-plans Story #57` | Planned | - | - |
 | #57 | 5 | `/test-driven-development Story #57` | Planned | - | - |
@@ -319,18 +321,18 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #57 | 10 | `/ccaa-commit-push 57` | Planned | - | - |
 | #57 | 11 | `/finishing-a-development-branch Story #57` | Planned | - | - |
 | #57 | 12 | `/ccaa-story-complete 57` | Planned | - | - |
-| #58 | 1 | `/ccaa-story-start 58` | Planned | - | - |
-| #58 | 2 | `/brainstorming Story #58: derive the 3 months dataset by filtering the All file on Date received; the file is not date-sorted so read it all; check the row count against the site figure` | Planned | - | - |
-| #58 | 3 | `/using-git-worktrees Story #58: branch m02-0019-3-months-dataset-filter-the-all-file-by` | Planned | - | - |
-| #58 | 4 | `/writing-plans Story #58` | Planned | - | - |
-| #58 | 5 | `/test-driven-development Story #58` | Planned | - | - |
-| #58 | 6 | `/subagent-driven-development Story #58` | Planned | - | - |
-| #58 | 7 | `/ccaa-commit-push 58` after every task (repeat) | Planned | - | - |
-| #58 | 8 | `/verification-before-completion Story #58` | Planned | - | - |
-| #58 | 9 | `/requesting-code-review Story #58` | Planned | - | - |
-| #58 | 10 | `/ccaa-commit-push 58` | Planned | - | - |
-| #58 | 11 | `/finishing-a-development-branch Story #58` | Planned | - | - |
-| #58 | 12 | `/ccaa-story-complete 58` | Planned | - | - |
+| #60 | 1 | `/ccaa-story-start 60` | Planned | - | - |
+| #60 | 2 | `/brainstorming Story #60: start an Airflow DAG run asynchronously through Airflow's REST API, called from the start-workflow flow (#42); stores the engine run id on the execution row; later wrapped behind the engine interface (#83)` | Planned | - | - |
+| #60 | 3 | `/using-git-worktrees Story #60: branch m02-0021-airflow-engine-start-a-dag-run` | Planned | - | - |
+| #60 | 4 | `/writing-plans Story #60` | Planned | - | - |
+| #60 | 5 | `/test-driven-development Story #60` | Planned | - | - |
+| #60 | 6 | `/subagent-driven-development Story #60` | Planned | - | - |
+| #60 | 7 | `/ccaa-commit-push 60` after every task (repeat) | Planned | - | - |
+| #60 | 8 | `/verification-before-completion Story #60` | Planned | - | - |
+| #60 | 9 | `/requesting-code-review Story #60` | Planned | - | - |
+| #60 | 10 | `/ccaa-commit-push 60` | Planned | - | - |
+| #60 | 11 | `/finishing-a-development-branch Story #60` | Planned | - | - |
+| #60 | 12 | `/ccaa-story-complete 60` | Planned | - | - |
 | #59 | 1 | `/ccaa-story-start 59` | Planned | - | - |
 | #59 | 2 | `/brainstorming Story #59: report started, completed and failed to the API from the DAG; a final task always runs so a crashed run never stays running; callbacks reach the API from the container (host.docker.internal)` | Planned | - | - |
 | #59 | 3 | `/using-git-worktrees Story #59: branch m02-0020-report-started-completed-and-failed-to` | Planned | - | - |
@@ -343,26 +345,13 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #59 | 10 | `/ccaa-commit-push 59` | Planned | - | - |
 | #59 | 11 | `/finishing-a-development-branch Story #59` | Planned | - | - |
 | #59 | 12 | `/ccaa-story-complete 59` | Planned | - | - |
-| #60 | 1 | `/ccaa-story-start 60` | Planned | - | - |
-| #60 | 2 | `/brainstorming Story #60: the Airflow implementation of the workflow engine interface (#83); starts a DAG run through Airflow's REST API, stores the run id on the exec log row, registers itself in the factory (D45)` | Planned | - | - |
-| #60 | 3 | `/using-git-worktrees Story #60: branch m02-0021-airflow-engine-start-a-dag-run` | Planned | - | - |
-| #60 | 4 | `/writing-plans Story #60` | Planned | - | - |
-| #60 | 5 | `/test-driven-development Story #60` | Planned | - | - |
-| #60 | 6 | `/subagent-driven-development Story #60` | Planned | - | - |
-| #60 | 7 | `/ccaa-commit-push 60` after every task (repeat) | Planned | - | - |
-| #60 | 8 | `/verification-before-completion Story #60` | Planned | - | - |
-| #60 | 9 | `/requesting-code-review Story #60` | Planned | - | - |
-| #60 | 10 | `/ccaa-commit-push 60` | Planned | - | - |
-| #60 | 11 | `/finishing-a-development-branch Story #60` | Planned | - | - |
-| #60 | 12 | `/ccaa-story-complete 60` | Planned | - | - |
-| Feature #56 | 1 | `/ccaa-feature-complete 56` | Planned | - | - |
 
-### Phase 4 - Start a workflow (closes the Download API feature)
+### Phase 4 - Start a workflow
 
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
 | #42 | 1 | `/ccaa-story-start 42` | Planned | - | - |
-| #42 | 2 | `/brainstorming Story #42: start-workflow endpoint taking a registered workflow; writes the exec log row, starts it through the engine lookup (#83), returns accepted without waiting; unknown workflow returns 422` | Planned | - | - |
+| #42 | 2 | `/brainstorming Story #42: start-workflow endpoint taking a registered workflow (and optionally a MIO and a dataset location); creates the execution row, starts the run through #60, returns the execution id at once; unknown workflow returns 422` | Planned | - | - |
 | #42 | 3 | `/using-git-worktrees Story #42: branch m02-0007-start-workflow-endpoint-one-endpoint` | Planned | - | - |
 | #42 | 4 | `/writing-plans Story #42` | Planned | - | - |
 | #42 | 5 | `/test-driven-development Story #42` | Planned | - | - |
@@ -373,7 +362,6 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #42 | 10 | `/ccaa-commit-push 42` | Planned | - | - |
 | #42 | 11 | `/finishing-a-development-branch Story #42` | Planned | - | - |
 | #42 | 12 | `/ccaa-story-complete 42` | Planned | - | - |
-| Feature #41 | 1 | `/ccaa-feature-complete 41` | Planned | - | - |
 
 ### Phase 5 - Admin portal
 
@@ -404,8 +392,8 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #63 | 11 | `/finishing-a-development-branch Story #63` | Planned | - | - |
 | #63 | 12 | `/ccaa-story-complete 63` | Planned | - | - |
 | #64 | 1 | `/ccaa-story-start 64` | Planned | - | - |
-| #64 | 2 | `/brainstorming Story #64: two accordions, 3 months and All; each shows downloaded or not, when, and the failure reason from the #45 endpoint; status is never guessed in the UI` | Planned | - | - |
-| #64 | 3 | `/using-git-worktrees Story #64: branch m02-0025-two-accordions-3-months-and-all-with` | Planned | - | - |
+| #64 | 2 | `/brainstorming Story #64: one accordion per MIO with its status from the API (#45)` | Planned | - | - |
+| #64 | 3 | `/using-git-worktrees Story #64: branch m02-0025-mio-accordions-with-status-from-the-api` | Planned | - | - |
 | #64 | 4 | `/writing-plans Story #64` | Planned | - | - |
 | #64 | 5 | `/test-driven-development Story #64` | Planned | - | - |
 | #64 | 6 | `/subagent-driven-development Story #64` | Planned | - | - |
@@ -416,8 +404,8 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #64 | 11 | `/finishing-a-development-branch Story #64` | Planned | - | - |
 | #64 | 12 | `/ccaa-story-complete 64` | Planned | - | - |
 | #65 | 1 | `/ccaa-story-start 65` | Planned | - | - |
-| #65 | 2 | `/brainstorming Story #65: start download button calling the #42 endpoint, then show progress (poll or refresh: decide); button disabled while running` | Planned | - | - |
-| #65 | 3 | `/using-git-worktrees Story #65: branch m02-0026-start-download-button-and-status-refresh` | Planned | - | - |
+| #65 | 2 | `/brainstorming Story #65: start workflow button and status refresh; calls #42; poll or refresh is the open question` | Planned | - | - |
+| #65 | 3 | `/using-git-worktrees Story #65: branch m02-0026-start-workflow-button-and-status-refresh` | Planned | - | - |
 | #65 | 4 | `/writing-plans Story #65` | Planned | - | - |
 | #65 | 5 | `/test-driven-development Story #65` | Planned | - | - |
 | #65 | 6 | `/subagent-driven-development Story #65` | Planned | - | - |
@@ -428,6 +416,74 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #65 | 11 | `/finishing-a-development-branch Story #65` | Planned | - | - |
 | #65 | 12 | `/ccaa-story-complete 65` | Planned | - | - |
 | Feature #61 | 1 | `/ccaa-feature-complete 61` | Planned | - | - |
+
+### Phase 6 - After the MVP
+
+| Issue | Step | Command | Status | Started | Completed |
+|---|---|---|---|---|---|
+| #80 | 1 | `/ccaa-story-start 80` | Planned | - | - |
+| #80 | 2 | `/brainstorming Story #80: a shared registry and init() on the object factories, called from main (D45); one implementation returns the instance, several return a list in a fixed order` | Planned | - | - |
+| #80 | 3 | `/using-git-worktrees Story #80: branch m02-0030-object-factory-init-and-bean-registry` | Planned | - | - |
+| #80 | 4 | `/writing-plans Story #80` | Planned | - | - |
+| #80 | 5 | `/test-driven-development Story #80` | Planned | - | - |
+| #80 | 6 | `/subagent-driven-development Story #80` | Planned | - | - |
+| #80 | 7 | `/ccaa-commit-push 80` after every task (repeat) | Planned | - | - |
+| #80 | 8 | `/verification-before-completion Story #80` | Planned | - | - |
+| #80 | 9 | `/requesting-code-review Story #80` | Planned | - | - |
+| #80 | 10 | `/ccaa-commit-push 80` | Planned | - | - |
+| #80 | 11 | `/finishing-a-development-branch Story #80` | Planned | - | - |
+| #80 | 12 | `/ccaa-story-complete 80` | Planned | - | - |
+| #83 | 1 | `/ccaa-story-start 83` | Planned | - | - |
+| #83 | 2 | `/brainstorming Story #83: workflow engine interface in services, one implementation per engine type, looked up through the factory (D45); unknown engine type returns INVALID_INPUT` | Planned | - | - |
+| #83 | 3 | `/using-git-worktrees Story #83: branch m02-0033-workflow-engine-interface-and-lookup` | Planned | - | - |
+| #83 | 4 | `/writing-plans Story #83` | Planned | - | - |
+| #83 | 5 | `/test-driven-development Story #83` | Planned | - | - |
+| #83 | 6 | `/subagent-driven-development Story #83` | Planned | - | - |
+| #83 | 7 | `/ccaa-commit-push 83` after every task (repeat) | Planned | - | - |
+| #83 | 8 | `/verification-before-completion Story #83` | Planned | - | - |
+| #83 | 9 | `/requesting-code-review Story #83` | Planned | - | - |
+| #83 | 10 | `/ccaa-commit-push 83` | Planned | - | - |
+| #83 | 11 | `/finishing-a-development-branch Story #83` | Planned | - | - |
+| #83 | 12 | `/ccaa-story-complete 83` | Planned | - | - |
+| #84 | 1 | `/ccaa-story-start 84` | Planned | - | - |
+| #84 | 2 | `/brainstorming Story #84: list workflows endpoint for the portal; no secret or config value in the response` | Planned | - | - |
+| #84 | 3 | `/using-git-worktrees Story #84: branch m02-0034-list-workflows-endpoint` | Planned | - | - |
+| #84 | 4 | `/writing-plans Story #84` | Planned | - | - |
+| #84 | 5 | `/test-driven-development Story #84` | Planned | - | - |
+| #84 | 6 | `/subagent-driven-development Story #84` | Planned | - | - |
+| #84 | 7 | `/ccaa-commit-push 84` after every task (repeat) | Planned | - | - |
+| #84 | 8 | `/verification-before-completion Story #84` | Planned | - | - |
+| #84 | 9 | `/requesting-code-review Story #84` | Planned | - | - |
+| #84 | 10 | `/ccaa-commit-push 84` | Planned | - | - |
+| #84 | 11 | `/finishing-a-development-branch Story #84` | Planned | - | - |
+| #84 | 12 | `/ccaa-story-complete 84` | Planned | - | - |
+| #58 | 1 | `/ccaa-story-start 58` | Planned | - | - |
+| #58 | 2 | `/brainstorming Story #58: derive the 3 months dataset by filtering the All file on Date received; the file is not date-sorted so read it all; check the row count against the site figure` | Planned | - | - |
+| #58 | 3 | `/using-git-worktrees Story #58: branch m02-0019-3-months-dataset-filter-the-all-file-by` | Planned | - | - |
+| #58 | 4 | `/writing-plans Story #58` | Planned | - | - |
+| #58 | 5 | `/test-driven-development Story #58` | Planned | - | - |
+| #58 | 6 | `/subagent-driven-development Story #58` | Planned | - | - |
+| #58 | 7 | `/ccaa-commit-push 58` after every task (repeat) | Planned | - | - |
+| #58 | 8 | `/verification-before-completion Story #58` | Planned | - | - |
+| #58 | 9 | `/requesting-code-review Story #58` | Planned | - | - |
+| #58 | 10 | `/ccaa-commit-push 58` | Planned | - | - |
+| #58 | 11 | `/finishing-a-development-branch Story #58` | Planned | - | - |
+| #58 | 12 | `/ccaa-story-complete 58` | Planned | - | - |
+| #88 | 1 | `/ccaa-story-start 88` | Planned | - | - |
+| #88 | 2 | `/brainstorming Story #88: remove system_datasets and data_ingest_log (D47): DAOs, DatasetStatusService, /data-ingest-logs endpoints, DTOs, tests, and a migration that drops the tables` | Planned | - | - |
+| #88 | 3 | `/using-git-worktrees Story #88: branch m02-0038-remove-system-datasets-and-data-ingest` | Planned | - | - |
+| #88 | 4 | `/writing-plans Story #88` | Planned | - | - |
+| #88 | 5 | `/test-driven-development Story #88` | Planned | - | - |
+| #88 | 6 | `/subagent-driven-development Story #88` | Planned | - | - |
+| #88 | 7 | `/ccaa-commit-push 88` after every task (repeat) | Planned | - | - |
+| #88 | 8 | `/verification-before-completion Story #88` | Planned | - | - |
+| #88 | 9 | `/requesting-code-review Story #88` | Planned | - | - |
+| #88 | 10 | `/ccaa-commit-push 88` | Planned | - | - |
+| #88 | 11 | `/finishing-a-development-branch Story #88` | Planned | - | - |
+| #88 | 12 | `/ccaa-story-complete 88` | Planned | - | - |
+| Feature #78 | 1 | `/ccaa-feature-complete 78` | In progress | 2026-11-14 | - |
+| Feature #41 | 1 | `/ccaa-feature-complete 41` | Planned | - | - |
+| Feature #56 | 1 | `/ccaa-feature-complete 56` | Planned | - | - |
 | Epic #29 | 1 | `/ccaa-epic-complete 29` | In progress | 2026-11-14 | - |
 
 ## 4. Project skills (`ccaa-` = Consumer Complaints Agentic App)
@@ -448,9 +504,10 @@ The skills live in `.cursor/skills/`. Each takes a GitHub issue number.
 
 - **One branch and worktree per story.** `/using-git-worktrees` creates the story branch in `.worktrees/` (git-ignored) and `/ccaa-commit-push` pushes that branch. `/finishing-a-development-branch` then merges it into `main` (option 1) or opens a pull request (option 2). Run `/ccaa-story-complete` from the main checkout once the branch is merged into `main` and pushed. `/ccaa-story-start`, the feature and epic commands, and decision-only stories such as #55 work on `main`.
 - **Superseded by D43 and closed as not planned:** feature #46 (Configurable source location) and stories #47 (interface and factory), #48 (local path), #49 (plain HTTP(S) URL) and #50 (GitHub). Downloads are now workflows registered in `app_workflows`; each workflow knows its own source and the API has no source-location types. Their rows were removed from sections 1 to 3. Story #47's brainstorming had started and produced the design that became D43 to D45.
-- **Added with D43 to D45:** feature #78 (Workflow registry) with stories #79 to #82, stories #83 (engine interface) and #84 (list workflows) under #41, and story #85 (move the DAGs to `Middleware/Airflow-dags`) under #56. Stories #42 and #60 were retitled (start-workflow endpoint, Airflow engine). Stories that add classes carry the acceptance line "registered as singletons in the package's `objects_factory` (D45)".
-- **Run #79 first.** It settles the admin schema name, how a usecase maps to a workflow, and what happens to `data_ingest_log` and `system_datasets`. The stories after it, and the portal stories of Phase 5 (accordions per dataset), may change with the answers.
+- **Added with D43 to D45:** feature #78 (Workflow registry) with stories #79 to #82, stories #83 (engine interface) and #84 (list workflows) under #41, and story #85 (move the DAGs to `Middleware/Airflow-dags`) under #56. Stories #42 and #60 were retitled (start-workflow endpoint, Airflow engine).
+- **Added with #79 (D46 to D53):** stories #86 (catalog tables and seed MIOs), #87 (`mios_ingest_log`) and #88 (remove `system_datasets` and `data_ingest_log`). Stories #45, #64 and #65 were reworded from datasets and accordions per dataset to MIOs. Nothing in this milestone uses the word usecase any more (D46). The RAG layer (`mios_rags`, RAG workflows) is a later milestone and has no stories yet (D53).
+- **MVP first (D54).** Phases 1 to 5 are the smallest flow that runs end to end. Phase 6 waits until it works: #80 (factory `init()`), #83 (engine interface), #84 (list workflows), #58 (3-month filter) and #88 (drop the retired tables). Refactoring afterwards is accepted. Features #78, #41 and #56 finish after Phase 6.
 - **Open questions on the issues:** #65 (poll or refresh). The #55 question is decided in D42 (revised by D43): credentials in `.env`, copied into Airflow Variables by story #77.
 - **Story #77 was added** while deciding #55 (D42). It is under feature #56 and is built first in Phase 3, because the DAG reads the Variables it creates.
 - **Moved to M03 - Cloud Deployment:** #51 S3, #52 Azure Blob, #53 GCP Cloud Storage, #54 Google Drive, and the cloud migration workflow #24. They are not part of this milestone. #51 to #54 were written as source types, so under D43 they need rewriting as cloud workflows before M03 starts (they are still open).
-- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D54.
+- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D55.
