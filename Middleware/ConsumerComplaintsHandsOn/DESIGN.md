@@ -172,6 +172,7 @@ Built in story #82 (migration `0004`): `AppWfExecLogDao` (create, get, list, upd
 - **Decided (D57):** the location type codes are `local`, `http`, `github`, `s3`, `azure_blob`, `gcs`, `google_drive` and `ftp`; the DAGs interpret them, the API does not (D43). A `local` location holds a `path` or a `local_env_var_name`, never both (D57).
 - **Open:** where a time window such as "3 months" is stored for a MIO. It is not modeled in story #86, and no code may read it from a MIO's name (D57).
 - **Open:** which of a MIO's dataset locations a download uses as its source and which one is where the file lands (for example the `http` row and the `local` row of the same dataset); the download DAG's story decides, and it must use a location row, not a hardcoded path.
+- **Built (story #86, M02-0036):** the four tables (migration `0005`), the seed (migration `0006`) and one DAO each: `DatasetDao`, `DatasetLocationDao`, `MioDao` and `MioDatasetDao`. No endpoint reads them yet.
 - **Open:** how a workflow is attached to a MIO (reusable across MIOs, or specific to one), for example a link table or a value in the workflow's config.
 - Seeding: the predefined MIOs and their datasets and locations are inserted by migration or script for now; managing them from the portal is later.
 
