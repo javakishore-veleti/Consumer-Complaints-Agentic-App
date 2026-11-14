@@ -1,0 +1,23 @@
+# Local Postgres + pgvector. Replaces the Supabase database used in the video.
+# Start:  docker compose up -d        Stop:  docker compose down
+# Port 54329 (not 5432) so it never clashes with a Postgres you already run.
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: ccrag-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: cfpb
+    ports:
+      - "54329:5432"
+    volumes:
+      - ccrag-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d cfpb"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  ccrag-pgdata:
