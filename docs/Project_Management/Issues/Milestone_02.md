@@ -2,7 +2,7 @@
 
 **Scope (decision D38 in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`):** download the free CFPB dataset on demand from the admin portal, asynchronously through Airflow, through registered workflows (D43), and always show whether it has been downloaded. Everything runs locally. Cloud work is M03.
 
-**Status: in progress.** 1 epic, 5 features and 27 stories. 4 stories (and 1 feature) are already done, 23 stories are left to build.
+**Status: in progress.** 1 epic, 5 features and 27 stories. 7 stories (and 1 feature) are already done, 20 stories are left to build.
 
 How to read this file:
 - `#42` is the GitHub issue number in this repository. The `M02-00NN` key is the sequence tag at the start of the issue title. Keys are not in build order.
@@ -210,8 +210,8 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #82 | 10 | `/ccaa-commit-push 82` | Done | 2026-11-14 17:22 | 2026-11-14 17:23 |
 | #82 | 11 | `/finishing-a-development-branch Story #82` | Done | 2026-11-14 17:23 | 2026-11-14 17:26 |
 | #82 | 12 | `/ccaa-story-complete 82` | Done | 2026-11-14 17:26 | 2026-11-14 17:27 |
-| #86 | 1 | `/ccaa-story-start 86` | Planned | - | - |
-| #86 | 2 | `/brainstorming Story #86: catalog tables datasets, datasets_location, mios and mios_datasets in consumer_comp_admin_db with one DAO each, plus the seeded MIOs (customer complaints 3, 6, 9, 12 months and 2026)` | Planned | - | - |
+| #86 | 1 | `/ccaa-story-start 86` | Done | 2026-11-14 17:30 | 2026-11-14 17:30 |
+| #86 | 2 | `/brainstorming Story #86: catalog tables datasets, datasets_location, mios and mios_datasets in consumer_comp_admin_db with one DAO each, plus the seeded MIOs (customer complaints 3, 6, 9, 12 months and 2026)` | In progress | 2026-11-14 17:30 | - |
 | #86 | 3 | `/using-git-worktrees Story #86: branch m02-0036-catalog-tables-datasets-datasets` | Planned | - | - |
 | #86 | 4 | `/writing-plans Story #86` | Planned | - | - |
 | #86 | 5 | `/test-driven-development Story #86` | Planned | - | - |
