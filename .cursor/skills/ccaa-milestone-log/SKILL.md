@@ -17,7 +17,7 @@ File: `docs/Project_Management/Issues/Milestone_02.md`, section 3. Every command
    - Set that row to `Done` with Completed today. If its Started is `-`, set it to today as well.
    - Set the next row of `N`, if any, to `In progress` with Started today.
 5. Change only the Status, Started and Completed cells. Leave Command and Step exactly as they are.
-6. Refresh the `**Status:**` count at the top: "stories are left to build" is the number of stories (the issues whose last row is a `/ccaa-story-complete`) whose last row is not `Done`.
+6. Refresh the `**Status:**` counts at the top. A story is an issue whose last row is a `/ccaa-story-complete`. "stories are left to build" is the number of those whose last row is not `Done`. "stories ... are already done" is 3 (the Phase 0 stories) plus the number whose last row is `Done`.
 7. Do not commit. The change goes out with the next `ccaa-commit-push`, which includes this file when it is modified.
 
 Steps that repeat: the pair "subagent-driven-development" and "`/ccaa-commit-push` after every task" is logged once, after the commit of the final task.
