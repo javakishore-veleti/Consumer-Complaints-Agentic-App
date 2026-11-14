@@ -233,3 +233,6 @@ complaints*.csv.zip
 
 # Local operational SQLite files (the three schema databases)
 Middleware/ConsumerComplaintsHandsOn/.data/
+
+# Scratch space for local tooling and test temp dirs (create anything under runtime_data/tmp)
+runtime_data/

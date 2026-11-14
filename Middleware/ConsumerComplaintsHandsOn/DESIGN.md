@@ -47,6 +47,8 @@ Every item is marked:
 | D32 | **One OpenAPI file**, `Middleware/ConsumerComplaintsHandsOn/openapi.json`, generated from the code (`npm run local:api:openapi`). A test fails when the committed file is out of date. |
 | D33 | **Postgres is verified** by `tests/test_postgres.py` (migrations up, down, up, and the DAO) when `CCA_TEST_POSTGRES_URL` is set; CI runs it against a Postgres service. Migrations use Alembic batch mode on SQLite. |
 | D34 | **Cloud migrations** run from the manually triggered workflow `migrate-database.yml`: target environment (aws, azure, gcp) selects a GitHub environment holding the secret `CCA_DB_URL`; dry run (prints the SQL) is the default. A private database is reached through a **self-hosted runner inside its network** (repository variable `MIGRATION_RUNNER`); a tunnel or an allow-list are the alternatives. |
+| D35 | **Nothing machine- or person-specific is committed.** Paths come from `pathlib` (`Path(__file__).resolve()`) or `dirname "$0"`, never typed in; owner and repository names are never hardcoded (tools read them from the git remote). `tests/test_portability.py` fails on a home-directory path or a GitHub owner URL. | So any teammate can clone the repo to any folder on any OS and everything runs. |
+| D36 | **Scratch space is `runtime_data/tmp/` at the repository root (git-ignored), not `/tmp`.** Pytest temp folders (`runtime_data/tmp/pytest`) and local helper scripts and state (`runtime_data/tmp/...`) live there. The operational SQLite files stay in `Middleware/ConsumerComplaintsHandsOn/.data/` (also ignored). | Everything a run produces stays inside the repository folder, can be deleted in one go, and never leaks into shared system folders. |
 
 ## 2. Conventions in detail
 
