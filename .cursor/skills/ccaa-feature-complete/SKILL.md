@@ -12,4 +12,5 @@ Input: feature issue number `N`. Repo: `javakishore-veleti/Consumer-Complaints-A
 2. Read the checklist. If any story is not closed, stop and list the open ones with their numbers. Do not change the feature.
 3. Body: replace or append the `**Status:**` line with `**Status:** Done — All T stories are done: #a, #b, #c.` (T is the story count).
 4. `gh issue edit N --remove-label "status: planned" --remove-label "status: in-progress" --add-label "status: done" --body-file runtime_data/tmp/issue-N.md`, then `gh issue close N --reason completed`.
-5. Read `**Epic:** #E` and run `ccaa-progress-sync` on `E`. If every feature of `E` is done, end with: "All features of #E are done. Run `/ccaa-epic-complete E`."
+5. Run `ccaa-milestone-log N completed`.
+6. Read `**Epic:** #E` and run `ccaa-progress-sync` on `E`. If every feature of `E` is done, end with: "All features of #E are done. Run `/ccaa-epic-complete E`."

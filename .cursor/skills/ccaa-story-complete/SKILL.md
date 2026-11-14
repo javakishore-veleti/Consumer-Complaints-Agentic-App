@@ -14,5 +14,6 @@ Input: story issue number `N`. Repo: `javakishore-veleti/Consumer-Complaints-Age
 4. Commits for this story: `git log --format=%h --grep="#N:"`.
 5. Body: change every `- [ ]` to `- [x]`. Replace the `**Status:**` line with `**Status:** Done — <one sentence on what was built> (commits `a1b2c3d`, `e4f5a6b`; D## if a decision was recorded).`
 6. `gh issue edit N --remove-label "status: planned" --remove-label "status: in-progress" --add-label "status: done" --body-file runtime_data/tmp/issue-N.md`, then `gh issue close N --reason completed`. Ignore "label not found" on a label the issue never had.
-7. Read `**Feature:** #F` and run `ccaa-progress-sync` on `F`. If every story of `F` is now done, end with: "All stories of #F are done. Run `/ccaa-feature-complete F`." Otherwise name the next story from `Docs/Project_Management/Issues/Milestone_02.md`.
-8. Do not close the feature or the epic here.
+7. Run `ccaa-milestone-log N completed`.
+8. Read `**Feature:** #F` and run `ccaa-progress-sync` on `F`. If every story of `F` is now done, end with: "All stories of #F are done. Run `/ccaa-feature-complete F`." Otherwise name the next story from `Docs/Project_Management/Issues/Milestone_02.md`.
+9. Do not close the feature or the epic here.

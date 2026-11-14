@@ -15,4 +15,5 @@ Scratch files go in `runtime_data/tmp/` (git-ignored), never `/tmp`.
 3. Body: replace the `**Status:**` line with `**Status:** In progress — started YYYY-MM-DD.` (use `date +%F`). Change nothing else. Save to `runtime_data/tmp/issue-N.md`, then `gh issue edit N --body-file runtime_data/tmp/issue-N.md`.
 4. Read `**Epic:** #E · **Feature:** #F` from the body. For each of `F` and `E` that still has `status: planned`, swap it for `status: in-progress`.
 5. Run `ccaa-progress-sync` on `F`, then on `E`.
-6. Reply in two lines: the story title and "started", then the next command: `/brainstorming Story #N ...` from `Docs/Project_Management/Issues/Milestone_02.md`.
+6. Run `ccaa-milestone-log N started`. Also run it for `F` (and for `E`) if step 4 just moved it from planned to in-progress.
+7. Reply in two lines: the story title and "started", then the next command: `/brainstorming Story #N ...` from `Docs/Project_Management/Issues/Milestone_02.md`.
