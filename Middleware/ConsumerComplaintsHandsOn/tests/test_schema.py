@@ -90,6 +90,7 @@ def test_app_workflows_exec_log_table_is_in_the_admin_schema_with_the_expected_c
         "requested_at",
         "started_at",
         "finished_at",
+        "mios_ingest_log_id",
     }
     assert columns["id"] == ("VARCHAR(36)", 1)
     assert columns["workflow_id"] == ("VARCHAR(36)", 1)
@@ -264,3 +265,56 @@ def test_migration_0006_removes_exactly_the_seed_on_the_way_down_and_restores_it
     with _admin_db(data_dir) as db:
         assert sorted(r[0] for r in db.execute("select name from datasets")) == ["cfpb_consumer_complaints", "t_mine"]
         assert db.execute("select count(*) from mios").fetchone()[0] == 4
+
+
+def test_mios_ingest_log_table_is_in_the_admin_schema_with_the_expected_columns(data_dir):
+    with _admin_db(data_dir) as db:
+        columns = _columns(db, "mios_ingest_log")
+        indexes = {r[1] for r in db.execute("pragma index_list(mios_ingest_log)")}
+        foreign_keys = db.execute("pragma foreign_key_list(mios_ingest_log)").fetchall()
+    assert columns == {
+        "id": ("VARCHAR(36)", 1),
+        "mio_id": ("VARCHAR(36)", 1),
+        "status": ("VARCHAR(32)", 1),
+        "message": ("TEXT", 0),
+        "requested_at": ("DATETIME", 1),
+        "started_at": ("DATETIME", 0),
+        "finished_at": ("DATETIME", 0),
+        "rows_loaded": ("BIGINT", 0),
+        "batch_count": ("INTEGER", 0),
+        "increment_marker": ("VARCHAR(255)", 0),
+    }
+    assert "ix_mios_ingest_log_mio_status" in indexes
+    assert foreign_keys == []
+
+
+def test_exec_log_has_the_optional_ingest_reference_without_a_foreign_key(data_dir):
+    with _admin_db(data_dir) as db:
+        columns = _columns(db, "app_workflows_exec_log")
+        indexes = {r[1] for r in db.execute("pragma index_list(app_workflows_exec_log)")}
+        foreign_keys = db.execute("pragma foreign_key_list(app_workflows_exec_log)").fetchall()
+    assert columns["mios_ingest_log_id"] == ("VARCHAR(36)", 0)
+    assert {"ix_app_wf_exec_log_mios_ingest_log_id", "ix_app_wf_exec_log_workflow_status"} <= indexes
+    assert foreign_keys == []
+
+
+def test_migration_0007_runs_down_and_up_and_keeps_the_exec_log_rows(data_dir):
+    config = Config(str(PROJECT_ROOT / "alembic.ini"))
+    with _admin_db(data_dir) as db:
+        db.execute(
+            "insert into app_workflows_exec_log (id, workflow_id, workflow_name, engine_type, engine_workflow_id,"
+            " status, requested_at, mios_ingest_log_id) values ('e1', 'w', 'n', 'apache_airflow', 'd', 'requested',"
+            " '2026-01-01', 'some-ingest')"
+        )
+    command.downgrade(config, "0006")
+    with _admin_db(data_dir) as db:
+        assert db.execute("select name from sqlite_master where name = 'mios_ingest_log'").fetchall() == []
+        assert "mios_ingest_log_id" not in _columns(db, "app_workflows_exec_log")
+        indexes = {r[1] for r in db.execute("pragma index_list(app_workflows_exec_log)")}
+        assert "ix_app_wf_exec_log_mios_ingest_log_id" not in indexes
+        assert "ix_app_wf_exec_log_workflow_status" in indexes  # the rebuilt table keeps its other index
+        assert db.execute("select id, workflow_name from app_workflows_exec_log").fetchall() == [("e1", "n")]
+    command.upgrade(config, "head")
+    with _admin_db(data_dir) as db:
+        assert db.execute("select name from sqlite_master where name = 'mios_ingest_log'").fetchall() != []
+        assert db.execute("select id, mios_ingest_log_id from app_workflows_exec_log").fetchall() == [("e1", None)]

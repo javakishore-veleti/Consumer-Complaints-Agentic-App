@@ -2,7 +2,19 @@
 
 from datetime import datetime
 
-from sqlalchemy import JSON, Boolean, CheckConstraint, DateTime, Index, String, Text, UniqueConstraint, true
+from sqlalchemy import (
+    JSON,
+    BigInteger,
+    Boolean,
+    CheckConstraint,
+    DateTime,
+    Index,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+    true,
+)
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from app.core.common.config import SCHEMA_ADMIN, SCHEMA_COMPLAINTS
@@ -62,6 +74,7 @@ class AppWfExecLogModel(Base):
     __tablename__ = "app_workflows_exec_log"
     __table_args__ = (
         Index("ix_app_wf_exec_log_workflow_status", "workflow_id", "status"),
+        Index("ix_app_wf_exec_log_mios_ingest_log_id", "mios_ingest_log_id"),
         {"schema": SCHEMA_ADMIN},
     )
 
@@ -79,6 +92,8 @@ class AppWfExecLogModel(Base):
     requested_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # The MIO ingest this execution belongs to, or NULL (a workflow without a MIO). No foreign key (D58).
+    mios_ingest_log_id: Mapped[str | None] = mapped_column(String(36))
 
 
 class DatasetModel(Base):
@@ -155,3 +170,25 @@ class MioDatasetModel(Base):
     # The chosen location of that dataset for that MIO. Many MIOs may choose the same one.
     dataset_location_id: Mapped[str] = mapped_column(String(36), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class MioIngestLogModel(Base):
+    __tablename__ = "mios_ingest_log"
+    __table_args__ = (
+        Index("ix_mios_ingest_log_mio_status", "mio_id", "status"),
+        {"schema": SCHEMA_ADMIN},
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    # No foreign key (D57, D58): the DAO checks the MIO on create.
+    mio_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    message: Mapped[str | None] = mapped_column(Text)
+    requested_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # Volume (D58): notes that may be set on any row, also a final one.
+    rows_loaded: Mapped[int | None] = mapped_column(BigInteger)
+    batch_count: Mapped[int | None] = mapped_column(Integer)
+    # An opaque marker of how far an incremental ingest got. No code reads inside it.
+    increment_marker: Mapped[str | None] = mapped_column(String(255))
