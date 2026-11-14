@@ -49,7 +49,7 @@ The MVP is Phases 1 to 5: the smallest flow that runs end to end (start a workfl
 | # | Issue | Key | Type | Title | Why here |
 |---|---|---|---|---|---|
 | 6 | #78 | M02-0028 | Feature | Workflow registry | Parent of the stories below (it finishes after the MVP, with #80 and #88) |
-| 7 | #79 | M02-0029 | Story | Decide how usecases map to workflows, the admin schema name and the fate of the old log tables | Decision first: the model the rest builds on (D46 to D53) |
+| 7 | #79 | M02-0029 | Story | Decide the admin schema name, the workflow and MIO model and the fate of the old log tables | Decision first: the model the rest builds on (D46 to D53) |
 | 8 | #81 | M02-0031 | Story | Admin schema and app_workflows table with its DAO | The registry: workflows and the admin schema |
 | 9 | #82 | M02-0032 | Story | app_workflows_exec_log table with its DAO | Every run is logged here |
 | 10 | #86 | M02-0036 | Story | Catalog tables: datasets, datasets_location, mios and mios_datasets, with the seed MIOs | The MIOs, datasets and locations the DAG reads |
@@ -113,7 +113,7 @@ Epic #29  M02-0001  Downloads Management
 |     +-- #40  Record outcome in one transaction                       [done]
 |
 +-- Feature #78  M02-0028  Workflow registry
-|     +-- #79  Decide how usecases map to workflows, the admin schema name and the fate of the old log tables
+|     +-- #79  Decide the admin schema name, the workflow and MIO model and the fate of the old log tables
 |     +-- #81  Admin schema and app_workflows table with its DAO
 |     +-- #82  app_workflows_exec_log table with its DAO
 |     +-- #86  Catalog tables: datasets, datasets_location, mios and mios_datasets, with the seed MIOs
@@ -184,8 +184,8 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #79 (decision only, no code) | 1 | `/ccaa-story-start 79` | Done | 2026-11-14 | 2026-11-14 |
 | #79 | 2 | `/brainstorming Story #79: decide the admin schema name, how a usecase maps to a workflow, the fate of data_ingest_log and system_datasets, how a workflow reads its config, the other columns and engine types, and the first engines. Record each as a decision in Middleware/ConsumerComplaintsHandsOn/DESIGN.md` | Done | 2026-11-14 | 2026-11-14 |
 | #79 | 3 | `/verification-before-completion Story #79` | Done | 2026-11-14 | 2026-11-14 |
-| #79 | 4 | `/ccaa-commit-push 79` | In progress | 2026-11-14 | - |
-| #79 | 5 | `/ccaa-story-complete 79` | Planned | - | - |
+| #79 | 4 | `/ccaa-commit-push 79` | Done | 2026-11-14 | 2026-11-14 |
+| #79 | 5 | `/ccaa-story-complete 79` | Done | 2026-11-14 | 2026-11-14 |
 | #81 | 1 | `/ccaa-story-start 81` | Planned | - | - |
 | #81 | 2 | `/brainstorming Story #81: consumer_comp_admin_db schema (D48) and app_workflows table (name up to 100 characters, engine type, engine workflow id, JSON config) with its DAO` | Planned | - | - |
 | #81 | 3 | `/using-git-worktrees Story #81: branch m02-0031-admin-schema-and-app-workflows-table` | Planned | - | - |
