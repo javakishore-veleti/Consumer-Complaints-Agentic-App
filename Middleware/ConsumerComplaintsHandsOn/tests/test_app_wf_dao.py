@@ -1,6 +1,7 @@
 import sqlite3
 
 from app.core.common.dtos.app_wf_dtos import AppWfCtx, AppWfReq
+from app.core.common.dtos.transaction_dtos import TransactionCtx
 from app.core.common.return_codes import CONFLICT, INVALID_INPUT, NOT_FOUND, SUCCESS
 from app.core.dao.objects_factory import DaoObjectsFactory
 
@@ -167,3 +168,27 @@ def test_delete_returns_the_row_and_removes_it(data_dir):
     assert dao.delete(_ctx(id=created.id)) == NOT_FOUND
     assert dao.delete(_ctx()) == INVALID_INPUT
     _create(dao)  # the name is free again
+
+
+def _in_transaction(tx: TransactionCtx, **fields) -> AppWfCtx:
+    return AppWfCtx(transaction=tx, req=AppWfReq(**fields))
+
+
+def test_a_shared_transaction_can_be_rolled_back_or_committed(data_dir):
+    dao = DaoObjectsFactory.get_app_wf_dao()
+    transactions = DaoObjectsFactory.get_transaction_dao()
+    new = dict(engine_type="apache_airflow", engine_workflow_id="d")
+
+    rolled_back = TransactionCtx()
+    assert transactions.begin(rolled_back) == SUCCESS
+    assert dao.create(_in_transaction(rolled_back, workflow_name="gone", **new)) == SUCCESS
+    assert dao.get(_in_transaction(rolled_back, workflow_name="gone")) == SUCCESS  # visible inside the transaction
+    assert transactions.rollback(rolled_back) == SUCCESS
+    assert dao.get(_ctx(workflow_name="gone")) == NOT_FOUND
+
+    committed = TransactionCtx()
+    assert transactions.begin(committed) == SUCCESS
+    assert dao.create(_in_transaction(committed, workflow_name="kept", **new)) == SUCCESS
+    assert dao.get(_ctx(workflow_name="kept")) == NOT_FOUND  # not visible outside before the commit
+    assert transactions.commit(committed) == SUCCESS
+    assert dao.get(_ctx(workflow_name="kept")) == SUCCESS
