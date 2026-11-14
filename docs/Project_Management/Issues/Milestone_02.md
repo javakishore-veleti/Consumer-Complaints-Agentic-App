@@ -187,8 +187,8 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #79 | 4 | `/ccaa-commit-push 79` | Done | 2026-11-14 | 2026-11-14 |
 | #79 | 5 | `/ccaa-story-complete 79` | Done | 2026-11-14 | 2026-11-14 |
 | #81 | 1 | `/ccaa-story-start 81` | Done | 2026-11-14 | 2026-11-14 |
-| #81 | 2 | `/brainstorming Story #81: consumer_comp_admin_db schema (D48) and app_workflows table (name up to 100 characters, engine type, engine workflow id, JSON config) with its DAO` | In progress | 2026-11-14 | - |
-| #81 | 3 | `/using-git-worktrees Story #81: branch m02-0031-admin-schema-and-app-workflows-table` | Planned | - | - |
+| #81 | 2 | `/brainstorming Story #81: consumer_comp_admin_db schema (D48) and app_workflows table (name up to 100 characters, engine type, engine workflow id, JSON config) with its DAO` | Done | 2026-11-14 | 2026-11-14 16:34 |
+| #81 | 3 | `/using-git-worktrees Story #81: branch m02-0031-admin-schema-and-app-workflows-table` | In progress | 2026-11-14 16:34 | - |
 | #81 | 4 | `/writing-plans Story #81` | Planned | - | - |
 | #81 | 5 | `/test-driven-development Story #81` | Planned | - | - |
 | #81 | 6 | `/subagent-driven-development Story #81` | Planned | - | - |
@@ -510,4 +510,4 @@ The skills live in `.cursor/skills/`. Each takes a GitHub issue number.
 - **Open questions on the issues:** #65 (poll or refresh). The #55 question is decided in D42 (revised by D43): credentials in `.env`, copied into Airflow Variables by story #77.
 - **Story #77 was added** while deciding #55 (D42). It is under feature #56 and is built first in Phase 3, because the DAG reads the Variables it creates.
 - **Moved to M03 - Cloud Deployment:** #51 S3, #52 Azure Blob, #53 GCP Cloud Storage, #54 Google Drive, and the cloud migration workflow #24. They are not part of this milestone. #51 to #54 were written as source types, so under D43 they need rewriting as cloud workflows before M03 starts (they are still open).
-- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D55.
+- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D56.
