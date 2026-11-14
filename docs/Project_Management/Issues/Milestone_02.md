@@ -211,8 +211,8 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #82 | 11 | `/finishing-a-development-branch Story #82` | Done | 2026-11-14 17:23 | 2026-11-14 17:26 |
 | #82 | 12 | `/ccaa-story-complete 82` | Done | 2026-11-14 17:26 | 2026-11-14 17:27 |
 | #86 | 1 | `/ccaa-story-start 86` | Done | 2026-11-14 17:30 | 2026-11-14 17:30 |
-| #86 | 2 | `/brainstorming Story #86: catalog tables datasets, datasets_location, mios and mios_datasets in consumer_comp_admin_db with one DAO each, plus the seeded MIOs (customer complaints 3, 6, 9, 12 months and 2026)` | In progress | 2026-11-14 17:30 | - |
-| #86 | 3 | `/using-git-worktrees Story #86: branch m02-0036-catalog-tables-datasets-datasets` | Planned | - | - |
+| #86 | 2 | `/brainstorming Story #86: catalog tables datasets, datasets_location, mios and mios_datasets in consumer_comp_admin_db with one DAO each, plus the seeded MIOs (customer complaints 3, 6, 9, 12 months and 2026)` | Done | 2026-11-14 17:30 | 2026-11-14 17:37 |
+| #86 | 3 | `/using-git-worktrees Story #86: branch m02-0036-catalog-tables-datasets-datasets` | In progress | 2026-11-14 17:37 | - |
 | #86 | 4 | `/writing-plans Story #86` | Planned | - | - |
 | #86 | 5 | `/test-driven-development Story #86` | Planned | - | - |
 | #86 | 6 | `/subagent-driven-development Story #86` | Planned | - | - |
