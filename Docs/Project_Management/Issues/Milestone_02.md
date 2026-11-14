@@ -2,7 +2,7 @@
 
 **Scope (decision D38 in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`):** download the free CFPB dataset on demand from the admin portal, asynchronously through Airflow, from a configured source location, and always show whether it has been downloaded. Everything runs locally. Cloud work is M03.
 
-**Status: in progress.** 1 epic, 5 features and 20 stories. 3 stories (and 1 feature) are already done, 17 stories are left to build.
+**Status: in progress.** 1 epic, 5 features and 21 stories. 3 stories (and 1 feature) are already done, 18 stories are left to build.
 
 How to read this file:
 - `#42` is the GitHub issue number in this repository. The `M02-00NN` key is the sequence tag at the start of the issue title. Keys are not in build order.
@@ -46,26 +46,27 @@ How to read this file:
 | # | Issue | Key | Type | Title | Why here |
 |---|---|---|---|---|---|
 | 16 | #56 | M02-0017 | Feature | Airflow download DAG | Parent of the stories below |
-| 17 | #57 | M02-0018 | Story | Download DAG for the All dataset | Uses the Phase 1 source locations |
-| 18 | #58 | M02-0019 | Story | 3 months dataset: filter the All file by Date received | Derived from the All file, so it follows #57 |
-| 19 | #59 | M02-0020 | Story | Report started, completed and failed to the API, even when a task crashes | Calls the Phase 2 callback and uses its secret |
-| 20 | #60 | M02-0021 | Story | Trigger the DAG from the facade (service) | The DAG must exist before it can be triggered |
+| 17 | #77 | M02-0027 | Story | Push .env values to Airflow Variables (upsert-secrets endpoint) | Decision D42. Uses the #44 secret; the DAG reads the Variables it creates |
+| 18 | #57 | M02-0018 | Story | Download DAG for the All dataset | Uses the Phase 1 source locations, read from the Airflow Variables of #77 |
+| 19 | #58 | M02-0019 | Story | 3 months dataset: filter the All file by Date received | Derived from the All file, so it follows #57 |
+| 20 | #59 | M02-0020 | Story | Report started, completed and failed to the API, even when a task crashes | Calls the Phase 2 callback and uses its secret |
+| 21 | #60 | M02-0021 | Story | Trigger the DAG from the facade (service) | The DAG must exist before it can be triggered |
 
 ### Phase 4 - Start a download (closes the Download API feature)
 
 | # | Issue | Key | Type | Title | Why here |
 |---|---|---|---|---|---|
-| 21 | #42 | M02-0007 | Story | Start-download endpoint (one endpoint, any usecase) | Calls the trigger service from #60 |
+| 22 | #42 | M02-0007 | Story | Start-download endpoint (one endpoint, any usecase) | Calls the trigger service from #60 |
 
 ### Phase 5 - Admin portal
 
 | # | Issue | Key | Type | Title | Why here |
 |---|---|---|---|---|---|
-| 22 | #61 | M02-0022 | Feature | Admin portal: DataSets and Imports | Parent of the stories below |
-| 23 | #62 | M02-0023 | Story | Angular app scaffold (consumer-complaints-admin) | Everything in the portal builds on it |
-| 24 | #63 | M02-0024 | Story | DataSets top menu and Imports left navigation | Shell for the accordions |
-| 25 | #64 | M02-0025 | Story | Two accordions: 3 months and All, with status from the API | Reads the Phase 2 status endpoint (#45) |
-| 26 | #65 | M02-0026 | Story | Start download button and status refresh | Calls the Phase 4 endpoint (#42) |
+| 23 | #61 | M02-0022 | Feature | Admin portal: DataSets and Imports | Parent of the stories below |
+| 24 | #62 | M02-0023 | Story | Angular app scaffold (consumer-complaints-admin) | Everything in the portal builds on it |
+| 25 | #63 | M02-0024 | Story | DataSets top menu and Imports left navigation | Shell for the accordions |
+| 26 | #64 | M02-0025 | Story | Two accordions: 3 months and All, with status from the API | Reads the Phase 2 status endpoint (#45) |
+| 27 | #65 | M02-0026 | Story | Start download button and status refresh | Calls the Phase 4 endpoint (#42) |
 
 ## 2. The same issues grouped by epic and feature
 
@@ -91,6 +92,7 @@ Epic #29  M02-0001  Downloads Management
 |     +-- #42  Start-download endpoint (one endpoint, any usecase)     (built in Phase 4)
 |
 +-- Feature #56  M02-0017  Airflow download DAG
+|     +-- #77  Push .env values to Airflow Variables (upsert-secrets endpoint)
 |     +-- #57  Download DAG for the All dataset
 |     +-- #58  3 months dataset: filter the All file by Date received
 |     +-- #59  Report started, completed and failed to the API, even when a task crashes
@@ -150,7 +152,8 @@ Verify DAG stories against the local Airflow: `npm run local:containers:all:star
 
 | Issue | Commands, in order |
 |---|---|
-| #57 | 1. `/ccaa-story-start 57`<br>2. `/brainstorming Story #57: download DAG for the All dataset; fetch from the configured source location (Phase 1); DAG appears in Airflow; file lands in the agreed place`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 57` |
+| #77 | 1. `/ccaa-story-start 77`<br>2. `/brainstorming Story #77: POST /management/airflow/upsert-secrets copies the names listed in CICD/Local/airflow/Airflow_Variables_Upsert.txt from .env into Airflow Variables through Airflow's REST API (D42); result per name, never a value; missing name reported and return code is a failure; protected by the #44 shared secret; .env.example lists the names`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 77` |
+| #57 | 1. `/ccaa-story-start 57`<br>2. `/brainstorming Story #57: download DAG for the All dataset; read the source location from the Airflow Variables of #77 (D42) and fetch it with the Phase 1 source types; DAG appears in Airflow; file lands in the agreed place`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 57` |
 | #58 | 1. `/ccaa-story-start 58`<br>2. `/brainstorming Story #58: derive the 3 months dataset by filtering the All file on Date received; the file is not date-sorted so read it all; check the row count against the site figure`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 58` |
 | #59 | 1. `/ccaa-story-start 59`<br>2. `/brainstorming Story #59: report started, completed and failed to the API from the DAG; a final task always runs so a crashed run never stays running; callbacks reach the API from the container (host.docker.internal)`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 59` |
 | #60 | 1. `/ccaa-story-start 60`<br>2. `/brainstorming Story #60: a facade service starts the DAG asynchronously through Airflow's API; returns immediately; run_id stored on the log row`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 60` |
@@ -193,6 +196,7 @@ The skills live in `.cursor/skills/`. Each takes a GitHub issue number.
 
 - **Work happens on `main`, as in M01.** There is no worktree or pull request step, so `using-git-worktrees` and `finishing-a-development-branch` are left out. Add them to a row if you want a branch per story.
 - **Checklists that were out of date.** Epic #29 still lists #30 (Data ingest log), which is an M01 feature, and feature #46 still lists #51 to #54 (cloud sources), which moved to M03. `/ccaa-progress-sync` drops children that point to a different parent, so the first `/ccaa-story-start` cleans this up.
-- **Open questions on the issues:** #49 (is the HTTP source wanted), #55 (where location and credentials live), #65 (poll or refresh).
+- **Open questions on the issues:** #49 (is the HTTP source wanted), #65 (poll or refresh). The #55 question is decided in D42: values in `.env`, copied into Airflow Variables by story #77.
+- **Story #77 was added** while deciding #55 (D42). It is under feature #56 and is built first in Phase 3, because the DAG reads the Variables it creates.
 - **Moved to M03 - Cloud Deployment:** #51 S3, #52 Azure Blob, #53 GCP Cloud Storage, #54 Google Drive, and the cloud migration workflow #24. They are not part of this milestone.
-- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D42.
+- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D43.
