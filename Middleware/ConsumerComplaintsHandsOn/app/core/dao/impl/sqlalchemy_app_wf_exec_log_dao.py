@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from uuid import uuid4
 
 from sqlalchemy import select
+from sqlalchemy import update as sql_update
 
 from app.core.common.app_types_constants import ExecStatus
 from app.core.common.dtos.app_wf_exec_log_dtos import AppWfExecLogCtx, AppWfExecLogRecord
@@ -107,17 +108,35 @@ class SqlAlchemyAppWfExecLogDao(AppWfExecLogDao):
                 target = current if req.status is None else ExecStatus(req.status)
                 changes_status = target != current
                 if changes_status and target not in current.next_statuses:
-                    return CONFLICT  # checked and written in this one transaction, so retries cannot race
+                    return CONFLICT
+                notes = {}  # engine_run_id and message: informational, so they may change on any row
                 if req.engine_run_id is not None:
-                    row.engine_run_id = req.engine_run_id
+                    notes["engine_run_id"] = req.engine_run_id
                 if req.message is not None:
-                    row.message = req.message
+                    notes["message"] = req.message
                 if changes_status:
-                    row.status = target.value
+                    changes = {**notes, "status": target.value}
                     if target == ExecStatus.STARTED:
-                        row.started_at = _now()
+                        changes["started_at"] = _now()
                     elif target.is_final:
-                        row.finished_at = _now()
+                        changes["finished_at"] = _now()
+                    # The write only matches while the row still has the status read above, so when two callbacks
+                    # race the second one finds no row to change instead of overwriting the first (D30).
+                    moved = session.execute(
+                        sql_update(AppWfExecLogModel)
+                        .where(AppWfExecLogModel.id == req.id, AppWfExecLogModel.status == current.value)
+                        .values(**changes)
+                    ).rowcount
+                    session.refresh(row)
+                    if not moved:
+                        if row.status != target.value:
+                            return CONFLICT  # a rival moved the row somewhere else first; nothing was changed
+                        # A rival made the same move first (a retry): keep its status and times, add only the notes.
+                        for name, value in notes.items():
+                            setattr(row, name, value)
+                else:
+                    for name, value in notes.items():
+                        setattr(row, name, value)
                 session.flush()
                 ctx.resp.records = [_to_record(row)]
             return SUCCESS
@@ -127,6 +146,8 @@ class SqlAlchemyAppWfExecLogDao(AppWfExecLogDao):
 
     def list(self, ctx: AppWfExecLogCtx) -> int:
         req = ctx.req
+        if (req.limit is not None and req.limit < 0) or (req.offset is not None and req.offset < 0):
+            return INVALID_INPUT  # SQLite would return every row, Postgres would fail: reject on both
         try:
             query = select(AppWfExecLogModel)
             if req.workflow_id:

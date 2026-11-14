@@ -18,7 +18,8 @@ from app.core.common.dtos.app_wf_dtos import AppWfCtx, AppWfReq
 from app.core.common.dtos.app_wf_exec_log_dtos import AppWfExecLogCtx, AppWfExecLogReq
 from app.core.common.dtos.data_ingest_dtos import DataIngestCtx, DataIngestReq
 from app.core.common.dtos.dataset_status_dtos import DatasetStatusCtx, DatasetStatusReq
-from app.core.common.return_codes import CONFLICT, NOT_FOUND, SUCCESS
+from app.core.common.return_codes import CONFLICT, INVALID_INPUT, NOT_FOUND, SUCCESS
+from app.core.dao.impl import sqlalchemy_app_wf_exec_log_dao as exec_log_impl
 from app.core.dao.impl.database import reset_engine
 from app.core.dao.objects_factory import DaoObjectsFactory
 from app.core.services.objects_factory import ServicesObjectsFactory
@@ -182,3 +183,35 @@ def test_app_wf_exec_log_dao_works_on_postgres(postgres):
     assert "app_workflows_exec_log" not in _admin_tables()
     command.upgrade(postgres, "head")
     assert "app_workflows_exec_log" in _admin_tables()
+
+
+def test_app_wf_exec_log_rival_callback_does_not_overwrite_on_postgres(postgres, monkeypatch):
+    # Postgres runs at READ COMMITTED: both callbacks read "started". _now() runs after update's read and before its
+    # write, so a rival that commits inside it is the race; the conditional write must lose cleanly.
+    command.upgrade(postgres, "head")
+    made = AppWfCtx(req=AppWfReq(workflow_name="w", engine_type="apache_airflow", engine_workflow_id="dag"))
+    assert DaoObjectsFactory.get_app_wf_dao().create(made) == SUCCESS
+    logs = DaoObjectsFactory.get_app_wf_exec_log_dao()
+    created = AppWfExecLogCtx(req=AppWfExecLogReq(workflow_id=made.resp.records[0].id))
+    assert logs.create(created) == SUCCESS
+    row_id = created.resp.records[0].id
+    assert logs.update(AppWfExecLogCtx(req=AppWfExecLogReq(id=row_id, status="started"))) == SUCCESS
+
+    real_now = exec_log_impl._now
+    raced = []
+
+    def now_after_a_rival_wins():
+        if not raced:
+            raced.append(True)
+            rival = AppWfExecLogCtx(req=AppWfExecLogReq(id=row_id, status="failed", message="rival"))
+            assert logs.update(rival) == SUCCESS
+        return real_now()
+
+    monkeypatch.setattr(exec_log_impl, "_now", now_after_a_rival_wins)
+    loser = AppWfExecLogCtx(req=AppWfExecLogReq(id=row_id, status="completed", message="loser"))
+    assert logs.update(loser) == CONFLICT
+
+    stored = AppWfExecLogCtx(req=AppWfExecLogReq(id=row_id))
+    assert logs.get(stored) == SUCCESS
+    assert (stored.resp.records[0].status, stored.resp.records[0].message) == ("failed", "rival")
+    assert logs.list(AppWfExecLogCtx(req=AppWfExecLogReq(limit=-1))) == INVALID_INPUT

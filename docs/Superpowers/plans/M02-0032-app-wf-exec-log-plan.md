@@ -1127,3 +1127,14 @@ No gaps. The spec's one extra rule (engine_run_id over 128 characters is INVALID
 **2. Placeholder scan:** no "TBD", "TODO" or "similar to Task N"; every code step has the code.
 
 **3. Type consistency:** the signature rule (D37) holds for every function in the plan: the module helpers take one object (`_to_record(row: AppWfExecLogModel)`, `_new_row(workflow: AppWfModel)`), `_now()` takes nothing, and `ExecStatus.next_statuses` and `is_final` are properties with only `self`. Names used across tasks match: `AppWfExecLogCtx`, `AppWfExecLogReq`, `AppWfExecLogRecord`, `ExecStatus.next_statuses`, `ExecStatus.is_final`, `_now`, `RUN_ID_MAX`, `get_app_wf_exec_log_dao`. The test helper `_update` returns `(code, ctx)` in every use. In Task 6 the shared-transaction test uses `_list()` and `_workflow()` from Tasks 3 and 5.
+
+## Changes after the code review (requesting-code-review, 2026-11-14)
+
+The reviewer found one critical and three important points; all four are fixed in the code (the plan's code blocks above show the first version):
+
+1. **Race in `update` (critical).** The read-then-write check let two callbacks at once both succeed. `update` now writes with `UPDATE ... WHERE id = ? AND status = <read status>` and looks at the row count. No row changed means a rival won: `CONFLICT` if the row is now somewhere else, `SUCCESS` if it is at the target status already (a retry). Tests: `test_a_rival_move_made_after_the_read_is_not_overwritten`, `test_a_rival_that_made_the_same_move_first_is_accepted_like_a_retry`, and the Postgres test `test_app_wf_exec_log_rival_callback_does_not_overwrite_on_postgres`. Each fails when the status condition is removed.
+2. **Negative `limit` or `offset`.** `list` returns `INVALID_INPUT` (SQLite returned every row, Postgres fails). Test: `test_list_rejects_a_negative_limit_or_offset`.
+3. **Final rows.** Decided, not changed: `status` and the times are what D30 protects; `engine_run_id` and `message` are notes that may be set on any row. Written into the spec and the interface docstring; test: `test_a_final_row_keeps_its_status_and_times_but_still_accepts_notes`.
+4. **Test gap.** `test_started_then_failed_is_a_legal_path` added.
+
+Noted for later, not done in this story (minor or spec level): a non-string `engine_run_id` raises instead of returning a code; a blank `engine_run_id` is accepted; the index `(workflow_id, status)` does not serve an unfiltered newest-first listing, so `requested_at` indexes may be wanted once the log is large; no test compares the model with the migrations; the data-ingest DAO has the same race and the same negative paging gap (#88 retires it).

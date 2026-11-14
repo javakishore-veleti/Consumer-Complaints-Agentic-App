@@ -29,12 +29,19 @@ class AppWfExecLogDao(metaclass=SingletonMeta):
     def update(self, ctx: AppWfExecLogCtx) -> int:
         """Needs req.id. Changes the given status, engine_run_id (up to 128 characters) and message. The snapshot
         columns are never changed. Status moves follow D30: requested to started or failed, started to completed or
-        failed, completed and failed are final, the same status again is accepted and changes nothing. started_at is
+        failed, completed and failed are final, the same status again is accepted and keeps its times. started_at is
         set on the move to started, finished_at on the move to completed or failed. NOT_FOUND if there is no such
         row, INVALID_INPUT for an unknown status or a too long engine_run_id, CONFLICT for any other move; a
-        CONFLICT changes nothing."""
+        CONFLICT changes nothing.
+
+        Two callbacks at once: the status write only matches a row that still has the status that was read, so the
+        first to commit wins. The second gets CONFLICT, or SUCCESS if the first made the very same move (a retry).
+
+        engine_run_id and message are notes, not part of the D30 rules: they may be set on any row, also a final
+        one, so a late callback can still fill them in."""
 
     @abstractmethod
     def list(self, ctx: AppWfExecLogCtx) -> int:
         """Optional filters: req.workflow_id, req.status, req.engine_type; optional req.limit and req.offset.
-        Newest first (requested_at descending, then id). An empty result is SUCCESS with no records."""
+        Newest first (requested_at descending, then id). An empty result is SUCCESS with no records.
+        INVALID_INPUT for a negative limit or offset."""

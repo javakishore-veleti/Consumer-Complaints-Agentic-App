@@ -310,3 +310,75 @@ def test_create_reads_the_workflow_inside_the_same_shared_transaction(data_dir):
     assert _list() == []  # not visible outside before the commit
     assert transactions.commit(committed) == SUCCESS
     assert [r.id for r in _list()] == [kept.resp.records[0].id]
+
+
+def test_started_then_failed_is_a_legal_path(data_dir):
+    row = _execute(_workflow().id)
+    assert _update(row.id, status="started")[0] == SUCCESS
+    code, ctx = _update(row.id, status="failed", message="engine reported an error")
+    assert code == SUCCESS
+    failed = ctx.resp.records[0]
+    assert failed.status == "failed" and failed.started_at is not None and failed.finished_at is not None
+
+
+def test_a_final_row_keeps_its_status_and_times_but_still_accepts_notes(data_dir):
+    # D30 protects the status and the times; engine_run_id and message are notes a late callback may still fill in.
+    row = _execute(_workflow().id)
+    assert _update(row.id, status="started")[0] == SUCCESS
+    done = _update(row.id, status="completed")[1].resp.records[0]
+    code, ctx = _update(row.id, status="completed", message="late note", engine_run_id="run-9")
+    assert code == SUCCESS
+    after = ctx.resp.records[0]
+    assert (after.status, after.started_at, after.finished_at) == (done.status, done.started_at, done.finished_at)
+    assert (after.message, after.engine_run_id) == ("late note", "run-9")
+
+
+def test_a_rival_move_made_after_the_read_is_not_overwritten(data_dir, monkeypatch):
+    # _now() runs after update has read the row and before it writes, so a rival callback that commits inside it
+    # is exactly the race: two callbacks both read "started".
+    row = _execute(_workflow().id)
+    assert _update(row.id, status="started")[0] == SUCCESS
+    real_now = dao_impl._now
+    raced = []
+
+    def now_after_a_rival_wins():
+        if not raced:
+            raced.append(True)
+            assert _update(row.id, status="failed", message="rival")[0] == SUCCESS
+        return real_now()
+
+    monkeypatch.setattr(dao_impl, "_now", now_after_a_rival_wins)
+    code, _ = _update(row.id, status="completed", message="loser")
+    assert code == CONFLICT
+    stored = _stored(row.id)
+    assert (stored.status, stored.message) == ("failed", "rival")  # the loser changed nothing
+    assert stored.finished_at is not None
+
+
+def test_a_rival_that_made_the_same_move_first_is_accepted_like_a_retry(data_dir, monkeypatch):
+    row = _execute(_workflow().id)
+    real_now = dao_impl._now
+    raced = []
+
+    def now_after_a_rival_wins():
+        if not raced:
+            raced.append(True)
+            assert _update(row.id, status="started", engine_run_id="rival-run")[0] == SUCCESS
+        return real_now()
+
+    monkeypatch.setattr(dao_impl, "_now", now_after_a_rival_wins)
+    code, ctx = _update(row.id, status="started", message="mine")
+    assert code == SUCCESS
+    result = ctx.resp.records[0]
+    assert (result.status, result.message, result.engine_run_id) == ("started", "mine", "rival-run")
+    assert result == _stored(row.id)
+    assert result.started_at is not None  # the rival's time, set once
+
+
+def test_list_rejects_a_negative_limit_or_offset(data_dir):
+    _execute(_workflow().id)
+    logs = DaoObjectsFactory.get_app_wf_exec_log_dao()
+    assert logs.list(_ctx(limit=-1)) == INVALID_INPUT
+    assert logs.list(_ctx(offset=-1)) == INVALID_INPUT
+    zero = _ctx(limit=0)
+    assert logs.list(zero) == SUCCESS and zero.resp.records == []
