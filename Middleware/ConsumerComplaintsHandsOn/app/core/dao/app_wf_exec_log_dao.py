@@ -33,3 +33,8 @@ class AppWfExecLogDao(metaclass=SingletonMeta):
         set on the move to started, finished_at on the move to completed or failed. NOT_FOUND if there is no such
         row, INVALID_INPUT for an unknown status or a too long engine_run_id, CONFLICT for any other move; a
         CONFLICT changes nothing."""
+
+    @abstractmethod
+    def list(self, ctx: AppWfExecLogCtx) -> int:
+        """Optional filters: req.workflow_id, req.status, req.engine_type; optional req.limit and req.offset.
+        Newest first (requested_at descending, then id). An empty result is SUCCESS with no records."""

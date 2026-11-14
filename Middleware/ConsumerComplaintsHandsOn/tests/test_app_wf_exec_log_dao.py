@@ -1,10 +1,12 @@
 import sqlite3
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
 from app.core.common.dtos.app_wf_dtos import AppWfCtx, AppWfRecord, AppWfReq
 from app.core.common.dtos.app_wf_exec_log_dtos import AppWfExecLogCtx, AppWfExecLogRecord, AppWfExecLogReq
 from app.core.common.return_codes import CONFLICT, INVALID_INPUT, NOT_FOUND, SUCCESS
+from app.core.dao.impl import sqlalchemy_app_wf_exec_log_dao as dao_impl
 from app.core.dao.objects_factory import DaoObjectsFactory
 
 CONFIG = {"source": {"type": "http", "urls": ["a", "b"]}, "retries": 3, "dry_run": False, "limit": None}
@@ -226,3 +228,55 @@ def test_update_rejects_bad_input(data_dir):
 
 def test_update_of_an_unknown_row_is_not_found(data_dir):
     assert _update("no-such-row", status="started")[0] == NOT_FOUND
+
+
+def _list(**fields) -> list[AppWfExecLogRecord]:
+    ctx = _ctx(**fields)
+    assert DaoObjectsFactory.get_app_wf_exec_log_dao().list(ctx) == SUCCESS
+    return ctx.resp.records
+
+
+def _one_tick_per_call(monkeypatch):
+    """Makes every _now() later than the one before, so the order of rows does not depend on the clock."""
+    start = datetime(2026, 11, 14, 12, 0, tzinfo=timezone.utc)
+    ticks = (start + timedelta(minutes=n) for n in range(1000))
+    monkeypatch.setattr(dao_impl, "_now", lambda: next(ticks))
+
+
+def test_list_of_an_empty_log_is_success_with_no_rows(data_dir):
+    assert _list() == []
+
+
+def test_list_is_newest_first(data_dir, monkeypatch):
+    _one_tick_per_call(monkeypatch)
+    workflow = _workflow()
+    first, second, third = (_execute(workflow.id) for _ in range(3))
+    assert [r.id for r in _list()] == [third.id, second.id, first.id]
+
+
+def test_list_filters_by_workflow_status_and_engine_type(data_dir, monkeypatch):
+    _one_tick_per_call(monkeypatch)
+    download = _workflow("download")
+    steps = _workflow("steps", engine_type="aws_step_functions", engine_workflow_id="arn:sm")
+    a = _execute(download.id)
+    b = _execute(download.id)
+    c = _execute(steps.id)
+    assert _update(b.id, status="started")[0] == SUCCESS
+
+    assert {r.id for r in _list(workflow_id=download.id)} == {a.id, b.id}
+    assert [r.id for r in _list(workflow_id=steps.id)] == [c.id]
+    assert [r.id for r in _list(status="started")] == [b.id]
+    assert {r.id for r in _list(status="requested")} == {a.id, c.id}
+    assert [r.id for r in _list(engine_type="aws_step_functions")] == [c.id]
+    assert [r.id for r in _list(workflow_id=download.id, status="requested")] == [a.id]
+    assert _list(workflow_id="no-such-workflow") == []
+
+
+def test_list_limit_and_offset(data_dir, monkeypatch):
+    _one_tick_per_call(monkeypatch)
+    workflow = _workflow()
+    rows = [_execute(workflow.id) for _ in range(5)]
+    newest_first = [r.id for r in reversed(rows)]
+    assert [r.id for r in _list(limit=2)] == newest_first[:2]
+    assert [r.id for r in _list(limit=2, offset=2)] == newest_first[2:4]
+    assert [r.id for r in _list(offset=4)] == newest_first[4:]

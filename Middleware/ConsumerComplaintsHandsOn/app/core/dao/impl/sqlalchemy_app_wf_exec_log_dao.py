@@ -5,6 +5,8 @@ from copy import deepcopy
 from datetime import datetime, timezone
 from uuid import uuid4
 
+from sqlalchemy import select
+
 from app.core.common.app_types_constants import ExecStatus
 from app.core.common.dtos.app_wf_exec_log_dtos import AppWfExecLogCtx, AppWfExecLogRecord
 from app.core.common.return_codes import CONFLICT, FAILURE, INVALID_INPUT, NOT_FOUND, SUCCESS
@@ -121,4 +123,26 @@ class SqlAlchemyAppWfExecLogDao(AppWfExecLogDao):
             return SUCCESS
         except Exception:
             log.exception("app_workflows_exec_log update failed")
+            return FAILURE
+
+    def list(self, ctx: AppWfExecLogCtx) -> int:
+        req = ctx.req
+        try:
+            query = select(AppWfExecLogModel)
+            if req.workflow_id:
+                query = query.where(AppWfExecLogModel.workflow_id == req.workflow_id)
+            if req.status:
+                query = query.where(AppWfExecLogModel.status == req.status)
+            if req.engine_type:
+                query = query.where(AppWfExecLogModel.engine_type == req.engine_type)
+            query = query.order_by(AppWfExecLogModel.requested_at.desc(), AppWfExecLogModel.id)
+            if req.limit is not None:
+                query = query.limit(req.limit)
+            if req.offset:
+                query = query.offset(req.offset)
+            with unit_of_work(ctx) as session:
+                ctx.resp.records = [_to_record(row) for row in session.scalars(query)]
+            return SUCCESS
+        except Exception:
+            log.exception("app_workflows_exec_log list failed")
             return FAILURE
