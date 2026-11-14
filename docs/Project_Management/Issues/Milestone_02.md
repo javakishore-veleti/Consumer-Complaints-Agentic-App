@@ -2,7 +2,7 @@
 
 **Scope (decision D38 in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`):** download the free CFPB dataset on demand from the admin portal, asynchronously through Airflow, through registered workflows (D43), and always show whether it has been downloaded. Everything runs locally. Cloud work is M03.
 
-**Status: in progress.** 1 epic, 5 features and 27 stories. 7 stories (and 1 feature) are already done, 20 stories are left to build.
+**Status: in progress.** 1 epic, 5 features and 27 stories. 8 stories (and 1 feature) are already done, 19 stories are left to build.
 
 How to read this file:
 - `#42` is the GitHub issue number in this repository. The `M02-00NN` key is the sequence tag at the start of the issue title. Keys are not in build order.
@@ -215,13 +215,13 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #86 | 3 | `/using-git-worktrees Story #86: branch m02-0036-catalog-tables-datasets-datasets` | Done | 2026-11-14 17:37 | 2026-11-14 17:39 |
 | #86 | 4 | `/writing-plans Story #86` | Done | 2026-11-14 17:39 | 2026-11-14 17:47 |
 | #86 | 5 | `/test-driven-development Story #86` | Done | 2026-11-14 17:47 | 2026-11-14 17:55 |
-| #86 | 6 | `/subagent-driven-development Story #86` | Done | 2026-11-14 17:55 | 2026-11-14 18:25 |
-| #86 | 7 | `/ccaa-commit-push 86` after every task (repeat) | Done | 2026-11-14 18:25 | 2026-11-14 18:25 |
-| #86 | 8 | `/verification-before-completion Story #86` | Done | 2026-11-14 18:25 | 2026-11-14 18:27 |
-| #86 | 9 | `/requesting-code-review Story #86` | Done | 2026-11-14 18:27 | 2026-11-14 18:27 |
-| #86 | 10 | `/ccaa-commit-push 86` | Done | 2026-11-14 18:27 | 2026-11-14 18:30 |
-| #86 | 11 | `/finishing-a-development-branch Story #86` | In progress | 2026-11-14 18:30 | - |
-| #86 | 12 | `/ccaa-story-complete 86` | Planned | - | - |
+| #86 | 6 | `/subagent-driven-development Story #86` | Done | 2026-11-14 17:55 | 2026-11-14 18:20 |
+| #86 | 7 | `/ccaa-commit-push 86` after every task (repeat) | Done | 2026-11-14 18:20 | 2026-11-14 18:20 |
+| #86 | 8 | `/verification-before-completion Story #86` | Done | 2026-11-14 18:20 | 2026-11-14 18:22 |
+| #86 | 9 | `/requesting-code-review Story #86` | Done | 2026-11-14 18:22 | 2026-11-14 18:22 |
+| #86 | 10 | `/ccaa-commit-push 86` | Done | 2026-11-14 18:22 | 2026-11-14 18:23 |
+| #86 | 11 | `/finishing-a-development-branch Story #86` | Done | 2026-11-14 18:23 | 2026-11-14 18:24 |
+| #86 | 12 | `/ccaa-story-complete 86` | Done | 2026-11-14 18:24 | 2026-11-14 18:24 |
 | #87 | 1 | `/ccaa-story-start 87` | Planned | - | - |
 | #87 | 2 | `/brainstorming Story #87: mios_ingest_log table and DAO; status rules of D30; volume columns; adds the reference from app_workflows_exec_log` | Planned | - | - |
 | #87 | 3 | `/using-git-worktrees Story #87: branch m02-0037-mios-ingest-log-table-and-dao` | Planned | - | - |
