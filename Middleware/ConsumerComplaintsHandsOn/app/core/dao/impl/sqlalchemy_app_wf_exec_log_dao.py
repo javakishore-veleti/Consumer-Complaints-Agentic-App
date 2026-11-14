@@ -7,12 +7,14 @@ from uuid import uuid4
 
 from app.core.common.app_types_constants import ExecStatus
 from app.core.common.dtos.app_wf_exec_log_dtos import AppWfExecLogCtx, AppWfExecLogRecord
-from app.core.common.return_codes import FAILURE, INVALID_INPUT, NOT_FOUND, SUCCESS
+from app.core.common.return_codes import CONFLICT, FAILURE, INVALID_INPUT, NOT_FOUND, SUCCESS
 from app.core.dao.app_wf_exec_log_dao import AppWfExecLogDao
 from app.core.dao.impl.models import AppWfExecLogModel, AppWfModel
 from app.core.dao.impl.unit_of_work import unit_of_work
 
 log = logging.getLogger(__name__)
+
+RUN_ID_MAX = 128
 
 
 def _now() -> datetime:
@@ -84,4 +86,39 @@ class SqlAlchemyAppWfExecLogDao(AppWfExecLogDao):
             return SUCCESS
         except Exception:
             log.exception("app_workflows_exec_log get failed")
+            return FAILURE
+
+    def update(self, ctx: AppWfExecLogCtx) -> int:
+        req = ctx.req
+        if not req.id:
+            return INVALID_INPUT
+        if req.status is not None and req.status not in ExecStatus.values():
+            return INVALID_INPUT
+        if req.engine_run_id is not None and len(req.engine_run_id) > RUN_ID_MAX:
+            return INVALID_INPUT
+        try:
+            with unit_of_work(ctx) as session:
+                row = session.get(AppWfExecLogModel, req.id)
+                if row is None:
+                    return NOT_FOUND
+                current = ExecStatus(row.status)
+                target = current if req.status is None else ExecStatus(req.status)
+                changes_status = target != current
+                if changes_status and target not in current.next_statuses:
+                    return CONFLICT  # checked and written in this one transaction, so retries cannot race
+                if req.engine_run_id is not None:
+                    row.engine_run_id = req.engine_run_id
+                if req.message is not None:
+                    row.message = req.message
+                if changes_status:
+                    row.status = target.value
+                    if target == ExecStatus.STARTED:
+                        row.started_at = _now()
+                    elif target.is_final:
+                        row.finished_at = _now()
+                session.flush()
+                ctx.resp.records = [_to_record(row)]
+            return SUCCESS
+        except Exception:
+            log.exception("app_workflows_exec_log update failed")
             return FAILURE

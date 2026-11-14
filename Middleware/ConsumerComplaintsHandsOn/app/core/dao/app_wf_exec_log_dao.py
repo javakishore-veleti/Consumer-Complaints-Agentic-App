@@ -24,3 +24,12 @@ class AppWfExecLogDao(metaclass=SingletonMeta):
     @abstractmethod
     def get(self, ctx: AppWfExecLogCtx) -> int:
         """Needs req.id. INVALID_INPUT if it is missing, NOT_FOUND if there is no such row."""
+
+    @abstractmethod
+    def update(self, ctx: AppWfExecLogCtx) -> int:
+        """Needs req.id. Changes the given status, engine_run_id (up to 128 characters) and message. The snapshot
+        columns are never changed. Status moves follow D30: requested to started or failed, started to completed or
+        failed, completed and failed are final, the same status again is accepted and changes nothing. started_at is
+        set on the move to started, finished_at on the move to completed or failed. NOT_FOUND if there is no such
+        row, INVALID_INPUT for an unknown status or a too long engine_run_id, CONFLICT for any other move; a
+        CONFLICT changes nothing."""

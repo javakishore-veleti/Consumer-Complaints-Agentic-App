@@ -1,8 +1,10 @@
 import sqlite3
 
+import pytest
+
 from app.core.common.dtos.app_wf_dtos import AppWfCtx, AppWfRecord, AppWfReq
 from app.core.common.dtos.app_wf_exec_log_dtos import AppWfExecLogCtx, AppWfExecLogRecord, AppWfExecLogReq
-from app.core.common.return_codes import INVALID_INPUT, NOT_FOUND, SUCCESS
+from app.core.common.return_codes import CONFLICT, INVALID_INPUT, NOT_FOUND, SUCCESS
 from app.core.dao.objects_factory import DaoObjectsFactory
 
 CONFIG = {"source": {"type": "http", "urls": ["a", "b"]}, "retries": 3, "dry_run": False, "limit": None}
@@ -114,3 +116,113 @@ def test_get_without_an_id_is_invalid_input_and_an_unknown_id_is_not_found(data_
     logs = DaoObjectsFactory.get_app_wf_exec_log_dao()
     assert logs.get(_ctx()) == INVALID_INPUT
     assert logs.get(_ctx(id="no-such-row")) == NOT_FOUND
+
+
+def _update(row_id: str, **fields) -> tuple[int, AppWfExecLogCtx]:
+    ctx = _ctx(id=row_id, **fields)
+    return DaoObjectsFactory.get_app_wf_exec_log_dao().update(ctx), ctx
+
+
+def _stored(row_id: str) -> AppWfExecLogRecord:
+    ctx = _ctx(id=row_id)
+    assert DaoObjectsFactory.get_app_wf_exec_log_dao().get(ctx) == SUCCESS
+    return ctx.resp.records[0]
+
+
+def test_requested_to_started_sets_started_at_run_id_and_message(data_dir):
+    row = _execute(_workflow().id)
+    code, ctx = _update(row.id, status="started", engine_run_id="manual__2026-11-14", message="picked up")
+    assert code == SUCCESS
+    started = ctx.resp.records[0]
+    assert (started.status, started.engine_run_id, started.message) == ("started", "manual__2026-11-14", "picked up")
+    assert started.started_at is not None and started.started_at.tzinfo is not None
+    assert started.finished_at is None
+    assert (started.workflow_name, started.engine_type, started.engine_workflow_id) == (
+        row.workflow_name,
+        row.engine_type,
+        row.engine_workflow_id,
+    )
+    assert _stored(row.id) == started
+
+
+def test_started_to_completed_sets_finished_at_and_keeps_started_at(data_dir):
+    row = _execute(_workflow().id)
+    started = _update(row.id, status="started")[1].resp.records[0]
+    code, ctx = _update(row.id, status="completed")
+    assert code == SUCCESS
+    done = ctx.resp.records[0]
+    assert done.status == "completed"
+    assert done.started_at == started.started_at
+    assert done.finished_at is not None and done.finished_at >= done.started_at
+
+
+def test_requested_to_failed_sets_finished_at_and_leaves_started_at_empty(data_dir):
+    row = _execute(_workflow().id)
+    code, ctx = _update(row.id, status="failed", message="could not start")
+    assert code == SUCCESS
+    failed = ctx.resp.records[0]
+    assert (failed.status, failed.message) == ("failed", "could not start")
+    assert failed.started_at is None and failed.finished_at is not None
+
+
+@pytest.mark.parametrize(
+    "path, bad",
+    [
+        ((), "completed"),
+        (("started",), "requested"),
+        (("started", "completed"), "started"),
+        (("started", "completed"), "failed"),
+        (("started", "completed"), "requested"),
+        (("failed",), "started"),
+        (("failed",), "completed"),
+        (("failed",), "requested"),
+    ],
+)
+def test_an_illegal_move_is_a_conflict_and_changes_nothing(data_dir, path, bad):
+    row = _execute(_workflow().id)
+    for status in path:
+        assert _update(row.id, status=status)[0] == SUCCESS
+    before = _stored(row.id)
+    code, _ = _update(row.id, status=bad, message="must not be stored", engine_run_id="must-not-be-stored")
+    assert code == CONFLICT
+    assert _stored(row.id) == before
+
+
+def test_a_stale_second_update_after_completed_is_a_conflict(data_dir):
+    row = _execute(_workflow().id)
+    assert _update(row.id, status="started")[0] == SUCCESS
+    assert _update(row.id, status="completed")[0] == SUCCESS
+    done = _stored(row.id)
+    assert _update(row.id, status="failed")[0] == CONFLICT  # a callback that arrives late
+    assert _stored(row.id) == done
+
+
+def test_the_same_status_again_is_accepted_and_changes_no_time(data_dir):
+    row = _execute(_workflow().id)
+    first = _update(row.id, status="started")[1].resp.records[0]
+    code, ctx = _update(row.id, status="started", message="retry of the callback")
+    assert code == SUCCESS
+    again = ctx.resp.records[0]
+    assert again.started_at == first.started_at and again.finished_at is None
+    assert again.message == "retry of the callback"
+
+
+def test_update_without_a_status_changes_only_the_given_fields(data_dir):
+    row = _execute(_workflow().id)
+    code, ctx = _update(row.id, engine_run_id="run-1")
+    assert code == SUCCESS
+    assert (ctx.resp.records[0].status, ctx.resp.records[0].engine_run_id) == ("requested", "run-1")
+
+
+def test_update_rejects_bad_input(data_dir):
+    row = _execute(_workflow().id)
+    logs = DaoObjectsFactory.get_app_wf_exec_log_dao()
+    assert logs.update(_ctx(status="started")) == INVALID_INPUT  # no id
+    assert _update(row.id, status="bogus")[0] == INVALID_INPUT
+    assert _update(row.id, engine_run_id="r" * 129)[0] == INVALID_INPUT
+    assert _update(row.id, engine_run_id="r" * 128)[0] == SUCCESS
+    assert _stored(row.id).status == "requested"
+
+
+def test_update_of_an_unknown_row_is_not_found(data_dir):
+    assert _update("no-such-row", status="started")[0] == NOT_FOUND
