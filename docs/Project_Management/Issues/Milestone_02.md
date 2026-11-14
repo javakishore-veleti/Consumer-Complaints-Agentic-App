@@ -213,8 +213,8 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #86 | 1 | `/ccaa-story-start 86` | Done | 2026-11-14 17:30 | 2026-11-14 17:30 |
 | #86 | 2 | `/brainstorming Story #86: catalog tables datasets, datasets_location, mios and mios_datasets in consumer_comp_admin_db with one DAO each, plus the seeded MIOs (customer complaints 3, 6, 9, 12 months and 2026)` | Done | 2026-11-14 17:30 | 2026-11-14 17:37 |
 | #86 | 3 | `/using-git-worktrees Story #86: branch m02-0036-catalog-tables-datasets-datasets` | Done | 2026-11-14 17:37 | 2026-11-14 17:39 |
-| #86 | 4 | `/writing-plans Story #86` | In progress | 2026-11-14 17:39 | - |
-| #86 | 5 | `/test-driven-development Story #86` | Planned | - | - |
+| #86 | 4 | `/writing-plans Story #86` | Done | 2026-11-14 17:39 | 2026-11-14 17:47 |
+| #86 | 5 | `/test-driven-development Story #86` | In progress | 2026-11-14 17:47 | - |
 | #86 | 6 | `/subagent-driven-development Story #86` | Planned | - | - |
 | #86 | 7 | `/ccaa-commit-push 86` after every task (repeat) | Planned | - | - |
 | #86 | 8 | `/verification-before-completion Story #86` | Planned | - | - |

@@ -63,7 +63,7 @@ SQLite here does not enforce foreign keys and Postgres does, so the integrity ru
 | DAO | get | list | create / update checks |
 |---|---|---|---|
 | `DatasetDao` | `id` or `name` (id wins) | ordered by name | name and code valid; a duplicate name or code is `CONFLICT` (also when two writers race: the unique constraint decides); the code of a dataset that has a `local` location with an env var name cannot be changed (`CONFLICT`) |
-| `DatasetLocationDao` | `id` | filters `dataset_id`, `location_type`; ordered by `location_type`, `path` | the dataset must exist (`NOT_FOUND`); location rules above; a duplicate is `CONFLICT` |
+| `DatasetLocationDao` | `id` | filters `dataset_id`, `location_type`; ordered by `location_type`, rows with a path before rows without, `path`, `id` (SQLite and Postgres sort NULLs differently, so the order is spelled out) | the dataset must exist (`NOT_FOUND`); location rules above; a duplicate is `CONFLICT` |
 | `MioDao` | `id` or `name` (id wins) | ordered by name | name valid; duplicate name is `CONFLICT` |
 | `MioDatasetDao` | `id` | filters `mio_id`, `dataset_id`; ordered by `created_at`, `id` | the MIO, dataset and location must exist (`NOT_FOUND`); the location must belong to that dataset (`INVALID_INPUT`); a second link of the same MIO and dataset is `CONFLICT`; update may change only `dataset_location_id` |
 
