@@ -1,6 +1,6 @@
 # M02-0036 (#86) Catalog tables: datasets, datasets_location, mios and mios_datasets, with the seed MIOs
 
-Decisions: D7, D22, D23, D26, D30 (not used here), D37, D45, D48, D49, D55, D56 and D57 in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`.
+Decisions: D7, D22, D23, D26, D37, D45, D48, D49, D55, D56 and D57 in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`.
 
 ## Goal
 

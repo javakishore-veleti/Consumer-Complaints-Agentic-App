@@ -69,6 +69,7 @@ Every item is marked:
 | D54 | **MVP first.** M02 builds the smallest flow that runs end to end (start a workflow from the portal, Airflow downloads, the status comes back) and accepts refactoring afterwards. After the MVP: the factory `init()` of D45, the engine interface, the list-workflows endpoint, the 3-month filter and the removal of the retired tables. | Working software sooner; the design above stays the direction, and refactoring later is accepted. |
 | D55 | **Naming and types.** In class names `Workflows` is shortened to `Wf` (`AppWfDao`, `AppWfCtx`); table names stay in full (`app_workflows`), module names follow the class names. Every type list of the app (engine types, later location types and statuses) is an enum in `app/core/common/app_types_constants.py`, all with the parent `AppTypeEnum`. A JSON column that holds nothing is NULL, not `{}`. Workflow names are trimmed and case sensitive, and a name taken by two writers at once is a CONFLICT decided by the unique constraint (found in the story #81 review). | Short class names stay readable; one file lists every allowed value. Refines D52: the DAO checks `engine_type` against `EngineType`, the registered engine classes are checked later (#83, #42). |
 | D56 | **The exec-log DAO copies the workflow's details itself.** `AppWfExecLogDao.create` takes only the `workflow_id`, reads the `app_workflows` row in the same session and stores its name, engine type, engine workflow id and config in the new row, so the log keeps them as they were at execution time. `workflow_id` is a plain indexed column with no foreign key, so the log survives a rename or delete of the workflow and behaves the same on SQLite and Postgres. The log is append-only (no delete). | Callers cannot get the snapshot wrong. This is the one place where a DAO touches a second table (refines D7). |
+| D57 | **The catalog rules.** (1) **Many MIOs can reuse the same dataset and location; a MIO's name and description are labels, and no code reads them to choose a dataset, location or time window** (`mios_datasets` is the only link). (2) The four catalog tables have no database foreign keys, like the exec log (D56): the DAOs keep the rules (parent must exist, a parent in use cannot be deleted) in the same transaction, so SQLite and Postgres behave the same; a child DAO reads its parent's table class, the same exception to D7 as D56. (3) The location type codes are `local`, `http`, `github`, `s3`, `azure_blob`, `gcs`, `google_drive` and `ftp` (`DatasetLocationType`); the DAOs reject any other. (4) A location has a `path` or, for `local` only, a `local_env_var_name`, never both and never neither: the name of an environment variable that the download reads when it runs, so each environment (a laptop, an EC2 instance, a pod with the same EFS mounted elsewhere) sets its own value. The name is `LOCAL_DATA_PATH_` plus the short `code` of the dataset (1 to 15 characters, `A-Z` and `0-9`). (5) `credentials_ref` is a name, never a value. (6) The migration seeds only what is the same everywhere (the dataset, its public `http` location, the `local` location with its variable name, and four labelled MIOs), never a machine path. | Settles the open item "location type codes" and part of D49. One checked rule per concern keeps the catalog identical on every database and environment. |
 
 ## 2. Conventions in detail
 
@@ -161,14 +162,16 @@ Built in story #82 (migration `0004`): `AppWfExecLogDao` (create, get, list, upd
 #### The catalog (D49)
 | Table | Columns *(Proposed)* |
 |---|---|
-| `datasets` | id, name (unique), description |
-| `datasets_location` | id, dataset, location type (code), path, credentials reference (a name, never a value), description |
-| `mios` | id, name (unique), description |
-| `mios_datasets` | id, mio, dataset, dataset location (the chosen one) |
+| `datasets` | id, name (unique), code (unique, up to 15 characters, `A-Z` and `0-9`), description, times (D57; designed in story #86) |
+| `datasets_location` | id, dataset, location type (code), path or local env var name (exactly one, D57), credentials reference (a name, never a value), description, times |
+| `mios` | id, name (unique), description, times (a label only, D57) |
+| `mios_datasets` | id, mio, dataset, dataset location (the chosen one), created time; unique per MIO and dataset |
 | `mios_ingest_log` | id, mio, status (D30 rules), message, requested / started / finished times, volume (rows loaded, batch or increment markers) |
 
 - **Open:** how the status of a `mios_ingest_log` row is derived from its executions (for example completed only when every execution is completed, failed when one fails and is not rerun), and the exact volume columns.
-- **Open:** the list of location type codes (for example `local`, `http`, `github`, `s3`, `azure_blob`, `gcs`, `google_drive`, `ftp`); the DAGs interpret them, the API does not (D43).
+- **Decided (D57):** the location type codes are `local`, `http`, `github`, `s3`, `azure_blob`, `gcs`, `google_drive` and `ftp`; the DAGs interpret them, the API does not (D43). A `local` location holds a `path` or a `local_env_var_name`, never both (D57).
+- **Open:** where a time window such as "3 months" is stored for a MIO. It is not modeled in story #86, and no code may read it from a MIO's name (D57).
+- **Open:** which of a MIO's dataset locations a download uses as its source and which one is where the file lands (for example the `http` row and the `local` row of the same dataset); the download DAG's story decides, and it must use a location row, not a hardcoded path.
 - **Open:** how a workflow is attached to a MIO (reusable across MIOs, or specific to one), for example a link table or a value in the workflow's config.
 - Seeding: the predefined MIOs and their datasets and locations are inserted by migration or script for now; managing them from the portal is later.
 
@@ -236,4 +239,4 @@ There is no usecase (D46). The unit is a registered workflow (`app_workflows`); 
 - Engine types and the first engine: `apache_airflow` only in M02. **Decided (D52)**. Whether the API starts a run through a `WorkflowEngine` interface in `services/`, one implementation per engine type, looked up through the factory (D45). **Proposed**
 - The RAG layer (`mios_rags`, RAG workflows, batch or incremental runs) is a later milestone. **Decided (D53)**
 - M02's feature #46 and stories #47 to #50 are closed as not planned; feature #78 (Workflow registry) and its stories replace them. **Decided**
-- The open items listed in section 3 (ingest status derivation, location type codes, attaching workflows to MIOs). **Open**
+- The open items listed in section 3 (ingest status derivation, attaching workflows to MIOs, a MIO's time window, source and landing location). **Open**
