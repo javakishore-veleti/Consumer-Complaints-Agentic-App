@@ -1,6 +1,6 @@
 # Architecture
 
-How the system is put together. What it does is in [PRODUCT_FEATURES.md](../../Docs/PRODUCT_FEATURES.md); the detailed rules
+How the system is put together. What it does is in [PRODUCT_FEATURES.md](../../docs/PRODUCT_FEATURES.md); the detailed rules
 and open decisions are in [DESIGN.md](DESIGN.md).
 
 Status: the local containers and scripts exist, and the first vertical slice is built and tested: the **data ingest log**
@@ -28,7 +28,7 @@ Two write rules that everything follows:
 
 ## 2. Layered architecture (Neal Ford: closed layers, one open layer)
 
-![Layers](../../Docs/Design/NealFord_Open_Close_Architecture.jpeg)
+![Layers](../../docs/Design/NealFord_Open_Close_Architecture.jpeg)
 
 A request passes through each layer in turn. A **closed** layer may not be skipped. The **services** layer is the
 **open** layer: a facade may call a DAO directly, or call a service.
@@ -70,7 +70,7 @@ CICD/Local/
   mongodb/    docker-compose.yaml     MongoDB 8.0
   docker-all-up.sh  docker-all-down.sh  docker-all-status.sh
 dags/                         Airflow DAGs
-Docs/                         product docs, design images
+docs/                         product docs, design images
 ```
 
 ## 4. The conventions that hold it together

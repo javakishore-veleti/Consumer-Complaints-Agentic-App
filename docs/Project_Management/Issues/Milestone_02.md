@@ -358,7 +358,6 @@ The skills live in `.cursor/skills/`. Each takes a GitHub issue number.
 
 - **Work happens on `main`, as in M01.** There is no worktree or pull request step, so `using-git-worktrees` and `finishing-a-development-branch` are left out. Add them to a row if you want a branch per story.
 - **Checklists that were out of date.** Epic #29 still lists #30 (Data ingest log), which is an M01 feature, and feature #46 still lists #51 to #54 (cloud sources), which moved to M03. `/ccaa-progress-sync` drops children that point to a different parent, so the first `/ccaa-story-start` cleans this up.
-- **Where Superpowers writes files:** specs from `/brainstorming` go to `Docs/Superpowers/specs/` and plans from `/writing-plans` to `Docs/Superpowers/plans/`, named `<M02-00NN>-<topic>-design.md` and `<M02-00NN>-<topic>-plan.md`. This is set by the project rule `.cursor/rules/superpowers-file-locations.mdc`, which replaces the plugin's lowercase `docs/` default. Decision-only stories such as #55 write to `DESIGN.md` instead.
 - **Open questions on the issues:** #49 (is the HTTP source wanted), #65 (poll or refresh). The #55 question is decided in D42: values in `.env`, copied into Airflow Variables by story #77.
 - **Story #77 was added** while deciding #55 (D42). It is under feature #56 and is built first in Phase 3, because the DAG reads the Variables it creates.
 - **Moved to M03 - Cloud Deployment:** #51 S3, #52 Azure Blob, #53 GCP Cloud Storage, #54 Google Drive, and the cloud migration workflow #24. They are not part of this milestone.

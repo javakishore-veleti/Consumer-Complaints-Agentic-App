@@ -1,6 +1,6 @@
 # Design
 
-Detailed decisions behind the [architecture](ARCHITECTURE.md). Features are in [PRODUCT_FEATURES.md](../../Docs/PRODUCT_FEATURES.md).
+Detailed decisions behind the [architecture](ARCHITECTURE.md). Features are in [PRODUCT_FEATURES.md](../../docs/PRODUCT_FEATURES.md).
 
 Every item is marked:
 - **Decided**: agreed in design discussion.

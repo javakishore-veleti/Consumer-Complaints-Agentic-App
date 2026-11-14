@@ -32,7 +32,7 @@ is done asynchronously by Apache Airflow.
 - **No free-text complaint narrative.** The database is structured records only.
 - **Size (as of 14 Nov 2026):** 19,170,856 complaints in total; 2,036,290 in the last 3 months (8/14/2026 to 11/14/2026).
   About 93% of the last 3 months is one product, "Credit reporting or other personal consumer reports".
-- **Download limits found on the CFPB site** (see the screenshots in `Docs/Design/`):
+- **Download limits found on the CFPB site** (see the screenshots in `docs/Design/`):
   - The filtered CSV download is **limited to 100,000 complaints**, so the 3-month window (2.0M) cannot be downloaded
     with a filter. The site disables that option.
   - The only complete download is **"All complaint data"**, one large zipped CSV (about 350 MB compressed).
