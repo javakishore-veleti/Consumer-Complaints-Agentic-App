@@ -2,7 +2,7 @@
 
 **Scope (decision D38 in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`):** download the free CFPB dataset on demand from the admin portal, asynchronously through Airflow, from a configured source location, and always show whether it has been downloaded. Everything runs locally. Cloud work is M03.
 
-**Status: in progress.** 1 epic, 5 features and 21 stories. 3 stories (and 1 feature) are already done, 18 stories are left to build.
+**Status: in progress.** 1 epic, 5 features and 21 stories. 4 stories (and 1 feature) are already done, 17 stories are left to build.
 
 How to read this file:
 - `#42` is the GitHub issue number in this repository. The `M02-00NN` key is the sequence tag at the start of the issue title. Keys are not in build order.
@@ -156,7 +156,7 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #55 | 2 | `/brainstorming Story #55: where the source location and credentials live (database, config file or Airflow connection; never in the repo). Record the decision as D42 in Middleware/ConsumerComplaintsHandsOn/DESIGN.md` | Done | 2026-11-14 | 2026-11-14 |
 | #55 | 3 | `/verification-before-completion Story #55` | Done | 2026-11-14 | 2026-11-14 |
 | #55 | 4 | `/ccaa-commit-push 55` | Done | 2026-11-14 | 2026-11-14 |
-| #55 | 5 | `/ccaa-story-complete 55` | In progress | 2026-11-14 | - |
+| #55 | 5 | `/ccaa-story-complete 55` | Done | 2026-11-14 | 2026-11-14 |
 | #47 | 1 | `/ccaa-story-start 47` | Planned | - | - |
 | #47 | 2 | `/brainstorming Story #47: source location interface and factory; ctx in, integer out; type chosen from configuration (D42)` | Planned | - | - |
 | #47 | 3 | `/writing-plans Story #47` | Planned | - | - |
