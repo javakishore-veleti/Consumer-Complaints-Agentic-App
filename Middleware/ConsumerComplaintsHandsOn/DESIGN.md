@@ -23,17 +23,17 @@ Every item is marked:
 | D8 | Python ORM: **SQLAlchemy**. Schema versioning: **Alembic** (chosen over Liquibase, knowing Alembic lacks checksums, preconditions, contexts and a lock table). |
 | D9 | **SQLite now** for operational data, replaceable (Postgres or another database) with the fewest code changes. |
 | D10 | **MongoDB** holds the actual complaint data (local Docker container). |
-| D11 | **SQLite is written only by the API.** Airflow reports progress by calling API endpoints. |
+| D11 | **SQLite is written only by the API.** Airflow reports progress by calling API endpoints. *(Reworded by D51: Airflow may read the database but never writes it.)* |
 | D12 | The download is **asynchronous**: the facade triggers an Airflow DAG and returns. A separate DAG ingests into MongoDB. |
 | D13 | DB Ingest is started **manually** from its own screen (left nav, parallel to Imports), not automatically after a download. |
-| D14 | One common log table `data_ingest_log` with a `purpose` column, plus a `system_datasets` table with the current state. |
-| D15 | **One endpoint starts any download**, taking a `usecase`. **One endpoint receives Airflow status updates**, taking `usecase` and `status`. |
+| D14 | One common log table `data_ingest_log` with a `purpose` column, plus a `system_datasets` table with the current state. *(Superseded by D47.)* |
+| D15 | **One endpoint starts any download**, taking a `usecase`. **One endpoint receives Airflow status updates**, taking `usecase` and `status`. *(Superseded by D46: there is no usecase; the endpoints take a workflow and an execution.)* |
 | D16 | The dataset is **never committed to the repository**. *(The second sentence of this decision, "download reads from a configured location type and path", is superseded by D43: each workflow knows its own source, and the API has no source location types.)* |
 | D17 | Locally the migrations run from the start script before the API starts; in the cloud they will run from a manually triggered workflow (M03, D34). |
 | D18 | One OpenAPI (Swagger) specification for the whole hands-on project. |
 | D19 | Local: 3 months dataset. Cloud: All dataset. Same code, different configuration. |
 | D20 | MongoDB bulk ingestion by the Airflow job directly; PySpark only if measurements justify it. |
-| D21 | Three schemas: **`consumer_comp_db`** (consumer complaints area: `data_ingest_log`, later `system_datasets`; also the MongoDB database name), **`consumer_compl_intellect_db`** (the Intellect app's own area), **`consumer_comp_users_db`** (user management). Names are exactly as given. On SQLite each schema is an attached database file named after it; on Postgres and similar they are real schemas. |
+| D21 | Three schemas: **`consumer_comp_db`** (consumer complaints area: `data_ingest_log`, later `system_datasets`; also the MongoDB database name), **`consumer_compl_intellect_db`** (the Intellect app's own area), **`consumer_comp_users_db`** (user management). Names are exactly as given. On SQLite each schema is an attached database file named after it; on Postgres and similar they are real schemas. *(D48 adds the admin schema `consumer_comp_admin_db`.)* |
 | D22 | Return codes: `0` success, `1` failure, `2` not found, `3` invalid input (`app/core/common/return_codes.py`). More are added as needed. |
 | D23 | Migrations are written with Alembic's Python operations (`op.create_table`), not raw SQL, so the same migration runs on SQLite and Postgres. `alembic upgrade head --sql` prints the SQL when a SQL file is needed. |
 | D24 | The facade **stops at the first task that does not return success** and returns that code. |
@@ -52,12 +52,20 @@ Every item is marked:
 | D37 | **Every function and method takes nothing or exactly one ctx / request / DTO object, never separate arguments and never a bare value.** That includes API endpoints (each takes one request model that FastAPI fills from the path, query string or body), private helpers and test helpers. The result code also travels in `ctx.resp.code`, so the API reads it from the ctx. Only signatures a library dictates are exempt (Alembic's `_include_name`, SQLAlchemy's connect-event hook, the metaclass `__call__`), each listed with its reason in `tests/test_ctx_only_signatures.py`, which fails on any other violation. | Adding a field never changes a signature, every layer reads the same way, and the rule is enforced by a test instead of by memory. Side effect: the list endpoint's filter is now `?status=` (it was `?status_=` by accident of an argument name). |
 | D38 | **Milestones are scoped, and everything runs locally until the cloud milestone.** **M01** is the foundation: project organization (repository and conventions, Docker containers, the layered Middleware, the operational database with Alembic migrations, the API foundation) and the data ingest log API (create, get, list, update, delete). **M02** is downloads management: dataset status, the download API, the workflow registry (D43), the Airflow download DAGs and the admin portal. **M03** is cloud (AWS, Azure and GCP databases, the migration workflow, and the cloud workflows). The code keeps its seams (database URL in settings, one workflow engine class per engine type), so later milestones add code rather than rewrite it. | Finish a working, reviewable foundation first, then build on it milestone by milestone. |
 | D39 | **A transaction that several DAO calls share is opened by a service, through the `TransactionDao`.** `begin` puts an opaque handle on a `TransactionCtx`; the service puts that on the ctx of each DAO call (every DAO ctx extends `TransactionalCtx`); the DAOs then join it and do not commit; the service commits, or rolls back when any step does not return SUCCESS. With no transaction on the ctx a DAO call runs and commits on its own. | Business rules that touch two tables stay in the services layer, the DAOs stay one per table, and nothing above `dao/impl` sees SQLAlchemy. `tests/test_dataset_status_service.py` proves it: if the second write fails, the first is not kept. |
-| D40 | **`system_datasets` has one row per dataset and stage; the dataset row follows the log row.** Usecases map to rows (`download_3_months`, `download_all`, `ingest_3_months`, `ingest_all`). Requesting a run writes a `requested` log row and sets the row to `running`; a second request while it is running is a CONFLICT. A report (`started`, `completed`, `failed`) changes the newest log row of the usecase (D30 rules) and the dataset row together; the same report twice is accepted; a report carrying a `run_id` that differs from the newest row's `run_id` is a CONFLICT (an older run must not change the newest one). | Airflow retries callbacks and can be late, and the portal must always show one consistent state. |
-| D41 | **The `system_datasets` table, its DAO and the dataset status service (D39, D40) belong to M02.** They were built early, while M01 was still being scoped; they stay in the code and their issues are closed under M02. | Keeps the milestone boards honest about what each milestone is for. |
+| D40 | **`system_datasets` has one row per dataset and stage; the dataset row follows the log row.** Usecases map to rows (`download_3_months`, `download_all`, `ingest_3_months`, `ingest_all`). Requesting a run writes a `requested` log row and sets the row to `running`; a second request while it is running is a CONFLICT. A report (`started`, `completed`, `failed`) changes the newest log row of the usecase (D30 rules) and the dataset row together; the same report twice is accepted; a report carrying a `run_id` that differs from the newest row's `run_id` is a CONFLICT (an older run must not change the newest one). | Airflow retries callbacks and can be late, and the portal must always show one consistent state. *(Superseded by D47.)* |
+| D41 | **The `system_datasets` table, its DAO and the dataset status service (D39, D40) belong to M02.** They were built early, while M01 was still being scoped; they stay in the code and their issues are closed under M02. | Keeps the milestone boards honest about what each milestone is for. *(Superseded by D47: the table is retired.)* |
 | D42 | **The source location and credentials live in `.env`, and an API endpoint copies them into Airflow Variables.** *(Revised by D43: a workflow's non-secret settings now belong in its `config` JSON, so this decision covers credentials and any other secret. **Proposed**, to confirm.)* (1) Values are only in the git-ignored `.env`; a committed `.env.example` lists the names with empty values. (2) `CICD/Local/airflow/Airflow_Variables_Upsert.txt` lists, one per line, the Airflow Variable names to copy: names only, never values; blank lines and `#` comments are ignored. (3) `POST /management/airflow/upsert-secrets` (no body) reads each listed name's value from `.env` and creates or updates the Airflow Variable through Airflow's REST API. It returns one result per name (created, updated or missing) and never a value. A name missing from `.env` is reported and the rest still run, but the return code is a failure. The endpoint is protected by the shared secret of the callback endpoints. (4) DAGs read the location with `Variable.get`; credential names contain a word such as `secret` or `password` so Airflow masks them. (5) The Airflow username and password the endpoint uses also come from `.env`. (6) Airflow Connections for cloud credentials are deferred to M03 (D34, D38) and reuse this mechanism. (7) The endpoint is its own story under the Airflow download DAG feature, built before the DAG that reads the Variables. | Airflow never writes the database (D11) and the repo never holds a real value (D16); one `.env` serves the API and Airflow, the same code runs locally and in the cloud with different values (D19), and the committed list shows exactly which names reach Airflow. |
 | D43 | **Workflows are registered in the database, and there is no source-location interface.** (1) Every workflow that downloads or ingests data is one row of **`app_workflows`** in the admin schema: `workflow_name` (up to 100 characters), the **workflow engine type** (Apache Airflow, AWS Step Functions or another engine), the **engine's own id** for the workflow (the Airflow DAG id, the Step Functions state machine) and a **JSON config** for anything about the workflow, so a definition is reusable. (2) Every execution is recorded in **`app_workflows_exec_log`** with the same information. (3) There may be several download workflows and each knows its own source, so the FastAPI app has no source location types and no `SourceLocation` interface or package (supersedes the second sentence of D16; M02 feature #46 and stories #47 to #50 are closed as not planned; the new work is feature #78 and its stories, and the open questions are settled in story #79). (4) The portal lists the workflows from `app_workflows`; the FastAPI app starts the chosen one in its engine **asynchronously**; the engine calls the API when the run is complete (D11, D30); the portal reads the status through the API from whichever database is configured (SQLite, Postgres or MongoDB, behind the DAO interface). | The app stays agnostic of sources and engines; a new DAG or a new engine is data (and one engine class), not a code change in every layer. |
 | D44 | **The Airflow DAGs live in `Middleware/Airflow-dags`, outside the FastAPI app root.** `Middleware/ConsumerComplaintsHandsOn` is always the FastAPI app root; the DAGs are not part of that app. The Airflow compose file mounts `Airflow-dags` by relative path as the DAGs folder, so a new or edited DAG is picked up without stopping or recreating the container (the refresh interval is set short for local use). The folder replaces the repository-root `dags/`. **Not built yet.** | DAGs and the API are separate deployables with separate lifecycles. |
 | D45 | **Object factories are bean registries with an `init()`.** Like Spring bean ids: one interface, one or more implementations. Every `objects_factory` has an `init()` that the application's `main` calls once at startup (and that is safe to call twice); it creates each implementation as a singleton and registers it under its interface. Lookup is deterministic: where an interface has exactly one implementation the caller gets that instance (and it is an error if there are none or more than one); where the caller knows there are several, it gets the list of instances, in a fixed order. Each story that adds classes extends its package's factory to register them as singletons (a line in that story's acceptance). **Not built yet.** First candidate: looking up the workflow engine for an engine type (Proposed). | Refines D4, D25 and D26 (the factories exist today as lazy static methods without `init()`); nothing is retrofitted in one go, each package gains `init()` as stories touch it. |
+| D46 | **There is no usecase; the workflow is the unit.** The portal lists workflows; the start endpoint takes a workflow; the engine's callback reports against an execution of a workflow; what the portal shows for a MIO comes from the logs below. | Supersedes D15 and D40. Everything the app starts, tracks and shows is a workflow or a run of one. |
+| D47 | **`system_datasets` and `data_ingest_log` are retired.** Their role is taken by the catalog and the logs of D49 and D50. The code and tables stay until a removal story drops them (DAOs, `DatasetStatusService`, `/data-ingest-logs`, the two Alembic migrations stay as history and a new migration drops the tables). | The portal's "3 months" and "All" accordions become MIOs (D49). Supersedes D14, D40 and D41. |
+| D48 | **`consumer_comp_admin_db` is the schema for everything admin-related**: the workflow registry (D43) and the catalog (D49). `consumer_comp_db` stays as the name of the MongoDB database that holds the complaint data. | Adds a fourth schema to D21. The admin portal manages every table in it. |
+| D49 | **The catalog is data, in tables.** **`datasets`**: the master list (name, description). **`datasets_location`**: where a dataset is available; one dataset has several rows (S3, local, FTP, Google Drive, GitHub, plain HTTP(S) and so on): a location type code, a path, and a credentials reference (the name of a secret, never a value). **`mios`**: managed information objects, predefined and seeded by hand for now (customer complaints 3, 6, 9 and 12 months, 2026 and so on). **`mios_datasets`**: attaches datasets, and the chosen location of each, to a MIO. Location types are values in `datasets_location`, not code: there is no source-location interface (D43). | The data about where a dataset lives is managed in the admin portal and read by the workflows. |
+| D50 | **Two logs, with different jobs.** **`app_workflows_exec_log`** is global: every execution of every workflow. **`mios_ingest_log`** is specific to a MIO: what was ingested, its status, and its volume. One MIO ingest can involve **many executions** (reruns after failures, batches, a large dataset split into parts), so an exec-log row carries an optional reference to a `mios_ingest_log` row; a workflow without a MIO (a RAG workflow later) leaves it empty. Status changes of both follow the D30 rules. | The same execution record serves every workflow, while the MIO view stays about the MIO. |
+| D51 | **A workflow works out its own configuration.** The API creates the execution row and starts the workflow with only that row's id; the DAG reads the tables itself (workflow, MIO, dataset location, config) from whichever database is configured (SQLite, Postgres or MongoDB). **Airflow may read the operational database but never writes it** (it reports progress by calling the API, D11). The database URL reaches Airflow as an Airflow Variable (D42); the driver must be in the Airflow image (Postgres and SQLAlchemy are; MongoDB needs `pymongo`). Advanced configuration is a later step. | Simple for now. **Open risk:** a container reading the local SQLite file through a Docker bind mount can hit locking or file-sharing problems; if so, run the operational database on Postgres locally (D9 allows the swap). |
+| D52 | **`engine_type` is a short code, validated against the engine classes registered at startup (D45).** Values: `apache_airflow` now, `aws_step_functions` when its class exists. **M02 supports Apache Airflow only**; Step Functions comes with the cloud work (M03). Proposed columns of `app_workflows`: id, `workflow_name` (up to 100 characters, unique), `engine_type`, `engine_workflow_id`, `config` (JSON), `enabled`, created and updated times. | Adding an engine is one class and no migration. |
+| D53 | **The RAG layer is a later milestone, recorded here as direction only.** **`mios_rags`** describes the RAG technology stack of a MIO (Milvus, Postgres, Chroma, AWS OpenSearch and others, on local, AWS, Azure or GCP); one MIO can have several stacks so performance and cost can be compared. RAG workflows are their own entries in `app_workflows`, separate from the ingest workflows; they take the ingested data and run in **batch or incrementally**, chosen by volume. | No M02 stories. A new milestone will cover it. |
 
 ## 2. Conventions in detail
 
@@ -88,7 +96,7 @@ Every item is marked:
 
 ## 3. Operational data model (SQLite)
 
-### `data_ingest_log` (append-only history) — Implemented (schema `consumer_comp_db`, migration `0001`)
+### `data_ingest_log` (append-only history) — Implemented (schema `consumer_comp_db`, migration `0001`); **retired by D47, removal is its own story**
 The DAO sets `requested_at` on create, `started_at` when the status becomes `started`, and `finished_at` when it becomes
 `completed` or `failed`. The API exposes plain create / get / list / update / delete under `/data-ingest-logs`; the
 use-case endpoints of section 4.2 will sit on top of this table.
@@ -103,7 +111,7 @@ Status changes are enforced (D30).
 | requested_at, started_at, finished_at | UTC timestamps |
 | (optional) source type / path | where the data came from (**Open:** likely dropped, see D43 and `app_workflows_exec_log`) |
 
-### `system_datasets` (current state) — Implemented (schema `consumer_comp_db`, migration `0002`)
+### `system_datasets` (current state) — Implemented (schema `consumer_comp_db`, migration `0002`); **retired by D47, removal is its own story**
 **Decided (D40):** one row per dataset and stage (not JSON, not independent columns).
 - Adding a dataset or stage is just new rows, no migration, no JSON read-modify-write race between two callbacks. Migration `0002` seeds the four rows as `not_started`.
 
@@ -118,63 +126,73 @@ Status changes are enforced (D30).
 - Status is a value, not a boolean: the UI must tell not started, running, completed and failed apart. The dataset row follows the log row: requested and started show as running, completed as completed, failed as failed (D40).
 - **Open:** a new download of the 3-month dataset resets its ingest status (leaning yes; not done yet). **Open:** record the absolute date range covered.
 
-### `app_workflows` (the registry of workflows) — **Decided in outline (D43), not built**
-Lives in the **admin schema** (its name is **Open**, see section 8). One row per workflow the portal can list and start.
+### The admin schema `consumer_comp_admin_db` (D48) — **Decided (D43, D46 to D52), not built**
+All tables below live in it. Column lists marked *(Proposed)* are defaults that can change.
+
+#### `app_workflows` (the registry of workflows)
+One row per workflow the portal can list and start.
 
 | Column | Meaning |
 |---|---|
 | id | application-generated ID |
-| workflow_name | up to 100 characters, what the portal shows |
-| engine_type | the workflow engine: Apache Airflow, AWS Step Functions, or another |
+| workflow_name | up to 100 characters, unique *(Proposed)*, what the portal shows |
+| engine_type | short code of the engine: `apache_airflow`, later `aws_step_functions` (D52) |
 | engine_workflow_id | the engine's own id for it: the Airflow DAG id, the Step Functions state machine |
-| config | JSON: anything about the workflow, so a definition is reusable |
+| config | JSON: anything about the workflow; non-secret values only, secrets stay in `.env` and Airflow Variables (D42) |
+| enabled, created_at, updated_at | *(Proposed)* |
 
-- **Open:** other columns (for example enabled flag, created and updated times), whether `workflow_name` is unique, the allowed values of `engine_type` (a fixed list or free text), and whether the JSON config holds only non-secret values (**Proposed**: yes; secrets stay in `.env` and Airflow Variables, D42).
-
-### `app_workflows_exec_log` (every execution) — **Decided in outline (D43), not built**
-One row each time a workflow is executed, carrying the workflow's information as it was at that time.
-
+#### `app_workflows_exec_log` (every execution of every workflow, D50)
 | Column | Meaning |
 |---|---|
-| id | application-generated ID |
-| workflow | the `app_workflows` row (id) |
+| id | application-generated ID; the only value the API hands to the engine (D51) |
+| workflow | the `app_workflows` row |
 | workflow_name, engine_type, engine_workflow_id | copied from the registry row at execution time |
-| (Proposed) config used | the JSON the run was started with |
-| (Proposed) engine run id | the engine's own run id (for example the Airflow run id), used to match the engine's callback |
-| (Proposed) status, message, requested / started / finished times | same status rules as D30 |
+| mios_ingest_log | optional: the MIO ingest this execution belongs to (many executions to one ingest) |
+| config used, engine run id | *(Proposed)* the JSON in force, and the engine's run id (for example the Airflow run id) |
+| status, message, requested / started / finished times | *(Proposed)* statuses requested, started, completed, failed; D30 rules |
 
-- **Open:** how this table relates to `data_ingest_log` and `system_datasets` (replace them, or sit beside them), and how a `usecase` (dataset + stage) maps to a workflow.
+#### The catalog (D49)
+| Table | Columns *(Proposed)* |
+|---|---|
+| `datasets` | id, name (unique), description |
+| `datasets_location` | id, dataset, location type (code), path, credentials reference (a name, never a value), description |
+| `mios` | id, name (unique), description |
+| `mios_datasets` | id, mio, dataset, dataset location (the chosen one) |
+| `mios_ingest_log` | id, mio, status (D30 rules), message, requested / started / finished times, volume (rows loaded, batch or increment markers) |
 
-Users and execution logs are further SQLite tables, to be defined. The log table's name says "ingest" but also records downloads; `data_pipeline_log` would be clearer (**Open**, naming only).
+- **Open:** how the status of a `mios_ingest_log` row is derived from its executions (for example completed only when every execution is completed, failed when one fails and is not rerun), and the exact volume columns.
+- **Open:** the list of location type codes (for example `local`, `http`, `github`, `s3`, `azure_blob`, `gcs`, `google_drive`, `ftp`); the DAGs interpret them, the API does not (D43).
+- **Open:** how a workflow is attached to a MIO (reusable across MIOs, or specific to one), for example a link table or a value in the workflow's config.
+- Seeding: the predefined MIOs and their datasets and locations are inserted by migration or script for now; managing them from the portal is later.
+
+Users are a further table, to be defined.
 
 ## 4. API contract (Proposed; one OpenAPI spec)
 
-### 4.1 Usecases
-A fixed set; each maps to one `system_datasets` row. Illustrative: download for 3 months, download for all, ingest for 3 months,
-ingest for all. Exact names **Open**.
+### 4.1 Workflows
+There is no usecase (D46). The unit is a registered workflow (`app_workflows`); a run of it is a row of `app_workflows_exec_log`.
 
 ### 4.2 Endpoints
 | Purpose | Called by | Input |
 |---|---|---|
-| Start a download | admin portal | `usecase` |
-| Start a DB ingest | admin portal | `usecase` |
-| Status update (Airflow callback) | Airflow | `usecase`, `status` (started, completed, failed); **Open:** also optional `run_id` and `message` (recommended) |
-| Read dataset status | admin portal | none (returns the accordion data) |
+| List workflows | admin portal | none |
+| Start a workflow | admin portal | the workflow; optionally the MIO and the dataset location. Creates the execution row, starts the run in its engine, returns at once with the execution id |
+| Status update (engine callback) | Airflow | the execution id, `status` (started, completed, failed), optional engine run id and `message` |
+| Read status | admin portal | none or a MIO (what the accordions show: the MIOs and the status of their ingests and executions) |
 
 - The callback endpoints need a **shared secret**; the caller is Airflow, not a person.
-- Allowed status changes: requested -> started -> completed or failed. Anything else (duplicate, out of order) is ignored or rejected, because Airflow retries.
+- Allowed status changes: requested -> started -> completed or failed (D30). Anything else (duplicate, out of order) is ignored or rejected, because Airflow retries.
 - **Open:** one "completed" endpoint with an outcome, or separate completed and failed endpoints. **Open:** code-first (FastAPI generates the spec, exported to a committed file) versus spec-first, and where the file lives. Leaning: code-first with an exported file.
-- The DAG's final task must run even when earlier tasks fail, so a crashed run does not leave the row stuck on "running".
-- **Proposed, from D43:** a list-workflows endpoint (portal), and a start endpoint that takes a workflow instead of a `usecase`; both **Open** until the relation to `usecase` is settled (section 3). The completion callback and the status read stay as above.
+- The DAG's final task must run even when earlier tasks fail, so a crashed run does not leave the execution stuck on "running".
 
 ## 5. Download design
 
 - **Decided (D43):** downloads are **workflows**, registered in `app_workflows`. There can be several download workflows, and each knows its own source. The portal lists them; the FastAPI app starts the chosen one in its engine asynchronously; the engine reports completion by calling the API; the portal reads the status through the API.
 - **Decided (D43):** the API has **no source-location interface and no source location types**. Anything about where the data comes from belongs to the workflow (its code and its JSON config), not to the app. Features #46 to #50 of M02 are superseded by this.
 - **Decided (D44):** the Airflow DAGs live in `Middleware/Airflow-dags`, outside the FastAPI app root, mounted into Airflow by relative path so new DAGs appear without a restart.
-- **Decided (D42, revised by D43):** credentials stay in `.env` and reach Airflow as Variables through `POST /management/airflow/upsert-secrets`. **Proposed:** non-secret settings (a location, a path) live in the workflow's `config` JSON.
+- **Decided (D42, revised by D43):** credentials stay in `.env` and reach Airflow as Variables through `POST /management/airflow/upsert-secrets`. Non-secret settings: where a dataset lives is in `datasets_location` (D49), anything else about the workflow is in its `config` JSON.
 - Airflow ships provider packages for S3, GCS, Azure Blob and Google Drive; a DAG that reads one of those uses them. Check which are already in the official image.
-- **Open:** how a workflow reads its `config` (passed in the trigger call, or read from the table) and where it finds the Variables.
+- **Decided (D51):** the workflow works out its own configuration by reading the tables; the API passes only the execution id. Where the DAG finds the database URL: an Airflow Variable.
 - **Open:** where the file lands between download and ingest (local folder locally, object storage in the cloud).
 - Facts that shape it: the CFPB filtered export is capped at 100,000 rows, the 3-month window is 2,036,290 rows, so the **3 months dataset is derived from the All file by filtering on `Date received`**. The file is about 350 MB zipped, and is not date-sorted in the sampled part, so the whole file is read. The API is not suitable for bulk (10,000-row window per query).
 
@@ -203,10 +221,12 @@ ingest for all. Exact names **Open**.
 - Does Intellect share the operational database? **Open**
 - What the portal's "Airflow" entry is (link to the Airflow UI, or its own screen). **Open**
 - Return-code values: **Decided (D22)**, more may be added.
-- Which schema holds `system_datasets` (planned: `consumer_comp_db`, next to `data_ingest_log`). **Proposed**
 - The schema names mix `comp` and `compl` (`consumer_compl_intellect_db`); kept exactly as given. **Open** if it should be unified.
-- User management and execution-log tables. **Open**
-- The name of the **admin schema** that holds `app_workflows` and `app_workflows_exec_log` (the existing three are `consumer_comp_db`, `consumer_compl_intellect_db`, `consumer_comp_users_db`). **Open**, settled in story #79
-- How `app_workflows_exec_log` relates to `data_ingest_log` and `system_datasets`, and how a `usecase` maps to a workflow (section 3). **Open**
-- Which workflow engines are supported first (Apache Airflow only in M02; AWS Step Functions in M03?) and whether a `WorkflowEngine` interface in `services/`, one implementation per engine type, looked up through the factory (D45), is how the API starts a run. **Proposed**
-- M02's feature #46 and stories #47 to #50 are closed as not planned; feature #78 (Workflow registry) and stories #79 to #85 replace them. **Decided**
+- User management tables. **Open**
+- The admin schema is `consumer_comp_admin_db`. **Decided (D48)**
+- `system_datasets` and `data_ingest_log` are retired and replaced by the catalog and the two logs; there is no usecase. **Decided (D46, D47, D49, D50)**
+- How a workflow reads its configuration. **Decided (D51)** (open risk: SQLite through a Docker bind mount)
+- Engine types and the first engine: `apache_airflow` only in M02. **Decided (D52)**. Whether the API starts a run through a `WorkflowEngine` interface in `services/`, one implementation per engine type, looked up through the factory (D45). **Proposed**
+- The RAG layer (`mios_rags`, RAG workflows, batch or incremental runs) is a later milestone. **Decided (D53)**
+- M02's feature #46 and stories #47 to #50 are closed as not planned; feature #78 (Workflow registry) and its stories replace them. **Decided**
+- The open items listed in section 3 (ingest status derivation, location type codes, attaching workflows to MIOs). **Open**

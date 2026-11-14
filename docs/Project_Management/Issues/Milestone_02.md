@@ -167,8 +167,8 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
 | #79 (decision only, no code) | 1 | `/ccaa-story-start 79` | Done | 2026-11-14 | 2026-11-14 |
-| #79 | 2 | `/brainstorming Story #79: decide the admin schema name, how a usecase maps to a workflow, the fate of data_ingest_log and system_datasets, how a workflow reads its config, the other columns and engine types, and the first engines. Record each as a decision in Middleware/ConsumerComplaintsHandsOn/DESIGN.md` | In progress | 2026-11-14 | - |
-| #79 | 3 | `/verification-before-completion Story #79` | Planned | - | - |
+| #79 | 2 | `/brainstorming Story #79: decide the admin schema name, how a usecase maps to a workflow, the fate of data_ingest_log and system_datasets, how a workflow reads its config, the other columns and engine types, and the first engines. Record each as a decision in Middleware/ConsumerComplaintsHandsOn/DESIGN.md` | Done | 2026-11-14 | 2026-11-14 |
+| #79 | 3 | `/verification-before-completion Story #79` | In progress | 2026-11-14 | - |
 | #79 | 4 | `/ccaa-commit-push 79` | Planned | - | - |
 | #79 | 5 | `/ccaa-story-complete 79` | Planned | - | - |
 | #80 | 1 | `/ccaa-story-start 80` | Planned | - | - |
@@ -453,4 +453,4 @@ The skills live in `.cursor/skills/`. Each takes a GitHub issue number.
 - **Open questions on the issues:** #65 (poll or refresh). The #55 question is decided in D42 (revised by D43): credentials in `.env`, copied into Airflow Variables by story #77.
 - **Story #77 was added** while deciding #55 (D42). It is under feature #56 and is built first in Phase 3, because the DAG reads the Variables it creates.
 - **Moved to M03 - Cloud Deployment:** #51 S3, #52 Azure Blob, #53 GCP Cloud Storage, #54 Google Drive, and the cloud migration workflow #24. They are not part of this milestone. #51 to #54 were written as source types, so under D43 they need rewriting as cloud workflows before M03 starts (they are still open).
-- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D46.
+- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D54.

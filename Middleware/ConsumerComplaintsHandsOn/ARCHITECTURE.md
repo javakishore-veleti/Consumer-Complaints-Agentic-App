@@ -22,7 +22,7 @@ flowchart LR
 
 Two write rules that everything follows:
 
-1. **SQLite is written only by the API.** Airflow never touches it; it reports progress by calling the API.
+1. **SQLite is written only by the API.** Airflow may read it (D51) but never writes it; it reports progress by calling the API.
 2. **MongoDB (the bulk complaint data) is written only by the Airflow ingest job**, directly, in batches.
    Pushing millions of records through the API layers would be slow and pointless.
 
@@ -111,14 +111,14 @@ sequenceDiagram
     participant F as Facade (tasks)
     participant AF as Workflow engine (Airflow)
     participant SRC as Source (known to the workflow)
-    UI->>API: list workflows, then start one (D43; usecase mapping Open)
+    UI->>API: list workflows, then start one (D43, D46)
     API->>F: ctx
     F->>F: task: create log row, set status
     F->>AF: task: trigger download DAG (async)
     API-->>UI: accepted
-    AF->>API: status: started (usecase)
+    AF->>API: status: started (execution id)
     AF->>SRC: the workflow fetches the dataset file
-    AF->>API: status: completed or failed (usecase)
+    AF->>API: status: completed or failed (execution id)
     API->>F: ctx
     F->>F: task: update log row and dataset status
     UI->>API: read dataset status
@@ -143,7 +143,7 @@ In the part of the file sampled, rows are not sorted by date, so the whole file 
 
 | Store | Holds | Written by | Swappable |
 |---|---|---|---|
-| SQLite | users, execution logs, `system_datasets`, `data_ingest_log`, `app_workflows`, `app_workflows_exec_log` (planned), other operational data | the API only | yes: Postgres or similar through the DAO interface and SQLAlchemy |
+| SQLite | users, the admin schema tables (workflow registry, catalog and logs; planned, D48), `system_datasets` and `data_ingest_log` (built, retired by D47), other operational data | the API only (Airflow reads it, D51) | yes: Postgres or similar through the DAO interface and SQLAlchemy |
 | MongoDB | the complaint data | the Airflow ingest job | by DAO implementation |
 | Airflow's own Postgres | Airflow metadata | Airflow | n/a (separate, not used by the app) |
 
@@ -151,10 +151,10 @@ Schemas (names exactly as decided):
 
 | Schema | Holds |
 |---|---|
-| `consumer_comp_db` | the consumer complaints area: `data_ingest_log` (built), `system_datasets` (planned). Also the MongoDB database name for the complaint data. |
+| `consumer_comp_db` | `data_ingest_log` and `system_datasets` (built, retired by D47). Also the MongoDB database name for the complaint data. |
 | `consumer_compl_intellect_db` | the Intellect app's own operational data (empty for now) |
 | `consumer_comp_users_db` | user management (empty for now) |
-| admin schema (name **Open**) | `app_workflows` and `app_workflows_exec_log` (planned, D43) |
+| `consumer_comp_admin_db` | everything admin-related (D48): the workflow registry `app_workflows` and `app_workflows_exec_log`, the catalog `datasets`, `datasets_location`, `mios`, `mios_datasets`, and `mios_ingest_log` (planned, D43, D49, D50) |
 
 SQLite has no real schemas, so each one is a separate database file, attached by name, in `Middleware/ConsumerComplaintsHandsOn/.data/`
 (`consumer_comp_db.sqlite`, ...; plus `operational.sqlite` for the Alembic version table). On Postgres and similar databases

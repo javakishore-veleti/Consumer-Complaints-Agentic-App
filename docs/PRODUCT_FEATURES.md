@@ -54,7 +54,7 @@ is done asynchronously by Apache Airflow.
 - Per accordion, show whether that dataset is downloaded or not, when, and if it failed, why. Status comes from the
   database, not from guessing.
 - A button starts the download. It returns immediately; the real work runs in Airflow.
-- **One API endpoint starts any kind of download.** It takes a `usecase`.
+- **One API endpoint starts any registered workflow** (D46: there is no usecase).
 - The **3 months** dataset is the **All** file filtered to the last 3 months, because the site cannot export 3 months.
 - The same flow works locally (3 months, small) and in the cloud (All).
 
@@ -71,7 +71,7 @@ Each workflow that downloads or ingests data is registered in the database, so t
 - Every execution is recorded in an execution log with the same information.
 - There can be several download workflows. Each knows its own source (local, GitHub, Drive, S3, Azure Blob, GCS, plain HTTP(S) and so on), so the API has no source-location types.
 - Credentials never live in the repo.
-- Which database holds the registry, and the name of its schema (the admin schema), is **[Open]**.
+- The registry and the catalog (datasets, dataset locations, MIOs, and their ingest log) live in the admin schema `consumer_comp_admin_db` (D48, D49). The RAG layer is a later milestone (D53).
 
 ### F4. DB Ingest: load the data into MongoDB [Planned]
 - A second Airflow job reads the downloaded data and writes it into MongoDB **in batches**.
@@ -81,8 +81,7 @@ Each workflow that downloads or ingests data is registered in the database, so t
 - Ingest speed: start with plain Python batch writes; PySpark only if measurements say it is needed. **[Open]**
 
 ### F5. Status tracking and history [Planned]
-- A common log, `data_ingest_log`, records every attempt (history) with a `purpose`.
-- A table, `system_datasets`, holds the current state per dataset, which the accordions read.
+- Every execution of a workflow is recorded in `app_workflows_exec_log`, and every ingest of a MIO in `mios_ingest_log` (D50). They replace `data_ingest_log` and `system_datasets` (D47), which the accordions read today.
 - Airflow reports progress by calling the API (a `started` update and a `completed` update); it never writes to SQLite itself.
 - Allowed status changes are enforced by the API, so duplicate or out-of-order callbacks are harmless.
 
@@ -137,9 +136,9 @@ Each workflow that downloads or ingests data is registered in the database, so t
 ## 6. Open questions
 
 1. Credentials stay in `.env` and Airflow Variables; a workflow's other settings go in its JSON config (proposed). How does a workflow read that config?
-2. How does `app_workflows_exec_log` relate to `data_ingest_log` and `system_datasets`, and how does a usecase map to a workflow?
+2. How is the status of a MIO ingest derived from its executions, and which location type codes exist?
 3. Where does the downloaded file land between download and ingest (local folder now, object storage in the cloud)?
-4. What is the name of the admin schema?
+4. How is a workflow attached to a MIO (a link table, or a value in its config)?
 5. Should the log record the absolute date range a 3-month dataset covered, and should a new download reset its ingest status?
 6. Should the accordions poll for status while something is running, or only refresh on a button?
 7. One row per dataset and stage in `system_datasets`, JSON, or independent columns? (one row per dataset and stage is proposed)
