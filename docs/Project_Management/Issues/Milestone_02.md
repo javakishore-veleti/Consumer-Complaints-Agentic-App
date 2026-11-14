@@ -198,8 +198,8 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #81 | 10 | `/ccaa-commit-push 81` | Done | 2026-11-14 16:53 | 2026-11-14 16:55 |
 | #81 | 11 | `/finishing-a-development-branch Story #81` | Done | 2026-11-14 16:55 | 2026-11-14 16:56 |
 | #81 | 12 | `/ccaa-story-complete 81` | Done | 2026-11-14 16:56 | 2026-11-14 16:59 |
-| #82 | 1 | `/ccaa-story-start 82` | Planned | - | - |
-| #82 | 2 | `/brainstorming Story #82: app_workflows_exec_log table and DAO; keeps the workflow's information as it was at execution time; status rules of D30` | Planned | - | - |
+| #82 | 1 | `/ccaa-story-start 82` | Done | 2026-11-14 17:00 | 2026-11-14 17:00 |
+| #82 | 2 | `/brainstorming Story #82: app_workflows_exec_log table and DAO; keeps the workflow's information as it was at execution time; status rules of D30` | In progress | 2026-11-14 17:00 | - |
 | #82 | 3 | `/using-git-worktrees Story #82: branch m02-0032-app-workflows-exec-log-table-with-its` | Planned | - | - |
 | #82 | 4 | `/writing-plans Story #82` | Planned | - | - |
 | #82 | 5 | `/test-driven-development Story #82` | Planned | - | - |
