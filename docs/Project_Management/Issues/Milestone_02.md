@@ -166,8 +166,8 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
-| #79 (decision only, no code) | 1 | `/ccaa-story-start 79` | Planned | - | - |
-| #79 | 2 | `/brainstorming Story #79: decide the admin schema name, how a usecase maps to a workflow, the fate of data_ingest_log and system_datasets, how a workflow reads its config, the other columns and engine types, and the first engines. Record each as a decision in Middleware/ConsumerComplaintsHandsOn/DESIGN.md` | Planned | - | - |
+| #79 (decision only, no code) | 1 | `/ccaa-story-start 79` | Done | 2026-11-14 | 2026-11-14 |
+| #79 | 2 | `/brainstorming Story #79: decide the admin schema name, how a usecase maps to a workflow, the fate of data_ingest_log and system_datasets, how a workflow reads its config, the other columns and engine types, and the first engines. Record each as a decision in Middleware/ConsumerComplaintsHandsOn/DESIGN.md` | In progress | 2026-11-14 | - |
 | #79 | 3 | `/verification-before-completion Story #79` | Planned | - | - |
 | #79 | 4 | `/ccaa-commit-push 79` | Planned | - | - |
 | #79 | 5 | `/ccaa-story-complete 79` | Planned | - | - |
@@ -207,7 +207,7 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #82 | 10 | `/ccaa-commit-push 82` | Planned | - | - |
 | #82 | 11 | `/finishing-a-development-branch Story #82` | Planned | - | - |
 | #82 | 12 | `/ccaa-story-complete 82` | Planned | - | - |
-| Feature #78 | 1 | `/ccaa-feature-complete 78` | Planned | - | - |
+| Feature #78 | 1 | `/ccaa-feature-complete 78` | In progress | 2026-11-14 | - |
 
 ### Phase 2 - Download API, the status and listing side
 
