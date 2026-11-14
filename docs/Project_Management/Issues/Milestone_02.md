@@ -2,7 +2,7 @@
 
 **Scope (decision D38 in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`):** download the free CFPB dataset on demand from the admin portal, asynchronously through Airflow, through registered workflows (D43), and always show whether it has been downloaded. Everything runs locally. Cloud work is M03.
 
-**Status: in progress.** 1 epic, 5 features and 27 stories. 8 stories (and 1 feature) are already done, 19 stories are left to build.
+**Status: in progress.** 1 epic, 5 features and 27 stories. 9 stories (and 1 feature) are already done, 18 stories are left to build.
 
 How to read this file:
 - `#42` is the GitHub issue number in this repository. The `M02-00NN` key is the sequence tag at the start of the issue title. Keys are not in build order.
@@ -227,13 +227,13 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #87 | 3 | `/using-git-worktrees Story #87: branch m02-0037-mios-ingest-log-table-and-dao` | Done | 2026-11-14 18:26 | 2026-11-14 18:26 |
 | #87 | 4 | `/writing-plans Story #87` | Done | 2026-11-14 18:26 | 2026-11-14 18:37 |
 | #87 | 5 | `/test-driven-development Story #87` | Done | 2026-11-14 18:37 | 2026-11-14 18:37 |
-| #87 | 6 | `/subagent-driven-development Story #87` | In progress | 2026-11-14 18:37 | - |
-| #87 | 7 | `/ccaa-commit-push 87` after every task (repeat) | Planned | - | - |
-| #87 | 8 | `/verification-before-completion Story #87` | Planned | - | - |
-| #87 | 9 | `/requesting-code-review Story #87` | Planned | - | - |
-| #87 | 10 | `/ccaa-commit-push 87` | Planned | - | - |
-| #87 | 11 | `/finishing-a-development-branch Story #87` | Planned | - | - |
-| #87 | 12 | `/ccaa-story-complete 87` | Planned | - | - |
+| #87 | 6 | `/subagent-driven-development Story #87` | Done | 2026-11-14 18:37 | 2026-11-14 18:50 |
+| #87 | 7 | `/ccaa-commit-push 87` after every task (repeat) | Done | 2026-11-14 18:50 | 2026-11-14 18:50 |
+| #87 | 8 | `/verification-before-completion Story #87` | Done | 2026-11-14 18:50 | 2026-11-14 18:55 |
+| #87 | 9 | `/requesting-code-review Story #87` | Done | 2026-11-14 18:55 | 2026-11-14 18:55 |
+| #87 | 10 | `/ccaa-commit-push 87` | Done | 2026-11-14 18:55 | 2026-11-14 18:56 |
+| #87 | 11 | `/finishing-a-development-branch Story #87` | Done | 2026-11-14 18:56 | 2026-11-14 18:58 |
+| #87 | 12 | `/ccaa-story-complete 87` | Done | 2026-11-14 18:58 | 2026-11-14 18:58 |
 
 ### Phase 2 - Download API, the status side
 
