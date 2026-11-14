@@ -203,9 +203,9 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #82 | 3 | `/using-git-worktrees Story #82: branch m02-0032-app-workflows-exec-log-table-with-its` | Done | 2026-11-14 17:05 | 2026-11-14 17:08 |
 | #82 | 4 | `/writing-plans Story #82` | Done | 2026-11-14 17:08 | 2026-11-14 17:11 |
 | #82 | 5 | `/test-driven-development Story #82` | Done | 2026-11-14 17:11 | 2026-11-14 17:12 |
-| #82 | 6 | `/subagent-driven-development Story #82` | In progress | 2026-11-14 17:12 | - |
-| #82 | 7 | `/ccaa-commit-push 82` after every task (repeat) | Planned | - | - |
-| #82 | 8 | `/verification-before-completion Story #82` | Planned | - | - |
+| #82 | 6 | `/subagent-driven-development Story #82` | Done | 2026-11-14 17:12 | 2026-11-14 17:17 |
+| #82 | 7 | `/ccaa-commit-push 82` after every task (repeat) | Done | 2026-11-14 17:14 | 2026-11-14 17:17 |
+| #82 | 8 | `/verification-before-completion Story #82` | In progress | 2026-11-14 17:17 | - |
 | #82 | 9 | `/requesting-code-review Story #82` | Planned | - | - |
 | #82 | 10 | `/ccaa-commit-push 82` | Planned | - | - |
 | #82 | 11 | `/finishing-a-development-branch Story #82` | Planned | - | - |

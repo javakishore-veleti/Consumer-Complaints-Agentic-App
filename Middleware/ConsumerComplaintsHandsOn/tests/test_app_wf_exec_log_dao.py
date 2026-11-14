@@ -4,6 +4,7 @@ from datetime import datetime, timedelta, timezone
 import pytest
 
 from app.core.common.dtos.app_wf_dtos import AppWfCtx, AppWfRecord, AppWfReq
+from app.core.common.dtos.transaction_dtos import TransactionCtx
 from app.core.common.dtos.app_wf_exec_log_dtos import AppWfExecLogCtx, AppWfExecLogRecord, AppWfExecLogReq
 from app.core.common.return_codes import CONFLICT, INVALID_INPUT, NOT_FOUND, SUCCESS
 from app.core.dao.impl import sqlalchemy_app_wf_exec_log_dao as dao_impl
@@ -280,3 +281,32 @@ def test_list_limit_and_offset(data_dir, monkeypatch):
     assert [r.id for r in _list(limit=2)] == newest_first[:2]
     assert [r.id for r in _list(limit=2, offset=2)] == newest_first[2:4]
     assert [r.id for r in _list(offset=4)] == newest_first[4:]
+
+
+def test_create_reads_the_workflow_inside_the_same_shared_transaction(data_dir):
+    workflows = DaoObjectsFactory.get_app_wf_dao()
+    logs = DaoObjectsFactory.get_app_wf_exec_log_dao()
+    transactions = DaoObjectsFactory.get_transaction_dao()
+
+    rolled_back = TransactionCtx()
+    assert transactions.begin(rolled_back) == SUCCESS
+    new_workflow = AppWfCtx(
+        transaction=rolled_back,
+        req=AppWfReq(workflow_name="inside", engine_type="apache_airflow", engine_workflow_id="d"),
+    )
+    assert workflows.create(new_workflow) == SUCCESS  # not committed yet: only this transaction sees it
+    execution = AppWfExecLogCtx(transaction=rolled_back, req=AppWfExecLogReq(workflow_id=new_workflow.resp.records[0].id))
+    assert logs.create(execution) == SUCCESS
+    assert execution.resp.records[0].workflow_name == "inside"
+    assert transactions.rollback(rolled_back) == SUCCESS
+    assert _list() == []
+    assert workflows.get(AppWfCtx(req=AppWfReq(workflow_name="inside"))) == NOT_FOUND
+
+    workflow = _workflow("kept")
+    committed = TransactionCtx()
+    assert transactions.begin(committed) == SUCCESS
+    kept = AppWfExecLogCtx(transaction=committed, req=AppWfExecLogReq(workflow_id=workflow.id))
+    assert logs.create(kept) == SUCCESS
+    assert _list() == []  # not visible outside before the commit
+    assert transactions.commit(committed) == SUCCESS
+    assert [r.id for r in _list()] == [kept.resp.records[0].id]

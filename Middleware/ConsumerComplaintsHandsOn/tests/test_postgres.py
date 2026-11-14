@@ -15,9 +15,10 @@ from sqlalchemy import create_engine, inspect, text
 
 from app.core.common.config import ALL_SCHEMAS, PROJECT_ROOT, SCHEMA_ADMIN, SCHEMA_COMPLAINTS
 from app.core.common.dtos.app_wf_dtos import AppWfCtx, AppWfReq
+from app.core.common.dtos.app_wf_exec_log_dtos import AppWfExecLogCtx, AppWfExecLogReq
 from app.core.common.dtos.data_ingest_dtos import DataIngestCtx, DataIngestReq
 from app.core.common.dtos.dataset_status_dtos import DatasetStatusCtx, DatasetStatusReq
-from app.core.common.return_codes import CONFLICT, SUCCESS
+from app.core.common.return_codes import CONFLICT, NOT_FOUND, SUCCESS
 from app.core.dao.impl.database import reset_engine
 from app.core.dao.objects_factory import DaoObjectsFactory
 from app.core.services.objects_factory import ServicesObjectsFactory
@@ -140,3 +141,44 @@ def test_app_wf_dao_works_on_postgres(postgres):
     assert dao.update(renamed) == SUCCESS and renamed.resp.records[0].workflow_name == "renamed"
     assert renamed.resp.records[0].updated_at.tzinfo is not None
     assert dao.delete(AppWfCtx(req=AppWfReq(id=row.id))) == SUCCESS
+
+
+def test_app_wf_exec_log_dao_works_on_postgres(postgres):
+    command.upgrade(postgres, "head")
+    assert "app_workflows_exec_log" in _admin_tables()
+    workflows = DaoObjectsFactory.get_app_wf_dao()
+    logs = DaoObjectsFactory.get_app_wf_exec_log_dao()
+    config = {"source": {"type": "http", "urls": ["a", "b"]}, "retries": 3, "limit": None}
+    made = AppWfCtx(
+        req=AppWfReq(workflow_name="download_3_months", engine_type="apache_airflow", engine_workflow_id="dag", config=config)
+    )
+    assert workflows.create(made) == SUCCESS
+    workflow = made.resp.records[0]
+
+    created = AppWfExecLogCtx(req=AppWfExecLogReq(workflow_id=workflow.id))
+    assert logs.create(created) == SUCCESS
+    row = created.resp.records[0]
+    assert row.status == "requested" and row.config_used == config and row.requested_at.tzinfo is not None
+    assert logs.create(AppWfExecLogCtx(req=AppWfExecLogReq(workflow_id="no-such-workflow"))) == NOT_FOUND
+
+    assert logs.update(AppWfExecLogCtx(req=AppWfExecLogReq(id=row.id, status="completed"))) == CONFLICT
+    started = AppWfExecLogCtx(req=AppWfExecLogReq(id=row.id, status="started", engine_run_id="run-1"))
+    assert logs.update(started) == SUCCESS and started.resp.records[0].started_at is not None
+    done = AppWfExecLogCtx(req=AppWfExecLogReq(id=row.id, status="completed"))
+    assert logs.update(done) == SUCCESS and done.resp.records[0].finished_at is not None
+    assert logs.update(AppWfExecLogCtx(req=AppWfExecLogReq(id=row.id, status="failed"))) == CONFLICT
+
+    # No foreign key: the row survives the workflow being renamed and then deleted.
+    assert workflows.update(AppWfCtx(req=AppWfReq(id=workflow.id, workflow_name="renamed"))) == SUCCESS
+    assert workflows.delete(AppWfCtx(req=AppWfReq(id=workflow.id))) == SUCCESS
+    fetched = AppWfExecLogCtx(req=AppWfExecLogReq(id=row.id))
+    assert logs.get(fetched) == SUCCESS
+    assert (fetched.resp.records[0].workflow_name, fetched.resp.records[0].config_used) == ("download_3_months", config)
+
+    listed = AppWfExecLogCtx(req=AppWfExecLogReq(workflow_id=workflow.id, status="completed"))
+    assert logs.list(listed) == SUCCESS and [r.id for r in listed.resp.records] == [row.id]
+
+    command.downgrade(postgres, "0003")
+    assert "app_workflows_exec_log" not in _admin_tables()
+    command.upgrade(postgres, "head")
+    assert "app_workflows_exec_log" in _admin_tables()

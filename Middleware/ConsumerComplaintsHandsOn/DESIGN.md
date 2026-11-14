@@ -129,7 +129,7 @@ Status changes are enforced (D30).
 - Status is a value, not a boolean: the UI must tell not started, running, completed and failed apart. The dataset row follows the log row: requested and started show as running, completed as completed, failed as failed (D40).
 - **Open:** a new download of the 3-month dataset resets its ingest status (leaning yes; not done yet). **Open:** record the absolute date range covered.
 
-### The admin schema `consumer_comp_admin_db` (D48) — **Decided (D43, D46 to D52); `app_workflows` built in story #81, the rest not built**
+### The admin schema `consumer_comp_admin_db` (D48) — **Decided (D43, D46 to D52); `app_workflows` built in story #81, `app_workflows_exec_log` built in story #82, the rest not built**
 All tables below live in it. Column lists marked *(Proposed)* are defaults that can change.
 
 #### `app_workflows` (the registry of workflows)
@@ -155,6 +155,8 @@ Built in story #81 (migration `0003`): `AppWfDao` (create, get by id or name, li
 | mios_ingest_log | optional: the MIO ingest this execution belongs to (many executions to one ingest) |
 | config_used, engine_run_id | the JSON in force (nullable), and the engine's run id (for example the Airflow run id) |
 | status, message, requested_at / started_at / finished_at | statuses requested, started, completed, failed; D30 rules; designed in story #82, spec `docs/Superpowers/specs/M02-0032-app-wf-exec-log-design.md` |
+
+Built in story #82 (migration `0004`): `AppWfExecLogDao` (create, get, list, update; no delete). `create` takes only the `workflow_id` and copies the workflow's name, engine type, engine workflow id and config into the row (D56); `ExecStatus` in `app/core/common/app_types_constants.py` holds the D30 moves. The optional reference to the MIO ingest row comes with #87.
 
 #### The catalog (D49)
 | Table | Columns *(Proposed)* |
