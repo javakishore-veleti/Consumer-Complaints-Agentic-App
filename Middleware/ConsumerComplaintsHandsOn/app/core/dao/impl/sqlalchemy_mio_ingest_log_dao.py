@@ -7,10 +7,11 @@ from datetime import datetime, timezone
 from uuid import uuid4
 
 from sqlalchemy import select
+from sqlalchemy import update as sql_update
 
 from app.core.common.app_types_constants import ExecStatus
 from app.core.common.dtos.mio_ingest_log_dtos import MioIngestLogCtx, MioIngestLogRecord, MioIngestLogReq
-from app.core.common.return_codes import FAILURE, INVALID_INPUT, NOT_FOUND, SUCCESS
+from app.core.common.return_codes import CONFLICT, FAILURE, INVALID_INPUT, NOT_FOUND, SUCCESS
 from app.core.dao.impl.models import MioIngestLogModel, MioModel
 from app.core.dao.impl.unit_of_work import unit_of_work
 from app.core.dao.mio_ingest_log_dao import MioIngestLogDao
@@ -124,4 +125,53 @@ class SqlAlchemyMioIngestLogDao(MioIngestLogDao):
             return SUCCESS
         except Exception:
             log.exception("mios_ingest_log list failed")
+            return FAILURE
+
+    def update(self, ctx: MioIngestLogCtx) -> int:
+        req = ctx.req
+        if not req.id:
+            return INVALID_INPUT
+        if req.status is not None and req.status not in ExecStatus.values():
+            return INVALID_INPUT
+        if _has_invalid_volume(req):
+            return INVALID_INPUT
+        try:
+            with unit_of_work(ctx) as session:
+                row = session.get(MioIngestLogModel, req.id)
+                if row is None:
+                    return NOT_FOUND
+                current = ExecStatus(row.status)
+                target = current if req.status is None else ExecStatus(req.status)
+                changes_status = target != current
+                if changes_status and target not in current.next_statuses:
+                    return CONFLICT
+                notes = _notes_of(req)
+                if changes_status:
+                    changes = {**notes, "status": target.value}
+                    if target == ExecStatus.STARTED:
+                        changes["started_at"] = _now()
+                    elif target.is_final:
+                        changes["finished_at"] = _now()
+                    # The write only matches while the row still has the status read above, so when two callbacks
+                    # race the second one finds no row to change instead of overwriting the first (D30).
+                    moved = session.execute(
+                        sql_update(MioIngestLogModel)
+                        .where(MioIngestLogModel.id == req.id, MioIngestLogModel.status == current.value)
+                        .values(**changes)
+                    ).rowcount
+                    session.refresh(row)
+                    if not moved:
+                        if row.status != target.value:
+                            return CONFLICT  # a rival moved the row somewhere else first; nothing was changed
+                        # A rival made the same move first (a retry): keep its status and times, add only the notes.
+                        for name, value in notes.items():
+                            setattr(row, name, value)
+                else:
+                    for name, value in notes.items():
+                        setattr(row, name, value)
+                session.flush()
+                ctx.resp.records = [_to_record(row)]
+            return SUCCESS
+        except Exception:
+            log.exception("mios_ingest_log update failed")
             return FAILURE
