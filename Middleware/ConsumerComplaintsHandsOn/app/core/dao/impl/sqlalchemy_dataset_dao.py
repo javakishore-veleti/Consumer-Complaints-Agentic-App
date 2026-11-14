@@ -44,8 +44,15 @@ def _name_of(req: DatasetReq) -> str | None:
     return None if req.name is None else req.name.strip()
 
 
+def _name_is_not_text(req: DatasetReq) -> bool:
+    """True when a name was given but is not a string. Checked before the name is trimmed."""
+    return req.name is not None and not isinstance(req.name, str)
+
+
 def _has_invalid_field(req: DatasetReq) -> bool:
     """True when a field that was given is not acceptable. A field left as None is not checked here."""
+    if _name_is_not_text(req):
+        return True
     name = _name_of(req)
     if name is not None and (not name or len(name) > NAME_MAX):
         return True
@@ -67,7 +74,7 @@ def _taken_query(req: DatasetReq) -> Select:
 class SqlAlchemyDatasetDao(DatasetDao):
     def create(self, ctx: DatasetCtx) -> int:
         req = ctx.req
-        if not (_name_of(req) and req.code) or _has_invalid_field(req):
+        if _has_invalid_field(req) or not (_name_of(req) and req.code):
             return INVALID_INPUT
         try:
             with unit_of_work(ctx) as session:
@@ -95,7 +102,7 @@ class SqlAlchemyDatasetDao(DatasetDao):
 
     def get(self, ctx: DatasetCtx) -> int:
         req = ctx.req
-        if not (req.id or _name_of(req)):
+        if _name_is_not_text(req) or not (req.id or _name_of(req)):
             return INVALID_INPUT
         try:
             with unit_of_work(ctx) as session:

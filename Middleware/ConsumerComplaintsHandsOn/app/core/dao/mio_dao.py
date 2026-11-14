@@ -12,7 +12,10 @@ class MioDao(metaclass=SingletonMeta):
     joins that transaction and the transaction's owner commits.
 
     Names are trimmed and case sensitive, and are labels for people: no code reads a name or a description to choose
-    data (D57). The data of a MIO is what mios_datasets links."""
+    data (D57). The data of a MIO is what mios_datasets links.
+
+    A CONFLICT caused by two writers taking the same name at once comes from the database constraint; inside a
+    shared transaction the session is then unusable and the owner must roll back."""
 
     @abstractmethod
     def create(self, ctx: MioCtx) -> int:

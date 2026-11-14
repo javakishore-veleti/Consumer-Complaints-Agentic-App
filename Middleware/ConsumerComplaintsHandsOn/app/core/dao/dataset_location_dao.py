@@ -14,7 +14,10 @@ class DatasetLocationDao(metaclass=SingletonMeta):
     A location has a path (a literal path or a URL) or a local_env_var_name, never both and never neither. The
     local_env_var_name is only allowed for the type "local", is only a NAME (never a value), and must be exactly
     LOCAL_DATA_PATH_ plus the code of the dataset. credentials_ref is a name (letters, digits, _ . -), never a
-    secret. Types are the values of DatasetLocationType (D57)."""
+    secret. Types are the values of DatasetLocationType (D57).
+
+    A CONFLICT caused by two writers creating the same location at once comes from the database constraint; inside
+    a shared transaction the session is then unusable and the owner must roll back."""
 
     @abstractmethod
     def create(self, ctx: DatasetLocationCtx) -> int:

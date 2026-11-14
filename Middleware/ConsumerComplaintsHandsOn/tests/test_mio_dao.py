@@ -48,7 +48,7 @@ def test_create_accepts_a_100_character_name(data_dir):
     assert len(_create(DaoObjectsFactory.get_mio_dao(), name="n" * 100).resp.records[0].name) == 100
 
 
-@pytest.mark.parametrize("name", [None, "", "   ", "n" * 101])
+@pytest.mark.parametrize("name", [None, "", "   ", "n" * 101, 5])
 def test_create_rejects_a_missing_or_unacceptable_name(data_dir, name):
     assert DaoObjectsFactory.get_mio_dao().create(_ctx(name=name)) == INVALID_INPUT
 
@@ -70,6 +70,7 @@ def test_get_by_id_or_by_name_and_the_id_wins(data_dir):
     assert dao.get(by_name) == SUCCESS and by_name.resp.records[0].id == two.id
     assert dao.get(both) == SUCCESS and both.resp.records[0].id == one.id
     assert dao.get(_ctx()) == INVALID_INPUT
+    assert dao.get(_ctx(name=5)) == INVALID_INPUT
     assert dao.get(_ctx(id="nope")) == NOT_FOUND
     assert dao.get(_ctx(name="nope")) == NOT_FOUND
 
@@ -107,6 +108,7 @@ def test_update_errors(data_dir):
     assert dao.update(_ctx(id="nope", name="x")) == NOT_FOUND
     assert dao.update(_ctx(id=one.id, name="   ")) == INVALID_INPUT
     assert dao.update(_ctx(id=one.id, name="n" * 101)) == INVALID_INPUT
+    assert dao.update(_ctx(id=one.id, name=5)) == INVALID_INPUT
     assert dao.update(_ctx(id=one.id, name="t_two")) == CONFLICT
 
 

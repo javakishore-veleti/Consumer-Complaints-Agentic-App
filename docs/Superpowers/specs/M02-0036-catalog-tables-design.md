@@ -88,7 +88,7 @@ The four MIOs are identical in data: the labels carry no meaning (see above). Se
 
 - One test file per DAO (`tests/test_dataset_dao.py`, `tests/test_dataset_location_dao.py`, `tests/test_mio_dao.py`, `tests/test_mio_dataset_dao.py`): create, get, list (filters and order), update, delete; every rule above (validation, duplicates, `NOT_FOUND`, `CONFLICT` on delete, a location of another dataset, the path / env var name exclusivity with each combination, the name shape, a bad `credentials_ref`, a code that cannot change while an env var name uses it); many MIOs linked to one dataset and one location; a shared transaction with rollback.
 - `tests/test_schema.py`: the four tables, columns, constraints (including the check constraint and the unique constraints), no foreign keys; migrations `0005` and `0006` up, down and up; the seed rows are present after `upgrade` and gone after `downgrade` to `0005`, and the tables are gone after `downgrade` to `0004`.
-- `tests/test_no_semantic_mio_names.py`: a MIO renamed to any text changes nothing about the dataset or location it links, and two MIOs can link the same dataset and location.
+- `tests/test_catalog_flow.py`: a MIO renamed to any text changes nothing about the dataset or location it links, and two MIOs can link the same dataset and location.
 - `tests/test_singletons.py`: the four factory methods and classes. `tests/test_app_types_constants.py`: `DatasetLocationType`. `tests/test_postgres.py`: the whole flow on Postgres when `CCA_TEST_POSTGRES_URL` is set (D33), including the check and unique constraints.
 
 ## Out of scope

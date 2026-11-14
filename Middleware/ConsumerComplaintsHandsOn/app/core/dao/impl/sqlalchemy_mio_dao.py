@@ -35,7 +35,14 @@ def _name_of(req: MioReq) -> str | None:
     return None if req.name is None else req.name.strip()
 
 
+def _name_is_not_text(req: MioReq) -> bool:
+    """True when a name was given but is not a string. Checked before the name is trimmed."""
+    return req.name is not None and not isinstance(req.name, str)
+
+
 def _has_invalid_field(req: MioReq) -> bool:
+    if _name_is_not_text(req):
+        return True
     name = _name_of(req)
     return name is not None and (not name or len(name) > NAME_MAX)
 
@@ -48,7 +55,7 @@ def _taken_query(req: MioReq) -> Select:
 class SqlAlchemyMioDao(MioDao):
     def create(self, ctx: MioCtx) -> int:
         req = ctx.req
-        if not _name_of(req) or _has_invalid_field(req):
+        if _has_invalid_field(req) or not _name_of(req):
             return INVALID_INPUT
         try:
             with unit_of_work(ctx) as session:
@@ -75,7 +82,7 @@ class SqlAlchemyMioDao(MioDao):
 
     def get(self, ctx: MioCtx) -> int:
         req = ctx.req
-        if not (req.id or _name_of(req)):
+        if _name_is_not_text(req) or not (req.id or _name_of(req)):
             return INVALID_INPUT
         try:
             with unit_of_work(ctx) as session:

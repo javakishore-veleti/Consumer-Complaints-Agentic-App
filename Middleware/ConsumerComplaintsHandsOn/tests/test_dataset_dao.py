@@ -78,6 +78,7 @@ def test_create_accepts_the_longest_name_and_code(data_dir):
         dict(name="t_x", code="A_B"),
         dict(name="t_x", code="A" * 16),
         dict(name="t_x", code=5),
+        dict(name=5, code="T1"),
     ],
 )
 def test_create_rejects_bad_input(data_dir, fields):
@@ -102,6 +103,7 @@ def test_get_by_id_or_by_name_and_the_id_wins(data_dir):
     assert dao.get(by_name) == SUCCESS and by_name.resp.records[0].id == two.id
     assert dao.get(both) == SUCCESS and both.resp.records[0].id == one.id
     assert dao.get(_ctx()) == INVALID_INPUT
+    assert dao.get(_ctx(name=5)) == INVALID_INPUT
     assert dao.get(_ctx(id="nope")) == NOT_FOUND
     assert dao.get(_ctx(name="nope")) == NOT_FOUND
 
@@ -141,6 +143,7 @@ def test_update_errors(data_dir):
     assert dao.update(_ctx(id="nope", name="x")) == NOT_FOUND
     assert dao.update(_ctx(id=one.id, name="   ")) == INVALID_INPUT
     assert dao.update(_ctx(id=one.id, code="abc")) == INVALID_INPUT
+    assert dao.update(_ctx(id=one.id, name=5)) == INVALID_INPUT
     assert dao.update(_ctx(id=one.id, name="t_two")) == CONFLICT
     assert dao.update(_ctx(id=one.id, code="T2")) == CONFLICT
 

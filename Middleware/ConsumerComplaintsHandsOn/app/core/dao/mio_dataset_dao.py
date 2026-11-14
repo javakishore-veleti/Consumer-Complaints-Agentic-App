@@ -13,7 +13,10 @@ class MioDatasetDao(metaclass=SingletonMeta):
 
     A row says "this MIO uses this dataset, read from this location of it". A MIO has at most one row per dataset;
     many MIOs may share the same dataset and the same location (D57). This is the only link between a MIO and its
-    data: nothing is derived from the MIO's name."""
+    data: nothing is derived from the MIO's name.
+
+    A CONFLICT caused by two writers linking the same MIO and dataset at once comes from the database constraint;
+    inside a shared transaction the session is then unusable and the owner must roll back."""
 
     @abstractmethod
     def create(self, ctx: MioDatasetCtx) -> int:

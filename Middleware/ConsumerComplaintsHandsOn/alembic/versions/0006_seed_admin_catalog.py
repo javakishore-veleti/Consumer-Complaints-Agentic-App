@@ -23,7 +23,9 @@ SCHEMA = "consumer_comp_admin_db"
 NOW = datetime(2026, 11, 14, tzinfo=timezone.utc)
 HTTP_URL = "https://files.consumerfinance.gov/ccdb/complaints.csv.zip"
 
-# Fixed ids (uuid5 of "ccaa/m02-0036/<name>") so a downgrade removes exactly these rows.
+# Fixed ids so a downgrade removes exactly these rows. The dataset, the two locations and the four MIO ids are
+# uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m02-0036/<name>") with <name> dataset_cfpb, loc_http, loc_local and
+# mio_3, mio_6, mio_9, mio_12. The four mios_datasets ids are arbitrary fixed UUIDs, not derived from a name.
 DATASET_ID = "5187ad0c-d8ed-56ac-829d-e49313c16dbf"
 HTTP_LOCATION_ID = "776fc47e-efe7-59e6-b213-549261919d79"
 LOCAL_LOCATION_ID = "2fc79860-7a4a-58b0-a0eb-45f994cfbace"
