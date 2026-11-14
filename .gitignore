@@ -218,3 +218,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Local Airflow (CICD/Local/airflow)
+CICD/Local/airflow/logs/
+CICD/Local/airflow/config/airflow.cfg

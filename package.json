@@ -1,0 +1,17 @@
+{
+  "name": "consumer-complaints-agentic-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "local:containers:all:start": "bash CICD/Local/docker-all-up.sh",
+    "local:containers:all:stop": "bash CICD/Local/docker-all-down.sh",
+    "local:containers:all:status": "bash CICD/Local/docker-all-status.sh"
+  },
+  "author": "",
+  "license": "ISC"
+}
