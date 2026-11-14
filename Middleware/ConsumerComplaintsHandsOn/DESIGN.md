@@ -33,6 +33,13 @@ Every item is marked:
 | D18 | One OpenAPI (Swagger) specification for the whole hands-on project. |
 | D19 | Local: 3 months dataset. Cloud: All dataset. Same code, different configuration. |
 | D20 | MongoDB bulk ingestion by the Airflow job directly; PySpark only if measurements justify it. |
+| D21 | Three schemas: **`consumer_comp_db`** (consumer complaints area: `data_ingest_log`, later `system_datasets`; also the MongoDB database name), **`consumer_compl_intellect_db`** (the Intellect app's own area), **`consumer_comp_users_db`** (user management). Names are exactly as given. On SQLite each schema is an attached database file named after it; on Postgres and similar they are real schemas. |
+| D22 | Return codes: `0` success, `1` failure, `2` not found, `3` invalid input (`app/core/common/return_codes.py`). More are added as needed. |
+| D23 | Migrations are written with Alembic's Python operations (`op.create_table`), not raw SQL, so the same migration runs on SQLite and Postgres. `alembic upgrade head --sql` prints the SQL when a SQL file is needed. |
+| D24 | The facade **stops at the first task that does not return success** and returns that code. |
+| D25 | A facade task gets the DAO from the DAO package's `objects_factory`. Factory methods take no arguments (exempt from the ctx rule). The database engine is cached in `dao/impl/database.py`. |
+| D26 | **Every class in `api`, `facades`, `services` and `dao` is a singleton.** Each interface declares `metaclass=SingletonMeta` (`core/common/singleton.py`, thread-safe, re-entrant), so every implementation inherits it. Each package's `objects_factory.py` is a class with **static methods that return the singleton, typed as the interface** (`DaoObjectsFactory.get_data_ingest_dao()`, `FacadesObjectsFactory.get_data_ingest_facade()`, `ApiObjectsFactory.get_app()`, `ServicesObjectsFactory`). |
+| D27 | Consequence of D26: these classes hold **no per-request state**; it lives in the ctx. So tasks take no constructor arguments and read what they need from the ctx (for example `ctx.operation`, set by the facade). Req, Resp, Ctx, ORM table classes and API request bodies are data, not singletons. |
 
 ## 2. Conventions in detail
 
@@ -43,16 +50,18 @@ Every item is marked:
 - **Decided:** every Req/Resp/Ctx type lives in the shared `common/dtos`, never in `facades/`, `services/` or `dao/`, so a lower layer never imports an upper one.
 - **Decided:** each table has one reusable DAO (create, read, update, delete) with its **own dedicated ctx**, not the facade's ctx. First one: `DataIngestCtx` (with `DataIngestReq` / `DataIngestResp`) for `data_ingest_log`. The DAO's methods take only that ctx, so any facade can use the DAO. Class names do not carry a "Crud" word.
 - **Decided:** a facade's ctx class carries the DAO's ctx as an **additional member variable** (`data_ingest_ctx`). A facade task builds the `DataIngestCtx`, stores it on the facade ctx, and calls the DAO with it. This replaces the earlier idea of passing the facade's ctx all the way to the DAO, and removes the need for a shared base ctx.
-- **Open (follow-up):** where the DAO object itself lives: created by the task through the DAO's `objects_factory` (leaning), or also stored on the facade ctx.
+- **Decided (D25):** the task gets the DAO singleton from the DAO's `objects_factory`; it is not stored on the ctx.
+- **Implemented:** `DataIngestCtx` / `DataIngestReq` / `DataIngestResp` / `DataIngestRecord` in `common/dtos/data_ingest_dtos.py`; `DataIngestFacadeCtx` / `Req` / `Resp` in `data_ingest_facade_dtos.py`.
 
 ### 2.2 Interfaces and factories
 - Import rule: you may import a package's interface and its `objects_factory`; you may never import its `impl/`.
-- A factory picks the implementation from configuration. **Open:** one cached instance (singleton) or a new object per call; whether factory functions are exempt from the "always take ctx" rule. Leaning: cache DAOs that hold a database engine.
-- **Proposed:** a tool such as `import-linter` can enforce the layer rules in the build.
+- A factory picks the implementation from configuration. **Decided (D25, D26):** factories are classes with static methods that take no arguments and return the singleton, typed as the interface.
+- **Implemented:** `tests/test_layering.py` checks the import rules by reading the source. **Proposed:** replace it with `import-linter` in the build.
 
 ### 2.3 Facade tasks
-- The facade's factory builds the ordered task list; the facade runs them in order.
-- **Open:** on a non-success return, does the facade stop or continue? Leaning: stop at the first failure.
+- The facade (a singleton) declares its ordered task list once, in its constructor; it sets `ctx.operation` and runs the tasks in order. Tasks are singletons too (D26, D27).
+- **Decided (D24):** on a non-success return the facade stops and returns that code.
+- **Implemented** for the data ingest facade, for every operation: `ValidateRequestTask` -> `PrepareDaoCtxTask` -> `CallDaoTask` -> `CollectResponseTask`.
 
 ### 2.4 ORM and transactions
 - SQLAlchemy table classes stay inside `dao/impl/`. DAOs convert them to and from plain Req/Resp objects.
@@ -61,7 +70,11 @@ Every item is marked:
 
 ## 3. Operational data model (SQLite)
 
-### `data_ingest_log` (append-only history) — Proposed
+### `data_ingest_log` (append-only history) — Implemented (schema `consumer_comp_db`, migration `0001`)
+The DAO sets `requested_at` on create, `started_at` when the status becomes `started`, and `finished_at` when it becomes
+`completed` or `failed`. The API exposes plain create / get / list / update / delete under `/data-ingest-logs`; the
+use-case endpoints of section 4.2 will sit on top of this table.
+Allowed status transition rules (requested -> started -> completed or failed) are **not** enforced yet: this slice only validates that a status is one of the four values.
 | Column | Meaning |
 |---|---|
 | id | application-generated ID |
@@ -129,8 +142,10 @@ ingest for all. Exact names **Open**.
 
 ## 7. Migrations (Alembic)
 
-- Alembic files live inside `Middleware/ConsumerComplaintsHandsOn`, outside the application layers.
-- Local start script: migrate, then start the API.
+- Alembic files live inside `Middleware/ConsumerComplaintsHandsOn` (`alembic.ini`, `alembic/`), outside the application layers.
+- The database comes from the app settings (`CCA_DB_URL`, `CCA_DATA_DIR`), not `alembic.ini`, so the API and the migrations use the same database. `alembic/env.py` creates the three schemas first (`CREATE SCHEMA IF NOT EXISTS`; on SQLite the attached files).
+- The `alembic_version` table sits in the main SQLite file `operational.sqlite`.
+- Local start script (**implemented**, `run_local.sh`, `npm run local:api:start`): migrate, then start the API; if the migration fails the API does not start.
 - Never edit a migration once merged; add a new one (this narrows the missing-checksum gap).
 - SQLite has limited `ALTER TABLE` (Alembic "batch mode" needed); test migrations against Postgres too.
 - Alembic creates tables, not the database server or the empty database.
@@ -141,5 +156,7 @@ ingest for all. Exact names **Open**.
 - Do the portal's accordions poll while something runs, or refresh on a button? **Open**
 - Does Intellect share the operational database? **Open**
 - What the portal's "Airflow" entry is (link to the Airflow UI, or its own screen). **Open**
-- Return-code values. **Open** (defined later)
+- Return-code values: **Decided (D22)**, more may be added.
+- Which schema holds `system_datasets` (planned: `consumer_comp_db`, next to `data_ingest_log`). **Proposed**
+- The schema names mix `comp` and `compl` (`consumer_compl_intellect_db`); kept exactly as given. **Open** if it should be unified.
 - User management and execution-log tables. **Open**

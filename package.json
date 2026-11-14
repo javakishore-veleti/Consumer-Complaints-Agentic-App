@@ -10,7 +10,10 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "local:containers:all:start": "bash CICD/Local/docker-all-up.sh",
     "local:containers:all:stop": "bash CICD/Local/docker-all-down.sh",
-    "local:containers:all:status": "bash CICD/Local/docker-all-status.sh"
+    "local:containers:all:status": "bash CICD/Local/docker-all-status.sh",
+    "local:api:migrate": "cd Middleware/ConsumerComplaintsHandsOn && uv run alembic upgrade head",
+    "local:api:start": "bash Middleware/ConsumerComplaintsHandsOn/run_local.sh",
+    "local:api:test": "cd Middleware/ConsumerComplaintsHandsOn && uv run pytest"
   },
   "author": "",
   "license": "ISC"

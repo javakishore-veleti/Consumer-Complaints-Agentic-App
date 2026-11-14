@@ -97,9 +97,10 @@ The download reads from a **configured location type and path**. Supported types
 - **MongoDB** holds the actual complaint data. [Done] a local container is configured.
 - **SQLite** holds operational data only: user management, execution logs, `system_datasets`, `data_ingest_log`.
   It must be replaceable (Postgres or another database) with the fewest code changes.
-- Two logical areas: **admin** and **consumer complaints database**.
+- Three schemas: **`consumer_comp_db`** (consumer complaints area), **`consumer_compl_intellect_db`** (Intellect app) and
+  **`consumer_comp_users_db`** (users). [Done] created by the first migration.
 
-### F8. Database schema versioning [Planned]
+### F8. Database schema versioning [Done locally; cloud workflow Planned]
 - Alembic migrations create and evolve the operational database.
 - Locally, the start script runs the migrations first and then starts the API.
 - Later, a manually triggered GitHub Actions workflow runs migrations against cloud databases (AWS RDS, Azure, GCP).
@@ -127,10 +128,11 @@ The download reads from a **configured location type and path**. Supported types
 | Local MongoDB 8.0 in Docker (`CICD/Local/mongodb`) | Done (configured; start with the npm command) |
 | Start / stop / status scripts and npm commands | Done |
 | `uv` Python project and layered folder skeleton | Done (folders only, no logic) |
-| API, facades, services, DAOs, DTOs for download | Planned: next |
+| Data ingest log: API, facade and tasks, DAO, DTOs, tests (create, get, list, update, delete) | Done |
+| Three schemas and the first Alembic migration (`data_ingest_log`); local start script migrates, then starts the API | Done |
+| `system_datasets`, start-download and status-callback endpoints, source locations | Planned: next |
 | Airflow download and ingest DAGs | Planned |
 | Admin portal (Angular) | Planned |
-| Migrations (Alembic) | Planned |
 | Cloud deployment and manual migration workflow | Planned |
 
 ## 6. Open questions

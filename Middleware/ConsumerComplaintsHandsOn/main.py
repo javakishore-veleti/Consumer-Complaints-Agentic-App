@@ -1,6 +1,5 @@
-def main():
-    print("Hello from consumercomplaintshandson!")
+"""Entry point: uvicorn main:app  (run_local.sh migrates the database first)."""
 
+from app.api.objects_factory import ApiObjectsFactory
 
-if __name__ == "__main__":
-    main()
+app = ApiObjectsFactory.get_app()

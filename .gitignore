@@ -230,3 +230,6 @@ CICD/Local/airflow/config/airflow.cfg
 complaints*.csv
 complaints*.csv.zip
 *.csv.zip
+
+# Local operational SQLite files (the three schema databases)
+Middleware/ConsumerComplaintsHandsOn/.data/

@@ -31,6 +31,8 @@ class DataIngestReq:
     status: str | None = None
     run_id: str | None = None
     message: str | None = None
+    limit: int | None = None  # list only
+    offset: int | None = None  # list only
 
 
 @dataclass

@@ -3,7 +3,8 @@
 How the system is put together. What it does is in [PRODUCT_FEATURES.md](../../Docs/PRODUCT_FEATURES.md); the detailed rules
 and open decisions are in [DESIGN.md](DESIGN.md).
 
-Status: the folders, the local containers and the scripts exist. No application logic is written yet.
+Status: the local containers and scripts exist, and the first vertical slice is built and tested: the **data ingest log**
+(API -> facade -> tasks -> DAO -> SQLite, with an Alembic migration). Everything else is still to build.
 
 ## 1. System context
 
@@ -50,12 +51,16 @@ api  ->  IFacade  ->  [ task 1, task 2, ... ]  ->  IService  or  IDao
 ```
 Middleware/ConsumerComplaintsHandsOn/
   app/
-    api/                      FastAPI routes
+    api/                      FastAPI routes (routers/), request and response bodies (models/), objects_factory.py
     core/
-      common/dtos/            XxxReq, XxxResp, XxxCtx
-      facades/    impl/       interface here, implementations in impl/
+      common/                 config (schema names), return_codes, constants
+        dtos/                 XxxReq, XxxResp, XxxCtx
+      facades/    impl/       interface + task interface here, facade and tasks in impl/, objects_factory.py
       services/   impl/
-      dao/        impl/
+      dao/        impl/       interface here; impl/ holds the SQLAlchemy models, engine and DAO; objects_factory.py
+  alembic.ini  alembic/       migrations (versions/0001_create_data_ingest_log.py)
+  tests/                      pytest: DAO, API, schema layout, layer rules
+  run_local.sh                migrate, then start the API
   main.py  pyproject.toml  (uv project)
 CICD/Local/
   airflow/    docker-compose.yaml     Airflow 3.4.0, LocalExecutor
@@ -71,14 +76,21 @@ Docs/                         product docs, design images
 service and DAO interfaces. Nobody imports from another package's `impl/`.
 
 **Every package has an `objects_factory.py`.** It is the only module in that package allowed to import from `impl/`. It
-chooses the implementation from configuration, for example the DAO factory picks SQLite, Postgres or Mongo. Imports
-inside a factory can be lazy, so a backend's library is only needed when that backend is selected.
+is a class with **static methods that return the singleton, typed as the interface** (`DaoObjectsFactory`,
+`FacadesObjectsFactory`, `ServicesObjectsFactory`, `ApiObjectsFactory`). It chooses the implementation from configuration,
+for example the DAO factory picks SQLite, Postgres or Mongo. Imports inside a factory can be lazy, so a backend's library
+is only needed when that backend is selected.
+
+**Every class in `api`, `facades`, `services` and `dao` is a singleton.** The interface declares
+`metaclass=SingletonMeta` (`core/common/singleton.py`) and every implementation inherits it, so one object serves all
+requests and threads. That is why these classes keep no per-request state: it all lives in the `ctx`. Req / Resp / Ctx,
+ORM table classes and API request bodies are data, not singletons.
 
 **One `ctx` in, one integer out.** Every method (Python and Angular) takes a single `XxxCtx` that contains an `XxxReq`
 and an `XxxResp`, and returns an integer status code. Results go into `ctx.resp`. Codes are defined later.
 
 **Each facade has its own task interface.** Every task of that facade implements it, takes only that facade's `ctx`
-and returns an integer. The facade's factory builds the ordered task list.
+and returns an integer. The facade declares its ordered task list once (it is a singleton) and runs it.
 
 **One DAO per table**, for example `SystemDatasetsDao` and `DataIngestLogDao`; a complaints DAO for MongoDB later.
 
@@ -129,8 +141,17 @@ In the part of the file sampled, rows are not sorted by date, so the whole file 
 | MongoDB | the complaint data | the Airflow ingest job | by DAO implementation |
 | Airflow's own Postgres | Airflow metadata | Airflow | n/a (separate, not used by the app) |
 
-Schemas: SQLite has no real schemas, so the "admin" area is tables in the SQLite database. A move to Postgres would
-give real schemas. The complaints database is its own database in MongoDB.
+Schemas (names exactly as decided):
+
+| Schema | Holds |
+|---|---|
+| `consumer_comp_db` | the consumer complaints area: `data_ingest_log` (built), `system_datasets` (planned). Also the MongoDB database name for the complaint data. |
+| `consumer_compl_intellect_db` | the Intellect app's own operational data (empty for now) |
+| `consumer_comp_users_db` | user management (empty for now) |
+
+SQLite has no real schemas, so each one is a separate database file, attached by name, in `Middleware/ConsumerComplaintsHandsOn/.data/`
+(`consumer_comp_db.sqlite`, ...; plus `operational.sqlite` for the Alembic version table). On Postgres and similar databases
+they are real schemas, created by the migration environment. Set `CCA_DB_URL` to switch database and `CCA_DATA_DIR` to move the files.
 
 ## 7. Schema versioning
 
@@ -147,6 +168,7 @@ SQLAlchemy ORM with **Alembic** migrations.
 |---|---|---|
 | Airflow UI | <http://localhost:8080> | login `airflow` / `airflow`; compose in `CICD/Local/airflow` |
 | MongoDB | `127.0.0.1:27017` | root user from environment or the local default; compose in `CICD/Local/mongodb` |
+| Middleware API | <http://127.0.0.1:8000> (`/docs` for Swagger) | `npm run local:api:start` migrates, then starts it; `local:api:migrate` and `local:api:test` also exist |
 
 Start, stop, check: `npm run local:containers:all:start | stop | status` (they run the three `CICD/Local/docker-all-*.sh`
 scripts, which pick up every `CICD/Local/<service>/docker-compose.yaml`). `stop -- --wipe <service>` also deletes that
