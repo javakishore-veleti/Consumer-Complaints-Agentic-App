@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # ccaa-epic-complete
 
-Input: epic issue number `N`. Repo: `javakishore-veleti/Consumer-Complaints-Agentic-App` (pass `--repo` to every `gh` call). Scratch files go in `runtime_data/tmp/`.
+Input: epic issue number `N`. Run `gh` from the repository root: it reads the repository from the git remote, so never type the owner or repository name (D35). Scratch files go in `runtime_data/tmp/`.
 
 1. Run `ccaa-progress-sync` on `N`.
 2. If any feature in the checklist is not closed, stop and list it. Do not change the epic.

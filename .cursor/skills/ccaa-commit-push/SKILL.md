@@ -5,12 +5,15 @@ description: Commits and pushes CCAA (Consumer Complaints Agentic App) work as t
 
 # ccaa-commit-push
 
+Input: optional story issue number `N` (`/ccaa-commit-push 55`). Without it, use the story started in this chat (`/ccaa-story-start`); if there is none, ask which story the change belongs to, or use the `M02: <summary>` form for work not tied to one story.
+
 Commit small and often: after each plan task, each passing test with its code, each migration, each document change, and at the end of every story. One logical change per commit.
 
+0. With `N`, read the key: `gh issue view N --json title` (the `M02-00NN` at the start of the title).
 1. `git status -s`. Stage only the files this change touched, by name. Never `git add -A` or `git add .`. Never stage datasets (`*.csv`, `*.zip`), `.env` files, secrets or `runtime_data/`. If `Docs/Project_Management/Issues/Milestone_02.md` is modified (a `ccaa-milestone-log` change), stage it too.
 2. If Python code changed, run `npm run local:api:lint` and `npm run local:api:test` from the repo root. Do not commit on a failure.
 3. Commit with a single-line message (no body): `M02-00NN #N: <imperative summary>`. The key `M02-00NN` is at the start of the story title. For work not tied to one story use `M02: <summary>`.
-4. Author must be `javakishore-veleti <6062900+javakishore-veleti@users.noreply.github.com>`. Do not pass `--author` and do not change `git config`.
+4. The author must be the repository owner as set in `git config user.name` and `git config user.email` (check them), never Cursor or any AI. Do not pass `--author` and do not change `git config`.
 5. Cursor's git wrapper may add a `Co-authored-by` trailer. Check with `git log -1 --format='%an <%ae>%n%B'`. If the body has any `Co-authored-by`, `cursoragent@cursor.com` or other AI trailer, rebuild the commit before pushing:
    ```bash
    NEW=$(git commit-tree "$(git rev-parse 'HEAD^{tree}')" -p HEAD^ -m "$(git log -1 --format=%s)")

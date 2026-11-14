@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # ccaa-feature-complete
 
-Input: feature issue number `N`. Repo: `javakishore-veleti/Consumer-Complaints-Agentic-App` (pass `--repo` to every `gh` call). Scratch files go in `runtime_data/tmp/`.
+Input: feature issue number `N`. Run `gh` from the repository root: it reads the repository from the git remote, so never type the owner or repository name (D35). Scratch files go in `runtime_data/tmp/`.
 
 1. Run `ccaa-progress-sync` on `N`.
 2. Read the checklist. If any story is not closed, stop and list the open ones with their numbers. Do not change the feature.

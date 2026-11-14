@@ -5,7 +5,7 @@ description: Rebuilds the checklist and Progress line of a CCAA (Consumer Compla
 
 # ccaa-progress-sync
 
-Input: feature or epic issue number `P`. Repo: `javakishore-veleti/Consumer-Complaints-Agentic-App` (pass `--repo` to every `gh` call). Scratch files go in `runtime_data/tmp/`.
+Input: feature or epic issue number `P`. Run `gh` from the repository root: it reads the repository from the git remote, so never type the owner or repository name (D35). Scratch files go in `runtime_data/tmp/`.
 
 1. `gh issue view P --json body,labels`. Find the checklist lines `- [ ] #C Title (state)` under `Stories:` or `Features:`. If there are none, stop.
 2. For each child `C`: `gh issue view C --json state,labels,body`.
