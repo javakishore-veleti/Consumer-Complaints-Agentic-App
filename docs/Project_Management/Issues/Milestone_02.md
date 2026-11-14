@@ -222,10 +222,10 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #86 | 10 | `/ccaa-commit-push 86` | Done | 2026-11-14 18:22 | 2026-11-14 18:23 |
 | #86 | 11 | `/finishing-a-development-branch Story #86` | Done | 2026-11-14 18:23 | 2026-11-14 18:24 |
 | #86 | 12 | `/ccaa-story-complete 86` | Done | 2026-11-14 18:24 | 2026-11-14 18:24 |
-| #87 | 1 | `/ccaa-story-start 87` | Planned | - | - |
-| #87 | 2 | `/brainstorming Story #87: mios_ingest_log table and DAO; status rules of D30; volume columns; adds the reference from app_workflows_exec_log` | Planned | - | - |
-| #87 | 3 | `/using-git-worktrees Story #87: branch m02-0037-mios-ingest-log-table-and-dao` | Planned | - | - |
-| #87 | 4 | `/writing-plans Story #87` | Planned | - | - |
+| #87 | 1 | `/ccaa-story-start 87` | Done | 2026-11-14 18:25 | 2026-11-14 18:25 |
+| #87 | 2 | `/brainstorming Story #87: mios_ingest_log table and DAO; status rules of D30; volume columns; adds the reference from app_workflows_exec_log` | Done | 2026-11-14 18:25 | 2026-11-14 18:26 |
+| #87 | 3 | `/using-git-worktrees Story #87: branch m02-0037-mios-ingest-log-table-and-dao` | Done | 2026-11-14 18:26 | 2026-11-14 18:26 |
+| #87 | 4 | `/writing-plans Story #87` | In progress | 2026-11-14 18:26 | - |
 | #87 | 5 | `/test-driven-development Story #87` | Planned | - | - |
 | #87 | 6 | `/subagent-driven-development Story #87` | Planned | - | - |
 | #87 | 7 | `/ccaa-commit-push 87` after every task (repeat) | Planned | - | - |
@@ -510,4 +510,4 @@ The skills live in `.cursor/skills/`. Each takes a GitHub issue number.
 - **Open questions on the issues:** #65 (poll or refresh). The #55 question is decided in D42 (revised by D43): credentials in `.env`, copied into Airflow Variables by story #77.
 - **Story #77 was added** while deciding #55 (D42). It is under feature #56 and is built first in Phase 3, because the DAG reads the Variables it creates.
 - **Moved to M03 - Cloud Deployment:** #51 S3, #52 Azure Blob, #53 GCP Cloud Storage, #54 Google Drive, and the cloud migration workflow #24. They are not part of this milestone. #51 to #54 were written as source types, so under D43 they need rewriting as cloud workflows before M03 starts (they are still open).
-- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D58.
+- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D59.
