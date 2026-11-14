@@ -68,6 +68,7 @@ Every item is marked:
 | D53 | **The RAG layer is a later milestone, recorded here as direction only.** **`mios_rags`** describes the RAG technology stack of a MIO (Milvus, Postgres, Chroma, AWS OpenSearch and others, on local, AWS, Azure or GCP); one MIO can have several stacks so performance and cost can be compared. RAG workflows are their own entries in `app_workflows`, separate from the ingest workflows; they take the ingested data and run in **batch or incrementally**, chosen by volume. | No M02 stories. A new milestone will cover it. |
 | D54 | **MVP first.** M02 builds the smallest flow that runs end to end (start a workflow from the portal, Airflow downloads, the status comes back) and accepts refactoring afterwards. After the MVP: the factory `init()` of D45, the engine interface, the list-workflows endpoint, the 3-month filter and the removal of the retired tables. | Working software sooner; the design above stays the direction, and refactoring later is accepted. |
 | D55 | **Naming and types.** In class names `Workflows` is shortened to `Wf` (`AppWfDao`, `AppWfCtx`); table names stay in full (`app_workflows`), module names follow the class names. Every type list of the app (engine types, later location types and statuses) is an enum in `app/core/common/app_types_constants.py`, all with the parent `AppTypeEnum`. A JSON column that holds nothing is NULL, not `{}`. Workflow names are trimmed and case sensitive, and a name taken by two writers at once is a CONFLICT decided by the unique constraint (found in the story #81 review). | Short class names stay readable; one file lists every allowed value. Refines D52: the DAO checks `engine_type` against `EngineType`, the registered engine classes are checked later (#83, #42). |
+| D56 | **The exec-log DAO copies the workflow's details itself.** `AppWfExecLogDao.create` takes only the `workflow_id`, reads the `app_workflows` row in the same session and stores its name, engine type, engine workflow id and config in the new row, so the log keeps them as they were at execution time. `workflow_id` is a plain indexed column with no foreign key, so the log survives a rename or delete of the workflow and behaves the same on SQLite and Postgres. The log is append-only (no delete). | Callers cannot get the snapshot wrong. This is the one place where a DAO touches a second table (refines D7). |
 
 ## 2. Conventions in detail
 
@@ -149,11 +150,11 @@ Built in story #81 (migration `0003`): `AppWfDao` (create, get by id or name, li
 | Column | Meaning |
 |---|---|
 | id | application-generated ID; the only value the API hands to the engine (D51) |
-| workflow | the `app_workflows` row |
-| workflow_name, engine_type, engine_workflow_id | copied from the registry row at execution time |
+| workflow_id | the `app_workflows` row (a plain indexed id, no foreign key, D56) |
+| workflow_name, engine_type, engine_workflow_id | copied from the registry row at execution time by the DAO (D56) |
 | mios_ingest_log | optional: the MIO ingest this execution belongs to (many executions to one ingest) |
-| config used, engine run id | *(Proposed)* the JSON in force, and the engine's run id (for example the Airflow run id) |
-| status, message, requested / started / finished times | *(Proposed)* statuses requested, started, completed, failed; D30 rules |
+| config_used, engine_run_id | the JSON in force (nullable), and the engine's run id (for example the Airflow run id) |
+| status, message, requested_at / started_at / finished_at | statuses requested, started, completed, failed; D30 rules; designed in story #82, spec `docs/Superpowers/specs/M02-0032-app-wf-exec-log-design.md` |
 
 #### The catalog (D49)
 | Table | Columns *(Proposed)* |
