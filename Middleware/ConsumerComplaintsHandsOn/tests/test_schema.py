@@ -1,6 +1,9 @@
 import sqlite3
 
-from app.core.common.config import ALL_SCHEMAS
+from alembic import command
+from alembic.config import Config
+
+from app.core.common.config import ALL_SCHEMAS, PROJECT_ROOT
 
 
 def test_schema_names():
@@ -30,3 +33,38 @@ def test_system_datasets_is_seeded_with_one_not_started_row_per_dataset_and_stag
         ("all", "db_ingest", "not_started", None),
         ("all", "download", "not_started", None),
     ]
+
+
+def _admin_db(data_dir):
+    return sqlite3.connect(data_dir / "consumer_comp_admin_db.sqlite")
+
+
+def test_app_workflows_table_is_in_the_admin_schema_with_the_expected_columns(data_dir):
+    with _admin_db(data_dir) as db:
+        columns = {r[1]: (r[2], r[3]) for r in db.execute("pragma table_info(app_workflows)")}  # name: (type, not null)
+        sql = db.execute("select sql from sqlite_master where name = 'app_workflows'").fetchone()[0]
+    assert set(columns) == {
+        "id",
+        "workflow_name",
+        "engine_type",
+        "engine_workflow_id",
+        "config",
+        "enabled",
+        "created_at",
+        "updated_at",
+    }
+    assert columns["workflow_name"] == ("VARCHAR(100)", 1)
+    assert columns["engine_type"] == ("VARCHAR(32)", 1)
+    assert columns["engine_workflow_id"] == ("VARCHAR(255)", 1)
+    assert columns["config"][1] == 0  # nullable: nothing is stored as NULL, never {}
+    assert "uq_app_workflows_workflow_name" in sql
+
+
+def test_migration_0003_runs_down_and_up(data_dir):
+    config = Config(str(PROJECT_ROOT / "alembic.ini"))
+    command.downgrade(config, "0002")
+    with _admin_db(data_dir) as db:
+        assert db.execute("select name from sqlite_master where name = 'app_workflows'").fetchall() == []
+    command.upgrade(config, "head")
+    with _admin_db(data_dir) as db:
+        assert db.execute("select name from sqlite_master where name = 'app_workflows'").fetchall() != []
