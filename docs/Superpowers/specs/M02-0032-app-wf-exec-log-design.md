@@ -48,7 +48,7 @@ Index `ix_app_wf_exec_log_workflow_status` on (`workflow_id`, `status`). The opt
 | create | `workflow_id` | reads the `app_workflows` row in the same session and copies `workflow_name`, `engine_type`, `engine_workflow_id` and `config` (as `config_used`) into a new `requested` row; NOT_FOUND if the workflow does not exist; INVALID_INPUT without a `workflow_id` |
 | get | `id` | the row; NOT_FOUND |
 | list | optional `workflow_id`, `status`, `engine_type`, `limit`, `offset` | newest first (`requested_at` descending, then `id`) |
-| update | `id`; any of `status`, `engine_run_id`, `message` | the row; NOT_FOUND; INVALID_INPUT for an unknown status; CONFLICT for an illegal move; the snapshot columns are never changed |
+| update | `id`; any of `status`, `engine_run_id`, `message` | the row; NOT_FOUND; INVALID_INPUT for an unknown status or an `engine_run_id` over 128 characters; CONFLICT for an illegal move; the snapshot columns are never changed |
 
 There is no delete: the log is append-only. `create` does not look at `enabled`; whether a disabled workflow may start is policy for the start endpoint (#42). The impl reads the `AppWfModel` table class for the copy: the one place a DAO touches a second table (D56).
 
