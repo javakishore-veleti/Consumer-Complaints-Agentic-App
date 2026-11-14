@@ -9,6 +9,25 @@ How to read this file:
 - Section 1 is the table of contents in the order the work should be built. Section 2 groups the same issues as epic, feature and story.
 - Section 3 has the Superpowers commands to run for each story, one after the other. Section 4 explains the project skills (`ccaa-`) those commands use.
 
+## Contents
+
+- [1. Table of contents (build order)](#1-table-of-contents-build-order)
+  - [Phase 0 - Dataset status, already built](#phase-0---dataset-status-already-built-commit-eec398d)
+  - [Phase 1 - Configurable source location](#phase-1---configurable-source-location-nothing-else-can-fetch-a-file-without-it)
+  - [Phase 2 - Download API, the status side](#phase-2---download-api-the-status-side)
+  - [Phase 3 - Airflow download DAG](#phase-3---airflow-download-dag)
+  - [Phase 4 - Start a download](#phase-4---start-a-download-closes-the-download-api-feature)
+  - [Phase 5 - Admin portal](#phase-5---admin-portal)
+- [2. The same issues grouped by epic and feature](#2-the-same-issues-grouped-by-epic-and-feature)
+- [3. Superpowers workflow](#3-superpowers-workflow)
+  - [Phase 1 - Configurable source location](#phase-1---configurable-source-location)
+  - [Phase 2 - Download API, the status side](#phase-2---download-api-the-status-side-1)
+  - [Phase 3 - Airflow download DAG](#phase-3---airflow-download-dag-1)
+  - [Phase 4 - Start a download](#phase-4---start-a-download)
+  - [Phase 5 - Admin portal](#phase-5---admin-portal-1)
+- [4. Project skills](#4-project-skills-ccaa---consumer-complaints-agentic-app)
+- [5. Notes](#5-notes)
+
 ## 1. Table of contents (build order)
 
 ### Phase 0 - Dataset status, already built (commit `eec398d`)

@@ -11,6 +11,18 @@ How to read this file:
 - The list below is in the order the work was built, not the order of the issue numbers. The commit column is the commit that introduced it.
 - The table of contents at the end shows the same issues grouped as epic, feature and story.
 
+## Contents
+
+- [1. Build order](#1-build-order)
+  - [Phase 1 - Project skeleton and local infrastructure](#phase-1---project-skeleton-and-local-infrastructure-commits-f52a4e4-17080f3)
+  - [Phase 2 - Documents, MongoDB and project tracking](#phase-2---documents-mongodb-and-project-tracking-commit-a63bd5b)
+  - [Phase 3 - The convention every layer follows](#phase-3---the-convention-every-layer-follows-commit-50ab86f)
+  - [Phase 4 - The data ingest log, from API to database](#phase-4---the-data-ingest-log-from-api-to-database-commit-78a4d47)
+  - [Phase 5 - Hardening the slice](#phase-5---hardening-the-slice-commit-177369a)
+  - [Phase 6 - Rules that keep the codebase consistent](#phase-6---rules-that-keep-the-codebase-consistent-commits-8442078-2e2b8ad-4562399)
+- [2. The same issues grouped by epic and feature](#2-the-same-issues-grouped-by-epic-and-feature)
+- [3. Notes](#3-notes)
+
 ## 1. Build order
 
 ### Phase 1 - Project skeleton and local infrastructure (commits `f52a4e4`, `17080f3`)
