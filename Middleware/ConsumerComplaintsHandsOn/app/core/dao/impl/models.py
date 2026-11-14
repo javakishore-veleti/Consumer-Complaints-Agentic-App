@@ -56,3 +56,26 @@ class AppWfModel(Base):
     enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True, server_default=true())
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class AppWfExecLogModel(Base):
+    __tablename__ = "app_workflows_exec_log"
+    __table_args__ = (
+        Index("ix_app_wf_exec_log_workflow_status", "workflow_id", "status"),
+        {"schema": SCHEMA_ADMIN},
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    # No foreign key (D56): the log must survive a rename or delete of the workflow.
+    workflow_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    # The next four are copied from app_workflows when the execution is requested and never change.
+    workflow_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    engine_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    engine_workflow_id: Mapped[str] = mapped_column(String(255), nullable=False)
+    config_used: Mapped[dict | None] = mapped_column(JSON(none_as_null=True), nullable=True)
+    engine_run_id: Mapped[str | None] = mapped_column(String(128))
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    message: Mapped[str | None] = mapped_column(Text)
+    requested_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
