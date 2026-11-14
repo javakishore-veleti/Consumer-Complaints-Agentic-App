@@ -27,7 +27,7 @@ Create the admin schema `consumer_comp_admin_db` and the `app_workflows` table (
 | enabled | Boolean | not null, default true |
 | created_at, updated_at | DateTime(timezone) | not null, UTC |
 
-Migration `0003_create_admin_schema_and_app_workflows.py`: Alembic Python ops (D23), runs up and down, seeds nothing.
+Migration `0003_create_admin_app_workflows.py`: Alembic Python ops (D23), runs up and down, seeds nothing. The schema itself is created by `alembic/env.py` (`ensure_schemas`) before any migration runs; on SQLite attaching the file creates it.
 
 ## Types file
 
@@ -48,6 +48,8 @@ Migration `0003_create_admin_schema_and_app_workflows.py`: Alembic Python ops (D
 | list | optional engine_type, enabled | rows ordered by workflow_name |
 | update | id; any of workflow_name, engine_type, engine_workflow_id, config, enabled | the row, `updated_at` set; NOT_FOUND; CONFLICT on a duplicate name |
 | delete | id | the deleted row; NOT_FOUND |
+
+Names are trimmed and case sensitive ("Flow" and "flow" are two workflows). `config` must be a JSON object or not given. `CONFLICT` also covers two writers taking the same name at once: the unique constraint decides and the DAO maps `IntegrityError` to `CONFLICT`.
 
 `INVALID_INPUT` for an empty name, a name over 100 characters, an empty `engine_workflow_id`, or an `engine_type` that is not in `EngineType`. Checking against the registered engine classes comes with the engine interface (#83) and the start endpoint (#42).
 

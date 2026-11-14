@@ -9,13 +9,19 @@ from app.core.common.singleton import SingletonMeta
 class AppWfDao(metaclass=SingletonMeta):
     """A singleton (every implementation is). Every method takes one AppWfCtx and returns an integer code
     (app.core.common.return_codes). Results are written to ctx.resp.records. If ctx.transaction is set, the call
-    joins that transaction and the transaction's owner commits."""
+    joins that transaction and the transaction's owner commits.
+
+    Names are trimmed (leading and trailing spaces) and case sensitive: "Flow" and "flow" are two workflows.
+    config must be a JSON object (a dict) or not given. A CONFLICT caused by two writers taking the same name at
+    once comes from the database constraint; inside a shared transaction the session is then unusable and the
+    owner must roll back."""
 
     @abstractmethod
     def create(self, ctx: AppWfCtx) -> int:
         """Needs req.workflow_name (up to 100 characters), req.engine_type (an EngineType value) and
         req.engine_workflow_id (up to 255 characters). Optional: config (default NULL), enabled (default true).
-        INVALID_INPUT for a missing or unacceptable field, CONFLICT if the name is taken."""
+        INVALID_INPUT for a missing or unacceptable field (including a config that is not a dict), CONFLICT if the
+        name is taken."""
 
     @abstractmethod
     def get(self, ctx: AppWfCtx) -> int:

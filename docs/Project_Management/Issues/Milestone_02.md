@@ -193,10 +193,10 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #81 | 5 | `/test-driven-development Story #81` | Done | 2026-11-14 16:41 | 2026-11-14 16:42 |
 | #81 | 6 | `/subagent-driven-development Story #81` | Done | 2026-11-14 16:42 | 2026-11-14 16:45 |
 | #81 | 7 | `/ccaa-commit-push 81` after every task (repeat) | Done | 2026-11-14 16:45 | 2026-11-14 16:45 |
-| #81 | 8 | `/verification-before-completion Story #81` | In progress | 2026-11-14 16:45 | - |
-| #81 | 9 | `/requesting-code-review Story #81` | Planned | - | - |
-| #81 | 10 | `/ccaa-commit-push 81` | Planned | - | - |
-| #81 | 11 | `/finishing-a-development-branch Story #81` | Planned | - | - |
+| #81 | 8 | `/verification-before-completion Story #81` | Done | 2026-11-14 16:45 | 2026-11-14 16:47 |
+| #81 | 9 | `/requesting-code-review Story #81` | Done | 2026-11-14 16:47 | 2026-11-14 16:53 |
+| #81 | 10 | `/ccaa-commit-push 81` | Done | 2026-11-14 16:53 | 2026-11-14 16:55 |
+| #81 | 11 | `/finishing-a-development-branch Story #81` | In progress | 2026-11-14 16:55 | - |
 | #81 | 12 | `/ccaa-story-complete 81` | Planned | - | - |
 | #82 | 1 | `/ccaa-story-start 82` | Planned | - | - |
 | #82 | 2 | `/brainstorming Story #82: app_workflows_exec_log table and DAO; keeps the workflow's information as it was at execution time; status rules of D30` | Planned | - | - |

@@ -1,8 +1,12 @@
 import sqlite3
 
+from sqlalchemy import false, select
+
 from app.core.common.dtos.app_wf_dtos import AppWfCtx, AppWfReq
 from app.core.common.dtos.transaction_dtos import TransactionCtx
 from app.core.common.return_codes import CONFLICT, INVALID_INPUT, NOT_FOUND, SUCCESS
+from app.core.dao.impl import sqlalchemy_app_wf_dao as dao_impl
+from app.core.dao.impl.models import AppWfModel
 from app.core.dao.objects_factory import DaoObjectsFactory
 
 
@@ -192,3 +196,43 @@ def test_a_shared_transaction_can_be_rolled_back_or_committed(data_dir):
     assert dao.get(_ctx(workflow_name="kept")) == NOT_FOUND  # not visible outside before the commit
     assert transactions.commit(committed) == SUCCESS
     assert dao.get(_ctx(workflow_name="kept")) == SUCCESS
+
+
+def test_a_duplicate_name_that_slips_past_the_pre_check_is_a_conflict(data_dir, monkeypatch):
+    # Simulates the race: another writer inserts the same name after our SELECT, so only the constraint catches it.
+    dao = DaoObjectsFactory.get_app_wf_dao()
+    _create(dao, name="taken")
+    other = _create(dao, name="other", engine_workflow_id="o").resp.records[0]
+    monkeypatch.setattr(dao_impl, "_by_name_query", lambda req: select(AppWfModel).where(false()))
+
+    again = _ctx(workflow_name="taken", engine_type="apache_airflow", engine_workflow_id="x")
+    assert dao.create(again) == CONFLICT
+    assert dao.update(_ctx(id=other.id, workflow_name="taken")) == CONFLICT
+
+    listed = _ctx()
+    assert dao.list(listed) == SUCCESS
+    assert sorted(r.workflow_name for r in listed.resp.records) == ["other", "taken"]
+
+
+def test_names_are_trimmed_and_case_sensitive(data_dir):
+    dao = DaoObjectsFactory.get_app_wf_dao()
+    created = _create(dao, name="  Flow  ").resp.records[0]
+    assert created.workflow_name == "Flow"
+    by_name = _ctx(workflow_name=" Flow ")
+    assert dao.get(by_name) == SUCCESS and by_name.resp.records[0].id == created.id
+    same_after_trim = _ctx(workflow_name="Flow ", engine_type="apache_airflow", engine_workflow_id="x")
+    assert dao.create(same_after_trim) == CONFLICT
+    _create(dao, name="flow", engine_workflow_id="y")  # a different case is a different workflow
+    renamed = _ctx(id=created.id, workflow_name="  Renamed ")
+    assert dao.update(renamed) == SUCCESS and renamed.resp.records[0].workflow_name == "Renamed"
+    assert dao.update(_ctx(id=created.id, workflow_name="   ")) == INVALID_INPUT
+    assert dao.create(_ctx(workflow_name="n" * 100 + "  ", engine_type="apache_airflow", engine_workflow_id="z")) == SUCCESS
+
+
+def test_config_must_be_a_json_object(data_dir):
+    dao = DaoObjectsFactory.get_app_wf_dao()
+    created = _create(dao).resp.records[0]
+    for bad in ([1], "text", 5):
+        new = _ctx(workflow_name="x", engine_type="apache_airflow", engine_workflow_id="d", config=bad)
+        assert dao.create(new) == INVALID_INPUT, bad
+        assert dao.update(_ctx(id=created.id, config=bad)) == INVALID_INPUT, bad

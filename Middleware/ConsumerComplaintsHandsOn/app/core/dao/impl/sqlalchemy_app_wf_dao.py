@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from uuid import uuid4
 
 from sqlalchemy import Select, select
+from sqlalchemy.exc import IntegrityError
 
 from app.core.common.app_types_constants import EngineType
 from app.core.common.dtos.app_wf_dtos import AppWfCtx, AppWfRecord, AppWfReq
@@ -38,9 +39,15 @@ def _to_record(row: AppWfModel) -> AppWfRecord:
     )
 
 
+def _name_of(req: AppWfReq) -> str | None:
+    """The workflow name without leading or trailing spaces. Names are case sensitive."""
+    return None if req.workflow_name is None else req.workflow_name.strip()
+
+
 def _has_invalid_field(req: AppWfReq) -> bool:
     """True when a field that was given is not acceptable. A field left as None is not checked here."""
-    if req.workflow_name is not None and (not req.workflow_name.strip() or len(req.workflow_name) > NAME_MAX):
+    name = _name_of(req)
+    if name is not None and (not name or len(name) > NAME_MAX):
         return True
     if req.engine_type is not None and req.engine_type not in EngineType.values():
         return True
@@ -48,17 +55,19 @@ def _has_invalid_field(req: AppWfReq) -> bool:
         not req.engine_workflow_id.strip() or len(req.engine_workflow_id) > ENGINE_WORKFLOW_ID_MAX
     ):
         return True
+    if req.config is not None and not isinstance(req.config, dict):
+        return True
     return False
 
 
 def _by_name_query(req: AppWfReq) -> Select:
-    return select(AppWfModel).where(AppWfModel.workflow_name == req.workflow_name)
+    return select(AppWfModel).where(AppWfModel.workflow_name == _name_of(req))
 
 
 class SqlAlchemyAppWfDao(AppWfDao):
     def create(self, ctx: AppWfCtx) -> int:
         req = ctx.req
-        if not (req.workflow_name and req.engine_type and req.engine_workflow_id) or _has_invalid_field(req):
+        if not (_name_of(req) and req.engine_type and req.engine_workflow_id) or _has_invalid_field(req):
             return INVALID_INPUT
         try:
             with unit_of_work(ctx) as session:
@@ -67,7 +76,7 @@ class SqlAlchemyAppWfDao(AppWfDao):
                 now = datetime.now(timezone.utc)
                 row = AppWfModel(
                     id=str(uuid4()),
-                    workflow_name=req.workflow_name,
+                    workflow_name=_name_of(req),
                     engine_type=req.engine_type,
                     engine_workflow_id=req.engine_workflow_id,
                     config=req.config,
@@ -79,13 +88,16 @@ class SqlAlchemyAppWfDao(AppWfDao):
                 session.flush()
                 ctx.resp.records = [_to_record(row)]
             return SUCCESS
+        except IntegrityError:
+            # Two writers took the same name at once; the unique constraint decided.
+            return CONFLICT
         except Exception:
             log.exception("app_workflows create failed")
             return FAILURE
 
     def get(self, ctx: AppWfCtx) -> int:
         req = ctx.req
-        if not (req.id or req.workflow_name):
+        if not (req.id or _name_of(req)):
             return INVALID_INPUT
         try:
             with unit_of_work(ctx) as session:
@@ -123,11 +135,11 @@ class SqlAlchemyAppWfDao(AppWfDao):
                 row = session.get(AppWfModel, req.id)
                 if row is None:
                     return NOT_FOUND
-                if req.workflow_name is not None and req.workflow_name != row.workflow_name:
+                if _name_of(req) is not None and _name_of(req) != row.workflow_name:
                     if session.scalars(_by_name_query(req)).first() is not None:
                         return CONFLICT
-                if req.workflow_name is not None:
-                    row.workflow_name = req.workflow_name
+                if _name_of(req) is not None:
+                    row.workflow_name = _name_of(req)
                 if req.engine_type is not None:
                     row.engine_type = req.engine_type
                 if req.engine_workflow_id is not None:
@@ -140,6 +152,9 @@ class SqlAlchemyAppWfDao(AppWfDao):
                 session.flush()
                 ctx.resp.records = [_to_record(row)]
             return SUCCESS
+        except IntegrityError:
+            # Two writers took the same name at once; the unique constraint decided.
+            return CONFLICT
         except Exception:
             log.exception("app_workflows update failed")
             return FAILURE

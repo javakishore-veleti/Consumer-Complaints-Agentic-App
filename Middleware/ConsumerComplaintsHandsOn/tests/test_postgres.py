@@ -133,4 +133,10 @@ def test_app_wf_dao_works_on_postgres(postgres):
     listed = AppWfCtx(req=AppWfReq(engine_type="apache_airflow"))
     assert dao.list(listed) == SUCCESS and [r.workflow_name for r in listed.resp.records] == ["download_3_months"]
     assert dao.update(AppWfCtx(req=AppWfReq(id=row.id, enabled=False))) == SUCCESS
+    disabled = AppWfCtx(req=AppWfReq(enabled=False))
+    assert dao.list(disabled) == SUCCESS and [r.workflow_name for r in disabled.resp.records] == ["download_3_months"]
+    assert dao.update(AppWfCtx(req=AppWfReq(id=row.id, workflow_name="plain"))) == CONFLICT
+    renamed = AppWfCtx(req=AppWfReq(id=row.id, workflow_name="  renamed  "))
+    assert dao.update(renamed) == SUCCESS and renamed.resp.records[0].workflow_name == "renamed"
+    assert renamed.resp.records[0].updated_at.tzinfo is not None
     assert dao.delete(AppWfCtx(req=AppWfReq(id=row.id))) == SUCCESS
