@@ -100,10 +100,10 @@ The download reads from a **configured location type and path**. Supported types
 - Three schemas: **`consumer_comp_db`** (consumer complaints area), **`consumer_compl_intellect_db`** (Intellect app) and
   **`consumer_comp_users_db`** (users). [Done] created by the first migration.
 
-### F8. Database schema versioning [Done locally; cloud workflow Planned]
+### F8. Database schema versioning [Done locally; cloud workflow deferred to M03]
 - Alembic migrations create and evolve the operational database.
 - Locally, the start script runs the migrations first and then starts the API.
-- Later, a manually triggered GitHub Actions workflow runs migrations against cloud databases (AWS RDS, Azure, GCP).
+- In the cloud milestone (M03), a manually triggered GitHub Actions workflow will run migrations against cloud databases (AWS RDS, Azure, GCP).
 
 ### F9. API contract [Planned]
 - One OpenAPI (Swagger) specification for the whole hands-on project.

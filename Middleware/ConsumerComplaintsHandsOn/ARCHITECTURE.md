@@ -161,8 +161,8 @@ they are real schemas, created by the migration environment. Set `CCA_DB_URL` to
 SQLAlchemy ORM with **Alembic** migrations.
 
 - **Local:** the script that starts the API runs `alembic upgrade head` first. If migration fails, the API does not start.
-- **Cloud:** a separate, manually triggered GitHub Actions workflow runs the same upgrade against RDS, Azure or GCP
-  databases. The app does not migrate itself on startup in the cloud.
+- **Cloud (later milestone M03, not built):** a separate, manually triggered workflow will run the same upgrade against
+  RDS, Azure or GCP databases. The app will not migrate itself on startup in the cloud.
 - Alembic manages the operational database only. MongoDB needs its own approach for collections and indexes later.
 
 ## 8. Local environment
@@ -184,5 +184,5 @@ unless both share a Docker network, for MongoDB).
 
 - Python app image contains Python only. Airflow keeps its own image.
 - All dataset, configured source location in cloud storage (S3, Blob or GCS).
-- Manual GitHub Actions workflow for migrations. Cloud databases are usually on private networks, so this needs a
+- Manual GitHub Actions workflow for migrations (M03). Cloud databases are usually on private networks, so this needs a
   self-hosted runner, a tunnel, or a temporary allow-list. **[Open]**

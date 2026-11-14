@@ -29,7 +29,7 @@ Every item is marked:
 | D14 | One common log table `data_ingest_log` with a `purpose` column, plus a `system_datasets` table with the current state. |
 | D15 | **One endpoint starts any download**, taking a `usecase`. **One endpoint receives Airflow status updates**, taking `usecase` and `status`. |
 | D16 | The dataset is **never committed to the repository**. Download reads from a **configured location type and path**: local path, GitHub repo URL, Google Drive, AWS S3, Azure Blob, GCP Cloud Storage. |
-| D17 | Locally the migrations run from the start script before the API starts; in the cloud a manually triggered GitHub Actions workflow runs them. |
+| D17 | Locally the migrations run from the start script before the API starts; in the cloud they will run from a manually triggered workflow (M03, D34). |
 | D18 | One OpenAPI (Swagger) specification for the whole hands-on project. |
 | D19 | Local: 3 months dataset. Cloud: All dataset. Same code, different configuration. |
 | D20 | MongoDB bulk ingestion by the Airflow job directly; PySpark only if measurements justify it. |
@@ -46,10 +46,11 @@ Every item is marked:
 | D31 | **Layer rules are enforced by import-linter** (`.importlinter`, run by `lint-imports`, by pytest and in CI): layers api -> facades -> services -> dao, common depends on nothing, the API talks to facades only, nobody imports another package's `impl/`. |
 | D32 | **One OpenAPI file**, `Middleware/ConsumerComplaintsHandsOn/openapi.json`, generated from the code (`npm run local:api:openapi`). A test fails when the committed file is out of date. |
 | D33 | **Postgres is verified** by `tests/test_postgres.py` (migrations up, down, up, and the DAO) when `CCA_TEST_POSTGRES_URL` is set; CI runs it against a Postgres service. Migrations use Alembic batch mode on SQLite. |
-| D34 | **Cloud migrations** run from the manually triggered workflow `migrate-database.yml`: target environment (aws, azure, gcp) selects a GitHub environment holding the secret `CCA_DB_URL`; dry run (prints the SQL) is the default. A private database is reached through a **self-hosted runner inside its network** (repository variable `MIGRATION_RUNNER`); a tunnel or an allow-list are the alternatives. |
+| D34 | **Cloud migrations are deferred to the cloud milestone (M03).** A manually triggered GitHub Actions workflow that runs the migrations against AWS, Azure or GCP databases is planned there, not built now; the first version was removed from the repo. The questions to settle then: how the runner reaches a private database (self-hosted runner, tunnel or allow-list) and where the credentials live (GitHub environment secrets). | The current milestone is local development only. |
 | D35 | **Nothing machine- or person-specific is committed.** Paths come from `pathlib` (`Path(__file__).resolve()`) or `dirname "$0"`, never typed in; owner and repository names are never hardcoded (tools read them from the git remote). `tests/test_portability.py` fails on a home-directory path or a GitHub owner URL. | So any teammate can clone the repo to any folder on any OS and everything runs. |
 | D36 | **Scratch space is `runtime_data/tmp/` at the repository root (git-ignored), not `/tmp`.** Pytest temp folders (`runtime_data/tmp/pytest`) and local helper scripts and state (`runtime_data/tmp/...`) live there. The operational SQLite files stay in `Middleware/ConsumerComplaintsHandsOn/.data/` (also ignored). | Everything a run produces stays inside the repository folder, can be deleted in one go, and never leaks into shared system folders. |
 | D37 | **Every function and method takes nothing or exactly one ctx / request / DTO object, never separate arguments and never a bare value.** That includes API endpoints (each takes one request model that FastAPI fills from the path, query string or body), private helpers and test helpers. The result code also travels in `ctx.resp.code`, so the API reads it from the ctx. Only signatures a library dictates are exempt (Alembic's `_include_name`, SQLAlchemy's connect-event hook, the metaclass `__call__`), each listed with its reason in `tests/test_ctx_only_signatures.py`, which fails on any other violation. | Adding a field never changes a signature, every layer reads the same way, and the rule is enforced by a test instead of by memory. Side effect: the list endpoint's filter is now `?status=` (it was `?status_=` by accident of an argument name). |
+| D38 | **M01 is local development only.** Everything runs on the laptop (SQLite, local Airflow and MongoDB in Docker, local files and URLs as sources). AWS, Azure and GCP work (cloud databases and migration workflow, S3, Azure Blob, GCS and Google Drive sources) is the next milestone (M03, "Cloud Deployment"). The code keeps its seams (database URL in settings, one class per source type), so adding the cloud is additions, not rewrites. | Finish a working local product first. |
 
 ## 2. Conventions in detail
 
@@ -159,7 +160,7 @@ ingest for all. Exact names **Open**.
 - Never edit a migration once merged; add a new one (this narrows the missing-checksum gap).
 - SQLite has limited `ALTER TABLE` (Alembic "batch mode" needed); test migrations against Postgres too.
 - Alembic creates tables, not the database server or the empty database.
-- Cloud: manual GitHub Actions workflow; credentials as environment secrets. **Open:** how the runner reaches a private database.
+- Cloud: deferred to M03 (D34, D38).
 
 ## 8. Other open items
 
