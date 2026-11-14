@@ -155,8 +155,8 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #55 (decision only, no code) | 1 | `/ccaa-story-start 55` | Done | 2026-11-14 | 2026-11-14 |
 | #55 | 2 | `/brainstorming Story #55: where the source location and credentials live (database, config file or Airflow connection; never in the repo). Record the decision as D42 in Middleware/ConsumerComplaintsHandsOn/DESIGN.md` | Done | 2026-11-14 | 2026-11-14 |
 | #55 | 3 | `/verification-before-completion Story #55` | Done | 2026-11-14 | 2026-11-14 |
-| #55 | 4 | `/ccaa-commit-push 55` | In progress | 2026-11-14 | - |
-| #55 | 5 | `/ccaa-story-complete 55` | Planned | - | - |
+| #55 | 4 | `/ccaa-commit-push 55` | Done | 2026-11-14 | 2026-11-14 |
+| #55 | 5 | `/ccaa-story-complete 55` | In progress | 2026-11-14 | - |
 | #47 | 1 | `/ccaa-story-start 47` | Planned | - | - |
 | #47 | 2 | `/brainstorming Story #47: source location interface and factory; ctx in, integer out; type chosen from configuration (D42)` | Planned | - | - |
 | #47 | 3 | `/writing-plans Story #47` | Planned | - | - |
