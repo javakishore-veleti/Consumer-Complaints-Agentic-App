@@ -1,6 +1,6 @@
 """Every type list of the app (DESIGN.md, D55). Each list is an enum whose parent is AppTypeEnum.
 
-Add the next list (dataset location types, statuses, ...) here as one more subclass.
+Add the next list (statuses, ...) here as one more subclass.
 """
 
 from enum import Enum
@@ -46,3 +46,16 @@ _EXEC_STATUS_MOVES = {
     ExecStatus.COMPLETED: (),
     ExecStatus.FAILED: (),
 }
+
+
+class DatasetLocationType(AppTypeEnum):
+    """Where a dataset can be read from or written to (D49, D57). The workflows interpret the code, the API does not."""
+
+    LOCAL = "local"
+    HTTP = "http"
+    GITHUB = "github"
+    S3 = "s3"
+    AZURE_BLOB = "azure_blob"
+    GCS = "gcs"
+    GOOGLE_DRIVE = "google_drive"
+    FTP = "ftp"

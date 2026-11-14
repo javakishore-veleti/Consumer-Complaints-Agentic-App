@@ -1,4 +1,4 @@
-from app.core.common.app_types_constants import AppTypeEnum, EngineType, ExecStatus
+from app.core.common.app_types_constants import AppTypeEnum, DatasetLocationType, EngineType, ExecStatus
 
 
 def test_engine_type_values_are_the_short_codes():
@@ -31,3 +31,19 @@ def test_exec_status_allowed_moves_follow_d30():
 
 def test_only_completed_and_failed_are_final():
     assert [s for s in ExecStatus if s.is_final] == [ExecStatus.COMPLETED, ExecStatus.FAILED]
+
+
+def test_dataset_location_type_values_are_the_short_codes():
+    assert DatasetLocationType.values() == [
+        "local",
+        "http",
+        "github",
+        "s3",
+        "azure_blob",
+        "gcs",
+        "google_drive",
+        "ftp",
+    ]
+    assert DatasetLocationType.LOCAL == "local"
+    assert "dropbox" not in DatasetLocationType.values()
+    assert issubclass(DatasetLocationType, AppTypeEnum)
