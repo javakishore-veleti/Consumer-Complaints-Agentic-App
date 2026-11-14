@@ -11,6 +11,7 @@ from app.core.dao.dataset_dao import DatasetDao
 from app.core.dao.dataset_location_dao import DatasetLocationDao
 from app.core.dao.mio_dao import MioDao
 from app.core.dao.mio_dataset_dao import MioDatasetDao
+from app.core.dao.mio_ingest_log_dao import MioIngestLogDao
 from app.core.dao.system_datasets_dao import SystemDatasetsDao
 from app.core.dao.transaction_dao import TransactionDao
 
@@ -51,6 +52,12 @@ class DaoObjectsFactory:
         from app.core.dao.impl.sqlalchemy_mio_dataset_dao import SqlAlchemyMioDatasetDao
 
         return SqlAlchemyMioDatasetDao()
+
+    @staticmethod
+    def get_mio_ingest_log_dao() -> MioIngestLogDao:
+        from app.core.dao.impl.sqlalchemy_mio_ingest_log_dao import SqlAlchemyMioIngestLogDao
+
+        return SqlAlchemyMioIngestLogDao()
 
     @staticmethod
     def get_data_ingest_dao() -> DataIngestDao:
