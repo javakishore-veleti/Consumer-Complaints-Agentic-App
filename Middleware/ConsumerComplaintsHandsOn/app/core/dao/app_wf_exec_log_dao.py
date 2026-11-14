@@ -19,7 +19,11 @@ class AppWfExecLogDao(metaclass=SingletonMeta):
         """Needs req.workflow_id. Reads that workflow from app_workflows in the same transaction and copies its
         name, engine type, engine workflow id and config (as config_used) into a new row with the status
         "requested". The new row is returned. INVALID_INPUT without a workflow_id, NOT_FOUND if there is no such
-        workflow. Does not look at the workflow's enabled flag."""
+        workflow. Does not look at the workflow's enabled flag.
+
+        Optional req.mios_ingest_log_id: the MIO ingest this execution belongs to (many executions to one ingest,
+        D50). When given, that mios_ingest_log row must exist (read in the same transaction), otherwise NOT_FOUND.
+        It is stored as given and never changes afterwards. Left out, it stays NULL (a workflow without a MIO)."""
 
     @abstractmethod
     def get(self, ctx: AppWfExecLogCtx) -> int:
@@ -32,7 +36,7 @@ class AppWfExecLogDao(metaclass=SingletonMeta):
         failed, completed and failed are final, the same status again is accepted and keeps its times. started_at is
         set on the move to started, finished_at on the move to completed or failed. NOT_FOUND if there is no such
         row, INVALID_INPUT for an unknown status or a too long engine_run_id, CONFLICT for any other move; a
-        CONFLICT changes nothing.
+        CONFLICT changes nothing. mios_ingest_log_id is never changed.
 
         Two callbacks at once: the status write only matches a row that still has the status that was read, so the
         first to commit wins. The second gets CONFLICT, or SUCCESS if the first made the very same move (a retry).
@@ -42,6 +46,7 @@ class AppWfExecLogDao(metaclass=SingletonMeta):
 
     @abstractmethod
     def list(self, ctx: AppWfExecLogCtx) -> int:
-        """Optional filters: req.workflow_id, req.status, req.engine_type; optional req.limit and req.offset.
+        """Optional filters: req.workflow_id, req.status, req.engine_type, req.mios_ingest_log_id; optional req.limit
+        and req.offset.
         Newest first (requested_at descending, then id). An empty result is SUCCESS with no records.
         INVALID_INPUT for a negative limit or offset."""
