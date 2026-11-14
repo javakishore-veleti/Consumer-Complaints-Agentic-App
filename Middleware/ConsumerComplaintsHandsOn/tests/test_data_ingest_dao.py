@@ -88,3 +88,37 @@ def test_delete(data_dir):
     assert deleted.resp.records[0].id == log_id
     assert dao.get(_ctx(id=log_id)) == NOT_FOUND
     assert dao.delete(_ctx(id=log_id)) == NOT_FOUND
+
+
+def test_status_transitions(data_dir):
+    from app.core.common.return_codes import CONFLICT
+
+    dao = DaoObjectsFactory.get_data_ingest_dao()
+    created = _ctx(purpose="download_all")
+    dao.create(created)
+    log_id = created.resp.records[0].id
+
+    assert dao.update(_ctx(id=log_id, status="completed")) == CONFLICT  # cannot skip "started"
+    assert dao.update(_ctx(id=log_id, status="started")) == SUCCESS
+    first = _ctx(id=log_id, status="started", message="still going")
+    assert dao.update(first) == SUCCESS  # same status again (a retry): accepted
+    stamp = first.resp.records[0].started_at
+    again = _ctx(id=log_id, status="started")
+    dao.update(again)
+    assert again.resp.records[0].started_at == stamp  # ...and the start time is not restamped
+    assert first.resp.records[0].message == "still going"
+
+    assert dao.update(_ctx(id=log_id, status="requested")) == CONFLICT  # no going back
+    assert dao.update(_ctx(id=log_id, status="completed")) == SUCCESS
+    assert dao.update(_ctx(id=log_id, status="failed")) == CONFLICT  # final
+    assert dao.update(_ctx(id=log_id, status="started")) == CONFLICT  # final
+    assert dao.update(_ctx(id=log_id, status="completed")) == SUCCESS  # a duplicate callback
+
+
+def test_requested_can_fail_directly(data_dir):
+    dao = DaoObjectsFactory.get_data_ingest_dao()
+    created = _ctx(purpose="download_all")
+    dao.create(created)
+    failed = _ctx(id=created.resp.records[0].id, status="failed", message="could not start the DAG")
+    assert dao.update(failed) == SUCCESS
+    assert failed.resp.records[0].finished_at is not None

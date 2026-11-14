@@ -40,6 +40,13 @@ Every item is marked:
 | D25 | A facade task gets the DAO from the DAO package's `objects_factory`. Factory methods take no arguments (exempt from the ctx rule). The database engine is cached in `dao/impl/database.py`. |
 | D26 | **Every class in `api`, `facades`, `services` and `dao` is a singleton.** Each interface declares `metaclass=SingletonMeta` (`core/common/singleton.py`, thread-safe, re-entrant), so every implementation inherits it. Each package's `objects_factory.py` is a class with **static methods that return the singleton, typed as the interface** (`DaoObjectsFactory.get_data_ingest_dao()`, `FacadesObjectsFactory.get_data_ingest_facade()`, `ApiObjectsFactory.get_app()`, `ServicesObjectsFactory`). |
 | D27 | Consequence of D26: these classes hold **no per-request state**; it lives in the ctx. So tasks take no constructor arguments and read what they need from the ctx (for example `ctx.operation`, set by the facade). Req, Resp, Ctx, ORM table classes and API request bodies are data, not singletons. |
+| D28 | **One class per file, and a task is its own file.** Facade tasks live in `facades/impl/tasks/`, one `.py` per task, named `<facade>_<what>_task.py`. Keeps files small and avoids static-analysis (Sonar) findings on large modules. Validation is split into small methods instead of one long branch chain. |
+| D29 | **The API is a class too.** Each endpoint group is a singleton class (`DataIngestApi`) that owns an `APIRouter` and registers its methods in the constructor. HTTP parameters cannot be a ctx, so API methods take what FastAPI passes and put it into the facade ctx immediately; everything below the API follows the ctx rule. |
+| D30 | **Status changes follow fixed rules**: requested -> started -> completed or failed, and requested -> failed. Completed and failed are final. The same status again is accepted and changes nothing (Airflow retries). Anything else returns `CONFLICT` (4), HTTP 409. The rule is checked and written in one DAO transaction, so concurrent callbacks cannot race. A new row is always `requested`. |
+| D31 | **Layer rules are enforced by import-linter** (`.importlinter`, run by `lint-imports`, by pytest and in CI): layers api -> facades -> services -> dao, common depends on nothing, the API talks to facades only, nobody imports another package's `impl/`. |
+| D32 | **One OpenAPI file**, `Middleware/ConsumerComplaintsHandsOn/openapi.json`, generated from the code (`npm run local:api:openapi`). A test fails when the committed file is out of date. |
+| D33 | **Postgres is verified** by `tests/test_postgres.py` (migrations up, down, up, and the DAO) when `CCA_TEST_POSTGRES_URL` is set; CI runs it against a Postgres service. Migrations use Alembic batch mode on SQLite. |
+| D34 | **Cloud migrations** run from the manually triggered workflow `migrate-database.yml`: target environment (aws, azure, gcp) selects a GitHub environment holding the secret `CCA_DB_URL`; dry run (prints the SQL) is the default. A private database is reached through a **self-hosted runner inside its network** (repository variable `MIGRATION_RUNNER`); a tunnel or an allow-list are the alternatives. |
 
 ## 2. Conventions in detail
 
@@ -74,7 +81,7 @@ Every item is marked:
 The DAO sets `requested_at` on create, `started_at` when the status becomes `started`, and `finished_at` when it becomes
 `completed` or `failed`. The API exposes plain create / get / list / update / delete under `/data-ingest-logs`; the
 use-case endpoints of section 4.2 will sit on top of this table.
-Allowed status transition rules (requested -> started -> completed or failed) are **not** enforced yet: this slice only validates that a status is one of the four values.
+Status changes are enforced (D30).
 | Column | Meaning |
 |---|---|
 | id | application-generated ID |
@@ -145,7 +152,7 @@ ingest for all. Exact names **Open**.
 - Alembic files live inside `Middleware/ConsumerComplaintsHandsOn` (`alembic.ini`, `alembic/`), outside the application layers.
 - The database comes from the app settings (`CCA_DB_URL`, `CCA_DATA_DIR`), not `alembic.ini`, so the API and the migrations use the same database. `alembic/env.py` creates the three schemas first (`CREATE SCHEMA IF NOT EXISTS`; on SQLite the attached files).
 - The `alembic_version` table sits in the main SQLite file `operational.sqlite`.
-- Local start script (**implemented**, `run_local.sh`, `npm run local:api:start`): migrate, then start the API; if the migration fails the API does not start.
+- Local start script (**implemented**, `run_app.sh start|stop|status`, `npm run local:handson:middlware:all:start|stop|status`): migrate, then start the API in the background; if the migration fails the API does not start.
 - Never edit a migration once merged; add a new one (this narrows the missing-checksum gap).
 - SQLite has limited `ALTER TABLE` (Alembic "batch mode" needed); test migrations against Postgres too.
 - Alembic creates tables, not the database server or the empty database.

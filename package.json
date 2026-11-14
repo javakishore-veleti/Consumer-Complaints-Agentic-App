@@ -12,7 +12,11 @@
     "local:containers:all:stop": "bash CICD/Local/docker-all-down.sh",
     "local:containers:all:status": "bash CICD/Local/docker-all-status.sh",
     "local:api:migrate": "cd Middleware/ConsumerComplaintsHandsOn && uv run alembic upgrade head",
-    "local:api:start": "bash Middleware/ConsumerComplaintsHandsOn/run_local.sh",
+    "local:handson:middlware:all:start": "bash Middleware/ConsumerComplaintsHandsOn/run_app.sh start",
+    "local:handson:middlware:all:stop": "bash Middleware/ConsumerComplaintsHandsOn/run_app.sh stop",
+    "local:handson:middlware:all:status": "bash Middleware/ConsumerComplaintsHandsOn/run_app.sh status",
+    "local:api:openapi": "cd Middleware/ConsumerComplaintsHandsOn && uv run python scripts/export_openapi.py",
+    "local:api:lint": "cd Middleware/ConsumerComplaintsHandsOn && uv run lint-imports",
     "local:api:test": "cd Middleware/ConsumerComplaintsHandsOn && uv run pytest"
   },
   "author": "",

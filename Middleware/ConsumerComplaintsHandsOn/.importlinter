@@ -1,0 +1,77 @@
+# Layer rules from ARCHITECTURE.md, enforced by `lint-imports` (npm run local:api:lint, and in CI).
+[importlinter]
+root_package = app
+include_external_packages = False
+
+[importlinter:contract:layers]
+name = Layers: api -> facades -> services -> dao (a lower layer never imports a higher one)
+type = layers
+layers =
+    app.api
+    app.core.facades
+    app.core.services
+    app.core.dao
+
+[importlinter:contract:common-is-shared]
+name = common is shared: it depends on no other layer
+type = forbidden
+allow_indirect_imports = True
+source_modules =
+    app.core.common
+forbidden_modules =
+    app.api
+    app.core.facades
+    app.core.services
+    app.core.dao
+
+[importlinter:contract:api-closed]
+name = Closed layer: the API talks to facades only
+type = forbidden
+allow_indirect_imports = True
+source_modules =
+    app.api
+forbidden_modules =
+    app.core.services
+    app.core.dao
+
+[importlinter:contract:no-impl-from-outside]
+name = Nobody imports another package's impl/ (only that package's objects_factory does)
+type = forbidden
+allow_indirect_imports = True
+source_modules =
+    app.api
+    app.core.common
+forbidden_modules =
+    app.core.facades.impl
+    app.core.services.impl
+    app.core.dao.impl
+
+[importlinter:contract:facades-impl-private]
+name = facades/impl is private to the facades package
+type = forbidden
+allow_indirect_imports = True
+source_modules =
+    app.core.services
+    app.core.dao
+forbidden_modules =
+    app.core.facades.impl
+
+[importlinter:contract:services-impl-private]
+name = services/impl is private to the services package
+type = forbidden
+allow_indirect_imports = True
+source_modules =
+    app.core.facades
+    app.core.dao
+forbidden_modules =
+    app.core.services.impl
+
+[importlinter:contract:dao-impl-private]
+name = dao/impl is private to the dao package
+type = forbidden
+allow_indirect_imports = True
+source_modules =
+    app.core.facades
+    app.core.services
+forbidden_modules =
+    app.core.dao.impl

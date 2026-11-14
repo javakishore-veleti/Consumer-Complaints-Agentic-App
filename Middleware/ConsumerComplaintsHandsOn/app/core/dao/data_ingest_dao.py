@@ -25,7 +25,8 @@ class DataIngestDao(metaclass=SingletonMeta):
     @abstractmethod
     def update(self, ctx: DataIngestCtx) -> int:
         """Needs req.id. Changes the given status, run_id and message. Sets started_at / finished_at
-        when the status becomes started / completed or failed. NOT_FOUND if there is no such row."""
+        when the status becomes started / completed or failed. NOT_FOUND if there is no such row.
+        CONFLICT if the status change is not allowed (see ALLOWED_TRANSITIONS); the same status again is accepted."""
 
     @abstractmethod
     def delete(self, ctx: DataIngestCtx) -> int:

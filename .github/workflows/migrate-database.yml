@@ -1,0 +1,51 @@
+name: migrate-database
+
+# Run the Alembic migrations against a cloud database (AWS RDS, Azure or GCP). Manual only.
+# Credentials come from the GitHub *environment* of the same name (Settings > Environments):
+#   secret   CCA_DB_URL        SQLAlchemy URL, for example postgresql+psycopg://user:pass@host:5432/dbname
+# Reaching a private database: set the repository variable MIGRATION_RUNNER to the label of a self-hosted runner
+# that runs inside the database's network. Without it the job runs on a GitHub-hosted runner, which only works
+# when the database accepts connections from the internet (not recommended).
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        type: choice
+        options: [aws, azure, gcp]
+        required: true
+      revision:
+        description: "Alembic revision to migrate to"
+        default: head
+        required: true
+      dry_run:
+        description: "Only print the SQL (alembic --sql); change nothing"
+        type: boolean
+        default: true
+
+jobs:
+  migrate:
+    runs-on: ${{ vars.MIGRATION_RUNNER || 'ubuntu-latest' }}
+    environment: ${{ inputs.environment }}
+    defaults:
+      run:
+        working-directory: Middleware/ConsumerComplaintsHandsOn
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --locked
+      - name: Show the current revision
+        env:
+          CCA_DB_URL: ${{ secrets.CCA_DB_URL }}
+        run: uv run alembic current
+      - name: Print the SQL (dry run)
+        if: ${{ inputs.dry_run }}
+        env:
+          CCA_DB_URL: ${{ secrets.CCA_DB_URL }}
+        run: uv run alembic upgrade ${{ inputs.revision }} --sql
+      - name: Migrate
+        if: ${{ !inputs.dry_run }}
+        env:
+          CCA_DB_URL: ${{ secrets.CCA_DB_URL }}
+        run: uv run alembic upgrade ${{ inputs.revision }}

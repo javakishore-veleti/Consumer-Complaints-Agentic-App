@@ -35,17 +35,22 @@ def run_migrations_offline() -> None:
         include_name=_include_name,
     )
     with context.begin_transaction():
+        if not get_settings().db_url.startswith("sqlite"):
+            for schema in ALL_SCHEMAS:  # the online path creates the schemas too; the printed SQL must as well
+                context.execute(f"CREATE SCHEMA IF NOT EXISTS {schema}")
         context.run_migrations()
 
 
 def run_migrations_online() -> None:
     with get_engine().connect() as connection:
         ensure_schemas(connection)
+        connection.commit()  # persist the schemas now; otherwise the migration's transaction would roll them back
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
             include_schemas=True,
             include_name=_include_name,
+            render_as_batch=connection.dialect.name == "sqlite",  # SQLite's limited ALTER TABLE: future migrations use batch mode
         )
         with context.begin_transaction():
             context.run_migrations()

@@ -8,12 +8,13 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.common.data_ingest_constants import (
+    ALLOWED_TRANSITIONS,
     FINISHED_STATUSES,
     STATUS_REQUESTED,
     STATUS_STARTED,
 )
 from app.core.common.dtos.data_ingest_dtos import DataIngestCtx, DataIngestRecord
-from app.core.common.return_codes import FAILURE, INVALID_INPUT, NOT_FOUND, SUCCESS
+from app.core.common.return_codes import CONFLICT, FAILURE, INVALID_INPUT, NOT_FOUND, SUCCESS
 from app.core.dao.data_ingest_dao import DataIngestDao
 from app.core.dao.impl.database import get_engine
 from app.core.dao.impl.models import DataIngestLogModel
@@ -111,11 +112,14 @@ class SqlAlchemyDataIngestDao(DataIngestDao):
                 row = session.get(DataIngestLogModel, req.id)
                 if row is None:
                     return NOT_FOUND
+                changes_status = req.status is not None and req.status != row.status
+                if changes_status and req.status not in ALLOWED_TRANSITIONS.get(row.status, ()):
+                    return CONFLICT  # checked and written in this one transaction, so retries cannot race
                 if req.run_id is not None:
                     row.run_id = req.run_id
                 if req.message is not None:
                     row.message = req.message
-                if req.status is not None:
+                if changes_status:
                     row.status = req.status
                     if req.status == STATUS_STARTED:
                         row.started_at = _now()

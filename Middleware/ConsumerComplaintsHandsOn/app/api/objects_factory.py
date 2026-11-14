@@ -4,7 +4,7 @@ import threading
 
 from fastapi import FastAPI
 
-from app.api.routers.data_ingest_router import router as data_ingest_router
+from app.api.routers.data_ingest_api import DataIngestApi
 
 
 class ApiObjectsFactory:
@@ -26,7 +26,7 @@ class ApiObjectsFactory:
             version="0.1.0",
             description="Middleware API for the Consumer Complaints platform.",
         )
-        app.include_router(data_ingest_router)
+        app.include_router(DataIngestApi().router)
 
         @app.get("/health", tags=["health"])
         def health() -> dict[str, str]:

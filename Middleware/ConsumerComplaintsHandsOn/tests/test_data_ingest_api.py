@@ -36,3 +36,17 @@ def test_invalid_input_is_rejected(client):
 def test_openapi_lists_the_endpoints(client):
     paths = client.get("/openapi.json").json()["paths"]
     assert set(paths) >= {"/data-ingest-logs", "/data-ingest-logs/{log_id}", "/health"}
+
+
+def test_out_of_order_status_is_409_and_duplicates_are_fine(client):
+    log_id = client.post("/data-ingest-logs", json={"purpose": "x"}).json()["id"]
+    assert client.patch(f"/data-ingest-logs/{log_id}", json={"status": "completed"}).status_code == 409
+    assert client.patch(f"/data-ingest-logs/{log_id}", json={"status": "started"}).status_code == 200
+    assert client.patch(f"/data-ingest-logs/{log_id}", json={"status": "started"}).status_code == 200
+    assert client.patch(f"/data-ingest-logs/{log_id}", json={"status": "completed"}).status_code == 200
+    assert client.patch(f"/data-ingest-logs/{log_id}", json={"status": "failed"}).status_code == 409
+
+
+def test_a_row_is_always_created_as_requested(client):
+    assert client.post("/data-ingest-logs", json={"purpose": "x", "status": "started"}).status_code == 422
+    assert client.post("/data-ingest-logs", json={"purpose": "x", "status": "requested"}).status_code == 201

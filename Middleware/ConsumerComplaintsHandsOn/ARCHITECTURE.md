@@ -51,16 +51,19 @@ api  ->  IFacade  ->  [ task 1, task 2, ... ]  ->  IService  or  IDao
 ```
 Middleware/ConsumerComplaintsHandsOn/
   app/
-    api/                      FastAPI routes (routers/), request and response bodies (models/), objects_factory.py
+    api/                      endpoint classes (routers/), request and response bodies (models/), objects_factory.py
     core/
       common/                 config (schema names), return_codes, constants
         dtos/                 XxxReq, XxxResp, XxxCtx
-      facades/    impl/       interface + task interface here, facade and tasks in impl/, objects_factory.py
+      facades/    impl/       interface + task interface here, facade in impl/, one file per task in impl/tasks/, objects_factory.py
       services/   impl/
       dao/        impl/       interface here; impl/ holds the SQLAlchemy models, engine and DAO; objects_factory.py
   alembic.ini  alembic/       migrations (versions/0001_create_data_ingest_log.py)
-  tests/                      pytest: DAO, API, schema layout, layer rules
-  run_local.sh                migrate, then start the API
+  tests/                      pytest: DAO, API, schema layout, singletons, import contracts, OpenAPI file, Postgres (opt-in)
+  .importlinter               layer rules (lint-imports)
+  openapi.json                the generated OpenAPI spec (committed, checked by a test)
+  scripts/export_openapi.py   writes openapi.json
+  run_app.sh                  start (migrate, then run in the background), stop, status
   main.py  pyproject.toml  (uv project)
 CICD/Local/
   airflow/    docker-compose.yaml     Airflow 3.4.0, LocalExecutor
@@ -168,7 +171,7 @@ SQLAlchemy ORM with **Alembic** migrations.
 |---|---|---|
 | Airflow UI | <http://localhost:8080> | login `airflow` / `airflow`; compose in `CICD/Local/airflow` |
 | MongoDB | `127.0.0.1:27017` | root user from environment or the local default; compose in `CICD/Local/mongodb` |
-| Middleware API | <http://127.0.0.1:8000> (`/docs` for Swagger) | `npm run local:api:start` migrates, then starts it; `local:api:migrate` and `local:api:test` also exist |
+| Middleware API | <http://127.0.0.1:8000> (`/docs` for Swagger) | `npm run local:handson:middlware:all:start` (or `:stop`, `:status`; start migrates first, runs in the background; log and PID in `.data/`); `local:api:migrate` and `local:api:test` also exist |
 
 Start, stop, check: `npm run local:containers:all:start | stop | status` (they run the three `CICD/Local/docker-all-*.sh`
 scripts, which pick up every `CICD/Local/<service>/docker-compose.yaml`). `stop -- --wipe <service>` also deletes that
