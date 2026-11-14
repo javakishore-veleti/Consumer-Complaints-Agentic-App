@@ -4,8 +4,10 @@ from datetime import datetime, timedelta, timezone
 import pytest
 
 from app.core.common.dtos.app_wf_dtos import AppWfCtx, AppWfRecord, AppWfReq
-from app.core.common.dtos.transaction_dtos import TransactionCtx
 from app.core.common.dtos.app_wf_exec_log_dtos import AppWfExecLogCtx, AppWfExecLogRecord, AppWfExecLogReq
+from app.core.common.dtos.mio_dtos import MioCtx, MioReq
+from app.core.common.dtos.mio_ingest_log_dtos import MioIngestLogCtx, MioIngestLogReq
+from app.core.common.dtos.transaction_dtos import TransactionCtx
 from app.core.common.return_codes import CONFLICT, INVALID_INPUT, NOT_FOUND, SUCCESS
 from app.core.dao.impl import sqlalchemy_app_wf_exec_log_dao as dao_impl
 from app.core.dao.objects_factory import DaoObjectsFactory
@@ -382,3 +384,82 @@ def test_list_rejects_a_negative_limit_or_offset(data_dir):
     assert logs.list(_ctx(offset=-1)) == INVALID_INPUT
     zero = _ctx(limit=0)
     assert logs.list(zero) == SUCCESS and zero.resp.records == []
+
+
+def _ingest_row() -> str:
+    """A requested mios_ingest_log row of a new MIO; its id."""
+    mio = MioCtx(req=MioReq(name="t_ingest_mio"))
+    assert DaoObjectsFactory.get_mio_dao().create(mio) == SUCCESS
+    ingest = MioIngestLogCtx(req=MioIngestLogReq(mio_id=mio.resp.records[0].id))
+    assert DaoObjectsFactory.get_mio_ingest_log_dao().create(ingest) == SUCCESS
+    return ingest.resp.records[0].id
+
+
+def test_an_execution_without_an_ingest_has_a_null_reference(data_dir):
+    row = _execute(_workflow().id)
+    assert row.mios_ingest_log_id is None
+    with sqlite3.connect(data_dir / "consumer_comp_admin_db.sqlite") as db:
+        assert db.execute("select mios_ingest_log_id from app_workflows_exec_log").fetchall() == [(None,)]
+
+
+def test_create_stores_the_ingest_reference(data_dir):
+    ingest_id = _ingest_row()
+    row = _execute(_workflow().id, mios_ingest_log_id=ingest_id)
+    assert row.mios_ingest_log_id == ingest_id
+    assert _stored(row.id).mios_ingest_log_id == ingest_id
+
+
+def test_create_with_an_unknown_ingest_is_not_found_and_stores_nothing(data_dir):
+    workflow = _workflow()
+    logs = DaoObjectsFactory.get_app_wf_exec_log_dao()
+    assert logs.create(_ctx(workflow_id=workflow.id, mios_ingest_log_id="no-such-ingest")) == NOT_FOUND
+    assert _exec_log_rows(data_dir) == []
+
+
+def test_several_executions_of_one_ingest_are_listed_by_its_id(data_dir, monkeypatch):
+    _one_tick_per_call(monkeypatch)
+    ingest_id = _ingest_row()
+    workflow = _workflow()
+    first = _execute(workflow.id, mios_ingest_log_id=ingest_id)
+    assert _update(first.id, status="failed", message="batch 1 failed")[0] == SUCCESS
+    rerun = _execute(workflow.id, mios_ingest_log_id=ingest_id)  # a rerun after the failure
+    batch_2 = _execute(_workflow("load_batch_2").id, mios_ingest_log_id=ingest_id)
+    unrelated = _execute(workflow.id)
+
+    assert [r.id for r in _list(mios_ingest_log_id=ingest_id)] == [batch_2.id, rerun.id, first.id]
+    assert [r.id for r in _list(mios_ingest_log_id=ingest_id, status="failed")] == [first.id]
+    assert [r.id for r in _list(mios_ingest_log_id=ingest_id, workflow_id=workflow.id)] == [rerun.id, first.id]
+    assert _list(mios_ingest_log_id="no-such-ingest") == []
+    assert unrelated.id in {r.id for r in _list()}  # the filter is optional
+
+
+def test_update_leaves_the_ingest_reference_alone(data_dir):
+    ingest_id = _ingest_row()
+    row = _execute(_workflow().id, mios_ingest_log_id=ingest_id)
+    code, ctx = _update(row.id, status="started", mios_ingest_log_id="something-else")
+    assert code == SUCCESS
+    assert ctx.resp.records[0].mios_ingest_log_id == ingest_id
+    assert _update(row.id, status="completed")[0] == SUCCESS
+    assert _stored(row.id).mios_ingest_log_id == ingest_id
+    plain = _execute(_workflow("plain").id)
+    assert _update(plain.id, mios_ingest_log_id=ingest_id)[0] == SUCCESS
+    assert _stored(plain.id).mios_ingest_log_id is None
+
+
+def test_create_reads_the_ingest_inside_the_same_shared_transaction(data_dir):
+    workflow = _workflow()
+    transactions = DaoObjectsFactory.get_transaction_dao()
+    tx = TransactionCtx()
+    assert transactions.begin(tx) == SUCCESS
+    mio = MioCtx(transaction=tx, req=MioReq(name="t_tx_mio"))
+    assert DaoObjectsFactory.get_mio_dao().create(mio) == SUCCESS
+    ingest = MioIngestLogCtx(transaction=tx, req=MioIngestLogReq(mio_id=mio.resp.records[0].id))
+    assert DaoObjectsFactory.get_mio_ingest_log_dao().create(ingest) == SUCCESS  # not committed: only tx sees it
+    execution = AppWfExecLogCtx(
+        transaction=tx, req=AppWfExecLogReq(workflow_id=workflow.id, mios_ingest_log_id=ingest.resp.records[0].id)
+    )
+    assert DaoObjectsFactory.get_app_wf_exec_log_dao().create(execution) == SUCCESS
+    assert transactions.rollback(tx) == SUCCESS
+    assert _list() == []
+    outside = _ctx(workflow_id=workflow.id, mios_ingest_log_id=ingest.resp.records[0].id)
+    assert DaoObjectsFactory.get_app_wf_exec_log_dao().create(outside) == NOT_FOUND  # the ingest was rolled back

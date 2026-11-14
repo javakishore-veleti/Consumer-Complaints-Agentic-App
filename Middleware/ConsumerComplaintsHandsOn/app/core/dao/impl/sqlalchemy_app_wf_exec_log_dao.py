@@ -12,7 +12,7 @@ from app.core.common.app_types_constants import ExecStatus
 from app.core.common.dtos.app_wf_exec_log_dtos import AppWfExecLogCtx, AppWfExecLogRecord
 from app.core.common.return_codes import CONFLICT, FAILURE, INVALID_INPUT, NOT_FOUND, SUCCESS
 from app.core.dao.app_wf_exec_log_dao import AppWfExecLogDao
-from app.core.dao.impl.models import AppWfExecLogModel, AppWfModel
+from app.core.dao.impl.models import AppWfExecLogModel, AppWfModel, MioIngestLogModel
 from app.core.dao.impl.unit_of_work import unit_of_work
 
 log = logging.getLogger(__name__)
@@ -41,6 +41,7 @@ def _to_record(row: AppWfExecLogModel) -> AppWfExecLogRecord:
         engine_run_id=row.engine_run_id,
         status=row.status,
         message=row.message,
+        mios_ingest_log_id=row.mios_ingest_log_id,
         **times,
     )
 
@@ -61,14 +62,20 @@ def _new_row(workflow: AppWfModel) -> AppWfExecLogModel:
 
 class SqlAlchemyAppWfExecLogDao(AppWfExecLogDao):
     def create(self, ctx: AppWfExecLogCtx) -> int:
-        if not ctx.req.workflow_id:
+        req = ctx.req
+        if not req.workflow_id:
             return INVALID_INPUT
         try:
             with unit_of_work(ctx) as session:
-                workflow = session.get(AppWfModel, ctx.req.workflow_id)
+                workflow = session.get(AppWfModel, req.workflow_id)
                 if workflow is None:
                     return NOT_FOUND
+                # No foreign key (D58): the ingest row must exist now; the reference never changes afterwards.
+                ingest_id = req.mios_ingest_log_id
+                if ingest_id is not None and session.get(MioIngestLogModel, ingest_id) is None:
+                    return NOT_FOUND
                 row = _new_row(workflow)
+                row.mios_ingest_log_id = ingest_id
                 session.add(row)
                 session.flush()
                 ctx.resp.records = [_to_record(row)]
@@ -156,6 +163,8 @@ class SqlAlchemyAppWfExecLogDao(AppWfExecLogDao):
                 query = query.where(AppWfExecLogModel.status == req.status)
             if req.engine_type:
                 query = query.where(AppWfExecLogModel.engine_type == req.engine_type)
+            if req.mios_ingest_log_id:
+                query = query.where(AppWfExecLogModel.mios_ingest_log_id == req.mios_ingest_log_id)
             query = query.order_by(AppWfExecLogModel.requested_at.desc(), AppWfExecLogModel.id)
             if req.limit is not None:
                 query = query.limit(req.limit)
