@@ -10,12 +10,12 @@ Status: the local containers and scripts exist, and the first vertical slice is 
 
 ```mermaid
 flowchart LR
-    UI["Admin portal (Angular)"] -->|HTTP| API["Middleware API (FastAPI)"]
+    UI["Admin portal (Angular)"] -->|"list workflows, start one, read status"| API["Middleware API (FastAPI)"]
     API --> FAC["Facades, then Services or DAOs"]
-    FAC -->|"trigger DAG (async)"| AF["Apache Airflow"]
+    FAC -->|"start the workflow (async)"| AF["Workflow engine: Apache Airflow (others later)"]
     FAC -->|"only writer"| SQL[("SQLite: operational data")]
     AF -->|"status: started / completed"| API
-    AF -->|"read from configured location"| SRC[["Source location: local, GitHub, Drive, S3, Azure Blob, GCS"]]
+    AF -->|"each workflow reads its own source"| SRC[["Source of the data (known only to the workflow)"]]
     AF -->|"bulk ingest, batches"| MONGO[("MongoDB: complaint data")]
     INT["consumer-complaints-Intellect"] -.->|"later"| MONGO
 ```
@@ -37,7 +37,7 @@ A request passes through each layer in turn. A **closed** layer may not be skipp
 |---|---|---|
 | Presentation | `api` | FastAPI routes. Turns HTTP into a `ctx`, calls a facade interface, turns the result back into HTTP. |
 | Business | `core/facades` | Holds an ordered list of tasks and loops over them. **No business logic of its own.** |
-| Services (open) | `core/services` | Reusable logic (for example: start an Airflow DAG, read a source location). |
+| Services (open) | `core/services` | Reusable logic (for example: start a workflow in its engine). |
 | Persistence | `core/dao` | One DAO per table or collection. All database access lives here. |
 | Database | SQLite, MongoDB | Stores. |
 | Shared | `core/common` (`dtos`) | Req / Resp / Ctx types used by every layer. |
@@ -69,7 +69,7 @@ CICD/Local/
   airflow/    docker-compose.yaml     Airflow 3.4.0, LocalExecutor
   mongodb/    docker-compose.yaml     MongoDB 8.0
   docker-all-up.sh  docker-all-down.sh  docker-all-status.sh
-dags/                         Airflow DAGs
+Middleware/Airflow-dags/      Airflow DAGs, outside the FastAPI app root, mounted into Airflow by relative path (D44; planned, replaces dags/)
 docs/                         product docs, design images
 ```
 
@@ -109,15 +109,15 @@ sequenceDiagram
     participant UI as Admin portal
     participant API as Middleware API
     participant F as Facade (tasks)
-    participant AF as Airflow
-    participant SRC as Source location
-    UI->>API: start download (usecase)
+    participant AF as Workflow engine (Airflow)
+    participant SRC as Source (known to the workflow)
+    UI->>API: list workflows, then start one (D43; usecase mapping Open)
     API->>F: ctx
     F->>F: task: create log row, set status
     F->>AF: task: trigger download DAG (async)
     API-->>UI: accepted
     AF->>API: status: started (usecase)
-    AF->>SRC: fetch the dataset file
+    AF->>SRC: the workflow fetches the dataset file
     AF->>API: status: completed or failed (usecase)
     API->>F: ctx
     F->>F: task: update log row and dataset status
@@ -128,10 +128,13 @@ sequenceDiagram
 Triggered from the **DB Ingest** screen the same way, with its own DAG and the same `started` / `completed` callbacks.
 The DAG reads the downloaded data and writes MongoDB in batches, upserting by Complaint ID.
 
-### 5.3 Where the download comes from
-The download reads a configured **source location type and path** (local path, GitHub repo URL, Google Drive, AWS S3,
-Azure Blob, GCP Cloud Storage; HTTP URL is undecided). Each type is one implementation behind one interface, picked by
-a factory, so a new type is added without touching anything else. The dataset is never stored in this repository.
+### 5.3 Workflows and where the download comes from
+Workflows are registered in the database (D43): **`app_workflows`** holds the workflow name, the workflow engine type
+(Apache Airflow, AWS Step Functions or another), the engine's own id for it (the Airflow DAG id, the state machine) and a
+JSON config; **`app_workflows_exec_log`** records every execution. The portal lists the registered workflows; the API
+starts the chosen one in its engine asynchronously; the engine calls the API when the run is complete; the portal reads
+the status through the API from the configured database. There may be several download workflows. Each one knows its own
+source, so the API has no source-location types. The dataset is never stored in this repository.
 
 The CFPB site cannot export a 3-month filter (limit 100,000), so the **3 months dataset is the All file filtered by date**.
 In the part of the file sampled, rows are not sorted by date, so the whole file is read.
@@ -140,7 +143,7 @@ In the part of the file sampled, rows are not sorted by date, so the whole file 
 
 | Store | Holds | Written by | Swappable |
 |---|---|---|---|
-| SQLite | users, execution logs, `system_datasets`, `data_ingest_log`, other operational data | the API only | yes: Postgres or similar through the DAO interface and SQLAlchemy |
+| SQLite | users, execution logs, `system_datasets`, `data_ingest_log`, `app_workflows`, `app_workflows_exec_log` (planned), other operational data | the API only | yes: Postgres or similar through the DAO interface and SQLAlchemy |
 | MongoDB | the complaint data | the Airflow ingest job | by DAO implementation |
 | Airflow's own Postgres | Airflow metadata | Airflow | n/a (separate, not used by the app) |
 
@@ -151,6 +154,7 @@ Schemas (names exactly as decided):
 | `consumer_comp_db` | the consumer complaints area: `data_ingest_log` (built), `system_datasets` (planned). Also the MongoDB database name for the complaint data. |
 | `consumer_compl_intellect_db` | the Intellect app's own operational data (empty for now) |
 | `consumer_comp_users_db` | user management (empty for now) |
+| admin schema (name **Open**) | `app_workflows` and `app_workflows_exec_log` (planned, D43) |
 
 SQLite has no real schemas, so each one is a separate database file, attached by name, in `Middleware/ConsumerComplaintsHandsOn/.data/`
 (`consumer_comp_db.sqlite`, ...; plus `operational.sqlite` for the Alembic version table). On Postgres and similar databases
@@ -183,6 +187,6 @@ unless both share a Docker network, for MongoDB).
 ## 9. Cloud (planned)
 
 - Python app image contains Python only. Airflow keeps its own image.
-- All dataset, configured source location in cloud storage (S3, Blob or GCS).
+- All dataset, read by a cloud workflow from cloud storage (S3, Blob or GCS); AWS Step Functions is a possible workflow engine (D43).
 - Manual GitHub Actions workflow for migrations (M03). Cloud databases are usually on private networks, so this needs a
   self-hosted runner, a tunnel, or a temporary allow-list. **[Open]**

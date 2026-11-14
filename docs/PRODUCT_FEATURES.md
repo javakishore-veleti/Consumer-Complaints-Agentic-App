@@ -38,7 +38,7 @@ is done asynchronously by Apache Airflow.
   - The only complete download is **"All complaint data"**, one large zipped CSV (about 350 MB compressed).
   - In the part of that file I sampled, rows are **not sorted by date**, so a 3-month slice means reading the whole file
     and filtering by `Date received`.
-- **The dataset is never committed to this repository.** It is fetched from a configured location (feature F3).
+- **The dataset is never committed to this repository.** It is fetched by a registered workflow (feature F3).
 
 ![CFPB filtered download blocked](Design/ComplainData-Download-Screenshot-2.png)
 
@@ -58,22 +58,20 @@ is done asynchronously by Apache Airflow.
 - The **3 months** dataset is the **All** file filtered to the last 3 months, because the site cannot export 3 months.
 - The same flow works locally (3 months, small) and in the cloud (All).
 
-### F3. Configurable source location (no data in the repo) [Planned]
-The download reads from a **configured location type and path**. Supported types:
+### F3. Registered workflows (no data in the repo) [Planned]
+Each workflow that downloads or ingests data is registered in the database, so the portal can list it and start it.
 
-| Location type | Example of what you configure |
+| Registry column | Meaning |
 |---|---|
-| Local path | a file or folder on the machine running the job |
-| GitHub repo URL / path | a URL to a file in a repository |
-| Google Drive | a Drive file or folder |
-| AWS S3 | `s3://bucket/path` |
-| Azure Blob Storage | container and blob path |
-| GCP Cloud Storage | `gs://bucket/path` |
-| Plain HTTP(S) URL | for example the CFPB file itself (not on the original list; **[Open]** whether to include) |
+| Workflow name | up to 100 characters, shown in the portal |
+| Workflow engine type | Apache Airflow, AWS Step Functions, or another engine |
+| Engine workflow id | the engine's own id: the Airflow DAG id, the Step Functions state machine |
+| Config | JSON with anything about the workflow, so a definition is reusable |
 
-- Adding a new location type must not change the rest of the system.
+- Every execution is recorded in an execution log with the same information.
+- There can be several download workflows. Each knows its own source (local, GitHub, Drive, S3, Azure Blob, GCS, plain HTTP(S) and so on), so the API has no source-location types.
 - Credentials never live in the repo.
-- Where the chosen location and credentials are stored is **[Open]**.
+- Which database holds the registry, and the name of its schema (the admin schema), is **[Open]**.
 
 ### F4. DB Ingest: load the data into MongoDB [Planned]
 - A second Airflow job reads the downloaded data and writes it into MongoDB **in batches**.
@@ -96,7 +94,7 @@ The download reads from a **configured location type and path**. Supported types
 ### F7. Data stores [Planned]
 - **MongoDB** holds the actual complaint data. [Done] a local container is configured.
 - **SQLite** holds operational data only: user management, execution logs, `system_datasets`, `data_ingest_log`.
-  It must be replaceable (Postgres or another database) with the fewest code changes.
+  It must be replaceable (Postgres or another database) with the fewest code changes. The workflow registry and its execution log are planned here.
 - Three schemas: **`consumer_comp_db`** (consumer complaints area), **`consumer_compl_intellect_db`** (Intellect app) and
   **`consumer_comp_users_db`** (users). [Done] created by the first migration.
 
@@ -131,17 +129,17 @@ The download reads from a **configured location type and path**. Supported types
 | Data ingest log: API, facade and tasks, DAO, DTOs, tests (create, get, list, update, delete) | Done |
 | Three schemas and the first Alembic migration (`data_ingest_log`); local start script migrates, then starts the API | Done |
 | `system_datasets` table, DAO and the service that updates it with the log in one transaction | Done |
-| Start-download and status-callback endpoints, source locations | Planned: next |
+| Workflow registry (`app_workflows`, `app_workflows_exec_log`), start-download and status-callback endpoints | Planned: next |
 | Airflow download and ingest DAGs | Planned |
 | Admin portal (Angular) | Planned |
 | Cloud deployment and manual migration workflow | Planned |
 
 ## 6. Open questions
 
-1. Where are the chosen source location and its credentials stored (database, config file, Airflow connection)?
-2. Does the Airflow download job reuse the Middleware's Python code, or carry its own copy of the download code?
+1. Credentials stay in `.env` and Airflow Variables; a workflow's other settings go in its JSON config (proposed). How does a workflow read that config?
+2. How does `app_workflows_exec_log` relate to `data_ingest_log` and `system_datasets`, and how does a usecase map to a workflow?
 3. Where does the downloaded file land between download and ingest (local folder now, object storage in the cloud)?
-4. Should the plain HTTP(S) location type be supported?
+4. What is the name of the admin schema?
 5. Should the log record the absolute date range a 3-month dataset covered, and should a new download reset its ingest status?
 6. Should the accordions poll for status while something is running, or only refresh on a button?
 7. One row per dataset and stage in `system_datasets`, JSON, or independent columns? (one row per dataset and stage is proposed)
