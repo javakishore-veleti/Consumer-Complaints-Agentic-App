@@ -225,9 +225,9 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #87 | 1 | `/ccaa-story-start 87` | Done | 2026-11-14 18:25 | 2026-11-14 18:25 |
 | #87 | 2 | `/brainstorming Story #87: mios_ingest_log table and DAO; status rules of D30; volume columns; adds the reference from app_workflows_exec_log` | Done | 2026-11-14 18:25 | 2026-11-14 18:26 |
 | #87 | 3 | `/using-git-worktrees Story #87: branch m02-0037-mios-ingest-log-table-and-dao` | Done | 2026-11-14 18:26 | 2026-11-14 18:26 |
-| #87 | 4 | `/writing-plans Story #87` | In progress | 2026-11-14 18:26 | - |
-| #87 | 5 | `/test-driven-development Story #87` | Planned | - | - |
-| #87 | 6 | `/subagent-driven-development Story #87` | Planned | - | - |
+| #87 | 4 | `/writing-plans Story #87` | Done | 2026-11-14 18:26 | 2026-11-14 18:37 |
+| #87 | 5 | `/test-driven-development Story #87` | Done | 2026-11-14 18:37 | 2026-11-14 18:37 |
+| #87 | 6 | `/subagent-driven-development Story #87` | In progress | 2026-11-14 18:37 | - |
 | #87 | 7 | `/ccaa-commit-push 87` after every task (repeat) | Planned | - | - |
 | #87 | 8 | `/verification-before-completion Story #87` | Planned | - | - |
 | #87 | 9 | `/requesting-code-review Story #87` | Planned | - | - |
