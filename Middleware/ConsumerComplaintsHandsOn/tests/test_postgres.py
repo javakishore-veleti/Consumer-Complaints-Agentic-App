@@ -12,12 +12,17 @@ import pytest
 from alembic import command
 from alembic.config import Config
 from sqlalchemy import create_engine, inspect, text
+from sqlalchemy.exc import IntegrityError
 
 from app.core.common.config import ALL_SCHEMAS, PROJECT_ROOT, SCHEMA_ADMIN, SCHEMA_COMPLAINTS
 from app.core.common.dtos.app_wf_dtos import AppWfCtx, AppWfReq
 from app.core.common.dtos.app_wf_exec_log_dtos import AppWfExecLogCtx, AppWfExecLogReq
 from app.core.common.dtos.data_ingest_dtos import DataIngestCtx, DataIngestReq
+from app.core.common.dtos.dataset_dtos import DatasetCtx, DatasetReq
+from app.core.common.dtos.dataset_location_dtos import DatasetLocationCtx, DatasetLocationReq
 from app.core.common.dtos.dataset_status_dtos import DatasetStatusCtx, DatasetStatusReq
+from app.core.common.dtos.mio_dataset_dtos import MioDatasetCtx, MioDatasetReq
+from app.core.common.dtos.mio_dtos import MioCtx, MioReq
 from app.core.common.return_codes import CONFLICT, INVALID_INPUT, NOT_FOUND, SUCCESS
 from app.core.dao.impl import sqlalchemy_app_wf_exec_log_dao as exec_log_impl
 from app.core.dao.impl.database import reset_engine
@@ -215,3 +220,71 @@ def test_app_wf_exec_log_rival_callback_does_not_overwrite_on_postgres(postgres,
     assert logs.get(stored) == SUCCESS
     assert (stored.resp.records[0].status, stored.resp.records[0].message) == ("failed", "rival")
     assert logs.list(AppWfExecLogCtx(req=AppWfExecLogReq(limit=-1))) == INVALID_INPUT
+
+
+def test_catalog_works_on_postgres(postgres):
+    command.upgrade(postgres, "head")
+    assert {"datasets", "datasets_location", "mios", "mios_datasets"} <= _admin_tables()
+    engine = create_engine(URL)
+    with engine.connect() as c:
+        seeded = c.execute(text(f"select count(*) from {SCHEMA_ADMIN}.mios")).scalar()
+    assert seeded == 4
+
+    datasets = DaoObjectsFactory.get_dataset_dao()
+    locations = DaoObjectsFactory.get_dataset_location_dao()
+    mios = DaoObjectsFactory.get_mio_dao()
+    links = DaoObjectsFactory.get_mio_dataset_dao()
+
+    made = DatasetCtx(req=DatasetReq(name="t_ds", code="T1"))
+    assert datasets.create(made) == SUCCESS
+    dataset = made.resp.records[0]
+    assert dataset.created_at.tzinfo is not None
+    assert datasets.create(DatasetCtx(req=DatasetReq(name="t_ds", code="T9"))) == CONFLICT
+    assert datasets.create(DatasetCtx(req=DatasetReq(name="t_other", code="T1"))) == CONFLICT
+    assert datasets.create(DatasetCtx(req=DatasetReq(name="t_other", code="CFPB"))) == CONFLICT  # the seed's code
+
+    http_req = DatasetLocationReq(dataset_id=dataset.id, location_type="http", path="https://x")
+    http = DatasetLocationCtx(req=http_req)
+    env = DatasetLocationCtx(
+        req=DatasetLocationReq(dataset_id=dataset.id, location_type="local", local_env_var_name="LOCAL_DATA_PATH_T1")
+    )
+    assert locations.create(http) == SUCCESS and locations.create(env) == SUCCESS
+    assert locations.create(DatasetLocationCtx(req=http_req)) == CONFLICT
+    both = DatasetLocationReq(
+        dataset_id=dataset.id, location_type="local", path="/a", local_env_var_name="LOCAL_DATA_PATH_T1"
+    )
+    assert locations.create(DatasetLocationCtx(req=both)) == INVALID_INPUT
+    listed = DatasetLocationCtx(req=DatasetLocationReq(dataset_id=dataset.id))
+    assert locations.list(listed) == SUCCESS
+    assert [r.location_type for r in listed.resp.records] == ["http", "local"]  # the same order as on SQLite
+
+    # The check constraint holds in the database itself, not only in the DAO.
+    with pytest.raises(IntegrityError, match="ck_datasets_location_path_xor_env"):
+        with engine.begin() as c:
+            c.execute(
+                text(
+                    f"insert into {SCHEMA_ADMIN}.datasets_location"
+                    " (id, dataset_id, location_type, path, local_env_var_name, created_at, updated_at)"
+                    " values ('x', :d, 'local', 'p', 'E', now(), now())"
+                ),
+                {"d": dataset.id},
+            )
+    engine.dispose()
+
+    mio = MioCtx(req=MioReq(name="t_mio"))
+    assert mios.create(mio) == SUCCESS
+    mio_id = mio.resp.records[0].id
+    link = MioDatasetCtx(
+        req=MioDatasetReq(mio_id=mio_id, dataset_id=dataset.id, dataset_location_id=http.resp.records[0].id)
+    )
+    assert links.create(link) == SUCCESS
+    assert links.create(MioDatasetCtx(req=link.req)) == CONFLICT
+    assert mios.delete(MioCtx(req=MioReq(id=mio_id))) == CONFLICT
+    assert datasets.delete(DatasetCtx(req=DatasetReq(id=dataset.id))) == CONFLICT
+    assert links.delete(MioDatasetCtx(req=MioDatasetReq(id=link.resp.records[0].id))) == SUCCESS
+    assert mios.delete(MioCtx(req=MioReq(id=mio_id))) == SUCCESS
+
+    command.downgrade(postgres, "0004")
+    assert not {"datasets", "datasets_location", "mios", "mios_datasets"} & _admin_tables()
+    command.upgrade(postgres, "head")
+    assert {"datasets", "datasets_location", "mios", "mios_datasets"} <= _admin_tables()

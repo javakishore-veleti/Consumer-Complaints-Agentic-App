@@ -5,9 +5,17 @@ from app.api.routers.data_ingest_api import DataIngestApi
 from app.core.dao.app_wf_dao import AppWfDao
 from app.core.dao.app_wf_exec_log_dao import AppWfExecLogDao
 from app.core.dao.data_ingest_dao import DataIngestDao
+from app.core.dao.dataset_dao import DatasetDao
+from app.core.dao.dataset_location_dao import DatasetLocationDao
 from app.core.dao.impl.sqlalchemy_app_wf_dao import SqlAlchemyAppWfDao
 from app.core.dao.impl.sqlalchemy_app_wf_exec_log_dao import SqlAlchemyAppWfExecLogDao
 from app.core.dao.impl.sqlalchemy_data_ingest_dao import SqlAlchemyDataIngestDao
+from app.core.dao.impl.sqlalchemy_dataset_dao import SqlAlchemyDatasetDao
+from app.core.dao.impl.sqlalchemy_dataset_location_dao import SqlAlchemyDatasetLocationDao
+from app.core.dao.impl.sqlalchemy_mio_dao import SqlAlchemyMioDao
+from app.core.dao.impl.sqlalchemy_mio_dataset_dao import SqlAlchemyMioDatasetDao
+from app.core.dao.mio_dao import MioDao
+from app.core.dao.mio_dataset_dao import MioDatasetDao
 from app.core.dao.objects_factory import DaoObjectsFactory
 from app.core.facades.data_ingest_facade import DataIngestFacade
 from app.core.facades.impl.data_ingest_facade_impl import DataIngestFacadeImpl
@@ -37,6 +45,10 @@ def test_factories_return_the_same_object_typed_as_the_interface():
     for getter, interface in (
         (DaoObjectsFactory.get_app_wf_dao, AppWfDao),
         (DaoObjectsFactory.get_app_wf_exec_log_dao, AppWfExecLogDao),
+        (DaoObjectsFactory.get_dataset_dao, DatasetDao),
+        (DaoObjectsFactory.get_dataset_location_dao, DatasetLocationDao),
+        (DaoObjectsFactory.get_mio_dao, MioDao),
+        (DaoObjectsFactory.get_mio_dataset_dao, MioDatasetDao),
         (DaoObjectsFactory.get_system_datasets_dao, SystemDatasetsDao),
         (DaoObjectsFactory.get_transaction_dao, TransactionDao),
         (ServicesObjectsFactory.get_dataset_status_service, DatasetStatusService),
@@ -51,6 +63,10 @@ def test_the_classes_themselves_are_singletons():
     assert SqlAlchemyDataIngestDao() is SqlAlchemyDataIngestDao()
     assert SqlAlchemyAppWfDao() is SqlAlchemyAppWfDao()
     assert SqlAlchemyAppWfExecLogDao() is SqlAlchemyAppWfExecLogDao()
+    assert SqlAlchemyDatasetDao() is SqlAlchemyDatasetDao()
+    assert SqlAlchemyDatasetLocationDao() is SqlAlchemyDatasetLocationDao()
+    assert SqlAlchemyMioDao() is SqlAlchemyMioDao()
+    assert SqlAlchemyMioDatasetDao() is SqlAlchemyMioDatasetDao()
     assert DataIngestApi() is DataIngestApi()
     assert DataIngestFacadeImpl() is DataIngestFacadeImpl()
     assert SqlAlchemySystemDatasetsDao() is SqlAlchemySystemDatasetsDao()
