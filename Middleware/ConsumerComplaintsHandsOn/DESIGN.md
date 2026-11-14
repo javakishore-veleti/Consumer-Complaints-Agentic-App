@@ -158,7 +158,7 @@ Built in story #81 (migration `0003`): `AppWfDao` (create, get by id or name, li
 | config_used, engine_run_id | the JSON in force (nullable), and the engine's run id (for example the Airflow run id) |
 | status, message, requested_at / started_at / finished_at | statuses requested, started, completed, failed; D30 rules; designed in story #82, spec `docs/Superpowers/specs/M02-0032-app-wf-exec-log-design.md` |
 
-Built in story #82 (migration `0004`): `AppWfExecLogDao` (create, get, list, update; no delete). `create` takes only the `workflow_id` and copies the workflow's name, engine type, engine workflow id and config into the row (D56); `ExecStatus` in `app/core/common/app_types_constants.py` holds the D30 moves. The optional reference to the MIO ingest row comes with #87.
+Built in story #82 (migration `0004`): `AppWfExecLogDao` (create, get, list, update; no delete). `create` takes only the `workflow_id` and copies the workflow's name, engine type, engine workflow id and config into the row (D56); `ExecStatus` in `app/core/common/app_types_constants.py` holds the D30 moves. Story #87 (migration `0007`) added the optional `mios_ingest_log_id`: set on create (the ingest row must exist), never changed, and a filter of `list` (D58).
 
 #### The catalog (D49)
 | Table | Columns *(Proposed)* |
@@ -175,6 +175,7 @@ Built in story #82 (migration `0004`): `AppWfExecLogDao` (create, get, list, upd
 - **Open:** where a time window such as "3 months" is stored for a MIO. It is not modeled in story #86, and no code may read it from a MIO's name (D57).
 - **Open:** which of a MIO's dataset locations a download uses as its source and which one is where the file lands (for example the `http` row and the `local` row of the same dataset); the download DAG's story decides, and it must use a location row, not a hardcoded path.
 - **Built (story #86, M02-0036):** the four tables (migration `0005`), the seed (migration `0006`) and one DAO each: `DatasetDao`, `DatasetLocationDao`, `MioDao` and `MioDatasetDao`. No endpoint reads them yet.
+- **Built (story #87, M02-0037):** `mios_ingest_log` and the column `app_workflows_exec_log.mios_ingest_log_id` (migration `0007`), and `MioIngestLogDao` (create, get, list, update; no delete) with the D30 moves of `ExecStatus` and the volume notes `rows_loaded`, `batch_count` and `increment_marker` (D58). No endpoint reads them yet, and nothing derives an ingest's status from its executions.
 - **Open:** how a workflow is attached to a MIO (reusable across MIOs, or specific to one), for example a link table or a value in the workflow's config.
 - Seeding: the predefined MIOs and their datasets and locations are inserted by migration or script for now; managing them from the portal is later.
 

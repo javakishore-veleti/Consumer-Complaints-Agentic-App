@@ -23,8 +23,10 @@ from app.core.common.dtos.dataset_location_dtos import DatasetLocationCtx, Datas
 from app.core.common.dtos.dataset_status_dtos import DatasetStatusCtx, DatasetStatusReq
 from app.core.common.dtos.mio_dataset_dtos import MioDatasetCtx, MioDatasetReq
 from app.core.common.dtos.mio_dtos import MioCtx, MioReq
+from app.core.common.dtos.mio_ingest_log_dtos import MioIngestLogCtx, MioIngestLogReq
 from app.core.common.return_codes import CONFLICT, INVALID_INPUT, NOT_FOUND, SUCCESS
 from app.core.dao.impl import sqlalchemy_app_wf_exec_log_dao as exec_log_impl
+from app.core.dao.impl import sqlalchemy_mio_ingest_log_dao as ingest_log_impl
 from app.core.dao.impl.database import reset_engine
 from app.core.dao.objects_factory import DaoObjectsFactory
 from app.core.services.objects_factory import ServicesObjectsFactory
@@ -288,3 +290,73 @@ def test_catalog_works_on_postgres(postgres):
     assert not {"datasets", "datasets_location", "mios", "mios_datasets"} & _admin_tables()
     command.upgrade(postgres, "head")
     assert {"datasets", "datasets_location", "mios", "mios_datasets"} <= _admin_tables()
+
+
+def test_mio_ingest_log_works_on_postgres(postgres, monkeypatch):
+    command.upgrade(postgres, "head")
+    assert "mios_ingest_log" in _admin_tables()
+    ingests = DaoObjectsFactory.get_mio_ingest_log_dao()
+    executions = DaoObjectsFactory.get_app_wf_exec_log_dao()
+    mio = MioCtx(req=MioReq(name="t_ingest_mio"))
+    assert DaoObjectsFactory.get_mio_dao().create(mio) == SUCCESS
+    mio_id = mio.resp.records[0].id
+
+    created = MioIngestLogCtx(req=MioIngestLogReq(mio_id=mio_id, rows_loaded=5_000_000_000, increment_marker="m"))
+    assert ingests.create(created) == SUCCESS
+    row = created.resp.records[0]
+    assert row.status == "requested" and row.requested_at.tzinfo is not None
+    assert row.rows_loaded == 5_000_000_000  # BigInteger: above the 32-bit range
+    assert ingests.create(MioIngestLogCtx(req=MioIngestLogReq(mio_id="no-such-mio"))) == NOT_FOUND
+    assert ingests.create(MioIngestLogCtx(req=MioIngestLogReq(mio_id=mio_id, batch_count=-1))) == INVALID_INPUT
+    assert ingests.update(MioIngestLogCtx(req=MioIngestLogReq(id=row.id, status="completed"))) == CONFLICT
+    assert ingests.update(MioIngestLogCtx(req=MioIngestLogReq(id=row.id, status="started"))) == SUCCESS
+
+    # Postgres runs at READ COMMITTED: a rival that commits between update's read and its write must win cleanly.
+    real_now = ingest_log_impl._now
+    raced = []
+
+    def now_after_a_rival_wins():
+        if not raced:
+            raced.append(True)
+            rival = MioIngestLogCtx(req=MioIngestLogReq(id=row.id, status="failed", message="rival"))
+            assert ingests.update(rival) == SUCCESS
+        return real_now()
+
+    monkeypatch.setattr(ingest_log_impl, "_now", now_after_a_rival_wins)
+    loser = MioIngestLogCtx(req=MioIngestLogReq(id=row.id, status="completed", message="loser"))
+    assert ingests.update(loser) == CONFLICT
+    monkeypatch.setattr(ingest_log_impl, "_now", real_now)
+    stored = MioIngestLogCtx(req=MioIngestLogReq(id=row.id))
+    assert ingests.get(stored) == SUCCESS
+    assert (stored.resp.records[0].status, stored.resp.records[0].message) == ("failed", "rival")
+    late = MioIngestLogCtx(req=MioIngestLogReq(id=row.id, batch_count=3))  # a note on a final row
+    assert ingests.update(late) == SUCCESS and late.resp.records[0].batch_count == 3
+    listed = MioIngestLogCtx(req=MioIngestLogReq(mio_id=mio_id, status="failed"))
+    assert ingests.list(listed) == SUCCESS and [r.id for r in listed.resp.records] == [row.id]
+
+    made = AppWfCtx(req=AppWfReq(workflow_name="w", engine_type="apache_airflow", engine_workflow_id="dag"))
+    assert DaoObjectsFactory.get_app_wf_dao().create(made) == SUCCESS
+    workflow_id = made.resp.records[0].id
+    ids = []
+    for _ in range(2):
+        execution = AppWfExecLogCtx(req=AppWfExecLogReq(workflow_id=workflow_id, mios_ingest_log_id=row.id))
+        assert executions.create(execution) == SUCCESS
+        ids.append(execution.resp.records[0].id)
+    unknown = AppWfExecLogCtx(req=AppWfExecLogReq(workflow_id=workflow_id, mios_ingest_log_id="no-such-ingest"))
+    assert executions.create(unknown) == NOT_FOUND
+    served = AppWfExecLogCtx(req=AppWfExecLogReq(mios_ingest_log_id=row.id))
+    assert executions.list(served) == SUCCESS and sorted(r.id for r in served.resp.records) == sorted(ids)
+
+    def exec_log_columns():
+        engine = create_engine(URL)
+        try:
+            return {c["name"] for c in inspect(engine).get_columns("app_workflows_exec_log", schema=SCHEMA_ADMIN)}
+        finally:
+            engine.dispose()
+
+    command.downgrade(postgres, "0006")
+    assert "mios_ingest_log" not in _admin_tables()
+    assert "mios_ingest_log_id" not in exec_log_columns()
+    command.upgrade(postgres, "head")
+    assert "mios_ingest_log" in _admin_tables()
+    assert "mios_ingest_log_id" in exec_log_columns()
