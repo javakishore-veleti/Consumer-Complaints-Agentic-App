@@ -190,8 +190,8 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #81 | 2 | `/brainstorming Story #81: consumer_comp_admin_db schema (D48) and app_workflows table (name up to 100 characters, engine type, engine workflow id, JSON config) with its DAO` | Done | 2026-11-14 | 2026-11-14 16:34 |
 | #81 | 3 | `/using-git-worktrees Story #81: branch m02-0031-admin-schema-and-app-workflows-table` | Done | 2026-11-14 16:34 | 2026-11-14 16:38 |
 | #81 | 4 | `/writing-plans Story #81` | Done | 2026-11-14 16:38 | 2026-11-14 16:41 |
-| #81 | 5 | `/test-driven-development Story #81` | In progress | 2026-11-14 16:41 | - |
-| #81 | 6 | `/subagent-driven-development Story #81` | Planned | - | - |
+| #81 | 5 | `/test-driven-development Story #81` | Done | 2026-11-14 16:41 | 2026-11-14 16:42 |
+| #81 | 6 | `/subagent-driven-development Story #81` | In progress | 2026-11-14 16:42 | - |
 | #81 | 7 | `/ccaa-commit-push 81` after every task (repeat) | Planned | - | - |
 | #81 | 8 | `/verification-before-completion Story #81` | Planned | - | - |
 | #81 | 9 | `/requesting-code-review Story #81` | Planned | - | - |

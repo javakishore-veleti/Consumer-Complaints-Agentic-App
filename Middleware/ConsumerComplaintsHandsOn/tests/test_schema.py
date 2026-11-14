@@ -4,7 +4,12 @@ from app.core.common.config import ALL_SCHEMAS
 
 
 def test_schema_names():
-    assert ALL_SCHEMAS == ("consumer_comp_db", "consumer_compl_intellect_db", "consumer_comp_users_db")
+    assert ALL_SCHEMAS == (
+        "consumer_comp_db",
+        "consumer_compl_intellect_db",
+        "consumer_comp_users_db",
+        "consumer_comp_admin_db",
+    )
 
 
 def test_migration_creates_all_schemas_and_the_table_in_the_complaints_schema(data_dir):
