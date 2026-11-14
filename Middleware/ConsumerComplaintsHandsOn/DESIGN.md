@@ -67,7 +67,7 @@ Every item is marked:
 | D52 | **`engine_type` is a short code, validated against the engine classes registered at startup (D45).** Values: `apache_airflow` now, `aws_step_functions` when its class exists. **M02 supports Apache Airflow only**; Step Functions comes with the cloud work (M03). Proposed columns of `app_workflows`: id, `workflow_name` (up to 100 characters, unique), `engine_type`, `engine_workflow_id`, `config` (JSON), `enabled`, created and updated times. | Adding an engine is one class and no migration. |
 | D53 | **The RAG layer is a later milestone, recorded here as direction only.** **`mios_rags`** describes the RAG technology stack of a MIO (Milvus, Postgres, Chroma, AWS OpenSearch and others, on local, AWS, Azure or GCP); one MIO can have several stacks so performance and cost can be compared. RAG workflows are their own entries in `app_workflows`, separate from the ingest workflows; they take the ingested data and run in **batch or incrementally**, chosen by volume. | No M02 stories. A new milestone will cover it. |
 | D54 | **MVP first.** M02 builds the smallest flow that runs end to end (start a workflow from the portal, Airflow downloads, the status comes back) and accepts refactoring afterwards. After the MVP: the factory `init()` of D45, the engine interface, the list-workflows endpoint, the 3-month filter and the removal of the retired tables. | Working software sooner; the design above stays the direction, and refactoring later is accepted. |
-| D55 | **Naming and types.** In class names `Workflows` is shortened to `Wf` (`AppWfDao`, `AppWfCtx`); table names stay in full (`app_workflows`), module names follow the class names. Every type list of the app (engine types, later location types and statuses) is an enum in `app/core/common/app_types_constants.py`, all with the parent `AppTypeEnum`. A JSON column that holds nothing is NULL, not `{}`. | Short class names stay readable; one file lists every allowed value. Refines D52: the DAO checks `engine_type` against `EngineType`, the registered engine classes are checked later (#83, #42). |
+| D55 | **Naming and types.** In class names `Workflows` is shortened to `Wf` (`AppWfDao`, `AppWfCtx`); table names stay in full (`app_workflows`), module names follow the class names. Every type list of the app (engine types, later location types and statuses) is an enum in `app/core/common/app_types_constants.py`, all with the parent `AppTypeEnum`. A JSON column that holds nothing is NULL, not `{}`. Workflow names are trimmed and case sensitive, and a name taken by two writers at once is a CONFLICT decided by the unique constraint (found in the story #81 review). | Short class names stay readable; one file lists every allowed value. Refines D52: the DAO checks `engine_type` against `EngineType`, the registered engine classes are checked later (#83, #42). |
 
 ## 2. Conventions in detail
 
@@ -128,7 +128,7 @@ Status changes are enforced (D30).
 - Status is a value, not a boolean: the UI must tell not started, running, completed and failed apart. The dataset row follows the log row: requested and started show as running, completed as completed, failed as failed (D40).
 - **Open:** a new download of the 3-month dataset resets its ingest status (leaning yes; not done yet). **Open:** record the absolute date range covered.
 
-### The admin schema `consumer_comp_admin_db` (D48) — **Decided (D43, D46 to D52), not built**
+### The admin schema `consumer_comp_admin_db` (D48) — **Decided (D43, D46 to D52); `app_workflows` built in story #81, the rest not built**
 All tables below live in it. Column lists marked *(Proposed)* are defaults that can change.
 
 #### `app_workflows` (the registry of workflows)
@@ -140,8 +140,10 @@ One row per workflow the portal can list and start.
 | workflow_name | up to 100 characters, unique *(Proposed)*, what the portal shows |
 | engine_type | short code of the engine: `apache_airflow`, later `aws_step_functions` (D52) |
 | engine_workflow_id | the engine's own id for it: the Airflow DAG id, the Step Functions state machine |
-| config | JSON: anything about the workflow; non-secret values only, secrets stay in `.env` and Airflow Variables (D42) |
-| enabled, created_at, updated_at | *(Proposed)* |
+| config | JSON, nullable (NULL means none, never `{}`); non-secret values only, secrets stay in `.env` and Airflow Variables (D42) |
+| enabled, created_at, updated_at | built: `enabled` defaults to true; times are UTC |
+
+Built in story #81 (migration `0003`): `AppWfDao` (create, get by id or name, list by engine type and enabled, update, delete). `engine_type` is checked against `EngineType` in `app/core/common/app_types_constants.py` (D55); checking it against the registered engine classes comes with the engine interface (#83) and the start endpoint (#42).
 
 #### `app_workflows_exec_log` (every execution of every workflow, D50)
 | Column | Meaning |

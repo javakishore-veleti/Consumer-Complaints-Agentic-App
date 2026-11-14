@@ -2,7 +2,9 @@ from concurrent.futures import ThreadPoolExecutor
 
 from app.api.objects_factory import ApiObjectsFactory
 from app.api.routers.data_ingest_api import DataIngestApi
+from app.core.dao.app_wf_dao import AppWfDao
 from app.core.dao.data_ingest_dao import DataIngestDao
+from app.core.dao.impl.sqlalchemy_app_wf_dao import SqlAlchemyAppWfDao
 from app.core.dao.impl.sqlalchemy_data_ingest_dao import SqlAlchemyDataIngestDao
 from app.core.dao.objects_factory import DaoObjectsFactory
 from app.core.facades.data_ingest_facade import DataIngestFacade
@@ -31,6 +33,7 @@ def test_factories_return_the_same_object_typed_as_the_interface():
     assert isinstance(facade, DataIngestFacade)
 
     for getter, interface in (
+        (DaoObjectsFactory.get_app_wf_dao, AppWfDao),
         (DaoObjectsFactory.get_system_datasets_dao, SystemDatasetsDao),
         (DaoObjectsFactory.get_transaction_dao, TransactionDao),
         (ServicesObjectsFactory.get_dataset_status_service, DatasetStatusService),
@@ -43,6 +46,7 @@ def test_factories_return_the_same_object_typed_as_the_interface():
 
 def test_the_classes_themselves_are_singletons():
     assert SqlAlchemyDataIngestDao() is SqlAlchemyDataIngestDao()
+    assert SqlAlchemyAppWfDao() is SqlAlchemyAppWfDao()
     assert DataIngestApi() is DataIngestApi()
     assert DataIngestFacadeImpl() is DataIngestFacadeImpl()
     assert SqlAlchemySystemDatasetsDao() is SqlAlchemySystemDatasetsDao()

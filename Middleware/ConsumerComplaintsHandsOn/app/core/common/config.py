@@ -5,6 +5,7 @@ Schema names (DESIGN.md, section 3):
 * consumer_comp_db            the consumer complaints area: dataset status and the data ingest log
 * consumer_compl_intellect_db the Intellect app's own area
 * consumer_comp_users_db      user management
+* consumer_comp_admin_db      everything admin-related: the workflow registry and the catalog (D48)
 
 SQLite has no real schemas, so each schema is a separate attached database file named after the schema.
 On Postgres and similar databases they are real schemas.
@@ -17,7 +18,8 @@ from pathlib import Path
 SCHEMA_COMPLAINTS = "consumer_comp_db"
 SCHEMA_INTELLECT = "consumer_compl_intellect_db"
 SCHEMA_USERS = "consumer_comp_users_db"
-ALL_SCHEMAS = (SCHEMA_COMPLAINTS, SCHEMA_INTELLECT, SCHEMA_USERS)
+SCHEMA_ADMIN = "consumer_comp_admin_db"
+ALL_SCHEMAS = (SCHEMA_COMPLAINTS, SCHEMA_INTELLECT, SCHEMA_USERS, SCHEMA_ADMIN)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 

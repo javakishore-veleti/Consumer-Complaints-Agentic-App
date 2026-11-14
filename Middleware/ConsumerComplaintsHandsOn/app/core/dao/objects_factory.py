@@ -4,12 +4,19 @@ Static methods return the singleton, typed as the interface. Imports are lazy so
 needed when that backend is chosen.
 """
 
+from app.core.dao.app_wf_dao import AppWfDao
 from app.core.dao.data_ingest_dao import DataIngestDao
 from app.core.dao.system_datasets_dao import SystemDatasetsDao
 from app.core.dao.transaction_dao import TransactionDao
 
 
 class DaoObjectsFactory:
+    @staticmethod
+    def get_app_wf_dao() -> AppWfDao:
+        from app.core.dao.impl.sqlalchemy_app_wf_dao import SqlAlchemyAppWfDao
+
+        return SqlAlchemyAppWfDao()
+
     @staticmethod
     def get_data_ingest_dao() -> DataIngestDao:
         from app.core.dao.impl.sqlalchemy_data_ingest_dao import SqlAlchemyDataIngestDao

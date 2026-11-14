@@ -13,7 +13,8 @@ from alembic import command
 from alembic.config import Config
 from sqlalchemy import create_engine, inspect, text
 
-from app.core.common.config import ALL_SCHEMAS, PROJECT_ROOT, SCHEMA_COMPLAINTS
+from app.core.common.config import ALL_SCHEMAS, PROJECT_ROOT, SCHEMA_ADMIN, SCHEMA_COMPLAINTS
+from app.core.common.dtos.app_wf_dtos import AppWfCtx, AppWfReq
 from app.core.common.dtos.data_ingest_dtos import DataIngestCtx, DataIngestReq
 from app.core.common.dtos.dataset_status_dtos import DatasetStatusCtx, DatasetStatusReq
 from app.core.common.return_codes import CONFLICT, SUCCESS
@@ -45,6 +46,14 @@ def _complaint_tables():
         engine.dispose()
 
 
+def _admin_tables():
+    engine = create_engine(URL)
+    try:
+        return set(inspect(engine).get_table_names(schema=SCHEMA_ADMIN))
+    finally:
+        engine.dispose()
+
+
 def test_upgrade_downgrade_upgrade(postgres):
     command.upgrade(postgres, "head")
     engine = create_engine(URL)
@@ -53,12 +62,15 @@ def test_upgrade_downgrade_upgrade(postgres):
     engine.dispose()
     assert set(ALL_SCHEMAS) <= schemas
     assert {"data_ingest_log", "system_datasets"} <= _complaint_tables()
+    assert "app_workflows" in _admin_tables()
 
     command.downgrade(postgres, "base")
     assert not {"data_ingest_log", "system_datasets"} & _complaint_tables()
+    assert "app_workflows" not in _admin_tables()
 
     command.upgrade(postgres, "head")
     assert {"data_ingest_log", "system_datasets"} <= _complaint_tables()
+    assert "app_workflows" in _admin_tables()
 
 
 def test_dataset_status_service_works_on_postgres(postgres):
@@ -96,3 +108,35 @@ def test_dao_works_on_postgres(postgres):
     listed = DataIngestCtx(req=DataIngestReq(status="started"))
     assert dao.list(listed) == SUCCESS and [r.id for r in listed.resp.records] == [log_id]
     assert dao.delete(DataIngestCtx(req=DataIngestReq(id=log_id))) == SUCCESS
+
+
+def test_app_wf_dao_works_on_postgres(postgres):
+    command.upgrade(postgres, "head")
+    assert "app_workflows" in _admin_tables()
+    dao = DaoObjectsFactory.get_app_wf_dao()
+    config = {"source": {"type": "http", "urls": ["a", "b"]}, "retries": 3, "limit": None}
+    created = AppWfCtx(
+        req=AppWfReq(workflow_name="download_3_months", engine_type="apache_airflow", engine_workflow_id="dag", config=config)
+    )
+    assert dao.create(created) == SUCCESS
+    row = created.resp.records[0]
+    assert row.created_at.tzinfo is not None and row.config == config
+
+    again = AppWfCtx(req=AppWfReq(workflow_name="download_3_months", engine_type="apache_airflow", engine_workflow_id="x"))
+    assert dao.create(again) == CONFLICT
+
+    no_config = AppWfCtx(req=AppWfReq(workflow_name="plain", engine_type="aws_step_functions", engine_workflow_id="sm"))
+    assert dao.create(no_config) == SUCCESS and no_config.resp.records[0].config is None
+
+    fetched = AppWfCtx(req=AppWfReq(id=row.id))
+    assert dao.get(fetched) == SUCCESS and fetched.resp.records[0].config == config
+    listed = AppWfCtx(req=AppWfReq(engine_type="apache_airflow"))
+    assert dao.list(listed) == SUCCESS and [r.workflow_name for r in listed.resp.records] == ["download_3_months"]
+    assert dao.update(AppWfCtx(req=AppWfReq(id=row.id, enabled=False))) == SUCCESS
+    disabled = AppWfCtx(req=AppWfReq(enabled=False))
+    assert dao.list(disabled) == SUCCESS and [r.workflow_name for r in disabled.resp.records] == ["download_3_months"]
+    assert dao.update(AppWfCtx(req=AppWfReq(id=row.id, workflow_name="plain"))) == CONFLICT
+    renamed = AppWfCtx(req=AppWfReq(id=row.id, workflow_name="  renamed  "))
+    assert dao.update(renamed) == SUCCESS and renamed.resp.records[0].workflow_name == "renamed"
+    assert renamed.resp.records[0].updated_at.tzinfo is not None
+    assert dao.delete(AppWfCtx(req=AppWfReq(id=row.id))) == SUCCESS

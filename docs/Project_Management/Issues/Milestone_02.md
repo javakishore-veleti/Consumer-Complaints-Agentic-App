@@ -188,16 +188,16 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #79 | 5 | `/ccaa-story-complete 79` | Done | 2026-11-14 | 2026-11-14 |
 | #81 | 1 | `/ccaa-story-start 81` | Done | 2026-11-14 | 2026-11-14 |
 | #81 | 2 | `/brainstorming Story #81: consumer_comp_admin_db schema (D48) and app_workflows table (name up to 100 characters, engine type, engine workflow id, JSON config) with its DAO` | Done | 2026-11-14 | 2026-11-14 16:34 |
-| #81 | 3 | `/using-git-worktrees Story #81: branch m02-0031-admin-schema-and-app-workflows-table` | In progress | 2026-11-14 16:34 | - |
-| #81 | 4 | `/writing-plans Story #81` | Planned | - | - |
-| #81 | 5 | `/test-driven-development Story #81` | Planned | - | - |
-| #81 | 6 | `/subagent-driven-development Story #81` | Planned | - | - |
-| #81 | 7 | `/ccaa-commit-push 81` after every task (repeat) | Planned | - | - |
-| #81 | 8 | `/verification-before-completion Story #81` | Planned | - | - |
-| #81 | 9 | `/requesting-code-review Story #81` | Planned | - | - |
-| #81 | 10 | `/ccaa-commit-push 81` | Planned | - | - |
-| #81 | 11 | `/finishing-a-development-branch Story #81` | Planned | - | - |
-| #81 | 12 | `/ccaa-story-complete 81` | Planned | - | - |
+| #81 | 3 | `/using-git-worktrees Story #81: branch m02-0031-admin-schema-and-app-workflows-table` | Done | 2026-11-14 16:34 | 2026-11-14 16:38 |
+| #81 | 4 | `/writing-plans Story #81` | Done | 2026-11-14 16:38 | 2026-11-14 16:41 |
+| #81 | 5 | `/test-driven-development Story #81` | Done | 2026-11-14 16:41 | 2026-11-14 16:42 |
+| #81 | 6 | `/subagent-driven-development Story #81` | Done | 2026-11-14 16:42 | 2026-11-14 16:45 |
+| #81 | 7 | `/ccaa-commit-push 81` after every task (repeat) | Done | 2026-11-14 16:45 | 2026-11-14 16:45 |
+| #81 | 8 | `/verification-before-completion Story #81` | Done | 2026-11-14 16:45 | 2026-11-14 16:47 |
+| #81 | 9 | `/requesting-code-review Story #81` | Done | 2026-11-14 16:47 | 2026-11-14 16:53 |
+| #81 | 10 | `/ccaa-commit-push 81` | Done | 2026-11-14 16:53 | 2026-11-14 16:55 |
+| #81 | 11 | `/finishing-a-development-branch Story #81` | Done | 2026-11-14 16:55 | 2026-11-14 16:56 |
+| #81 | 12 | `/ccaa-story-complete 81` | In progress | 2026-11-14 16:56 | - |
 | #82 | 1 | `/ccaa-story-start 82` | Planned | - | - |
 | #82 | 2 | `/brainstorming Story #82: app_workflows_exec_log table and DAO; keeps the workflow's information as it was at execution time; status rules of D30` | Planned | - | - |
 | #82 | 3 | `/using-git-worktrees Story #82: branch m02-0032-app-workflows-exec-log-table-with-its` | Planned | - | - |
