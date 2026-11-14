@@ -109,6 +109,8 @@ Epic #29  M02-0001  Downloads Management
 
 One chat per story. Run the commands in each row from top to bottom. `/ccaa-*` are the project skills (section 4); the others come from the Superpowers plugin.
 
+Each row has a **Status** (`Planned`, `In progress` or `Done`), a **Started** date and a **Completed** date (`-` until set). You do not edit them: `/ccaa-story-start`, `/ccaa-story-complete`, `/ccaa-feature-complete` and `/ccaa-epic-complete` call `/ccaa-milestone-log`, which updates the row and pushes it.
+
 Standard code story, with `N` as the issue number:
 
 | Step | Command | What it does |
@@ -127,22 +129,22 @@ If a test fails and you do not know why, run `/systematic-debugging` before chan
 
 ### Phase 1 - Configurable source location
 
-| Issue | Commands, in order |
-|---|---|
-| #55 (decision only, no code) | 1. `/ccaa-story-start 55`<br>2. `/brainstorming Story #55: where the source location and credentials live (database, config file or Airflow connection; never in the repo). Record the decision as D42 in Middleware/ConsumerComplaintsHandsOn/DESIGN.md`<br>3. `/verification-before-completion`<br>4. `/ccaa-commit-push`<br>5. `/ccaa-story-complete 55` |
-| #47 | 1. `/ccaa-story-start 47`<br>2. `/brainstorming Story #47: source location interface and factory; ctx in, integer out; type chosen from configuration (D42)`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 47` |
-| #48 | 1. `/ccaa-story-start 48`<br>2. `/brainstorming Story #48: local path source; must work with the zipped CSV`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 48` |
-| #49 | 1. `/ccaa-story-start 49`<br>2. `/brainstorming Story #49: plain HTTP(S) source for files.consumerfinance.gov; stream the ~350 MB file without loading it into memory; confirm the story is wanted`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 49` |
-| #50 | 1. `/ccaa-story-start 50`<br>2. `/brainstorming Story #50: GitHub repo URL or path source; must work with a raw file URL`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 50` |
-| Feature #46 | `/ccaa-feature-complete 46` |
+| Issue | Status | Started | Completed | Commands, in order |
+|---|---|---|---|---|
+| #55 (decision only, no code) | In progress | 2026-11-14 | - | 1. `/ccaa-story-start 55`<br>2. `/brainstorming Story #55: where the source location and credentials live (database, config file or Airflow connection; never in the repo). Record the decision as D42 in Middleware/ConsumerComplaintsHandsOn/DESIGN.md`<br>3. `/verification-before-completion`<br>4. `/ccaa-commit-push`<br>5. `/ccaa-story-complete 55` |
+| #47 | Planned | - | - | 1. `/ccaa-story-start 47`<br>2. `/brainstorming Story #47: source location interface and factory; ctx in, integer out; type chosen from configuration (D42)`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 47` |
+| #48 | Planned | - | - | 1. `/ccaa-story-start 48`<br>2. `/brainstorming Story #48: local path source; must work with the zipped CSV`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 48` |
+| #49 | Planned | - | - | 1. `/ccaa-story-start 49`<br>2. `/brainstorming Story #49: plain HTTP(S) source for files.consumerfinance.gov; stream the ~350 MB file without loading it into memory; confirm the story is wanted`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 49` |
+| #50 | Planned | - | - | 1. `/ccaa-story-start 50`<br>2. `/brainstorming Story #50: GitHub repo URL or path source; must work with a raw file URL`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 50` |
+| Feature #46 | In progress | 2026-11-14 | - | `/ccaa-feature-complete 46` |
 
 ### Phase 2 - Download API, the status side
 
-| Issue | Commands, in order |
-|---|---|
-| #44 | 1. `/ccaa-story-start 44`<br>2. `/brainstorming Story #44: shared-secret authentication for callbacks; missing or wrong secret returns 401; secret is configuration, never in the repo`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 44` |
-| #43 | 1. `/ccaa-story-start 43`<br>2. `/brainstorming Story #43: Airflow status callback (usecase, status started/completed/failed, optional run_id and message); duplicate and out-of-order calls are harmless; updates the log and system_datasets; uses the #44 secret`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 43` |
-| #45 | 1. `/ccaa-story-start 45`<br>2. `/brainstorming Story #45: read dataset status endpoint; one call returns all dataset rows`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 45` |
+| Issue | Status | Started | Completed | Commands, in order |
+|---|---|---|---|---|
+| #44 | Planned | - | - | 1. `/ccaa-story-start 44`<br>2. `/brainstorming Story #44: shared-secret authentication for callbacks; missing or wrong secret returns 401; secret is configuration, never in the repo`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 44` |
+| #43 | Planned | - | - | 1. `/ccaa-story-start 43`<br>2. `/brainstorming Story #43: Airflow status callback (usecase, status started/completed/failed, optional run_id and message); duplicate and out-of-order calls are harmless; updates the log and system_datasets; uses the #44 secret`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 43` |
+| #45 | Planned | - | - | 1. `/ccaa-story-start 45`<br>2. `/brainstorming Story #45: read dataset status endpoint; one call returns all dataset rows`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 45` |
 
 Feature #41 is not complete yet. Its last story, #42, is in Phase 4.
 
@@ -150,34 +152,34 @@ Feature #41 is not complete yet. Its last story, #42, is in Phase 4.
 
 Verify DAG stories against the local Airflow: `npm run local:containers:all:start`, then check the DAG appears and runs.
 
-| Issue | Commands, in order |
-|---|---|
-| #77 | 1. `/ccaa-story-start 77`<br>2. `/brainstorming Story #77: POST /management/airflow/upsert-secrets copies the names listed in CICD/Local/airflow/Airflow_Variables_Upsert.txt from .env into Airflow Variables through Airflow's REST API (D42); result per name, never a value; missing name reported and return code is a failure; protected by the #44 shared secret; .env.example lists the names`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 77` |
-| #57 | 1. `/ccaa-story-start 57`<br>2. `/brainstorming Story #57: download DAG for the All dataset; read the source location from the Airflow Variables of #77 (D42) and fetch it with the Phase 1 source types; DAG appears in Airflow; file lands in the agreed place`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 57` |
-| #58 | 1. `/ccaa-story-start 58`<br>2. `/brainstorming Story #58: derive the 3 months dataset by filtering the All file on Date received; the file is not date-sorted so read it all; check the row count against the site figure`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 58` |
-| #59 | 1. `/ccaa-story-start 59`<br>2. `/brainstorming Story #59: report started, completed and failed to the API from the DAG; a final task always runs so a crashed run never stays running; callbacks reach the API from the container (host.docker.internal)`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 59` |
-| #60 | 1. `/ccaa-story-start 60`<br>2. `/brainstorming Story #60: a facade service starts the DAG asynchronously through Airflow's API; returns immediately; run_id stored on the log row`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 60` |
-| Feature #56 | `/ccaa-feature-complete 56` |
+| Issue | Status | Started | Completed | Commands, in order |
+|---|---|---|---|---|
+| #77 | Planned | - | - | 1. `/ccaa-story-start 77`<br>2. `/brainstorming Story #77: POST /management/airflow/upsert-secrets copies the names listed in CICD/Local/airflow/Airflow_Variables_Upsert.txt from .env into Airflow Variables through Airflow's REST API (D42); result per name, never a value; missing name reported and return code is a failure; protected by the #44 shared secret; .env.example lists the names`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 77` |
+| #57 | Planned | - | - | 1. `/ccaa-story-start 57`<br>2. `/brainstorming Story #57: download DAG for the All dataset; read the source location from the Airflow Variables of #77 (D42) and fetch it with the Phase 1 source types; DAG appears in Airflow; file lands in the agreed place`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 57` |
+| #58 | Planned | - | - | 1. `/ccaa-story-start 58`<br>2. `/brainstorming Story #58: derive the 3 months dataset by filtering the All file on Date received; the file is not date-sorted so read it all; check the row count against the site figure`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 58` |
+| #59 | Planned | - | - | 1. `/ccaa-story-start 59`<br>2. `/brainstorming Story #59: report started, completed and failed to the API from the DAG; a final task always runs so a crashed run never stays running; callbacks reach the API from the container (host.docker.internal)`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 59` |
+| #60 | Planned | - | - | 1. `/ccaa-story-start 60`<br>2. `/brainstorming Story #60: a facade service starts the DAG asynchronously through Airflow's API; returns immediately; run_id stored on the log row`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 60` |
+| Feature #56 | Planned | - | - | `/ccaa-feature-complete 56` |
 
 ### Phase 4 - Start a download
 
-| Issue | Commands, in order |
-|---|---|
-| #42 | 1. `/ccaa-story-start 42`<br>2. `/brainstorming Story #42: start-download endpoint taking usecase; creates the log row and calls the #60 trigger service; returns accepted without waiting; unknown usecase returns 422`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 42` |
-| Feature #41 | `/ccaa-feature-complete 41` |
+| Issue | Status | Started | Completed | Commands, in order |
+|---|---|---|---|---|
+| #42 | Planned | - | - | 1. `/ccaa-story-start 42`<br>2. `/brainstorming Story #42: start-download endpoint taking usecase; creates the log row and calls the #60 trigger service; returns accepted without waiting; unknown usecase returns 422`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 42` |
+| Feature #41 | Planned | - | - | `/ccaa-feature-complete 41` |
 
 ### Phase 5 - Admin portal
 
 Verify with `ng build` and `ng test` inside `Portals/consumer-complaints-admin`. Methods take a single ctx and return an integer, like the Python side.
 
-| Issue | Commands, in order |
-|---|---|
-| #62 | 1. `/ccaa-story-start 62`<br>2. `/brainstorming Story #62: Angular app scaffold consumer-complaints-admin under Portals/; app builds and serves`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 62` |
-| #63 | 1. `/ccaa-story-start 63`<br>2. `/brainstorming Story #63: DataSets top menu and Imports left navigation (DB Ingest comes later); navigation works`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 63` |
-| #64 | 1. `/ccaa-story-start 64`<br>2. `/brainstorming Story #64: two accordions, 3 months and All; each shows downloaded or not, when, and the failure reason from the #45 endpoint; status is never guessed in the UI`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 64` |
-| #65 | 1. `/ccaa-story-start 65`<br>2. `/brainstorming Story #65: start download button calling the #42 endpoint, then show progress (poll or refresh: decide); button disabled while running`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 65` |
-| Feature #61 | `/ccaa-feature-complete 61` |
-| Epic #29 | `/ccaa-epic-complete 29` |
+| Issue | Status | Started | Completed | Commands, in order |
+|---|---|---|---|---|
+| #62 | Planned | - | - | 1. `/ccaa-story-start 62`<br>2. `/brainstorming Story #62: Angular app scaffold consumer-complaints-admin under Portals/; app builds and serves`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 62` |
+| #63 | Planned | - | - | 1. `/ccaa-story-start 63`<br>2. `/brainstorming Story #63: DataSets top menu and Imports left navigation (DB Ingest comes later); navigation works`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 63` |
+| #64 | Planned | - | - | 1. `/ccaa-story-start 64`<br>2. `/brainstorming Story #64: two accordions, 3 months and All; each shows downloaded or not, when, and the failure reason from the #45 endpoint; status is never guessed in the UI`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 64` |
+| #65 | Planned | - | - | 1. `/ccaa-story-start 65`<br>2. `/brainstorming Story #65: start download button calling the #42 endpoint, then show progress (poll or refresh: decide); button disabled while running`<br>3. `/writing-plans`<br>4. `/subagent-driven-development`, then `/ccaa-commit-push` after each task<br>5. `/verification-before-completion`<br>6. `/requesting-code-review`<br>7. `/ccaa-commit-push`<br>8. `/ccaa-story-complete 65` |
+| Feature #61 | Planned | - | - | `/ccaa-feature-complete 61` |
+| Epic #29 | In progress | 2026-11-14 | - | `/ccaa-epic-complete 29` |
 
 ## 4. Project skills (`ccaa-` = Consumer Complaints Agentic App)
 
@@ -189,6 +191,7 @@ The skills live in `.cursor/skills/`. Each takes a GitHub issue number.
 | `/ccaa-story-complete N` | After review and the final commit | Checks the acceptance items and the push, ticks them, writes the commits into the status line, sets `status: done`, closes the story, refreshes the feature |
 | `/ccaa-feature-complete N` | When every story of the feature is done | Checks all stories are closed, marks the feature done and closes it, refreshes the epic |
 | `/ccaa-epic-complete N` | When every feature of the epic is done | Marks the epic done and closes it, and marks this file complete |
+| `/ccaa-milestone-log N started\|completed` | Used by the four skills above | Updates the Status, Started and Completed columns of the row for issue N in section 3, refreshes the story counts at the top, and pushes |
 | `/ccaa-commit-push` | After every task, and at the end of each story | Runs lint and tests, commits one logical change as the repository owner, pushes to `main` |
 | `/ccaa-progress-sync N` | Used by the skills above | Rebuilds a feature or epic checklist and its progress line from the real state of its children |
 
