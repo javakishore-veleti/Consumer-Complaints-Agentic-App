@@ -5,6 +5,7 @@ needed when that backend is chosen.
 """
 
 from app.core.dao.app_wf_dao import AppWfDao
+from app.core.dao.app_wf_exec_log_dao import AppWfExecLogDao
 from app.core.dao.data_ingest_dao import DataIngestDao
 from app.core.dao.system_datasets_dao import SystemDatasetsDao
 from app.core.dao.transaction_dao import TransactionDao
@@ -16,6 +17,12 @@ class DaoObjectsFactory:
         from app.core.dao.impl.sqlalchemy_app_wf_dao import SqlAlchemyAppWfDao
 
         return SqlAlchemyAppWfDao()
+
+    @staticmethod
+    def get_app_wf_exec_log_dao() -> AppWfExecLogDao:
+        from app.core.dao.impl.sqlalchemy_app_wf_exec_log_dao import SqlAlchemyAppWfExecLogDao
+
+        return SqlAlchemyAppWfExecLogDao()
 
     @staticmethod
     def get_data_ingest_dao() -> DataIngestDao:
