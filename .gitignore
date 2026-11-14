@@ -236,3 +236,6 @@ Middleware/ConsumerComplaintsHandsOn/.data/
 
 # Scratch space for local tooling and test temp dirs (create anything under runtime_data/tmp)
 runtime_data/
+
+# Story worktrees created by /using-git-worktrees
+.worktrees/

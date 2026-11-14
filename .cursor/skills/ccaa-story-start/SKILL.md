@@ -19,4 +19,6 @@ Scratch files go in `runtime_data/tmp/` (git-ignored), never `/tmp`.
 7. Run `ccaa-commit-push N` with the summary `start story`.
 8. Reply with the story title and the next command from the `In progress` row of `docs/Project_Management/Issues/Milestone_02.md`.
 
-For the rest of this chat, after each workflow step of story `N` finishes (brainstorming, writing-plans, the final task of subagent-driven-development and its commit, verification, code review, the final `ccaa-commit-push N`), run `ccaa-milestone-log N` before you suggest the next command.
+For the rest of this chat, after each workflow step of story `N` finishes (brainstorming, using-git-worktrees, writing-plans, test-driven-development, the final task of subagent-driven-development and its commit, verification, code review, the final `ccaa-commit-push N`, finishing-a-development-branch), run `ccaa-milestone-log N` before you suggest the next command.
+
+This step runs on `main`. The next steps run in the story's worktree and branch (`/using-git-worktrees` creates both in `.worktrees/`).
