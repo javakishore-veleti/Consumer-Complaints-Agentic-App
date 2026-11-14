@@ -200,15 +200,15 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #81 | 12 | `/ccaa-story-complete 81` | Done | 2026-11-14 16:56 | 2026-11-14 16:59 |
 | #82 | 1 | `/ccaa-story-start 82` | Done | 2026-11-14 17:00 | 2026-11-14 17:00 |
 | #82 | 2 | `/brainstorming Story #82: app_workflows_exec_log table and DAO; keeps the workflow's information as it was at execution time; status rules of D30` | Done | 2026-11-14 17:00 | 2026-11-14 17:05 |
-| #82 | 3 | `/using-git-worktrees Story #82: branch m02-0032-app-workflows-exec-log-table-with-its` | In progress | 2026-11-14 17:05 | - |
-| #82 | 4 | `/writing-plans Story #82` | Planned | - | - |
-| #82 | 5 | `/test-driven-development Story #82` | Planned | - | - |
-| #82 | 6 | `/subagent-driven-development Story #82` | Planned | - | - |
-| #82 | 7 | `/ccaa-commit-push 82` after every task (repeat) | Planned | - | - |
-| #82 | 8 | `/verification-before-completion Story #82` | Planned | - | - |
-| #82 | 9 | `/requesting-code-review Story #82` | Planned | - | - |
-| #82 | 10 | `/ccaa-commit-push 82` | Planned | - | - |
-| #82 | 11 | `/finishing-a-development-branch Story #82` | Planned | - | - |
+| #82 | 3 | `/using-git-worktrees Story #82: branch m02-0032-app-workflows-exec-log-table-with-its` | Done | 2026-11-14 17:05 | 2026-11-14 17:08 |
+| #82 | 4 | `/writing-plans Story #82` | Done | 2026-11-14 17:08 | 2026-11-14 17:11 |
+| #82 | 5 | `/test-driven-development Story #82` | Done | 2026-11-14 17:11 | 2026-11-14 17:12 |
+| #82 | 6 | `/subagent-driven-development Story #82` | Done | 2026-11-14 17:12 | 2026-11-14 17:17 |
+| #82 | 7 | `/ccaa-commit-push 82` after every task (repeat) | Done | 2026-11-14 17:14 | 2026-11-14 17:17 |
+| #82 | 8 | `/verification-before-completion Story #82` | Done | 2026-11-14 17:17 | 2026-11-14 17:18 |
+| #82 | 9 | `/requesting-code-review Story #82` | Done | 2026-11-14 17:18 | 2026-11-14 17:22 |
+| #82 | 10 | `/ccaa-commit-push 82` | Done | 2026-11-14 17:22 | 2026-11-14 17:23 |
+| #82 | 11 | `/finishing-a-development-branch Story #82` | In progress | 2026-11-14 17:23 | - |
 | #82 | 12 | `/ccaa-story-complete 82` | Planned | - | - |
 | #86 | 1 | `/ccaa-story-start 86` | Planned | - | - |
 | #86 | 2 | `/brainstorming Story #86: catalog tables datasets, datasets_location, mios and mios_datasets in consumer_comp_admin_db with one DAO each, plus the seeded MIOs (customer complaints 3, 6, 9, 12 months and 2026)` | Planned | - | - |

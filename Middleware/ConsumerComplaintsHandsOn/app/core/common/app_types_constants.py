@@ -20,3 +20,29 @@ class EngineType(AppTypeEnum):
 
     APACHE_AIRFLOW = "apache_airflow"
     AWS_STEP_FUNCTIONS = "aws_step_functions"
+
+
+class ExecStatus(AppTypeEnum):
+    """The status of one workflow execution (D30). A new execution is REQUESTED."""
+
+    REQUESTED = "requested"
+    STARTED = "started"
+    COMPLETED = "completed"
+    FAILED = "failed"
+
+    @property
+    def next_statuses(self) -> tuple["ExecStatus", ...]:
+        """The statuses this one may move to. The same status again is also accepted by the DAO (retries)."""
+        return _EXEC_STATUS_MOVES[self]
+
+    @property
+    def is_final(self) -> bool:
+        return not self.next_statuses
+
+
+_EXEC_STATUS_MOVES = {
+    ExecStatus.REQUESTED: (ExecStatus.STARTED, ExecStatus.FAILED),
+    ExecStatus.STARTED: (ExecStatus.COMPLETED, ExecStatus.FAILED),
+    ExecStatus.COMPLETED: (),
+    ExecStatus.FAILED: (),
+}

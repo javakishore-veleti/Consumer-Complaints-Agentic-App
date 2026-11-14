@@ -68,3 +68,53 @@ def test_migration_0003_runs_down_and_up(data_dir):
     command.upgrade(config, "head")
     with _admin_db(data_dir) as db:
         assert db.execute("select name from sqlite_master where name = 'app_workflows'").fetchall() != []
+
+
+def test_app_workflows_exec_log_table_is_in_the_admin_schema_with_the_expected_columns(data_dir):
+    with _admin_db(data_dir) as db:
+        columns = {
+            r[1]: (r[2], r[3]) for r in db.execute("pragma table_info(app_workflows_exec_log)")
+        }  # name: (type, not null)
+        indexes = {r[1] for r in db.execute("pragma index_list(app_workflows_exec_log)")}
+    assert set(columns) == {
+        "id",
+        "workflow_id",
+        "workflow_name",
+        "engine_type",
+        "engine_workflow_id",
+        "config_used",
+        "engine_run_id",
+        "status",
+        "message",
+        "requested_at",
+        "started_at",
+        "finished_at",
+    }
+    assert columns["id"] == ("VARCHAR(36)", 1)
+    assert columns["workflow_id"] == ("VARCHAR(36)", 1)
+    assert columns["workflow_name"] == ("VARCHAR(100)", 1)
+    assert columns["engine_type"] == ("VARCHAR(32)", 1)
+    assert columns["engine_workflow_id"] == ("VARCHAR(255)", 1)
+    assert columns["config_used"][1] == 0  # nullable: nothing is stored as NULL, never {}
+    assert columns["engine_run_id"] == ("VARCHAR(128)", 0)
+    assert columns["status"] == ("VARCHAR(32)", 1)
+    assert columns["message"][1] == 0
+    assert columns["requested_at"][1] == 1
+    assert columns["started_at"][1] == 0 and columns["finished_at"][1] == 0
+    assert "ix_app_wf_exec_log_workflow_status" in indexes
+
+
+def test_exec_log_has_no_foreign_key_to_the_workflow_registry(data_dir):
+    with _admin_db(data_dir) as db:
+        assert db.execute("pragma foreign_key_list(app_workflows_exec_log)").fetchall() == []
+
+
+def test_migration_0004_runs_down_and_up(data_dir):
+    config = Config(str(PROJECT_ROOT / "alembic.ini"))
+    command.downgrade(config, "0003")
+    with _admin_db(data_dir) as db:
+        assert db.execute("select name from sqlite_master where name = 'app_workflows_exec_log'").fetchall() == []
+        assert db.execute("select name from sqlite_master where name = 'app_workflows'").fetchall() != []
+    command.upgrade(config, "head")
+    with _admin_db(data_dir) as db:
+        assert db.execute("select name from sqlite_master where name = 'app_workflows_exec_log'").fetchall() != []
