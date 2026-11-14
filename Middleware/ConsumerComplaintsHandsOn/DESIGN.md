@@ -40,7 +40,10 @@ Every item is marked:
 - `XxxReq`: what the caller sends. `XxxResp`: what comes back. `XxxCtx`: holds both.
 - Results are written into `ctx.resp`; the integer return is only the outcome code (success, failure, or another code defined later).
 - **Proposed:** the ctx also has a working area for values passed between tasks (for example the log row ID task 1 creates and task 3 needs), so `resp` holds only what the caller receives. **Open.**
-- **Open:** which ctx does a DAO receive? If tasks pass the facade's ctx down, a lower layer depends on an upper layer. Two ways out: put every Req/Resp/Ctx type in `common/dtos`, or give each DAO its own small ctx that the task fills in. Leaning: the second.
+- **Decided:** every Req/Resp/Ctx type lives in the shared `common/dtos`, never in `facades/`, `services/` or `dao/`, so a lower layer never imports an upper one.
+- **Decided:** each table has one reusable DAO (create, read, update, delete) with its **own dedicated ctx**, not the facade's ctx. First one: `DataIngestCtx` (with `DataIngestReq` / `DataIngestResp`) for `data_ingest_log`. The DAO's methods take only that ctx, so any facade can use the DAO. Class names do not carry a "Crud" word.
+- **Decided:** a facade's ctx class carries the DAO's ctx as an **additional member variable** (`data_ingest_ctx`). A facade task builds the `DataIngestCtx`, stores it on the facade ctx, and calls the DAO with it. This replaces the earlier idea of passing the facade's ctx all the way to the DAO, and removes the need for a shared base ctx.
+- **Open (follow-up):** where the DAO object itself lives: created by the task through the DAO's `objects_factory` (leaning), or also stored on the facade ctx.
 
 ### 2.2 Interfaces and factories
 - Import rule: you may import a package's interface and its `objects_factory`; you may never import its `impl/`.
