@@ -7,7 +7,7 @@ description: Commits and pushes CCAA (Consumer Complaints Agentic App) work as t
 
 Commit small and often: after each plan task, each passing test with its code, each migration, each document change, and at the end of every story. One logical change per commit.
 
-1. `git status -s`. Stage only the files this change touched, by name. Never `git add -A` or `git add .`. Never stage datasets (`*.csv`, `*.zip`), `.env` files, secrets or `runtime_data/`.
+1. `git status -s`. Stage only the files this change touched, by name. Never `git add -A` or `git add .`. Never stage datasets (`*.csv`, `*.zip`), `.env` files, secrets or `runtime_data/`. If `Docs/Project_Management/Issues/Milestone_02.md` is modified (a `ccaa-milestone-log` change), stage it too.
 2. If Python code changed, run `npm run local:api:lint` and `npm run local:api:test` from the repo root. Do not commit on a failure.
 3. Commit with a single-line message (no body): `M02-00NN #N: <imperative summary>`. The key `M02-00NN` is at the start of the story title. For work not tied to one story use `M02: <summary>`.
 4. Author must be `javakishore-veleti <6062900+javakishore-veleti@users.noreply.github.com>`. Do not pass `--author` and do not change `git config`.
