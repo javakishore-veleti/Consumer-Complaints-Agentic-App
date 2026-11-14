@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from sqlalchemy import JSON, Boolean, DateTime, Index, String, Text, UniqueConstraint, true
+from sqlalchemy import JSON, Boolean, CheckConstraint, DateTime, Index, String, Text, UniqueConstraint, true
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from app.core.common.config import SCHEMA_ADMIN, SCHEMA_COMPLAINTS
@@ -79,3 +79,79 @@ class AppWfExecLogModel(Base):
     requested_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class DatasetModel(Base):
+    __tablename__ = "datasets"
+    __table_args__ = (
+        UniqueConstraint("name", name="uq_datasets_name"),
+        UniqueConstraint("code", name="uq_datasets_code"),
+        {"schema": SCHEMA_ADMIN},
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    # The short code builds the local env var name LOCAL_DATA_PATH_<code> (D57).
+    code: Mapped[str] = mapped_column(String(15), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class DatasetLocationModel(Base):
+    __tablename__ = "datasets_location"
+    __table_args__ = (
+        UniqueConstraint("dataset_id", "location_type", "path", name="uq_datasets_location_dataset_type_path"),
+        UniqueConstraint("dataset_id", "local_env_var_name", name="uq_datasets_location_dataset_env_var"),
+        CheckConstraint(
+            "(path IS NOT NULL AND local_env_var_name IS NULL) OR (path IS NULL AND local_env_var_name IS NOT NULL)",
+            name="ck_datasets_location_path_xor_env",
+        ),
+        Index("ix_datasets_location_dataset_id", "dataset_id"),
+        {"schema": SCHEMA_ADMIN},
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    # No foreign key (D57): the DAOs keep the parent rule.
+    dataset_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    location_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    # A literal path or URL, or NULL when local_env_var_name is set (exactly one of the two).
+    path: Mapped[str | None] = mapped_column(String(1000))
+    # Only the NAME of an environment variable, only for type "local". Never a value.
+    local_env_var_name: Mapped[str | None] = mapped_column(String(64))
+    # A name that points to a secret held elsewhere. Never the secret.
+    credentials_ref: Mapped[str | None] = mapped_column(String(100))
+    description: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class MioModel(Base):
+    __tablename__ = "mios"
+    __table_args__ = (
+        UniqueConstraint("name", name="uq_mios_name"),
+        {"schema": SCHEMA_ADMIN},
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    # The name and description are labels for people. No code reads them to choose data (D57).
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class MioDatasetModel(Base):
+    __tablename__ = "mios_datasets"
+    __table_args__ = (
+        UniqueConstraint("mio_id", "dataset_id", name="uq_mios_datasets_mio_dataset"),
+        Index("ix_mios_datasets_mio_id", "mio_id"),
+        {"schema": SCHEMA_ADMIN},
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    mio_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    dataset_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    # The chosen location of that dataset for that MIO. Many MIOs may choose the same one.
+    dataset_location_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)

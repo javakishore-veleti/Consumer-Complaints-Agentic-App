@@ -1,5 +1,6 @@
 import sqlite3
 
+import pytest
 from alembic import command
 from alembic.config import Config
 
@@ -118,3 +119,103 @@ def test_migration_0004_runs_down_and_up(data_dir):
     command.upgrade(config, "head")
     with _admin_db(data_dir) as db:
         assert db.execute("select name from sqlite_master where name = 'app_workflows_exec_log'").fetchall() != []
+
+
+def _columns(db, table):
+    return {r[1]: (r[2], r[3]) for r in db.execute(f"pragma table_info({table})")}  # name: (type, not null)
+
+
+def _table_sql(db, table):
+    return db.execute("select sql from sqlite_master where name = ?", (table,)).fetchone()[0]
+
+
+def test_catalog_tables_are_in_the_admin_schema_with_the_expected_columns(data_dir):
+    with _admin_db(data_dir) as db:
+        datasets = _columns(db, "datasets")
+        locations = _columns(db, "datasets_location")
+        mios = _columns(db, "mios")
+        links = _columns(db, "mios_datasets")
+    assert datasets == {
+        "id": ("VARCHAR(36)", 1),
+        "name": ("VARCHAR(100)", 1),
+        "code": ("VARCHAR(15)", 1),
+        "description": ("TEXT", 0),
+        "created_at": ("DATETIME", 1),
+        "updated_at": ("DATETIME", 1),
+    }
+    assert locations == {
+        "id": ("VARCHAR(36)", 1),
+        "dataset_id": ("VARCHAR(36)", 1),
+        "location_type": ("VARCHAR(32)", 1),
+        "path": ("VARCHAR(1000)", 0),
+        "local_env_var_name": ("VARCHAR(64)", 0),
+        "credentials_ref": ("VARCHAR(100)", 0),
+        "description": ("TEXT", 0),
+        "created_at": ("DATETIME", 1),
+        "updated_at": ("DATETIME", 1),
+    }
+    assert mios == {
+        "id": ("VARCHAR(36)", 1),
+        "name": ("VARCHAR(100)", 1),
+        "description": ("TEXT", 0),
+        "created_at": ("DATETIME", 1),
+        "updated_at": ("DATETIME", 1),
+    }
+    assert links == {
+        "id": ("VARCHAR(36)", 1),
+        "mio_id": ("VARCHAR(36)", 1),
+        "dataset_id": ("VARCHAR(36)", 1),
+        "dataset_location_id": ("VARCHAR(36)", 1),
+        "created_at": ("DATETIME", 1),
+    }
+
+
+def test_catalog_tables_have_their_unique_constraints_and_indexes_and_no_foreign_keys(data_dir):
+    with _admin_db(data_dir) as db:
+        assert "uq_datasets_name" in _table_sql(db, "datasets")
+        assert "uq_datasets_code" in _table_sql(db, "datasets")
+        assert "uq_mios_name" in _table_sql(db, "mios")
+        assert "uq_datasets_location_dataset_type_path" in _table_sql(db, "datasets_location")
+        assert "uq_datasets_location_dataset_env_var" in _table_sql(db, "datasets_location")
+        assert "ck_datasets_location_path_xor_env" in _table_sql(db, "datasets_location")
+        assert "uq_mios_datasets_mio_dataset" in _table_sql(db, "mios_datasets")
+        assert "ix_datasets_location_dataset_id" in {r[1] for r in db.execute("pragma index_list(datasets_location)")}
+        assert "ix_mios_datasets_mio_id" in {r[1] for r in db.execute("pragma index_list(mios_datasets)")}
+        for table in ("datasets", "datasets_location", "mios", "mios_datasets"):
+            assert db.execute(f"pragma foreign_key_list({table})").fetchall() == [], table
+
+
+@pytest.mark.parametrize("path, env_var", [("a/path", "SOME_NAME"), (None, None)])
+def test_a_location_with_both_or_neither_of_path_and_env_var_name_is_rejected_by_the_database(data_dir, path, env_var):
+    with _admin_db(data_dir) as db:
+        with pytest.raises(sqlite3.IntegrityError):
+            db.execute(
+                "insert into datasets_location (id, dataset_id, location_type, path, local_env_var_name, created_at,"
+                " updated_at) values ('x', 'd', 'local', ?, ?, '2026-01-01', '2026-01-01')",
+                (path, env_var),
+            )
+
+
+def test_the_database_rejects_a_second_link_of_the_same_mio_and_dataset(data_dir):
+    sql = (
+        "insert into mios_datasets (id, mio_id, dataset_id, dataset_location_id, created_at)"
+        " values (?, 'm', 'd', 'l', '2026-01-01')"
+    )
+    with _admin_db(data_dir) as db:
+        db.execute(sql, ("one",))
+        with pytest.raises(sqlite3.IntegrityError):
+            db.execute(sql, ("two",))
+
+
+def test_migration_0005_runs_down_and_up(data_dir):
+    config = Config(str(PROJECT_ROOT / "alembic.ini"))
+    tables = ("datasets", "datasets_location", "mios", "mios_datasets")
+    command.downgrade(config, "0004")
+    with _admin_db(data_dir) as db:
+        for table in tables:
+            assert db.execute("select name from sqlite_master where name = ?", (table,)).fetchall() == [], table
+        assert db.execute("select name from sqlite_master where name = 'app_workflows_exec_log'").fetchall() != []
+    command.upgrade(config, "head")
+    with _admin_db(data_dir) as db:
+        for table in tables:
+            assert db.execute("select name from sqlite_master where name = ?", (table,)).fetchall() != [], table
