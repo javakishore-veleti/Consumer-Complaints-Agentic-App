@@ -125,6 +125,7 @@ def test_get_and_list_with_filters_and_a_fixed_order(data_dir):
     dao = DaoObjectsFactory.get_dataset_location_dao()
     mine, theirs = _dataset(name="t_a", code="T1"), _dataset(name="t_b", code="T2")
     env = _create(dao, mine, location_type="local", path=None, local_env_var_name="LOCAL_DATA_PATH_T1").resp.records[0]
+    local_with_path = _create(dao, mine, location_type="local", path="/data/files").resp.records[0]
     ftp = _create(dao, mine, location_type="ftp", path="ftp://h/f").resp.records[0]
     http_b = _create(dao, mine, path="https://b").resp.records[0]
     http_a = _create(dao, mine, path="https://a").resp.records[0]
@@ -132,7 +133,8 @@ def test_get_and_list_with_filters_and_a_fixed_order(data_dir):
 
     everything = _ctx(dataset_id=mine)
     assert dao.list(everything) == SUCCESS
-    assert [r.id for r in everything.resp.records] == [ftp.id, http_a.id, http_b.id, env.id]
+    # Within "local" the row with a path comes before the row without one (the env var row), on every database.
+    assert [r.id for r in everything.resp.records] == [ftp.id, http_a.id, http_b.id, local_with_path.id, env.id]
     only_http = _ctx(dataset_id=mine, location_type="http")
     assert dao.list(only_http) == SUCCESS and [r.id for r in only_http.resp.records] == [http_a.id, http_b.id]
     all_http = _ctx(location_type="http")
