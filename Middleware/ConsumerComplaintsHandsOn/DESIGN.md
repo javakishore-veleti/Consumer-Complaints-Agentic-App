@@ -128,7 +128,7 @@ Status changes are enforced (D30).
 - Status is a value, not a boolean: the UI must tell not started, running, completed and failed apart. The dataset row follows the log row: requested and started show as running, completed as completed, failed as failed (D40).
 - **Open:** a new download of the 3-month dataset resets its ingest status (leaning yes; not done yet). **Open:** record the absolute date range covered.
 
-### The admin schema `consumer_comp_admin_db` (D48) — **Decided (D43, D46 to D52), not built**
+### The admin schema `consumer_comp_admin_db` (D48) — **Decided (D43, D46 to D52); `app_workflows` built in story #81, the rest not built**
 All tables below live in it. Column lists marked *(Proposed)* are defaults that can change.
 
 #### `app_workflows` (the registry of workflows)
@@ -140,8 +140,10 @@ One row per workflow the portal can list and start.
 | workflow_name | up to 100 characters, unique *(Proposed)*, what the portal shows |
 | engine_type | short code of the engine: `apache_airflow`, later `aws_step_functions` (D52) |
 | engine_workflow_id | the engine's own id for it: the Airflow DAG id, the Step Functions state machine |
-| config | JSON: anything about the workflow; non-secret values only, secrets stay in `.env` and Airflow Variables (D42) |
-| enabled, created_at, updated_at | *(Proposed)* |
+| config | JSON, nullable (NULL means none, never `{}`); non-secret values only, secrets stay in `.env` and Airflow Variables (D42) |
+| enabled, created_at, updated_at | built: `enabled` defaults to true; times are UTC |
+
+Built in story #81 (migration `0003`): `AppWfDao` (create, get by id or name, list by engine type and enabled, update, delete). `engine_type` is checked against `EngineType` in `app/core/common/app_types_constants.py` (D55); checking it against the registered engine classes comes with the engine interface (#83) and the start endpoint (#42).
 
 #### `app_workflows_exec_log` (every execution of every workflow, D50)
 | Column | Meaning |

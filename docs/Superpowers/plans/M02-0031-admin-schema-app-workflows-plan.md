@@ -534,8 +534,7 @@ import logging
 from datetime import datetime, timezone
 from uuid import uuid4
 
-from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy import Select, select
 
 from app.core.common.app_types_constants import EngineType
 from app.core.common.dtos.app_wf_dtos import AppWfCtx, AppWfRecord, AppWfReq
@@ -550,12 +549,13 @@ NAME_MAX = 100
 ENGINE_WORKFLOW_ID_MAX = 255
 
 
-def _as_utc(stamp: datetime) -> datetime:
-    # SQLite hands timestamps back without a time zone; they were stored as UTC.
-    return stamp.replace(tzinfo=timezone.utc) if stamp.tzinfo is None else stamp
-
-
 def _to_record(row: AppWfModel) -> AppWfRecord:
+    # SQLite hands timestamps back without a time zone; they were stored as UTC.
+    created, updated = row.created_at, row.updated_at
+    if created.tzinfo is None:
+        created = created.replace(tzinfo=timezone.utc)
+    if updated.tzinfo is None:
+        updated = updated.replace(tzinfo=timezone.utc)
     return AppWfRecord(
         id=row.id,
         workflow_name=row.workflow_name,
@@ -563,8 +563,8 @@ def _to_record(row: AppWfModel) -> AppWfRecord:
         engine_workflow_id=row.engine_workflow_id,
         config=row.config,
         enabled=row.enabled,
-        created_at=_as_utc(row.created_at),
-        updated_at=_as_utc(row.updated_at),
+        created_at=created,
+        updated_at=updated,
     )
 
 
@@ -581,8 +581,8 @@ def _has_invalid_field(req: AppWfReq) -> bool:
     return False
 
 
-def _find_by_name(session: Session, req: AppWfReq) -> AppWfModel | None:
-    return session.scalars(select(AppWfModel).where(AppWfModel.workflow_name == req.workflow_name)).first()
+def _by_name_query(req: AppWfReq) -> Select:
+    return select(AppWfModel).where(AppWfModel.workflow_name == req.workflow_name)
 
 
 class SqlAlchemyAppWfDao(AppWfDao):
@@ -592,7 +592,7 @@ class SqlAlchemyAppWfDao(AppWfDao):
             return INVALID_INPUT
         try:
             with unit_of_work(ctx) as session:
-                if _find_by_name(session, req) is not None:
+                if session.scalars(_by_name_query(req)).first() is not None:
                     return CONFLICT
                 now = datetime.now(timezone.utc)
                 row = AppWfModel(
@@ -619,7 +619,7 @@ class SqlAlchemyAppWfDao(AppWfDao):
             return INVALID_INPUT
         try:
             with unit_of_work(ctx) as session:
-                row = session.get(AppWfModel, req.id) if req.id else _find_by_name(session, req)
+                row = session.get(AppWfModel, req.id) if req.id else session.scalars(_by_name_query(req)).first()
                 if row is None:
                     return NOT_FOUND
                 ctx.resp.records = [_to_record(row)]
@@ -772,7 +772,7 @@ In `app/core/dao/impl/sqlalchemy_app_wf_dao.py` delete the two stub methods and 
                 if row is None:
                     return NOT_FOUND
                 if req.workflow_name is not None and req.workflow_name != row.workflow_name:
-                    if _find_by_name(session, req) is not None:
+                    if session.scalars(_by_name_query(req)).first() is not None:
                         return CONFLICT
                 if req.workflow_name is not None:
                     row.workflow_name = req.workflow_name
@@ -967,5 +967,6 @@ Run `/ccaa-commit-push 81` with the summary `mark app_workflows built in the des
 ## Self-Review
 
 - **Spec coverage:** schema name (Task 1), types file with parent enum (Task 1), table with every column, nullable JSON and unique name (Task 2), CRUD with every return code, id-or-name get, filters, update semantics (Tasks 3 and 4), `Wf` class names and module names (Tasks 3 and 4), factory method in the static style (Task 3), transaction and singleton tests (Task 5), Postgres cases (Task 5), up and down migration test (Task 2), design note (Task 6). The spec's `is_valid(value)` was dropped: a method taking a bare `str` breaks the one-object signature rule (D37, `test_ctx_only_signatures`), so callers use `value in EngineType.values()`.
+- **Built differently:** the helpers `_as_utc(stamp)` and `_find_by_name(session, req)` of the first draft broke the one-object signature rule (D37), which `test_ctx_only_signatures` caught; the code above is what was built (`_to_record` converts the times itself, `_by_name_query(req)` returns the query).
 - **Placeholders:** none. The two Task 3 stubs are replaced in Task 4, as stated in both tasks.
 - **Type consistency:** `AppWfCtx/AppWfReq/AppWfResp/AppWfRecord`, `AppWfDao`, `SqlAlchemyAppWfDao`, `AppWfModel`, `get_app_wf_dao`, `EngineType.values()` and `SCHEMA_ADMIN` are spelled the same in every task. Return codes are the five in `return_codes.py`.
