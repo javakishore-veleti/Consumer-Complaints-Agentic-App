@@ -90,12 +90,21 @@ def test_create_for_an_unknown_mio_is_not_found_and_stores_nothing(data_dir):
         {"batch_count": 2.0},
         {"increment_marker": "m" * 256},
         {"increment_marker": 20261101},
+        {"message": 5},
+        {"message": b"bytes"},
+        {"rows_loaded": 9223372036854775808},
+        {"batch_count": 2147483648},
     ],
 )
 def test_create_rejects_a_missing_mio_id_or_an_invalid_volume_field(data_dir, fields):
     req = {"mio_id": _mio(), **fields}
     assert DaoObjectsFactory.get_mio_ingest_log_dao().create(_ctx(**req)) == INVALID_INPUT
     assert _ingest_rows(data_dir) == []
+
+
+def test_create_accepts_the_largest_row_count_and_batch_count(data_dir):
+    record = _ingest(_mio(), rows_loaded=9223372036854775807, batch_count=2147483647)
+    assert (record.rows_loaded, record.batch_count) == (9223372036854775807, 2147483647)
 
 
 def test_create_accepts_a_marker_of_exactly_255_characters(data_dir):
@@ -155,6 +164,22 @@ def test_list_rejects_a_negative_limit_or_offset_and_an_unknown_status(data_dir)
     assert logs.list(_ctx(status="bogus")) == INVALID_INPUT
     zero = _ctx(limit=0)
     assert logs.list(zero) == SUCCESS and zero.resp.records == []
+
+
+@pytest.mark.parametrize(
+    "fields",
+    [
+        {"limit": "5"},
+        {"limit": 1.5},
+        {"limit": True},
+        {"offset": "1"},
+        {"offset": 0.5},
+        {"offset": False},
+    ],
+)
+def test_list_rejects_a_paging_value_that_is_not_a_whole_number(data_dir, fields):
+    _ingest(_mio())
+    assert DaoObjectsFactory.get_mio_ingest_log_dao().list(_ctx(**fields)) == INVALID_INPUT
 
 
 def test_create_reads_the_mio_inside_the_same_shared_transaction(data_dir):
@@ -327,6 +352,10 @@ def test_a_stale_second_update_after_completed_is_a_conflict(data_dir):
         {"batch_count": True},
         {"increment_marker": "m" * 256},
         {"increment_marker": 7},
+        {"message": 5},
+        {"message": ["x"]},
+        {"rows_loaded": 9223372036854775808},
+        {"batch_count": 2147483648},
     ],
 )
 def test_update_rejects_an_unknown_status_or_an_invalid_volume_field(data_dir, fields):

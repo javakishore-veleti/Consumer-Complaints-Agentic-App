@@ -9,7 +9,7 @@ from sqlalchemy import select
 from sqlalchemy import update as sql_update
 
 from app.core.common.app_types_constants import ExecStatus
-from app.core.common.dtos.app_wf_exec_log_dtos import AppWfExecLogCtx, AppWfExecLogRecord
+from app.core.common.dtos.app_wf_exec_log_dtos import AppWfExecLogCtx, AppWfExecLogRecord, AppWfExecLogReq
 from app.core.common.return_codes import CONFLICT, FAILURE, INVALID_INPUT, NOT_FOUND, SUCCESS
 from app.core.dao.app_wf_exec_log_dao import AppWfExecLogDao
 from app.core.dao.impl.models import AppWfExecLogModel, AppWfModel, MioIngestLogModel
@@ -22,6 +22,23 @@ RUN_ID_MAX = 128
 
 def _now() -> datetime:
     return datetime.now(timezone.utc)
+
+
+def _has_invalid_notes(req: AppWfExecLogReq) -> bool:
+    """True when engine_run_id is given but is not a string of up to RUN_ID_MAX characters, or message is given but
+    is not a string."""
+    run_id = req.engine_run_id
+    if run_id is not None and (not isinstance(run_id, str) or len(run_id) > RUN_ID_MAX):
+        return True
+    return req.message is not None and not isinstance(req.message, str)
+
+
+def _has_invalid_paging(req: AppWfExecLogReq) -> bool:
+    """True when limit or offset is given but is not a whole number of 0 or more (a bool is not one)."""
+    for number in (req.limit, req.offset):
+        if number is not None and (isinstance(number, bool) or not isinstance(number, int) or number < 0):
+            return True
+    return False
 
 
 def _to_record(row: AppWfExecLogModel) -> AppWfExecLogRecord:
@@ -104,7 +121,7 @@ class SqlAlchemyAppWfExecLogDao(AppWfExecLogDao):
             return INVALID_INPUT
         if req.status is not None and req.status not in ExecStatus.values():
             return INVALID_INPUT
-        if req.engine_run_id is not None and len(req.engine_run_id) > RUN_ID_MAX:
+        if _has_invalid_notes(req):
             return INVALID_INPUT
         try:
             with unit_of_work(ctx) as session:
@@ -153,7 +170,7 @@ class SqlAlchemyAppWfExecLogDao(AppWfExecLogDao):
 
     def list(self, ctx: AppWfExecLogCtx) -> int:
         req = ctx.req
-        if (req.limit is not None and req.limit < 0) or (req.offset is not None and req.offset < 0):
+        if _has_invalid_paging(req):
             return INVALID_INPUT  # SQLite would return every row, Postgres would fail: reject on both
         try:
             query = select(AppWfExecLogModel)

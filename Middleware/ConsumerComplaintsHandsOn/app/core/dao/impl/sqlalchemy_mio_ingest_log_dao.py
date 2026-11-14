@@ -19,6 +19,8 @@ from app.core.dao.mio_ingest_log_dao import MioIngestLogDao
 log = logging.getLogger(__name__)
 
 MARKER_MAX = 255
+ROWS_LOADED_MAX = 9223372036854775807  # largest BigInteger
+BATCH_COUNT_MAX = 2147483647  # largest Integer
 NOTE_FIELDS = ("message", "rows_loaded", "batch_count", "increment_marker")
 
 
@@ -46,13 +48,24 @@ def _to_record(row: MioIngestLogModel) -> MioIngestLogRecord:
 
 
 def _has_invalid_volume(req: MioIngestLogReq) -> bool:
-    """True when rows_loaded or batch_count is given but is not a whole number of 0 or more (a bool is not one),
-    or increment_marker is given but is not a string of up to MARKER_MAX characters."""
-    for count in (req.rows_loaded, req.batch_count):
-        if count is not None and (isinstance(count, bool) or not isinstance(count, int) or count < 0):
+    """True when message is given but is not a string, rows_loaded or batch_count is given but is not a whole number
+    from 0 up to its column maximum (a bool is not one), or increment_marker is given but is not a string of up to
+    MARKER_MAX characters."""
+    if req.message is not None and not isinstance(req.message, str):
+        return True
+    for count, largest in ((req.rows_loaded, ROWS_LOADED_MAX), (req.batch_count, BATCH_COUNT_MAX)):
+        if count is not None and (isinstance(count, bool) or not isinstance(count, int) or not 0 <= count <= largest):
             return True
     marker = req.increment_marker
     return marker is not None and (not isinstance(marker, str) or len(marker) > MARKER_MAX)
+
+
+def _has_invalid_paging(req: MioIngestLogReq) -> bool:
+    """True when limit or offset is given but is not a whole number of 0 or more (a bool is not one)."""
+    for number in (req.limit, req.offset):
+        if number is not None and (isinstance(number, bool) or not isinstance(number, int) or number < 0):
+            return True
+    return False
 
 
 def _notes_of(req: MioIngestLogReq) -> dict:
@@ -105,7 +118,7 @@ class SqlAlchemyMioIngestLogDao(MioIngestLogDao):
 
     def list(self, ctx: MioIngestLogCtx) -> int:
         req = ctx.req
-        if (req.limit is not None and req.limit < 0) or (req.offset is not None and req.offset < 0):
+        if _has_invalid_paging(req):
             return INVALID_INPUT  # SQLite would return every row, Postgres would fail: reject on both
         if req.status is not None and req.status not in ExecStatus.values():
             return INVALID_INPUT

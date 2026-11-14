@@ -40,12 +40,12 @@ Reuse `ExecStatus` and its moves unchanged: a new row is `requested`; `requested
 
 | Method | Needs | Result |
 |---|---|---|
-| create | `mio_id`; optional `message`, `rows_loaded`, `batch_count`, `increment_marker` | a new `requested` row; NOT_FOUND if the MIO does not exist; INVALID_INPUT for a missing `mio_id` or an invalid volume field |
+| create | `mio_id`; optional `message`, `rows_loaded`, `batch_count`, `increment_marker` | a new `requested` row; NOT_FOUND if the MIO does not exist; INVALID_INPUT for a missing `mio_id` or an invalid message or volume field |
 | get | `id` | the row; NOT_FOUND |
-| list | optional `mio_id`, `status`, `limit`, `offset` | newest first (`requested_at` descending, then `id`); INVALID_INPUT for a negative `limit` or `offset` or an unknown status |
-| update | `id`; any of `status`, `message`, `rows_loaded`, `batch_count`, `increment_marker` | the row; NOT_FOUND; INVALID_INPUT for an unknown status or an invalid volume field; CONFLICT for an illegal move; `mio_id` never changes |
+| list | optional `mio_id`, `status`, `limit`, `offset` | newest first (`requested_at` descending, then `id`); INVALID_INPUT for a `limit` or `offset` that is not a whole number of 0 or more, or an unknown status |
+| update | `id`; any of `status`, `message`, `rows_loaded`, `batch_count`, `increment_marker` | the row; NOT_FOUND; INVALID_INPUT for an unknown status or an invalid message or volume field; CONFLICT for an illegal move; `mio_id` never changes |
 
-There is no delete: the log is append-only (as in D56). Invalid volume field: not an `int` (a `bool` counts as invalid), negative, or an `increment_marker` that is not a string or is over 255 characters. The impl reads `MioModel` to check the MIO on create: the same exception to D7 as D56 and D57.
+There is no delete: the log is append-only (as in D56). Invalid message or volume field: a `message` that is not a string; a `rows_loaded` or `batch_count` that is not an `int` (a `bool` counts as invalid), is negative, or is above its column maximum (`rows_loaded` 9223372036854775807, `batch_count` 2147483647); or an `increment_marker` that is not a string or is over 255 characters. Paging: a `limit` or `offset` that is not an `int` (a `bool` counts as invalid) or is negative is INVALID_INPUT, never an exception. The same checks apply to the exec-log DAO: `limit` and `offset` in `list`, and in `update` an `engine_run_id` or `message` that is not a string (INVALID_INPUT). The impl reads `MioModel` to check the MIO on create: the same exception to D7 as D56 and D57.
 
 ## The exec-log reference
 

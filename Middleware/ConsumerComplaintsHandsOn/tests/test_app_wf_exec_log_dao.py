@@ -229,6 +229,13 @@ def test_update_rejects_bad_input(data_dir):
     assert _stored(row.id).status == "requested"
 
 
+@pytest.mark.parametrize("fields", [{"engine_run_id": 5}, {"engine_run_id": b"run"}, {"message": 5}, {"message": ["x"]}])
+def test_update_rejects_a_run_id_or_message_that_is_not_a_string(data_dir, fields):
+    row = _execute(_workflow().id)
+    assert _update(row.id, status="started", **fields)[0] == INVALID_INPUT
+    assert _stored(row.id) == row
+
+
 def test_update_of_an_unknown_row_is_not_found(data_dir):
     assert _update("no-such-row", status="started")[0] == NOT_FOUND
 
@@ -384,6 +391,22 @@ def test_list_rejects_a_negative_limit_or_offset(data_dir):
     assert logs.list(_ctx(offset=-1)) == INVALID_INPUT
     zero = _ctx(limit=0)
     assert logs.list(zero) == SUCCESS and zero.resp.records == []
+
+
+@pytest.mark.parametrize(
+    "fields",
+    [
+        {"limit": "5"},
+        {"limit": 1.5},
+        {"limit": True},
+        {"offset": "1"},
+        {"offset": 0.5},
+        {"offset": False},
+    ],
+)
+def test_list_rejects_a_paging_value_that_is_not_a_whole_number(data_dir, fields):
+    _execute(_workflow().id)
+    assert DaoObjectsFactory.get_app_wf_exec_log_dao().list(_ctx(**fields)) == INVALID_INPUT
 
 
 def _ingest_row() -> str:
