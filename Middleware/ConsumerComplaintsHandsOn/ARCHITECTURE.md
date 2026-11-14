@@ -1,0 +1,163 @@
+# Architecture
+
+How the system is put together. What it does is in [PRODUCT_FEATURES.md](../../Docs/PRODUCT_FEATURES.md); the detailed rules
+and open decisions are in [DESIGN.md](DESIGN.md).
+
+Status: the folders, the local containers and the scripts exist. No application logic is written yet.
+
+## 1. System context
+
+```mermaid
+flowchart LR
+    UI["Admin portal (Angular)"] -->|HTTP| API["Middleware API (FastAPI)"]
+    API --> FAC["Facades, then Services or DAOs"]
+    FAC -->|"trigger DAG (async)"| AF["Apache Airflow"]
+    FAC -->|"only writer"| SQL[("SQLite: operational data")]
+    AF -->|"status: started / completed"| API
+    AF -->|"read from configured location"| SRC[["Source location: local, GitHub, Drive, S3, Azure Blob, GCS"]]
+    AF -->|"bulk ingest, batches"| MONGO[("MongoDB: complaint data")]
+    INT["consumer-complaints-Intellect"] -.->|"later"| MONGO
+```
+
+Two write rules that everything follows:
+
+1. **SQLite is written only by the API.** Airflow never touches it; it reports progress by calling the API.
+2. **MongoDB (the bulk complaint data) is written only by the Airflow ingest job**, directly, in batches.
+   Pushing millions of records through the API layers would be slow and pointless.
+
+## 2. Layered architecture (Neal Ford: closed layers, one open layer)
+
+![Layers](../../Docs/Design/NealFord_Open_Close_Architecture.jpeg)
+
+A request passes through each layer in turn. A **closed** layer may not be skipped. The **services** layer is the
+**open** layer: a facade may call a DAO directly, or call a service.
+
+| Layer | Folder (`app/`) | Responsibility |
+|---|---|---|
+| Presentation | `api` | FastAPI routes. Turns HTTP into a `ctx`, calls a facade interface, turns the result back into HTTP. |
+| Business | `core/facades` | Holds an ordered list of tasks and loops over them. **No business logic of its own.** |
+| Services (open) | `core/services` | Reusable logic (for example: start an Airflow DAG, read a source location). |
+| Persistence | `core/dao` | One DAO per table or collection. All database access lives here. |
+| Database | SQLite, MongoDB | Stores. |
+| Shared | `core/common` (`dtos`) | Req / Resp / Ctx types used by every layer. |
+
+```
+api  ->  IFacade  ->  [ task 1, task 2, ... ]  ->  IService  or  IDao
+```
+
+## 3. Folder layout
+
+```
+Middleware/ConsumerComplaintsHandsOn/
+  app/
+    api/                      FastAPI routes
+    core/
+      common/dtos/            XxxReq, XxxResp, XxxCtx
+      facades/    impl/       interface here, implementations in impl/
+      services/   impl/
+      dao/        impl/
+  main.py  pyproject.toml  (uv project)
+CICD/Local/
+  airflow/    docker-compose.yaml     Airflow 3.4.0, LocalExecutor
+  mongodb/    docker-compose.yaml     MongoDB 8.0
+  docker-all-up.sh  docker-all-down.sh  docker-all-status.sh
+dags/                         Airflow DAGs
+Docs/                         product docs, design images
+```
+
+## 4. The conventions that hold it together
+
+**Interface in the package, implementation in `impl/`.** The API depends on facade interfaces, a facade depends on
+service and DAO interfaces. Nobody imports from another package's `impl/`.
+
+**Every package has an `objects_factory.py`.** It is the only module in that package allowed to import from `impl/`. It
+chooses the implementation from configuration, for example the DAO factory picks SQLite, Postgres or Mongo. Imports
+inside a factory can be lazy, so a backend's library is only needed when that backend is selected.
+
+**One `ctx` in, one integer out.** Every method (Python and Angular) takes a single `XxxCtx` that contains an `XxxReq`
+and an `XxxResp`, and returns an integer status code. Results go into `ctx.resp`. Codes are defined later.
+
+**Each facade has its own task interface.** Every task of that facade implements it, takes only that facade's `ctx`
+and returns an integer. The facade's factory builds the ordered task list.
+
+**One DAO per table**, for example `SystemDatasetsDao` and `DataIngestLogDao`; a complaints DAO for MongoDB later.
+
+**ORM types never leave `dao/impl/`.** Table classes (SQLAlchemy) stay inside the DAO implementations; everything above
+sees plain request and response objects.
+
+## 5. Flows
+
+### 5.1 Download a dataset
+
+```mermaid
+sequenceDiagram
+    participant UI as Admin portal
+    participant API as Middleware API
+    participant F as Facade (tasks)
+    participant AF as Airflow
+    participant SRC as Source location
+    UI->>API: start download (usecase)
+    API->>F: ctx
+    F->>F: task: create log row, set status
+    F->>AF: task: trigger download DAG (async)
+    API-->>UI: accepted
+    AF->>API: status: started (usecase)
+    AF->>SRC: fetch the dataset file
+    AF->>API: status: completed or failed (usecase)
+    API->>F: ctx
+    F->>F: task: update log row and dataset status
+    UI->>API: read dataset status
+```
+
+### 5.2 Ingest into MongoDB
+Triggered from the **DB Ingest** screen the same way, with its own DAG and the same `started` / `completed` callbacks.
+The DAG reads the downloaded data and writes MongoDB in batches, upserting by Complaint ID.
+
+### 5.3 Where the download comes from
+The download reads a configured **source location type and path** (local path, GitHub repo URL, Google Drive, AWS S3,
+Azure Blob, GCP Cloud Storage; HTTP URL is undecided). Each type is one implementation behind one interface, picked by
+a factory, so a new type is added without touching anything else. The dataset is never stored in this repository.
+
+The CFPB site cannot export a 3-month filter (limit 100,000), so the **3 months dataset is the All file filtered by date**.
+In the part of the file sampled, rows are not sorted by date, so the whole file is read.
+
+## 6. Data stores
+
+| Store | Holds | Written by | Swappable |
+|---|---|---|---|
+| SQLite | users, execution logs, `system_datasets`, `data_ingest_log`, other operational data | the API only | yes: Postgres or similar through the DAO interface and SQLAlchemy |
+| MongoDB | the complaint data | the Airflow ingest job | by DAO implementation |
+| Airflow's own Postgres | Airflow metadata | Airflow | n/a (separate, not used by the app) |
+
+Schemas: SQLite has no real schemas, so the "admin" area is tables in the SQLite database. A move to Postgres would
+give real schemas. The complaints database is its own database in MongoDB.
+
+## 7. Schema versioning
+
+SQLAlchemy ORM with **Alembic** migrations.
+
+- **Local:** the script that starts the API runs `alembic upgrade head` first. If migration fails, the API does not start.
+- **Cloud:** a separate, manually triggered GitHub Actions workflow runs the same upgrade against RDS, Azure or GCP
+  databases. The app does not migrate itself on startup in the cloud.
+- Alembic manages the operational database only. MongoDB needs its own approach for collections and indexes later.
+
+## 8. Local environment
+
+| Service | Where | Notes |
+|---|---|---|
+| Airflow UI | <http://localhost:8080> | login `airflow` / `airflow`; compose in `CICD/Local/airflow` |
+| MongoDB | `127.0.0.1:27017` | root user from environment or the local default; compose in `CICD/Local/mongodb` |
+
+Start, stop, check: `npm run local:containers:all:start | stop | status` (they run the three `CICD/Local/docker-all-*.sh`
+scripts, which pick up every `CICD/Local/<service>/docker-compose.yaml`). `stop -- --wipe <service>` also deletes that
+service's data volume.
+
+From inside an Airflow container, the host machine is reachable as `host.docker.internal` (for the API callbacks and,
+unless both share a Docker network, for MongoDB).
+
+## 9. Cloud (planned)
+
+- Python app image contains Python only. Airflow keeps its own image.
+- All dataset, configured source location in cloud storage (S3, Blob or GCS).
+- Manual GitHub Actions workflow for migrations. Cloud databases are usually on private networks, so this needs a
+  self-hosted runner, a tunnel, or a temporary allow-list. **[Open]**

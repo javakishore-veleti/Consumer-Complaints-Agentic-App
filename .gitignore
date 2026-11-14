@@ -222,3 +222,11 @@ __marimo__/
 # Local Airflow (CICD/Local/airflow)
 CICD/Local/airflow/logs/
 CICD/Local/airflow/config/airflow.cfg
+
+# macOS
+.DS_Store
+
+# The CFPB dataset is never committed (it is fetched from a configured location)
+complaints*.csv
+complaints*.csv.zip
+*.csv.zip
