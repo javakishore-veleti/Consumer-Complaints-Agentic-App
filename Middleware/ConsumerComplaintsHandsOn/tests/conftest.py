@@ -13,7 +13,9 @@ REPO_ROOT = PROJECT_ROOT.parents[1]
 
 def pytest_configure(config):
     if not config.option.basetemp:
-        config.option.basetemp = REPO_ROOT / "runtime_data" / "tmp" / "pytest"
+        base = REPO_ROOT / "runtime_data" / "tmp" / "pytest"
+        base.parent.mkdir(parents=True, exist_ok=True)  # git-ignored, so a fresh clone does not have it yet
+        config.option.basetemp = base
 
 
 @pytest.fixture
