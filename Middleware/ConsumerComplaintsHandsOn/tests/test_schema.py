@@ -219,3 +219,48 @@ def test_migration_0005_runs_down_and_up(data_dir):
     with _admin_db(data_dir) as db:
         for table in tables:
             assert db.execute("select name from sqlite_master where name = ?", (table,)).fetchall() != [], table
+
+
+HTTP_URL = "https://files.consumerfinance.gov/ccdb/complaints.csv.zip"
+SEED_MIO_NAMES = [f"Customer complaints {months} months 2026" for months in (3, 6, 9, 12)]
+
+
+def test_the_catalog_seed_is_present(data_dir):
+    with _admin_db(data_dir) as db:
+        assert db.execute("select code, name from datasets").fetchall() == [("CFPB", "cfpb_consumer_complaints")]
+        assert db.execute(
+            "select location_type, path, local_env_var_name, credentials_ref from datasets_location order by location_type"
+        ).fetchall() == [
+            ("http", HTTP_URL, None, None),
+            ("local", None, "LOCAL_DATA_PATH_CFPB", None),
+        ]
+        assert [r[0] for r in db.execute("select name from mios order by name")] == sorted(SEED_MIO_NAMES)
+        http_id = db.execute("select id from datasets_location where location_type = 'http'").fetchone()[0]
+        dataset_id = db.execute("select id from datasets").fetchone()[0]
+        links = db.execute("select mio_id, dataset_id, dataset_location_id from mios_datasets").fetchall()
+    assert len(links) == 4 and len({link[0] for link in links}) == 4
+    assert {(link[1], link[2]) for link in links} == {(dataset_id, http_id)}
+
+
+def test_the_seeded_ids_and_times_are_fixed_and_utc(data_dir):
+    with _admin_db(data_dir) as db:
+        assert db.execute("select id from datasets").fetchone()[0] == "5187ad0c-d8ed-56ac-829d-e49313c16dbf"
+        assert db.execute("select created_at from datasets").fetchone()[0].startswith("2026-11-14")
+
+
+def test_migration_0006_removes_exactly_the_seed_on_the_way_down_and_restores_it(data_dir):
+    config = Config(str(PROJECT_ROOT / "alembic.ini"))
+    with _admin_db(data_dir) as db:
+        db.execute(
+            "insert into datasets (id, name, code, created_at, updated_at)"
+            " values ('mine', 't_mine', 'MINE', '2026-01-01', '2026-01-01')"
+        )
+    command.downgrade(config, "0005")
+    with _admin_db(data_dir) as db:
+        assert db.execute("select name from datasets").fetchall() == [("t_mine",)]
+        for table in ("datasets_location", "mios", "mios_datasets"):
+            assert db.execute(f"select count(*) from {table}").fetchone()[0] == 0, table
+    command.upgrade(config, "head")
+    with _admin_db(data_dir) as db:
+        assert sorted(r[0] for r in db.execute("select name from datasets")) == ["cfpb_consumer_complaints", "t_mine"]
+        assert db.execute("select count(*) from mios").fetchone()[0] == 4
