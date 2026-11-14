@@ -5,7 +5,6 @@ from datetime import datetime, timezone
 from uuid import uuid4
 
 from sqlalchemy import select
-from sqlalchemy.orm import Session
 
 from app.core.common.data_ingest_constants import (
     ALLOWED_TRANSITIONS,
@@ -16,8 +15,8 @@ from app.core.common.data_ingest_constants import (
 from app.core.common.dtos.data_ingest_dtos import DataIngestCtx, DataIngestRecord
 from app.core.common.return_codes import CONFLICT, FAILURE, INVALID_INPUT, NOT_FOUND, SUCCESS
 from app.core.dao.data_ingest_dao import DataIngestDao
-from app.core.dao.impl.database import get_engine
 from app.core.dao.impl.models import DataIngestLogModel
+from app.core.dao.impl.unit_of_work import unit_of_work
 
 log = logging.getLogger(__name__)
 
@@ -44,7 +43,7 @@ class SqlAlchemyDataIngestDao(DataIngestDao):
         if not req.purpose:
             return INVALID_INPUT
         try:
-            with Session(get_engine()) as session:
+            with unit_of_work(ctx) as session:
                 row = DataIngestLogModel(
                     id=str(uuid4()),
                     purpose=req.purpose,
@@ -54,7 +53,7 @@ class SqlAlchemyDataIngestDao(DataIngestDao):
                     requested_at=_now(),
                 )
                 session.add(row)
-                session.commit()
+                session.flush()
                 ctx.resp.records = [_to_record(row)]
             return SUCCESS
         except Exception:
@@ -65,7 +64,7 @@ class SqlAlchemyDataIngestDao(DataIngestDao):
         if not ctx.req.id:
             return INVALID_INPUT
         try:
-            with Session(get_engine()) as session:
+            with unit_of_work(ctx) as session:
                 row = session.get(DataIngestLogModel, ctx.req.id)
                 if row is None:
                     return NOT_FOUND
@@ -88,7 +87,7 @@ class SqlAlchemyDataIngestDao(DataIngestDao):
                 query = query.limit(req.limit)
             if req.offset:
                 query = query.offset(req.offset)
-            with Session(get_engine()) as session:
+            with unit_of_work(ctx) as session:
                 ctx.resp.records = [_to_record(row) for row in session.scalars(query)]
             return SUCCESS
         except Exception:
@@ -100,7 +99,7 @@ class SqlAlchemyDataIngestDao(DataIngestDao):
         if not req.id:
             return INVALID_INPUT
         try:
-            with Session(get_engine()) as session:
+            with unit_of_work(ctx) as session:
                 row = session.get(DataIngestLogModel, req.id)
                 if row is None:
                     return NOT_FOUND
@@ -117,7 +116,7 @@ class SqlAlchemyDataIngestDao(DataIngestDao):
                         row.started_at = _now()
                     elif req.status in FINISHED_STATUSES:
                         row.finished_at = _now()
-                session.commit()
+                session.flush()
                 ctx.resp.records = [_to_record(row)]
             return SUCCESS
         except Exception:
@@ -128,13 +127,13 @@ class SqlAlchemyDataIngestDao(DataIngestDao):
         if not ctx.req.id:
             return INVALID_INPUT
         try:
-            with Session(get_engine()) as session:
+            with unit_of_work(ctx) as session:
                 row = session.get(DataIngestLogModel, ctx.req.id)
                 if row is None:
                     return NOT_FOUND
                 ctx.resp.records = [_to_record(row)]
                 session.delete(row)
-                session.commit()
+                session.flush()
             return SUCCESS
         except Exception:
             log.exception("data_ingest_log delete failed")

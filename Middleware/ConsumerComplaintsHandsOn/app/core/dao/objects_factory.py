@@ -5,6 +5,8 @@ needed when that backend is chosen.
 """
 
 from app.core.dao.data_ingest_dao import DataIngestDao
+from app.core.dao.system_datasets_dao import SystemDatasetsDao
+from app.core.dao.transaction_dao import TransactionDao
 
 
 class DaoObjectsFactory:
@@ -13,3 +15,15 @@ class DaoObjectsFactory:
         from app.core.dao.impl.sqlalchemy_data_ingest_dao import SqlAlchemyDataIngestDao
 
         return SqlAlchemyDataIngestDao()
+
+    @staticmethod
+    def get_system_datasets_dao() -> SystemDatasetsDao:
+        from app.core.dao.impl.sqlalchemy_system_datasets_dao import SqlAlchemySystemDatasetsDao
+
+        return SqlAlchemySystemDatasetsDao()
+
+    @staticmethod
+    def get_transaction_dao() -> TransactionDao:
+        from app.core.dao.impl.sqlalchemy_transaction_dao import SqlAlchemyTransactionDao
+
+        return SqlAlchemyTransactionDao()

@@ -12,6 +12,13 @@ from app.core.facades.impl.tasks.data_ingest_collect_response_task import DataIn
 from app.core.facades.impl.tasks.data_ingest_prepare_dao_ctx_task import DataIngestPrepareDaoCtxTask
 from app.core.facades.impl.tasks.data_ingest_validate_request_task import DataIngestValidateRequestTask
 from app.core.facades.objects_factory import FacadesObjectsFactory
+from app.core.services.dataset_status_service import DatasetStatusService
+from app.core.services.impl.dataset_status_service_impl import DatasetStatusServiceImpl
+from app.core.services.objects_factory import ServicesObjectsFactory
+from app.core.dao.impl.sqlalchemy_system_datasets_dao import SqlAlchemySystemDatasetsDao
+from app.core.dao.impl.sqlalchemy_transaction_dao import SqlAlchemyTransactionDao
+from app.core.dao.system_datasets_dao import SystemDatasetsDao
+from app.core.dao.transaction_dao import TransactionDao
 
 
 def test_factories_return_the_same_object_typed_as_the_interface():
@@ -23,6 +30,14 @@ def test_factories_return_the_same_object_typed_as_the_interface():
     assert facade is FacadesObjectsFactory.get_data_ingest_facade()
     assert isinstance(facade, DataIngestFacade)
 
+    for getter, interface in (
+        (DaoObjectsFactory.get_system_datasets_dao, SystemDatasetsDao),
+        (DaoObjectsFactory.get_transaction_dao, TransactionDao),
+        (ServicesObjectsFactory.get_dataset_status_service, DatasetStatusService),
+    ):
+        assert getter() is getter()
+        assert isinstance(getter(), interface)
+
     assert ApiObjectsFactory.get_app() is ApiObjectsFactory.get_app()
 
 
@@ -30,6 +45,9 @@ def test_the_classes_themselves_are_singletons():
     assert SqlAlchemyDataIngestDao() is SqlAlchemyDataIngestDao()
     assert DataIngestApi() is DataIngestApi()
     assert DataIngestFacadeImpl() is DataIngestFacadeImpl()
+    assert SqlAlchemySystemDatasetsDao() is SqlAlchemySystemDatasetsDao()
+    assert SqlAlchemyTransactionDao() is SqlAlchemyTransactionDao()
+    assert DatasetStatusServiceImpl() is DatasetStatusServiceImpl()
     for task in (
         DataIngestValidateRequestTask,
         DataIngestPrepareDaoCtxTask,

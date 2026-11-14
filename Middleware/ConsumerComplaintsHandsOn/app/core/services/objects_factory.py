@@ -1,9 +1,14 @@
 """The only module of the services package that may import from services/impl.
 
-No service exists yet. When one is added: its interface uses `metaclass=SingletonMeta` and a static method here
-returns the singleton, typed as the interface.
+Static methods return the singleton, typed as the interface.
 """
+
+from app.core.services.dataset_status_service import DatasetStatusService
 
 
 class ServicesObjectsFactory:
-    pass
+    @staticmethod
+    def get_dataset_status_service() -> DatasetStatusService:
+        from app.core.services.impl.dataset_status_service_impl import DatasetStatusServiceImpl
+
+        return DatasetStatusServiceImpl()

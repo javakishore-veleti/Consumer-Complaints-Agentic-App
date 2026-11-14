@@ -51,6 +51,8 @@ Every item is marked:
 | D36 | **Scratch space is `runtime_data/tmp/` at the repository root (git-ignored), not `/tmp`.** Pytest temp folders (`runtime_data/tmp/pytest`) and local helper scripts and state (`runtime_data/tmp/...`) live there. The operational SQLite files stay in `Middleware/ConsumerComplaintsHandsOn/.data/` (also ignored). | Everything a run produces stays inside the repository folder, can be deleted in one go, and never leaks into shared system folders. |
 | D37 | **Every function and method takes nothing or exactly one ctx / request / DTO object, never separate arguments and never a bare value.** That includes API endpoints (each takes one request model that FastAPI fills from the path, query string or body), private helpers and test helpers. The result code also travels in `ctx.resp.code`, so the API reads it from the ctx. Only signatures a library dictates are exempt (Alembic's `_include_name`, SQLAlchemy's connect-event hook, the metaclass `__call__`), each listed with its reason in `tests/test_ctx_only_signatures.py`, which fails on any other violation. | Adding a field never changes a signature, every layer reads the same way, and the rule is enforced by a test instead of by memory. Side effect: the list endpoint's filter is now `?status=` (it was `?status_=` by accident of an argument name). |
 | D38 | **M01 is local development only.** Everything runs on the laptop (SQLite, local Airflow and MongoDB in Docker, local files and URLs as sources). AWS, Azure and GCP work (cloud databases and migration workflow, S3, Azure Blob, GCS and Google Drive sources) is the next milestone (M03, "Cloud Deployment"). The code keeps its seams (database URL in settings, one class per source type), so adding the cloud is additions, not rewrites. | Finish a working local product first. |
+| D39 | **A transaction that several DAO calls share is opened by a service, through the `TransactionDao`.** `begin` puts an opaque handle on a `TransactionCtx`; the service puts that on the ctx of each DAO call (every DAO ctx extends `TransactionalCtx`); the DAOs then join it and do not commit; the service commits, or rolls back when any step does not return SUCCESS. With no transaction on the ctx a DAO call runs and commits on its own. | Business rules that touch two tables stay in the services layer, the DAOs stay one per table, and nothing above `dao/impl` sees SQLAlchemy. `tests/test_dataset_status_service.py` proves it: if the second write fails, the first is not kept. |
+| D40 | **`system_datasets` has one row per dataset and stage; the dataset row follows the log row.** Usecases map to rows (`download_3_months`, `download_all`, `ingest_3_months`, `ingest_all`). Requesting a run writes a `requested` log row and sets the row to `running`; a second request while it is running is a CONFLICT. A report (`started`, `completed`, `failed`) changes the newest log row of the usecase (D30 rules) and the dataset row together; the same report twice is accepted; a report carrying a `run_id` that differs from the newest row's `run_id` is a CONFLICT (an older run must not change the newest one). | Airflow retries callbacks and can be late, and the portal must always show one consistent state. |
 
 ## 2. Conventions in detail
 
@@ -76,7 +78,7 @@ Every item is marked:
 
 ### 2.4 ORM and transactions
 - SQLAlchemy table classes stay inside `dao/impl/`. DAOs convert them to and from plain Req/Resp objects.
-- Updating `data_ingest_log` and `system_datasets` together must be **one transaction**. **Open:** a small service that owns "record the outcome" and calls both DAOs in one transaction, or a transaction handle passed through the ctx. Leaning: the service (it is business logic and services are the open layer).
+- Updating `data_ingest_log` and `system_datasets` together is **one transaction** (D39). **Implemented:** `DatasetStatusService` (in `services/`) opens a transaction through the `TransactionDao`, puts it on the ctx of both DAO calls, and commits or rolls back.
 - Use application-generated IDs (UUID strings) and UTC timestamps, so nothing is tied to one database.
 
 ## 3. Operational data model (SQLite)
@@ -96,9 +98,9 @@ Status changes are enforced (D30).
 | requested_at, started_at, finished_at | UTC timestamps |
 | (optional) source type / path | where the data came from |
 
-### `system_datasets` (current state) — Proposed
-**Open:** one row per dataset and stage, JSON, or independent columns.
-- Row per dataset and stage is proposed: adding a dataset or stage is just new rows, no migration, no JSON read-modify-write race between two callbacks.
+### `system_datasets` (current state) — Implemented (schema `consumer_comp_db`, migration `0002`)
+**Decided (D40):** one row per dataset and stage (not JSON, not independent columns).
+- Adding a dataset or stage is just new rows, no migration, no JSON read-modify-write race between two callbacks. Migration `0002` seeds the four rows as `not_started`.
 
 | dataset | stage | status | last log row | updated |
 |---|---|---|---|---|
@@ -108,8 +110,8 @@ Status changes are enforced (D30).
 | all | db_ingest | ... | ... | ... |
 
 - A `usecase` maps to exactly one row (dataset + stage), and is the value of the log's `purpose`.
-- Status is a value, not a boolean: the UI must tell not started, running, completed and failed apart.
-- **Open:** a new download of the 3-month dataset resets its ingest status (leaning yes). **Open:** record the absolute date range covered.
+- Status is a value, not a boolean: the UI must tell not started, running, completed and failed apart. The dataset row follows the log row: requested and started show as running, completed as completed, failed as failed (D40).
+- **Open:** a new download of the 3-month dataset resets its ingest status (leaning yes; not done yet). **Open:** record the absolute date range covered.
 
 Users and execution logs are further SQLite tables, to be defined. The log table's name says "ingest" but also records downloads; `data_pipeline_log` would be clearer (**Open**, naming only).
 

@@ -7,6 +7,8 @@ to and from SQLAlchemy table classes.
 from dataclasses import dataclass, field
 from datetime import datetime
 
+from app.core.common.dtos.transaction_dtos import TransactionalCtx
+
 
 @dataclass
 class DataIngestRecord:
@@ -43,7 +45,7 @@ class DataIngestResp:
 
 
 @dataclass
-class DataIngestCtx:
+class DataIngestCtx(TransactionalCtx):
     """The only argument a data-ingest DAO method takes."""
 
     req: DataIngestReq = field(default_factory=DataIngestReq)

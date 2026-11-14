@@ -27,3 +27,14 @@ class DataIngestLogModel(Base):
     requested_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class SystemDatasetModel(Base):
+    __tablename__ = "system_datasets"
+    __table_args__ = {"schema": SCHEMA_COMPLAINTS}
+
+    dataset: Mapped[str] = mapped_column(String(32), primary_key=True)
+    stage: Mapped[str] = mapped_column(String(32), primary_key=True)
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    last_log_id: Mapped[str | None] = mapped_column(String(36))
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)

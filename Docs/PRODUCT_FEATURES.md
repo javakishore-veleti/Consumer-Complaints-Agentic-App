@@ -130,7 +130,8 @@ The download reads from a **configured location type and path**. Supported types
 | `uv` Python project and layered folder skeleton | Done (folders only, no logic) |
 | Data ingest log: API, facade and tasks, DAO, DTOs, tests (create, get, list, update, delete) | Done |
 | Three schemas and the first Alembic migration (`data_ingest_log`); local start script migrates, then starts the API | Done |
-| `system_datasets`, start-download and status-callback endpoints, source locations | Planned: next |
+| `system_datasets` table, DAO and the service that updates it with the log in one transaction | Done |
+| Start-download and status-callback endpoints, source locations | Planned: next |
 | Airflow download and ingest DAGs | Planned |
 | Admin portal (Angular) | Planned |
 | Cloud deployment and manual migration workflow | Planned |
