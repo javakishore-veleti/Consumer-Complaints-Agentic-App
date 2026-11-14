@@ -33,7 +33,7 @@ Migration `0003_create_admin_schema_and_app_workflows.py`: Alembic Python ops (D
 
 `app/core/common/app_types_constants.py` holds every type list of the app as enums with one parent.
 
-- `AppTypeEnum(str, Enum)`: the parent. No members. Class methods `values()` (list of the string values) and `is_valid(value)`.
+- `AppTypeEnum(str, Enum)`: the parent. No members. One class method, `values()` (list of the string values); callers check `value in EngineType.values()`. There is no `is_valid(value)`: a method taking a bare string breaks the one-object signature rule (D37).
 - `EngineType(AppTypeEnum)`: `APACHE_AIRFLOW = "apache_airflow"`, `AWS_STEP_FUNCTIONS = "aws_step_functions"`. M02 runs only `apache_airflow` (D52).
 - Later type lists (dataset location types, statuses) are added to this file as further subclasses of `AppTypeEnum`.
 
