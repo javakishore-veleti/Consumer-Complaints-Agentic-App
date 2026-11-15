@@ -224,7 +224,7 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #123 | 10 | `/ccaa-commit-push 123` | Done | 2026-11-15 01:52 | 2026-11-15 01:52 |
 | #123 | 11 | `/finishing-a-development-branch Story #123` | Done | 2026-11-15 01:57 | 2026-11-15 01:57 |
 | #123 | 12 | `/ccaa-story-complete 123` | Done | 2026-11-15 01:57 | 2026-11-15 01:57 |
-| Feature #115 | 1 | `/ccaa-feature-complete 115` | In progress | 2026-11-15 01:51 | - |
+| Feature #115 | 1 | `/ccaa-feature-complete 115` | Done | 2026-11-15 01:57 | 2026-11-15 01:57 |
 | Epic #111 | 1 | `/ccaa-epic-complete 111` | In progress | 2026-11-15 01:12 | - |
 
 ## 4. Project skills (`ccaa-` = Consumer Complaints Agentic App)
