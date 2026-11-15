@@ -1,6 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { httpErrorMessage } from './http-error-message';
 import { FAILURE, INVALID_INPUT, SUCCESS } from './return-codes';
 
 export interface StartWorkflowReq {
@@ -34,10 +35,10 @@ export async function startWorkflow(http: HttpClient, ctx: StartWorkflowCtx): Pr
   } catch (err) {
     ctx.resp.executionId = '';
     if (err instanceof HttpErrorResponse && err.status === 422) {
-      ctx.resp.error = 'Invalid start request';
+      ctx.resp.error = httpErrorMessage(err, 'Invalid start request');
       return INVALID_INPUT;
     }
-    ctx.resp.error = 'Failed to start workflow';
+    ctx.resp.error = httpErrorMessage(err, 'Failed to start workflow');
     return FAILURE;
   }
 }

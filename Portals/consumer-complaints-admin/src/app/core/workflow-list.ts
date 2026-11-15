@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { httpErrorMessage } from './http-error-message';
 import { FAILURE, SUCCESS } from './return-codes';
 
 export interface WorkflowListEntry {
@@ -28,9 +29,9 @@ export async function listWorkflows(http: HttpClient, ctx: WorkflowListCtx): Pro
     ctx.resp.workflows = workflows ?? [];
     ctx.resp.error = '';
     return SUCCESS;
-  } catch {
+  } catch (err) {
     ctx.resp.workflows = [];
-    ctx.resp.error = 'Failed to load workflows';
+    ctx.resp.error = httpErrorMessage(err, 'Failed to load workflows');
     return FAILURE;
   }
 }

@@ -55,12 +55,12 @@ describe('loadMioStatus', () => {
   it('maps HTTP error to FAILURE without inventing entries', async () => {
     const ctx: MioStatusCtx = { req: {}, resp: { entries: [], error: '' } };
     const pending = loadMioStatus(http, ctx);
-    httpMock.expectOne('/api/mios/status').flush('boom', {
-      status: 500,
-      statusText: 'Server Error',
-    });
+    httpMock.expectOne('/api/mios/status').flush(
+      { detail: 'request failed' },
+      { status: 500, statusText: 'Server Error' },
+    );
     await expect(pending).resolves.toBe(FAILURE);
     expect(ctx.resp.entries).toEqual([]);
-    expect(ctx.resp.error.length).toBeGreaterThan(0);
+    expect(ctx.resp.error).toBe('request failed');
   });
 });
