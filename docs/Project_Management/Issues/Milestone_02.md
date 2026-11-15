@@ -403,17 +403,17 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #64 | 10 | `/ccaa-commit-push 64` | Done | 2026-11-15 00:21 | 2026-11-15 00:21 |
 | #64 | 11 | `/finishing-a-development-branch Story #64` | Done | 2026-11-15 00:21 | 2026-11-15 00:21 |
 | #64 | 12 | `/ccaa-story-complete 64` | Planned | - | - |
-| #65 | 1 | `/ccaa-story-start 65` | Planned | - | - |
-| #65 | 2 | `/brainstorming Story #65: start workflow button and status refresh; calls #42; poll or refresh is the open question` | Planned | - | - |
-| #65 | 3 | `/using-git-worktrees Story #65: branch m02-0026-start-workflow-button-and-status-refresh` | Planned | - | - |
-| #65 | 4 | `/writing-plans Story #65` | Planned | - | - |
-| #65 | 5 | `/test-driven-development Story #65` | Planned | - | - |
-| #65 | 6 | `/subagent-driven-development Story #65` | Planned | - | - |
-| #65 | 7 | `/ccaa-commit-push 65` after every task (repeat) | Planned | - | - |
-| #65 | 8 | `/verification-before-completion Story #65` | Planned | - | - |
-| #65 | 9 | `/requesting-code-review Story #65` | Planned | - | - |
-| #65 | 10 | `/ccaa-commit-push 65` | Planned | - | - |
-| #65 | 11 | `/finishing-a-development-branch Story #65` | Planned | - | - |
+| #65 | 1 | `/ccaa-story-start 65` | Done | 2026-11-15 00:30 | 2026-11-15 00:31 |
+| #65 | 2 | `/brainstorming Story #65: start workflow button and status refresh; calls #42; poll or refresh is the open question` | Done | 2026-11-15 00:30 | 2026-11-15 00:31 |
+| #65 | 3 | `/using-git-worktrees Story #65: branch m02-0026-start-workflow-button-and-status-refresh` | Done | 2026-11-15 00:30 | 2026-11-15 00:31 |
+| #65 | 4 | `/writing-plans Story #65` | Done | 2026-11-15 00:30 | 2026-11-15 00:31 |
+| #65 | 5 | `/test-driven-development Story #65` | Done | 2026-11-15 00:30 | 2026-11-15 00:31 |
+| #65 | 6 | `/subagent-driven-development Story #65` | Done | 2026-11-15 00:30 | 2026-11-15 00:31 |
+| #65 | 7 | `/ccaa-commit-push 65` after every task (repeat) | Done | 2026-11-15 00:30 | 2026-11-15 00:31 |
+| #65 | 8 | `/verification-before-completion Story #65` | Done | 2026-11-15 00:30 | 2026-11-15 00:31 |
+| #65 | 9 | `/requesting-code-review Story #65` | Done | 2026-11-15 00:30 | 2026-11-15 00:31 |
+| #65 | 10 | `/ccaa-commit-push 65` | Done | 2026-11-15 00:30 | 2026-11-15 00:31 |
+| #65 | 11 | `/finishing-a-development-branch Story #65` | Done | 2026-11-15 00:30 | 2026-11-15 00:31 |
 | #65 | 12 | `/ccaa-story-complete 65` | Planned | - | - |
 | Feature #61 | 1 | `/ccaa-feature-complete 61` | Planned | - | - |
 
@@ -507,7 +507,7 @@ The skills live in `.cursor/skills/`. Each takes a GitHub issue number.
 - **Added with D43 to D45:** feature #78 (Workflow registry) with stories #79 to #82, stories #83 (engine interface) and #84 (list workflows) under #41, and story #85 (move the DAGs to `Middleware/Airflow-dags`) under #56. Stories #42 and #60 were retitled (start-workflow endpoint, Airflow engine).
 - **Added with #79 (D46 to D53):** stories #86 (catalog tables and seed MIOs), #87 (`mios_ingest_log`) and #88 (remove `system_datasets` and `data_ingest_log`). Stories #45, #64 and #65 were reworded from datasets and accordions per dataset to MIOs. Nothing in this milestone uses the word usecase any more (D46). The RAG layer (`mios_rags`, RAG workflows) is a later milestone and has no stories yet (D53).
 - **MVP first (D54).** Phases 1 to 5 are the smallest flow that runs end to end. Phase 6 waits until it works: #80 (factory `init()`), #83 (engine interface), #84 (list workflows), #58 (3-month filter) and #88 (drop the retired tables). Refactoring afterwards is accepted. Features #78, #41 and #56 finish after Phase 6.
-- **Open questions on the issues:** #65 (poll or refresh). The #55 question is decided in D42 (revised by D43): credentials in `.env`, copied into Airflow Variables by story #77.
+- **Open questions on the issues:** #65 (poll or refresh) is **Decided (D72):** manual Refresh (and refresh after start); no polling for MVP. The #55 question is decided in D42 (revised by D43): credentials in `.env`, copied into Airflow Variables by story #77.
 - **Story #77 was added** while deciding #55 (D42). It is under feature #56 and is built first in Phase 3, because the DAG reads the Variables it creates.
 - **Moved to M03 - Cloud Deployment:** #51 S3, #52 Azure Blob, #53 GCP Cloud Storage, #54 Google Drive, and the cloud migration workflow #24. They are not part of this milestone. #51 to #54 were written as source types, so under D43 they need rewriting as cloud workflows before M03 starts (they are still open).
-- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D72.
+- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D73.

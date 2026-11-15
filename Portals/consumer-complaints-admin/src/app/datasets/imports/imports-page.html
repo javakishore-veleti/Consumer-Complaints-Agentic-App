@@ -7,6 +7,9 @@
   @if (error()) {
     <p data-testid="mio-status-error" role="alert">{{ error() }}</p>
   }
+  @if (actionError()) {
+    <p data-testid="mio-action-error" role="alert">{{ actionError() }}</p>
+  }
   <div
     data-testid="imports-accordion-shell"
     class="accordion-shell"
@@ -70,6 +73,31 @@
               </ul>
             }
           }
+          <div class="mio-actions">
+            <label class="mio-workflow-label">
+              Workflow
+              <select
+                data-testid="mio-workflow-select"
+                [value]="selectedWorkflowId(mio.id)"
+                (change)="onWorkflowChange(mio.id, $event)"
+              >
+                @for (wf of enabledWorkflows(); track wf.id) {
+                  <option [value]="wf.id">{{ wf.workflow_name }}</option>
+                }
+              </select>
+            </label>
+            <button
+              type="button"
+              data-testid="mio-start-workflow"
+              [disabled]="isStartDisabled(mio)"
+              (click)="onStart(mio)"
+            >
+              Start workflow
+            </button>
+            <button type="button" data-testid="mio-refresh-status" (click)="onRefresh()">
+              Refresh status
+            </button>
+          </div>
         </div>
       </details>
     }
