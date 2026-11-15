@@ -3,6 +3,7 @@ import { AppLayoutComponent } from './layout/shell/app-layout/app-layout.compone
 import { NotFoundComponent } from './pages/other-page/not-found/not-found.component';
 import { HomeComponent } from './pages/home/home.component';
 import { ImportsPageComponent } from './pages/datasets/imports/imports-page.component';
+import { SyncSecretsPageComponent } from './pages/operations/sync-secrets-page.component';
 
 export const routes: Routes = [
   {
@@ -23,6 +24,17 @@ export const routes: Routes = [
             path: 'imports',
             component: ImportsPageComponent,
             title: 'Imports | Consumer Complaints Admin',
+          },
+        ],
+      },
+      {
+        path: 'operations',
+        children: [
+          { path: '', pathMatch: 'full', redirectTo: 'sync-secrets' },
+          {
+            path: 'sync-secrets',
+            component: SyncSecretsPageComponent,
+            title: 'Sync secrets | Consumer Complaints Admin',
           },
         ],
       },

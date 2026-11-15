@@ -1,4 +1,4 @@
-"""POST /management/airflow/upsert-secrets (D42). Callback secret is attached by ApiObjectsFactory."""
+"""POST /management/airflow/upsert-secrets (D42). Open to the Admin portal (no callback secret; D59)."""
 
 from fastapi import APIRouter, HTTPException, status
 from fastapi.responses import JSONResponse

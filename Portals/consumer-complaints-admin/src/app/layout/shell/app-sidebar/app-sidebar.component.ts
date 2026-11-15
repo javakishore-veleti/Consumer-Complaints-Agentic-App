@@ -51,6 +51,18 @@ export class AppSidebarComponent {
       testId: 'left-nav-db-ingest',
       disabled: true,
     },
+    {
+      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2.25c-2.9 0-5.25 2.35-5.25 5.25v1.1c-1.55.35-2.7 1.74-2.7 3.4v6.5c0 1.93 1.57 3.5 3.5 3.5h9.9c1.93 0 3.5-1.57 3.5-3.5v-6.5c0-1.66-1.15-3.05-2.7-3.4V7.5c0-2.9-2.35-5.25-5.25-5.25Zm-3.75 5.25c0-2.07 1.68-3.75 3.75-3.75s3.75 1.68 3.75 3.75v.75h-7.5V7.5Zm-1.2 2.6h10.9c1.1 0 2 .9 2 2v6.5c0 1.1-.9 2-2 2H7.05c-1.1 0-2-.9-2-2v-6.5c0-1.1.9-2 2-2Z" fill="currentColor"></path></svg>`,
+      name: 'Operations',
+      testId: 'top-nav-operations',
+      subItems: [
+        {
+          name: 'Sync secrets',
+          path: '/operations/sync-secrets',
+          testId: 'left-nav-sync-secrets',
+        },
+      ],
+    },
   ];
 
   othersItems: NavItem[] = [];

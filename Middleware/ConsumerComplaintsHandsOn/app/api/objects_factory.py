@@ -45,13 +45,14 @@ class ApiObjectsFactory:
                 version="0.1.0",
                 description="Middleware API for the Consumer Complaints platform.",
             )
-            # Portal endpoints stay open (no callback secret): the browser cannot keep a shared secret (D59, D61, D66, D68).
+            # Portal endpoints stay open (no callback secret): the browser cannot keep a shared secret
+            # (D59, D61, D66, D68; upsert-secrets for Admin Sync — M04 #153 / D42).
             app.include_router(mio_api.router)
             app.include_router(wf_list_api.router)
             app.include_router(start_wf_api.router)
+            app.include_router(upsert_api.router)
             # Every router an engine calls is protected as a whole by the callback secret (D59).
             app.include_router(wf_api.router, dependencies=[Depends(auth)])
-            app.include_router(upsert_api.router, dependencies=[Depends(auth)])
 
             @app.get("/health", tags=["health"])
             def health() -> dict[str, str]:

@@ -68,14 +68,17 @@ def _fake_client(outcome: str = OUTCOME_UPDATED, code: int = SUCCESS):
     return FakeClient
 
 
-def test_right_secret_returns_200_without_values(client, secret, names_file, monkeypatch):
+def test_upsert_returns_200_without_values_and_without_callback_secret(
+    client, names_file, monkeypatch
+):
+    """Admin portal cannot send X-Callback-Secret (D59); upsert stays open (M04 #153)."""
     monkeypatch.setenv("CCA_CALLBACK_SECRET", SECRET_VALUE)
     monkeypatch.setenv("CCA_DB_URL", DB_URL_VALUE)
     from app.core.services.impl import airflow_upsert_secrets_service_impl as impl_mod
 
     monkeypatch.setattr(impl_mod, "AirflowVariablesClient", _fake_client(OUTCOME_CREATED))
 
-    response = client.post(URL, headers={"X-Callback-Secret": SECRET_VALUE})
+    response = client.post(URL)
     assert response.status_code == 200
     body = response.json()
     assert body == {
@@ -89,14 +92,14 @@ def test_right_secret_returns_200_without_values(client, secret, names_file, mon
     assert all("value" not in r for r in body["results"])
 
 
-def test_missing_env_name_is_422_with_missing_outcome(client, secret, names_file, monkeypatch):
+def test_missing_env_name_is_422_with_missing_outcome(client, names_file, monkeypatch):
     monkeypatch.setenv("CCA_CALLBACK_SECRET", SECRET_VALUE)
     monkeypatch.delenv("CCA_DB_URL", raising=False)
     from app.core.services.impl import airflow_upsert_secrets_service_impl as impl_mod
 
     monkeypatch.setattr(impl_mod, "AirflowVariablesClient", _fake_client(OUTCOME_UPDATED))
 
-    response = client.post(URL, headers={"X-Callback-Secret": SECRET_VALUE})
+    response = client.post(URL)
     assert response.status_code == 422
     body = response.json()
     assert body == {
@@ -109,22 +112,14 @@ def test_missing_env_name_is_422_with_missing_outcome(client, secret, names_file
     assert "value" not in {k for r in body["results"] for k in r}
 
 
-@pytest.mark.parametrize("headers", [{}, {"X-Callback-Secret": "wrong"}, {"X-Callback-Secret": ""}])
-def test_wrong_or_missing_secret_is_401(client, secret, names_file, headers):
-    response = client.post(URL, headers=headers)
-    assert response.status_code == 401
-    assert response.json() == {"detail": "missing or wrong callback secret"}
-    assert SECRET not in response.text
-
-
-def test_client_failure_without_missing_is_502(client, secret, names_file, monkeypatch):
+def test_client_failure_without_missing_is_502(client, names_file, monkeypatch):
     monkeypatch.setenv("CCA_CALLBACK_SECRET", SECRET_VALUE)
     monkeypatch.setenv("CCA_DB_URL", DB_URL_VALUE)
     from app.core.services.impl import airflow_upsert_secrets_service_impl as impl_mod
 
     monkeypatch.setattr(impl_mod, "AirflowVariablesClient", _fake_client(code=FAILURE))
 
-    response = client.post(URL, headers={"X-Callback-Secret": SECRET_VALUE})
+    response = client.post(URL)
     assert response.status_code == 502
     assert response.json() == {"detail": "airflow variables upsert failed"}
     assert SECRET_VALUE not in response.text
