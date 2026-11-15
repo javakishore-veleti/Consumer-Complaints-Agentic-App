@@ -239,12 +239,12 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
-| #44 | 1 | `/ccaa-story-start 44` | Planned | - | - |
-| #44 | 2 | `/brainstorming Story #44: shared-secret authentication for callbacks; missing or wrong secret returns 401; secret is configuration, never in the repo` | Planned | - | - |
-| #44 | 3 | `/using-git-worktrees Story #44: branch m02-0009-shared-secret-authentication-for` | Planned | - | - |
-| #44 | 4 | `/writing-plans Story #44` | Planned | - | - |
-| #44 | 5 | `/test-driven-development Story #44` | Planned | - | - |
-| #44 | 6 | `/subagent-driven-development Story #44` | Planned | - | - |
+| #44 | 1 | `/ccaa-story-start 44` | Done | 2026-11-14 18:56 | 2026-11-14 18:56 |
+| #44 | 2 | `/brainstorming Story #44: shared-secret authentication for callbacks; missing or wrong secret returns 401; secret is configuration, never in the repo` | Done | 2026-11-14 18:56 | 2026-11-14 19:05 |
+| #44 | 3 | `/using-git-worktrees Story #44: branch m02-0009-shared-secret-authentication-for` | Done | 2026-11-14 19:05 | 2026-11-14 19:05 |
+| #44 | 4 | `/writing-plans Story #44` | Done | 2026-11-14 19:05 | 2026-11-14 19:05 |
+| #44 | 5 | `/test-driven-development Story #44` | Done | 2026-11-14 19:05 | 2026-11-14 19:05 |
+| #44 | 6 | `/subagent-driven-development Story #44` | In progress | 2026-11-14 19:05 | - |
 | #44 | 7 | `/ccaa-commit-push 44` after every task (repeat) | Planned | - | - |
 | #44 | 8 | `/verification-before-completion Story #44` | Planned | - | - |
 | #44 | 9 | `/requesting-code-review Story #44` | Planned | - | - |
@@ -482,7 +482,7 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #88 | 11 | `/finishing-a-development-branch Story #88` | Planned | - | - |
 | #88 | 12 | `/ccaa-story-complete 88` | Planned | - | - |
 | Feature #78 | 1 | `/ccaa-feature-complete 78` | In progress | 2026-11-14 | - |
-| Feature #41 | 1 | `/ccaa-feature-complete 41` | Planned | - | - |
+| Feature #41 | 1 | `/ccaa-feature-complete 41` | In progress | 2026-11-14 18:57 | - |
 | Feature #56 | 1 | `/ccaa-feature-complete 56` | Planned | - | - |
 | Epic #29 | 1 | `/ccaa-epic-complete 29` | In progress | 2026-11-14 | - |
 
@@ -510,4 +510,4 @@ The skills live in `.cursor/skills/`. Each takes a GitHub issue number.
 - **Open questions on the issues:** #65 (poll or refresh). The #55 question is decided in D42 (revised by D43): credentials in `.env`, copied into Airflow Variables by story #77.
 - **Story #77 was added** while deciding #55 (D42). It is under feature #56 and is built first in Phase 3, because the DAG reads the Variables it creates.
 - **Moved to M03 - Cloud Deployment:** #51 S3, #52 Azure Blob, #53 GCP Cloud Storage, #54 Google Drive, and the cloud migration workflow #24. They are not part of this milestone. #51 to #54 were written as source types, so under D43 they need rewriting as cloud workflows before M03 starts (they are still open).
-- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D59.
+- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D60.
