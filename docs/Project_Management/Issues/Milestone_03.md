@@ -135,15 +135,15 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #117 | 11 | `/finishing-a-development-branch Story #117` | Done | 2026-11-15 01:27 | 2026-11-15 01:27 |
 | #117 | 12 | `/ccaa-story-complete 117` | Done | 2026-11-15 01:27 | 2026-11-15 01:27 |
 | #118 | 1 | `/ccaa-story-start 118` | Done | 2026-11-15 01:28 | 2026-11-15 01:28 |
-| #118 | 2 | `/brainstorming Story #118: Postgres via .env only; migrate and verify same APIs and callback path` | In progress | 2026-11-15 01:28 | - |
-| #118 | 3 | `/using-git-worktrees Story #118: branch m03-0008-postgres-via-env` | Planned | - | - |
-| #118 | 4 | `/writing-plans Story #118` | Planned | - | - |
-| #118 | 5 | `/test-driven-development Story #118` | Planned | - | - |
-| #118 | 6 | `/subagent-driven-development Story #118` | Planned | - | - |
-| #118 | 7 | `/ccaa-commit-push 118` after every task (repeat) | Planned | - | - |
-| #118 | 8 | `/verification-before-completion Story #118` | Planned | - | - |
-| #118 | 9 | `/requesting-code-review Story #118` | Planned | - | - |
-| #118 | 10 | `/ccaa-commit-push 118` | Planned | - | - |
+| #118 | 2 | `/brainstorming Story #118: Postgres via .env only; migrate and verify same APIs and callback path` | Done | 2026-11-15 01:28 | 2026-11-15 01:30 |
+| #118 | 3 | `/using-git-worktrees Story #118: branch m03-0008-postgres-via-env` | Done | 2026-11-15 01:30 | 2026-11-15 01:30 |
+| #118 | 4 | `/writing-plans Story #118` | Done | 2026-11-15 01:30 | 2026-11-15 01:30 |
+| #118 | 5 | `/test-driven-development Story #118` | Done | 2026-11-15 01:30 | 2026-11-15 01:30 |
+| #118 | 6 | `/subagent-driven-development Story #118` | Done | 2026-11-15 01:30 | 2026-11-15 01:30 |
+| #118 | 7 | `/ccaa-commit-push 118` after every task (repeat) | Done | 2026-11-15 01:30 | 2026-11-15 01:30 |
+| #118 | 8 | `/verification-before-completion Story #118` | Done | 2026-11-15 01:30 | 2026-11-15 01:30 |
+| #118 | 9 | `/requesting-code-review Story #118` | Done | 2026-11-15 01:30 | 2026-11-15 01:30 |
+| #118 | 10 | `/ccaa-commit-push 118` | In progress | 2026-11-15 01:30 | - |
 | #118 | 11 | `/finishing-a-development-branch Story #118` | Planned | - | - |
 | #118 | 12 | `/ccaa-story-complete 118` | Planned | - | - |
 | #119 | 1 | `/ccaa-story-start 119` | Planned | - | - |
@@ -246,6 +246,6 @@ The skills live in `.cursor/skills/`. Each takes a GitHub issue number.
 - **DoD:** SQLite path first; then Postgres via `.env`; then MongoDB via `.env` — all locally. No major code changes between backends (DAO/factory seam).
 - **Cloud** issues formerly titled M03 are now **M06** (#73 epic and children). Do not build them in this milestone.
 - **Specs/plans** under `docs/Superpowers/` appear when a story runs `/brainstorming` and `/writing-plans` (e.g. `M03-0006-*-design.md`). They do not exist until a story starts.
-- **Where the details are:** decisions go in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. Next free decision is **D77+** (D75 = pluggable operational DB seam, story #116; D76 = SQLite-first admin store reliability, story #117).
+- **Where the details are:** decisions go in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. Next free decision is **D78+** (D75 = pluggable operational DB seam #116; D76 = SQLite-first #117; D77 = Postgres via `.env` #118).
 - **PR → main**, merge only when CI is green. Git author must be `javakishore-veleti <6062900+javakishore-veleti@users.noreply.github.com>`; strip AI trailers.
 - **D64:** new facades only when needed; prefer extending existing packages.
