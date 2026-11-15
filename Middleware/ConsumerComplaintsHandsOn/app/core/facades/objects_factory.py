@@ -4,6 +4,7 @@ Static methods return the singleton, typed as the interface.
 """
 
 from app.core.facades.data_ingest_facade import DataIngestFacade
+from app.core.facades.wf_exec_status_facade import WfExecStatusFacade
 
 
 class FacadesObjectsFactory:
@@ -12,3 +13,9 @@ class FacadesObjectsFactory:
         from app.core.facades.impl.data_ingest_facade_impl import DataIngestFacadeImpl
 
         return DataIngestFacadeImpl()
+
+    @staticmethod
+    def get_wf_exec_status_facade() -> WfExecStatusFacade:
+        from app.core.facades.impl.wf_exec_status_facade_impl import WfExecStatusFacadeImpl
+
+        return WfExecStatusFacadeImpl()

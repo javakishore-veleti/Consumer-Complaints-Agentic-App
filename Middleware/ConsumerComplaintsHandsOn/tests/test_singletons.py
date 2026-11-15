@@ -26,10 +26,15 @@ from app.core.facades.impl.tasks.data_ingest_call_dao_task import DataIngestCall
 from app.core.facades.impl.tasks.data_ingest_collect_response_task import DataIngestCollectResponseTask
 from app.core.facades.impl.tasks.data_ingest_prepare_dao_ctx_task import DataIngestPrepareDaoCtxTask
 from app.core.facades.impl.tasks.data_ingest_validate_request_task import DataIngestValidateRequestTask
+from app.core.facades.impl.tasks.wf_exec_status_call_service_task import WfExecStatusCallServiceTask
+from app.core.facades.impl.wf_exec_status_facade_impl import WfExecStatusFacadeImpl
 from app.core.facades.objects_factory import FacadesObjectsFactory
+from app.core.facades.wf_exec_status_facade import WfExecStatusFacade
 from app.core.services.dataset_status_service import DatasetStatusService
 from app.core.services.impl.dataset_status_service_impl import DatasetStatusServiceImpl
+from app.core.services.impl.wf_exec_status_service_impl import WfExecStatusServiceImpl
 from app.core.services.objects_factory import ServicesObjectsFactory
+from app.core.services.wf_exec_status_service import WfExecStatusService
 from app.core.dao.impl.sqlalchemy_system_datasets_dao import SqlAlchemySystemDatasetsDao
 from app.core.dao.impl.sqlalchemy_transaction_dao import SqlAlchemyTransactionDao
 from app.core.dao.system_datasets_dao import SystemDatasetsDao
@@ -56,6 +61,8 @@ def test_factories_return_the_same_object_typed_as_the_interface():
         (DaoObjectsFactory.get_system_datasets_dao, SystemDatasetsDao),
         (DaoObjectsFactory.get_transaction_dao, TransactionDao),
         (ServicesObjectsFactory.get_dataset_status_service, DatasetStatusService),
+        (ServicesObjectsFactory.get_wf_exec_status_service, WfExecStatusService),
+        (FacadesObjectsFactory.get_wf_exec_status_facade, WfExecStatusFacade),
     ):
         assert getter() is getter()
         assert isinstance(getter(), interface)
@@ -80,11 +87,14 @@ def test_the_classes_themselves_are_singletons():
     assert SqlAlchemySystemDatasetsDao() is SqlAlchemySystemDatasetsDao()
     assert SqlAlchemyTransactionDao() is SqlAlchemyTransactionDao()
     assert DatasetStatusServiceImpl() is DatasetStatusServiceImpl()
+    assert WfExecStatusServiceImpl() is WfExecStatusServiceImpl()
+    assert WfExecStatusFacadeImpl() is WfExecStatusFacadeImpl()
     for task in (
         DataIngestValidateRequestTask,
         DataIngestPrepareDaoCtxTask,
         DataIngestCallDaoTask,
         DataIngestCollectResponseTask,
+        WfExecStatusCallServiceTask,
     ):
         assert task() is task()
 
