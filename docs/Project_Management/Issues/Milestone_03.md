@@ -183,10 +183,10 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
 | #121 | 1 | `/ccaa-story-start 121` | Done | 2026-11-15 01:12 | 2026-11-15 01:12 |
-| #121 | 2 | `/brainstorming Story #121: Admin Imports live API list/start/refresh hardening; no mock status; proxy/apiBaseUrl for local portal` | In progress | 2026-11-15 01:12 | - |
-| #121 | 3 | `/using-git-worktrees Story #121: branch m03-0011-admin-imports-live-api` | Planned | - | - |
-| #121 | 4 | `/writing-plans Story #121` | Planned | - | - |
-| #121 | 5 | `/test-driven-development Story #121` | Planned | - | - |
+| #121 | 2 | `/brainstorming Story #121: Admin Imports live API list/start/refresh hardening; no mock status; proxy/apiBaseUrl for local portal` | Done | 2026-11-15 01:12 | 2026-11-15 01:16 |
+| #121 | 3 | `/using-git-worktrees Story #121: branch m03-0011-admin-imports-live-api` | Done | 2026-11-15 01:16 | 2026-11-15 01:16 |
+| #121 | 4 | `/writing-plans Story #121` | Done | 2026-11-15 01:16 | 2026-11-15 01:16 |
+| #121 | 5 | `/test-driven-development Story #121` | In progress | 2026-11-15 01:16 | - |
 | #121 | 6 | `/subagent-driven-development Story #121` | Planned | - | - |
 | #121 | 7 | `/ccaa-commit-push 121` after every task (repeat) | Planned | - | - |
 | #121 | 8 | `/verification-before-completion Story #121` | Planned | - | - |
