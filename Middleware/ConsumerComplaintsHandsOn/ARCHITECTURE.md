@@ -149,7 +149,7 @@ In the part of the file sampled, rows are not sorted by date, so the whole file 
 
 ## 6. Data stores
 
-Three **local operational/admin** backends for the same DAO interfaces (D75). Default is SQLite (no Postgres container). Switch with `.env` only — no facade/API rewrite.
+Three **local operational/admin** backends for the same DAO interfaces (D75). Default is SQLite (no Postgres container). Switch with `.env` only — no facade/API rewrite. The default SQLite path is **verified** for the M02 admin schema (Alembic head, DAOs, start-workflow + callback persistence into the attached admin `.sqlite` file) — D76 / story #117.
 
 | Operational backend | How to select (`.env`) | Holds | Written by |
 |---|---|---|---|
