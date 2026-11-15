@@ -243,6 +243,9 @@ The skills live in `.cursor/skills/`. Each takes a GitHub issue number.
 
 ## 5. Notes
 
+- Feature #113 (lite local runtime profiles) completed with story #120 (D78).
+
+
 - **DoD:** SQLite path first; then Postgres via `.env`; then MongoDB via `.env` — all locally. No major code changes between backends (DAO/factory seam).
 - **Cloud** issues formerly titled M03 are now **M06** (#73 epic and children). Do not build them in this milestone.
 - **Specs/plans** under `docs/Superpowers/` appear when a story runs `/brainstorming` and `/writing-plans` (e.g. `M03-0006-*-design.md`). They do not exist until a story starts.
