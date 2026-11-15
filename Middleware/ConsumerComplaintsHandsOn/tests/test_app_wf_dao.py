@@ -35,9 +35,9 @@ def test_create_returns_the_row_with_defaults(data_dir):
 
 
 def test_no_config_is_stored_as_sql_null_and_not_as_json_null_or_empty_object(data_dir):
-    _create(DaoObjectsFactory.get_app_wf_dao())
+    created = _create(DaoObjectsFactory.get_app_wf_dao()).resp.records[0]
     with sqlite3.connect(data_dir / "consumer_comp_admin_db.sqlite") as db:
-        assert db.execute("select config from app_workflows").fetchall() == [(None,)]
+        assert db.execute("select config from app_workflows where id = ?", (created.id,)).fetchall() == [(None,)]
 
 
 def test_config_round_trips_nested_json(data_dir):
@@ -103,10 +103,19 @@ def test_list_is_ordered_by_name_and_filters(data_dir):
 
     everything = _ctx()
     assert dao.list(everything) == SUCCESS
-    assert [r.workflow_name for r in everything.resp.records] == ["a_flow", "b_flow", "c_flow"]
+    assert [r.workflow_name for r in everything.resp.records] == [
+        "a_flow",
+        "b_flow",
+        "c_flow",
+        "download_cfpb_all",
+    ]
 
     airflow = _ctx(engine_type="apache_airflow")
-    assert dao.list(airflow) == SUCCESS and [r.workflow_name for r in airflow.resp.records] == ["a_flow", "b_flow"]
+    assert dao.list(airflow) == SUCCESS and [r.workflow_name for r in airflow.resp.records] == [
+        "a_flow",
+        "b_flow",
+        "download_cfpb_all",
+    ]
     disabled = _ctx(enabled=False)
     assert dao.list(disabled) == SUCCESS and [r.workflow_name for r in disabled.resp.records] == ["a_flow"]
     none = _ctx(engine_type="bogus")
@@ -211,7 +220,11 @@ def test_a_duplicate_name_that_slips_past_the_pre_check_is_a_conflict(data_dir, 
 
     listed = _ctx()
     assert dao.list(listed) == SUCCESS
-    assert sorted(r.workflow_name for r in listed.resp.records) == ["other", "taken"]
+    assert sorted(r.workflow_name for r in listed.resp.records) == [
+        "download_cfpb_all",
+        "other",
+        "taken",
+    ]
 
 
 def test_names_are_trimmed_and_case_sensitive(data_dir):
