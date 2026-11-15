@@ -276,7 +276,7 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #141 | 10 | `/ccaa-commit-push 141` | Done | 2026-11-15 04:03 | 2026-11-15 04:03 |
 | #141 | 11 | `/finishing-a-development-branch Story #141` | Done | 2026-11-15 04:03 | 2026-11-15 04:03 |
 | #141 | 12 | `/ccaa-story-complete 141` | Done | 2026-11-15 04:03 | 2026-11-15 04:03 |
-| Feature #114 | 1 | `/ccaa-feature-complete 114` | Planned | - | - |
+| Feature #114 | 1 | `/ccaa-feature-complete 114` | Done | 2026-11-15 04:16 | 2026-11-15 04:16 |
 
 ### Phase 4 - DoD matrix
 
