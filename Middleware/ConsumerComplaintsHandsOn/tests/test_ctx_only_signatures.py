@@ -14,6 +14,7 @@ LIBRARY_DICTATED = {
     "alembic/env.py:_include_name": "Alembic calls it with (name, type_, parent_names)",
     "app/core/dao/impl/database.py:_attach_schemas": "SQLAlchemy's connect event passes (dbapi_connection, record)",
     "app/core/common/singleton.py:__call__": "the metaclass call protocol passes the constructor arguments through",
+    "app/core/common/bean_registry.py:register": "D45 registry keys by interface type plus instance",
 }
 BARE_TYPES = re.compile(r"\b(str|int|float|bool|bytes|datetime|date|dict|list|set|tuple|Path)\b")
 
