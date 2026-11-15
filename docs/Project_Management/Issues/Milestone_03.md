@@ -201,10 +201,10 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #122 | 5 | `/test-driven-development Story #122` | Done | 2026-11-15 01:26 | 2026-11-15 01:28 |
 | #122 | 6 | `/subagent-driven-development Story #122` | Done | 2026-11-15 01:28 | 2026-11-15 01:28 |
 | #122 | 7 | `/ccaa-commit-push 122` after every task (repeat) | Done | 2026-11-15 01:28 | 2026-11-15 01:28 |
-| #122 | 8 | `/verification-before-completion Story #122` | In progress | 2026-11-15 01:28 | - |
-| #122 | 9 | `/requesting-code-review Story #122` | Planned | - | - |
-| #122 | 10 | `/ccaa-commit-push 122` | Planned | - | - |
-| #122 | 11 | `/finishing-a-development-branch Story #122` | Planned | - | - |
+| #122 | 8 | `/verification-before-completion Story #122` | Done | 2026-11-15 01:28 | 2026-11-15 01:29 |
+| #122 | 9 | `/requesting-code-review Story #122` | Done | 2026-11-15 01:29 | 2026-11-15 01:29 |
+| #122 | 10 | `/ccaa-commit-push 122` | Done | 2026-11-15 01:29 | 2026-11-15 01:29 |
+| #122 | 11 | `/finishing-a-development-branch Story #122` | In progress | 2026-11-15 01:29 | - |
 | #122 | 12 | `/ccaa-story-complete 122` | Planned | - | - |
 | Feature #114 | 1 | `/ccaa-feature-complete 114` | In progress | 2026-11-15 01:12 | - |
 
