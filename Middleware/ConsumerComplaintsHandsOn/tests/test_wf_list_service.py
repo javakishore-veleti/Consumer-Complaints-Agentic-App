@@ -8,6 +8,8 @@ from app.core.dao.objects_factory import DaoObjectsFactory
 from app.core.facades.objects_factory import FacadesObjectsFactory
 from app.core.services.objects_factory import ServicesObjectsFactory
 
+SEEDED = "download_cfpb_all"
+
 
 def _list() -> WfListCtx:
     ctx = WfListCtx(req=WfListReq())
@@ -15,10 +17,11 @@ def _list() -> WfListCtx:
     return ctx
 
 
-def test_empty_registry_is_empty_list(data_dir):
+def test_seeded_registry_lists_download_cfpb_all(data_dir):
     ctx = _list()
     assert ctx.resp.code == SUCCESS
-    assert ctx.resp.entries == []
+    assert [e.workflow_name for e in ctx.resp.entries] == [SEEDED]
+    assert all(not hasattr(e, "config") for e in ctx.resp.entries)
 
 
 def test_lists_every_workflow_ordered_by_name_without_config(data_dir):
@@ -36,10 +39,15 @@ def test_lists_every_workflow_ordered_by_name_without_config(data_dir):
 
     ctx = _list()
     assert ctx.resp.code == SUCCESS
-    assert [e.workflow_name for e in ctx.resp.entries] == ["t_a", "t_b", "t_c"]
-    assert [e.enabled for e in ctx.resp.entries] == [False, True, True]
+    assert [e.workflow_name for e in ctx.resp.entries] == [SEEDED, "t_a", "t_b", "t_c"]
+    by_name = {e.workflow_name: e for e in ctx.resp.entries}
+    assert [by_name[n].enabled for n in ("t_a", "t_b", "t_c")] == [False, True, True]
     assert all(e.engine_type == "apache_airflow" for e in ctx.resp.entries)
-    assert [e.engine_workflow_id for e in ctx.resp.entries] == ["dag_t_a", "dag_t_b", "dag_t_c"]
+    assert [by_name[n].engine_workflow_id for n in ("t_a", "t_b", "t_c")] == [
+        "dag_t_a",
+        "dag_t_b",
+        "dag_t_c",
+    ]
     assert all(not hasattr(e, "config") for e in ctx.resp.entries)
     assert all(e.id for e in ctx.resp.entries)
 
@@ -51,4 +59,4 @@ def test_facade_hands_the_list_on(data_dir):
     assert DaoObjectsFactory.get_app_wf_dao().create(made) == SUCCESS
     ctx = WfListFacadeCtx(req=WfListReq())
     assert FacadesObjectsFactory.get_wf_list_facade().list(ctx) == SUCCESS
-    assert [e.workflow_name for e in ctx.resp.entries] == ["t_facade"]
+    assert [e.workflow_name for e in ctx.resp.entries] == [SEEDED, "t_facade"]
