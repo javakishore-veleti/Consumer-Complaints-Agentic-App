@@ -13,5 +13,5 @@ Input: epic issue number `N`. Run `gh` from the repository root: it reads the re
 3. Body: replace or append the `**Status:** Done — All F features are done: #a, #b, #c.` line.
 4. `gh issue edit N --remove-label "status: planned" --remove-label "status: in-progress" --add-label "status: done" --body-file runtime_data/tmp/issue-N.md`, then `gh issue close N --reason completed`.
 5. Run `ccaa-milestone-log N`.
-6. In `docs/Project_Management/Issues/Milestone_02.md`, change the `**Status:**` line to `**Status: complete.**` with the final epic, feature and story counts.
+6. In the matching `docs/Project_Management/Issues/Milestone_MM.md` (from the epic title prefix), change the `**Status:**` line to `**Status: complete.**` with the final epic, feature and story counts.
 7. Run `ccaa-commit-push` with the message `M02: mark milestone complete`.

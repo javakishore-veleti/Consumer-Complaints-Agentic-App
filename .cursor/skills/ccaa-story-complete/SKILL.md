@@ -15,5 +15,5 @@ Input: story issue number `N`. Run `gh` from the repository root: it reads the r
 5. Body: change every `- [ ]` to `- [x]`. Get the time with `date '+%F %H:%M'`. Replace the `**Status:**` line with `**Status:** Done — <one sentence on what was built> (completed YYYY-MM-DD HH:MM; commits `a1b2c3d`, `e4f5a6b`; D## if a decision was recorded).`
 6. `gh issue edit N --remove-label "status: planned" --remove-label "status: in-progress" --add-label "status: done" --body-file runtime_data/tmp/issue-N.md`, then `gh issue close N --reason completed`. Ignore "label not found" on a label the issue never had.
 7. Run `ccaa-milestone-log N` (this command's row is `In progress`, so it becomes `Done`), then `ccaa-commit-push N` with the summary `complete story`.
-8. Read `**Feature:** #F` and run `ccaa-progress-sync` on `F`. If every story of `F` is now done, end with: "All stories of #F are done. Run `/ccaa-feature-complete F`." Otherwise name the next story from `docs/Project_Management/Issues/Milestone_02.md`.
+8. Read `**Feature:** #F` and run `ccaa-progress-sync` on `F`. If every story of `F` is now done, end with: "All stories of #F are done. Run `/ccaa-feature-complete F`." Otherwise name the next story from the matching `docs/Project_Management/Issues/Milestone_MM.md` (from the issue title prefix).
 9. Do not close the feature or the epic here.

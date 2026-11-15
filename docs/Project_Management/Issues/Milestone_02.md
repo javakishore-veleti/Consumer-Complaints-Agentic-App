@@ -1,6 +1,6 @@
 # Milestone M02 - Downloads Management
 
-**Scope (decision D38 in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`):** download the free CFPB dataset on demand from the admin portal, asynchronously through Airflow, through registered workflows (D43), and always show whether it has been downloaded. Everything runs locally. Cloud work is M03.
+**Scope (decision D38 in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`):** download the free CFPB dataset on demand from the admin portal, asynchronously through Airflow, through registered workflows (D43), and always show whether it has been downloaded. Everything runs locally. Cloud work is M06 (renumbered from M03).
 
 **Status: complete.** Epic #29 and features #37, #41, #56, #61, #78 are done. 27 stories done (3 Phase 0 + 24 completed); 0 left.
 
@@ -509,5 +509,5 @@ The skills live in `.cursor/skills/`. Each takes a GitHub issue number.
 - **MVP first (D54).** Phases 1 to 5 are the smallest flow that runs end to end. Phase 6 waits until it works: #80 (factory `init()`), #83 (engine interface), #84 (list workflows), #58 (3-month filter) and #88 (drop the retired tables). Refactoring afterwards is accepted. Features #78, #41 and #56 finish after Phase 6.
 - **Open questions on the issues:** #65 (poll or refresh) is **Decided (D72):** manual Refresh (and refresh after start); no polling for MVP. The #55 question is decided in D42 (revised by D43): credentials in `.env`, copied into Airflow Variables by story #77.
 - **Story #77 was added** while deciding #55 (D42). It is under feature #56 and is built first in Phase 3, because the DAG reads the Variables it creates.
-- **Moved to M03 - Cloud Deployment:** #51 S3, #52 Azure Blob, #53 GCP Cloud Storage, #54 Google Drive, and the cloud migration workflow #24. They are not part of this milestone. #51 to #54 were written as source types, so under D43 they need rewriting as cloud workflows before M03 starts (they are still open).
+- **Moved to M06 - Cloud Deployment (was M03):** #51 S3, #52 Azure Blob, #53 GCP Cloud Storage, #54 Google Drive, and the cloud migration workflow #24. They are not part of this milestone. Local Admin UI E2E is the new M03 (`Milestone_03.md`).
 - **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D75.

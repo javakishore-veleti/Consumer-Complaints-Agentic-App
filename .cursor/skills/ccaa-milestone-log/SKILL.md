@@ -1,13 +1,13 @@
 ---
 name: ccaa-milestone-log
-description: Logs workflow progress of a CCAA (Consumer Complaints Agentic App) issue in the milestone file - marks the step in progress as Done with the current date and time and starts the next step. Use when a ccaa- skill says to run ccaa-milestone-log, after each Superpowers workflow step of a Milestone_02 story finishes, or when the user runs /ccaa-milestone-log N.
+description: Logs workflow progress of a CCAA (Consumer Complaints Agentic App) issue in the milestone file - marks the step in progress as Done with the current date and time and starts the next step. Use when a ccaa- skill says to run ccaa-milestone-log, after each Superpowers workflow step of a milestone story finishes, or when the user runs /ccaa-milestone-log N.
 ---
 
 # ccaa-milestone-log
 
 Input: issue number `N` (story, feature or epic) and optionally `begin`.
 
-File: `docs/Project_Management/Issues/Milestone_02.md`, section 3. Every command has a row: `Issue | Step | Command | Status | Started | Completed`. Status is `Planned`, `In progress` or `Done`; dates are `YYYY-MM-DD` or `-`.
+File: `docs/Project_Management/Issues/Milestone_MM.md` matching the issue title prefix (`M02` → `Milestone_02.md`, `M03` → `Milestone_03.md`, …), section 3. Every command has a row: `Issue | Step | Command | Status | Started | Completed`. Status is `Planned`, `In progress` or `Done`; dates are `YYYY-MM-DD` or `-`.
 
 1. Find the rows of `N`: first cell is `#N`, `#N (...)`, `Feature #N` or `Epic #N`. They are in step order. If there are none, stop and say so (the issue is not in the table: add it first).
 2. Now: `date '+%F %H:%M'` (date and local time, for example `2026-11-14 16:30`). Write it in the Started and Completed cells.

@@ -17,7 +17,7 @@ Scratch files go in `runtime_data/tmp/` (git-ignored), never `/tmp`.
 5. Run `ccaa-progress-sync` on `F`, then on `E`.
 6. Log it in the milestone file: `ccaa-milestone-log N begin`, then `ccaa-milestone-log N` (step 1, this command, is done and step 2 starts). Also run `ccaa-milestone-log F begin` (and `E`) if step 4 just moved it from planned to in-progress.
 7. Run `ccaa-commit-push N` with the summary `start story`.
-8. Reply with the story title and the next command from the `In progress` row of `docs/Project_Management/Issues/Milestone_02.md`.
+8. Reply with the story title and the next command from the `In progress` row of the matching `docs/Project_Management/Issues/Milestone_MM.md` (from the issue title prefix `M02` / `M03` / …).
 
 For the rest of this chat, after each workflow step of story `N` finishes (brainstorming, using-git-worktrees, writing-plans, test-driven-development, the final task of subagent-driven-development and its commit, verification, code review, the final `ccaa-commit-push N`, finishing-a-development-branch), run `ccaa-milestone-log N` before you suggest the next command.
 

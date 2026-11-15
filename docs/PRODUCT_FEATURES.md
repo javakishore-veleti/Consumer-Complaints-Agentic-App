@@ -97,10 +97,10 @@ Each workflow that downloads or ingests data is registered in the database, so t
 - Three schemas: **`consumer_comp_db`** (consumer complaints area), **`consumer_compl_intellect_db`** (Intellect app) and
   **`consumer_comp_users_db`** (users). [Done] created by the first migration.
 
-### F8. Database schema versioning [Done locally; cloud workflow deferred to M03]
+### F8. Database schema versioning [Done locally; cloud workflow deferred to M06]
 - Alembic migrations create and evolve the operational database.
 - Locally, the start script runs the migrations first and then starts the API.
-- In the cloud milestone (M03), a manually triggered GitHub Actions workflow will run migrations against cloud databases (AWS RDS, Azure, GCP).
+- In the cloud milestone (M06), a manually triggered GitHub Actions workflow will run migrations against cloud databases (AWS RDS, Azure, GCP).
 
 ### F9. API contract [Planned]
 - One OpenAPI (Swagger) specification for the whole hands-on project.
@@ -131,9 +131,14 @@ Each workflow that downloads or ingests data is registered in the database, so t
 | Workflow registry (`app_workflows`, `app_workflows_exec_log`), start-download and status-callback endpoints | Planned: next |
 | Airflow download and ingest DAGs | Planned |
 | Admin portal (Angular) | Scaffold Done (#62); features Planned |
-| Cloud deployment and manual migration workflow | Planned |
+| Cloud deployment and manual migration workflow | Planned (M06) |
+| Local Admin UI E2E (SQLite → Postgres → MongoDB via `.env`) | Planned (M03, epic #111) |
 
-## 6. Open questions
+## 6. Next milestone (M03 - Local Admin UI E2E)
+
+Prove locally: User → Admin UI → APIs → Airflow → callback APIs → operational DB. Default SQLite; also Postgres and MongoDB via `.env` only. See `docs/Project_Management/Issues/Milestone_03.md` and epic #111. Cloud deploy is M06.
+
+## 7. Open questions
 
 1. Credentials stay in `.env` and Airflow Variables; a workflow's other settings go in its JSON config (proposed). How does a workflow read that config?
 2. How is the status of a MIO ingest derived from its executions, and which location type codes exist?
