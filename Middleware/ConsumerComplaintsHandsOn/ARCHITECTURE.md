@@ -184,6 +184,12 @@ service's data volume.
 From inside an Airflow container, the host machine is reachable as `host.docker.internal` (for the API callbacks and,
 unless both share a Docker network, for MongoDB).
 
+**Configuration and secrets.** The API reads its settings from environment variables (`app/core/common/config.py`).
+`run_app.sh` first exports every name set in the git-ignored `Middleware/ConsumerComplaintsHandsOn/.env`; the committed
+`.env.example` next to it lists the names with empty values (D42). `CCA_CALLBACK_SECRET` is the shared secret Airflow
+sends in the `X-Callback-Secret` header of every callback; without it every callback endpoint answers 401 (D59).
+`/health` and the other endpoints need no secret.
+
 ## 9. Cloud (planned)
 
 - Python app image contains Python only. Airflow keeps its own image.

@@ -11,8 +11,17 @@
 #   API_HOST (127.0.0.1)   API_PORT (8000)   API_RELOAD=1 (auto-reload on code changes)
 #   CCA_DATA_DIR           folder for the SQLite files, the PID file and the log (default: ./.data)
 #   CCA_DB_URL             use another database (for example Postgres) instead of SQLite
+#   CCA_CALLBACK_SECRET    shared secret of the endpoints Airflow calls (D59); without it they answer 401
+# Every name set in ./.env (git-ignored; the names are in .env.example) is exported first.
 set -euo pipefail
 cd "$(dirname "$0")"
+
+if [[ -f .env ]]; then
+  set -a
+  # shellcheck disable=SC1091
+  source .env
+  set +a
+fi
 
 HOST="${API_HOST:-127.0.0.1}"
 PORT="${API_PORT:-8000}"
