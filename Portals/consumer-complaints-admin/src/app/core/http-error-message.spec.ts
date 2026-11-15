@@ -20,13 +20,13 @@ describe('httpErrorMessage', () => {
     expect(httpErrorMessage(err, 'fallback')).toBe('field a; field b');
   });
 
-  it('uses fallback when body has no detail', () => {
+  it('uses statusText when body has no detail', () => {
     const err = new HttpErrorResponse({
       error: 'boom',
       status: 500,
       statusText: 'Server Error',
     });
-    expect(httpErrorMessage(err, 'Failed to load')).toBe('Failed to load');
+    expect(httpErrorMessage(err, 'Failed to load')).toBe('HTTP 500: Server Error');
   });
 
   it('uses fallback for non-HTTP errors', () => {

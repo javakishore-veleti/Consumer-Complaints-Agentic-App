@@ -64,7 +64,7 @@ describe('startWorkflow', () => {
     expect(ctx.resp.error).toBe('engine start failed');
   });
 
-  it('maps other HTTP errors to FAILURE with fallback when no detail', async () => {
+  it('maps other HTTP errors to FAILURE with statusText when no detail', async () => {
     const ctx: StartWorkflowCtx = {
       req: { workflowId: 'w1', mioId: 'm1' },
       resp: { executionId: '', error: '' },
@@ -75,6 +75,6 @@ describe('startWorkflow', () => {
       statusText: 'Server Error',
     });
     await expect(pending).resolves.toBe(FAILURE);
-    expect(ctx.resp.error).toBe('Failed to start workflow');
+    expect(ctx.resp.error).toBe('HTTP 500: Server Error');
   });
 });

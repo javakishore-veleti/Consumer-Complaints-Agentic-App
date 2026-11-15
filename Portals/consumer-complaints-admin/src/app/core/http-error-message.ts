@@ -21,5 +21,9 @@ export function httpErrorMessage(err: unknown, fallback: string): string {
       return parts.join('; ');
     }
   }
+  const statusText = (err.statusText ?? '').trim();
+  if (err.status > 0 && statusText !== '' && statusText !== 'Unknown Error') {
+    return `HTTP ${err.status}: ${statusText}`;
+  }
   return fallback;
 }
