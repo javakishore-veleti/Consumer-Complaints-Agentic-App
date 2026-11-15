@@ -8,7 +8,6 @@ import threading
 from app.core.common.bean_registry import bean_registry
 from app.core.services.airflow_start_dag_service import AirflowStartDagService
 from app.core.services.airflow_upsert_secrets_service import AirflowUpsertSecretsService
-from app.core.services.dataset_status_service import DatasetStatusService
 from app.core.services.mio_status_service import MioStatusService
 from app.core.services.start_wf_service import StartWfService
 from app.core.services.wf_exec_status_service import WfExecStatusService
@@ -36,13 +35,11 @@ class ServicesObjectsFactory:
             from app.core.services.impl.apache_airflow_workflow_engine_impl import (
                 ApacheAirflowWorkflowEngineImpl,
             )
-            from app.core.services.impl.dataset_status_service_impl import DatasetStatusServiceImpl
             from app.core.services.impl.mio_status_service_impl import MioStatusServiceImpl
             from app.core.services.impl.wf_exec_status_service_impl import WfExecStatusServiceImpl
             from app.core.services.impl.start_wf_service_impl import StartWfServiceImpl
             from app.core.services.impl.wf_list_service_impl import WfListServiceImpl
 
-            bean_registry.register(DatasetStatusService, DatasetStatusServiceImpl())
             bean_registry.register(MioStatusService, MioStatusServiceImpl())
             bean_registry.register(WfExecStatusService, WfExecStatusServiceImpl())
             bean_registry.register(AirflowUpsertSecretsService, AirflowUpsertSecretsServiceImpl())
@@ -51,11 +48,6 @@ class ServicesObjectsFactory:
             bean_registry.register(WorkflowEngine, ApacheAirflowWorkflowEngineImpl())
             bean_registry.register(StartWfService, StartWfServiceImpl())
             ServicesObjectsFactory._initialized = True
-
-    @staticmethod
-    def get_dataset_status_service() -> DatasetStatusService:
-        ServicesObjectsFactory.init()
-        return bean_registry.get_one(DatasetStatusService)  # type: ignore[return-value]
 
     @staticmethod
     def get_mio_status_service() -> MioStatusService:

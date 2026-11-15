@@ -2,7 +2,6 @@ from concurrent.futures import ThreadPoolExecutor
 
 from app.api.objects_factory import ApiObjectsFactory
 from app.api.routers.airflow_upsert_secrets_api import AirflowUpsertSecretsApi
-from app.api.routers.data_ingest_api import DataIngestApi
 from app.api.routers.mio_status_api import MioStatusApi
 from app.api.routers.start_wf_api import StartWfApi
 from app.api.routers.wf_exec_callback_api import WfExecCallbackApi
@@ -10,37 +9,31 @@ from app.api.routers.wf_list_api import WfListApi
 from app.api.security.callback_secret_auth import CallbackSecretAuth
 from app.core.dao.app_wf_dao import AppWfDao
 from app.core.dao.app_wf_exec_log_dao import AppWfExecLogDao
-from app.core.dao.data_ingest_dao import DataIngestDao
 from app.core.dao.dataset_dao import DatasetDao
 from app.core.dao.dataset_location_dao import DatasetLocationDao
 from app.core.dao.impl.sqlalchemy_app_wf_dao import SqlAlchemyAppWfDao
 from app.core.dao.impl.sqlalchemy_app_wf_exec_log_dao import SqlAlchemyAppWfExecLogDao
-from app.core.dao.impl.sqlalchemy_data_ingest_dao import SqlAlchemyDataIngestDao
 from app.core.dao.impl.sqlalchemy_dataset_dao import SqlAlchemyDatasetDao
 from app.core.dao.impl.sqlalchemy_dataset_location_dao import SqlAlchemyDatasetLocationDao
 from app.core.dao.impl.sqlalchemy_mio_dao import SqlAlchemyMioDao
 from app.core.dao.impl.sqlalchemy_mio_dataset_dao import SqlAlchemyMioDatasetDao
 from app.core.dao.impl.sqlalchemy_mio_ingest_log_dao import SqlAlchemyMioIngestLogDao
+from app.core.dao.impl.sqlalchemy_transaction_dao import SqlAlchemyTransactionDao
 from app.core.dao.mio_dao import MioDao
 from app.core.dao.mio_dataset_dao import MioDatasetDao
 from app.core.dao.mio_ingest_log_dao import MioIngestLogDao
 from app.core.dao.objects_factory import DaoObjectsFactory
+from app.core.dao.transaction_dao import TransactionDao
 from app.core.facades.airflow_start_dag_facade import AirflowStartDagFacade
 from app.core.facades.airflow_upsert_secrets_facade import AirflowUpsertSecretsFacade
-from app.core.facades.data_ingest_facade import DataIngestFacade
 from app.core.facades.impl.af_start.airflow_start_dag_facade_impl import AirflowStartDagFacadeImpl
 from app.core.facades.impl.af_start.tasks.airflow_start_dag_call_service_task import (
     AirflowStartDagCallServiceTask,
 )
 from app.core.facades.impl.airflow_upsert_secrets_facade_impl import AirflowUpsertSecretsFacadeImpl
-from app.core.facades.impl.data_ingest_facade_impl import DataIngestFacadeImpl
 from app.core.facades.impl.tasks.airflow_upsert_secrets_call_service_task import (
     AirflowUpsertSecretsCallServiceTask,
 )
-from app.core.facades.impl.tasks.data_ingest_call_dao_task import DataIngestCallDaoTask
-from app.core.facades.impl.tasks.data_ingest_collect_response_task import DataIngestCollectResponseTask
-from app.core.facades.impl.tasks.data_ingest_prepare_dao_ctx_task import DataIngestPrepareDaoCtxTask
-from app.core.facades.impl.tasks.data_ingest_validate_request_task import DataIngestValidateRequestTask
 from app.core.facades.impl.tasks.mio_status_call_service_task import MioStatusCallServiceTask
 from app.core.facades.impl.tasks.wf_exec_status_call_service_task import WfExecStatusCallServiceTask
 from app.core.facades.impl.mio_status_facade_impl import MioStatusFacadeImpl
@@ -59,13 +52,11 @@ from app.core.facades.wf_exec_status_facade import WfExecStatusFacade
 from app.core.facades.wf_list_facade import WfListFacade
 from app.core.services.airflow_start_dag_service import AirflowStartDagService
 from app.core.services.airflow_upsert_secrets_service import AirflowUpsertSecretsService
-from app.core.services.dataset_status_service import DatasetStatusService
 from app.core.services.impl.airflow_start_dag_service_impl import AirflowStartDagServiceImpl
 from app.core.services.impl.airflow_upsert_secrets_service_impl import AirflowUpsertSecretsServiceImpl
 from app.core.services.impl.apache_airflow_workflow_engine_impl import (
     ApacheAirflowWorkflowEngineImpl,
 )
-from app.core.services.impl.dataset_status_service_impl import DatasetStatusServiceImpl
 from app.core.services.impl.mio_status_service_impl import MioStatusServiceImpl
 from app.core.services.impl.start_wf_service_impl import StartWfServiceImpl
 from app.core.services.impl.wf_exec_status_service_impl import WfExecStatusServiceImpl
@@ -76,21 +67,9 @@ from app.core.services.start_wf_service import StartWfService
 from app.core.services.wf_exec_status_service import WfExecStatusService
 from app.core.services.wf_list_service import WfListService
 from app.core.services.workflow_engine import WorkflowEngine
-from app.core.dao.impl.sqlalchemy_system_datasets_dao import SqlAlchemySystemDatasetsDao
-from app.core.dao.impl.sqlalchemy_transaction_dao import SqlAlchemyTransactionDao
-from app.core.dao.system_datasets_dao import SystemDatasetsDao
-from app.core.dao.transaction_dao import TransactionDao
 
 
 def test_factories_return_the_same_object_typed_as_the_interface():
-    dao = DaoObjectsFactory.get_data_ingest_dao()
-    assert dao is DaoObjectsFactory.get_data_ingest_dao()
-    assert isinstance(dao, DataIngestDao)
-
-    facade = FacadesObjectsFactory.get_data_ingest_facade()
-    assert facade is FacadesObjectsFactory.get_data_ingest_facade()
-    assert isinstance(facade, DataIngestFacade)
-
     for getter, interface in (
         (DaoObjectsFactory.get_app_wf_dao, AppWfDao),
         (DaoObjectsFactory.get_app_wf_exec_log_dao, AppWfExecLogDao),
@@ -99,9 +78,7 @@ def test_factories_return_the_same_object_typed_as_the_interface():
         (DaoObjectsFactory.get_mio_dao, MioDao),
         (DaoObjectsFactory.get_mio_dataset_dao, MioDatasetDao),
         (DaoObjectsFactory.get_mio_ingest_log_dao, MioIngestLogDao),
-        (DaoObjectsFactory.get_system_datasets_dao, SystemDatasetsDao),
         (DaoObjectsFactory.get_transaction_dao, TransactionDao),
-        (ServicesObjectsFactory.get_dataset_status_service, DatasetStatusService),
         (ServicesObjectsFactory.get_mio_status_service, MioStatusService),
         (ServicesObjectsFactory.get_wf_exec_status_service, WfExecStatusService),
         (ServicesObjectsFactory.get_airflow_upsert_secrets_service, AirflowUpsertSecretsService),
@@ -140,7 +117,6 @@ def test_factories_return_the_same_object_typed_as_the_interface():
 
 
 def test_the_classes_themselves_are_singletons():
-    assert SqlAlchemyDataIngestDao() is SqlAlchemyDataIngestDao()
     assert SqlAlchemyAppWfDao() is SqlAlchemyAppWfDao()
     assert SqlAlchemyAppWfExecLogDao() is SqlAlchemyAppWfExecLogDao()
     assert SqlAlchemyDatasetDao() is SqlAlchemyDatasetDao()
@@ -148,17 +124,13 @@ def test_the_classes_themselves_are_singletons():
     assert SqlAlchemyMioDao() is SqlAlchemyMioDao()
     assert SqlAlchemyMioDatasetDao() is SqlAlchemyMioDatasetDao()
     assert SqlAlchemyMioIngestLogDao() is SqlAlchemyMioIngestLogDao()
-    assert DataIngestApi() is DataIngestApi()
     assert WfExecCallbackApi() is WfExecCallbackApi()
     assert MioStatusApi() is MioStatusApi()
     assert WfListApi() is WfListApi()
     assert StartWfApi() is StartWfApi()
     assert AirflowUpsertSecretsApi() is AirflowUpsertSecretsApi()
     assert CallbackSecretAuth() is CallbackSecretAuth()
-    assert DataIngestFacadeImpl() is DataIngestFacadeImpl()
-    assert SqlAlchemySystemDatasetsDao() is SqlAlchemySystemDatasetsDao()
     assert SqlAlchemyTransactionDao() is SqlAlchemyTransactionDao()
-    assert DatasetStatusServiceImpl() is DatasetStatusServiceImpl()
     assert MioStatusServiceImpl() is MioStatusServiceImpl()
     assert WfExecStatusServiceImpl() is WfExecStatusServiceImpl()
     assert AirflowUpsertSecretsServiceImpl() is AirflowUpsertSecretsServiceImpl()
@@ -173,10 +145,6 @@ def test_the_classes_themselves_are_singletons():
     assert ApacheAirflowWorkflowEngineImpl() is ApacheAirflowWorkflowEngineImpl()
     assert AirflowStartDagFacadeImpl() is AirflowStartDagFacadeImpl()
     for task in (
-        DataIngestValidateRequestTask,
-        DataIngestPrepareDaoCtxTask,
-        DataIngestCallDaoTask,
-        DataIngestCollectResponseTask,
         MioStatusCallServiceTask,
         WfExecStatusCallServiceTask,
         AirflowUpsertSecretsCallServiceTask,
@@ -190,7 +158,7 @@ def test_the_classes_themselves_are_singletons():
 
 def test_one_object_even_when_many_threads_ask_at_once():
     with ThreadPoolExecutor(max_workers=16) as pool:
-        daos = list(pool.map(lambda _: DaoObjectsFactory.get_data_ingest_dao(), range(200)))
-        facades = list(pool.map(lambda _: FacadesObjectsFactory.get_data_ingest_facade(), range(200)))
+        daos = list(pool.map(lambda _: DaoObjectsFactory.get_transaction_dao(), range(200)))
+        facades = list(pool.map(lambda _: FacadesObjectsFactory.get_mio_status_facade(), range(200)))
     assert len({id(d) for d in daos}) == 1
     assert len({id(f) for f in facades}) == 1

@@ -9,13 +9,11 @@ import threading
 from app.core.common.bean_registry import bean_registry
 from app.core.dao.app_wf_dao import AppWfDao
 from app.core.dao.app_wf_exec_log_dao import AppWfExecLogDao
-from app.core.dao.data_ingest_dao import DataIngestDao
 from app.core.dao.dataset_dao import DatasetDao
 from app.core.dao.dataset_location_dao import DatasetLocationDao
 from app.core.dao.mio_dao import MioDao
 from app.core.dao.mio_dataset_dao import MioDatasetDao
 from app.core.dao.mio_ingest_log_dao import MioIngestLogDao
-from app.core.dao.system_datasets_dao import SystemDatasetsDao
 from app.core.dao.transaction_dao import TransactionDao
 
 
@@ -34,7 +32,6 @@ class DaoObjectsFactory:
             from app.core.dao.impl.sqlalchemy_app_wf_exec_log_dao import (
                 SqlAlchemyAppWfExecLogDao,
             )
-            from app.core.dao.impl.sqlalchemy_data_ingest_dao import SqlAlchemyDataIngestDao
             from app.core.dao.impl.sqlalchemy_dataset_dao import SqlAlchemyDatasetDao
             from app.core.dao.impl.sqlalchemy_dataset_location_dao import (
                 SqlAlchemyDatasetLocationDao,
@@ -43,9 +40,6 @@ class DaoObjectsFactory:
             from app.core.dao.impl.sqlalchemy_mio_dataset_dao import SqlAlchemyMioDatasetDao
             from app.core.dao.impl.sqlalchemy_mio_ingest_log_dao import (
                 SqlAlchemyMioIngestLogDao,
-            )
-            from app.core.dao.impl.sqlalchemy_system_datasets_dao import (
-                SqlAlchemySystemDatasetsDao,
             )
             from app.core.dao.impl.sqlalchemy_transaction_dao import SqlAlchemyTransactionDao
 
@@ -56,8 +50,6 @@ class DaoObjectsFactory:
             bean_registry.register(MioDao, SqlAlchemyMioDao())
             bean_registry.register(MioDatasetDao, SqlAlchemyMioDatasetDao())
             bean_registry.register(MioIngestLogDao, SqlAlchemyMioIngestLogDao())
-            bean_registry.register(DataIngestDao, SqlAlchemyDataIngestDao())
-            bean_registry.register(SystemDatasetsDao, SqlAlchemySystemDatasetsDao())
             bean_registry.register(TransactionDao, SqlAlchemyTransactionDao())
             DaoObjectsFactory._initialized = True
 
@@ -95,16 +87,6 @@ class DaoObjectsFactory:
     def get_mio_ingest_log_dao() -> MioIngestLogDao:
         DaoObjectsFactory.init()
         return bean_registry.get_one(MioIngestLogDao)  # type: ignore[return-value]
-
-    @staticmethod
-    def get_data_ingest_dao() -> DataIngestDao:
-        DaoObjectsFactory.init()
-        return bean_registry.get_one(DataIngestDao)  # type: ignore[return-value]
-
-    @staticmethod
-    def get_system_datasets_dao() -> SystemDatasetsDao:
-        DaoObjectsFactory.init()
-        return bean_registry.get_one(SystemDatasetsDao)  # type: ignore[return-value]
 
     @staticmethod
     def get_transaction_dao() -> TransactionDao:

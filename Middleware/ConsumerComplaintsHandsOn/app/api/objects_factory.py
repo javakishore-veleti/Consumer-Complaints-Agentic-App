@@ -7,7 +7,6 @@ import threading
 from fastapi import Depends, FastAPI
 
 from app.api.routers.airflow_upsert_secrets_api import AirflowUpsertSecretsApi
-from app.api.routers.data_ingest_api import DataIngestApi
 from app.api.routers.mio_status_api import MioStatusApi
 from app.api.routers.start_wf_api import StartWfApi
 from app.api.routers.wf_exec_callback_api import WfExecCallbackApi
@@ -46,7 +45,6 @@ class ApiObjectsFactory:
                 version="0.1.0",
                 description="Middleware API for the Consumer Complaints platform.",
             )
-            app.include_router(DataIngestApi().router)
             # Portal endpoints stay open (no callback secret): the browser cannot keep a shared secret (D59, D61, D66, D68).
             app.include_router(mio_api.router)
             app.include_router(wf_list_api.router)

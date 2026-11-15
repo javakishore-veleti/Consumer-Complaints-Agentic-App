@@ -2,7 +2,7 @@
 
 Schema names (DESIGN.md, section 3):
 
-* consumer_comp_db            the consumer complaints area: dataset status and the data ingest log
+* consumer_comp_db            the consumer complaints area (no tables at head after D73; also the MongoDB database name)
 * consumer_compl_intellect_db the Intellect app's own area
 * consumer_comp_users_db      user management
 * consumer_comp_admin_db      everything admin-related: the workflow registry and the catalog (D48)
