@@ -2,6 +2,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from app.api.objects_factory import ApiObjectsFactory
 from app.api.routers.data_ingest_api import DataIngestApi
+from app.api.security.callback_secret_auth import CallbackSecretAuth
 from app.core.dao.app_wf_dao import AppWfDao
 from app.core.dao.app_wf_exec_log_dao import AppWfExecLogDao
 from app.core.dao.data_ingest_dao import DataIngestDao
@@ -60,6 +61,8 @@ def test_factories_return_the_same_object_typed_as_the_interface():
         assert isinstance(getter(), interface)
 
     assert ApiObjectsFactory.get_app() is ApiObjectsFactory.get_app()
+    assert ApiObjectsFactory.get_callback_secret_auth() is ApiObjectsFactory.get_callback_secret_auth()
+    assert isinstance(ApiObjectsFactory.get_callback_secret_auth(), CallbackSecretAuth)
 
 
 def test_the_classes_themselves_are_singletons():
@@ -72,6 +75,7 @@ def test_the_classes_themselves_are_singletons():
     assert SqlAlchemyMioDatasetDao() is SqlAlchemyMioDatasetDao()
     assert SqlAlchemyMioIngestLogDao() is SqlAlchemyMioIngestLogDao()
     assert DataIngestApi() is DataIngestApi()
+    assert CallbackSecretAuth() is CallbackSecretAuth()
     assert DataIngestFacadeImpl() is DataIngestFacadeImpl()
     assert SqlAlchemySystemDatasetsDao() is SqlAlchemySystemDatasetsDao()
     assert SqlAlchemyTransactionDao() is SqlAlchemyTransactionDao()
