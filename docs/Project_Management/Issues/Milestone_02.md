@@ -391,10 +391,10 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #63 | 10 | `/ccaa-commit-push 63` | Done | 2026-11-15 00:05 | 2026-11-15 00:05 |
 | #63 | 11 | `/finishing-a-development-branch Story #63` | Done | 2026-11-15 00:05 | 2026-11-15 00:06 |
 | #63 | 12 | `/ccaa-story-complete 63` | Planned | - | - |
-| #64 | 1 | `/ccaa-story-start 64` | Planned | - | - |
-| #64 | 2 | `/brainstorming Story #64: one accordion per MIO with its status from the API (#45)` | Planned | - | - |
-| #64 | 3 | `/using-git-worktrees Story #64: branch m02-0025-mio-accordions-with-status-from-the-api` | Planned | - | - |
-| #64 | 4 | `/writing-plans Story #64` | Planned | - | - |
+| #64 | 1 | `/ccaa-story-start 64` | Done | 2026-11-15 00:15 | 2026-11-15 00:15 |
+| #64 | 2 | `/brainstorming Story #64: one accordion per MIO with its status from the API (#45)` | Done | 2026-11-15 00:15 | 2026-11-15 00:15 |
+| #64 | 3 | `/using-git-worktrees Story #64: branch m02-0025-mio-accordions-with-status-from-the-api` | Done | 2026-11-15 00:15 | 2026-11-15 00:15 |
+| #64 | 4 | `/writing-plans Story #64` | In progress | 2026-11-15 00:15 | - |
 | #64 | 5 | `/test-driven-development Story #64` | Planned | - | - |
 | #64 | 6 | `/subagent-driven-development Story #64` | Planned | - | - |
 | #64 | 7 | `/ccaa-commit-push 64` after every task (repeat) | Planned | - | - |
