@@ -1,3 +1,4 @@
+import json
 import sqlite3
 
 import pytest
@@ -5,6 +6,8 @@ from alembic import command
 from alembic.config import Config
 
 from app.core.common.config import ALL_SCHEMAS, PROJECT_ROOT
+
+DOWNLOAD_CFPB_ALL_WORKFLOW_ID = "b4b8014f-d756-5bc8-a041-96899ac037ac"
 
 
 def test_schema_names():
@@ -318,3 +321,37 @@ def test_migration_0007_runs_down_and_up_and_keeps_the_exec_log_rows(data_dir):
     with _admin_db(data_dir) as db:
         assert db.execute("select name from sqlite_master where name = 'mios_ingest_log'").fetchall() != []
         assert db.execute("select id, mios_ingest_log_id from app_workflows_exec_log").fetchall() == [("e1", None)]
+
+
+def test_download_cfpb_all_workflow_is_seeded(data_dir):
+    with _admin_db(data_dir) as db:
+        row = db.execute(
+            "select id, workflow_name, engine_type, engine_workflow_id, config, enabled"
+            " from app_workflows where workflow_name = 'download_cfpb_all'"
+        ).fetchone()
+    assert row is not None
+    assert row[0] == DOWNLOAD_CFPB_ALL_WORKFLOW_ID
+    assert row[1:4] == ("download_cfpb_all", "apache_airflow", "download_cfpb_all")
+    config = row[4] if isinstance(row[4], dict) else json.loads(row[4])
+    assert config == {"dataset_code": "CFPB"}
+    assert row[5] in (1, True)
+
+
+def test_migration_0008_removes_the_download_cfpb_all_seed_on_the_way_down(data_dir):
+    config = Config(str(PROJECT_ROOT / "alembic.ini"))
+    command.downgrade(config, "0007")
+    with _admin_db(data_dir) as db:
+        assert (
+            db.execute(
+                "select count(*) from app_workflows where workflow_name = 'download_cfpb_all'"
+            ).fetchone()[0]
+            == 0
+        )
+    command.upgrade(config, "head")
+    with _admin_db(data_dir) as db:
+        assert (
+            db.execute(
+                "select id from app_workflows where workflow_name = 'download_cfpb_all'"
+            ).fetchone()[0]
+            == DOWNLOAD_CFPB_ALL_WORKFLOW_ID
+        )

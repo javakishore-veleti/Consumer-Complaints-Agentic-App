@@ -136,6 +136,8 @@ starts the chosen one in its engine asynchronously; the engine calls the API whe
 the status through the API from the configured database. `GET /mios/status` returns every MIO with its latest ingest and that ingest's executions (D61); it needs no callback secret.
 There may be several download workflows. Each one knows its own
 source, so the API has no source-location types. The dataset is never stored in this repository.
+The All-file download is registered as `download_cfpb_all` (Airflow DAG id of the same name); its landing
+directory is the value of `LOCAL_DATA_PATH_CFPB` (name only in the catalog; value per environment).
 
 The CFPB site cannot export a 3-month filter (limit 100,000), so the **3 months dataset is the All file filtered by date**.
 In the part of the file sampled, rows are not sorted by date, so the whole file is read.
