@@ -71,5 +71,6 @@ Allowed moves follow D30 (`requested` → `started` → `completed`|`failed`, or
 ## Related
 
 - Spec: `docs/Superpowers/specs/M03-0012-e2e-happy-path-design.md`
+- DoD matrix (SQLite / Postgres / MongoDB): `docs/local-admin-e2e-dod-matrix.md` · `npm run local:e2e:dod-matrix:smoke`
 - Portal + API one-command: `npm run local:portal:admin:with-api`
 - Pluggable store: D75 / story #116

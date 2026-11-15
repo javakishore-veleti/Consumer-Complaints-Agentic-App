@@ -32,7 +32,7 @@ npm run local:portal:admin:with-api
 
 Then open http://localhost:4200/datasets/imports. Portal-only: `npm run local:portal:admin:start` (API must already be on `127.0.0.1:8000`).
 
-E2E happy path (UI → API → Airflow → callback → UI, SQLite first): see `docs/local-admin-e2e-happy-path.md`. CI smoke: `npm run local:e2e:happy-path:smoke`. Live API probe: `npm run local:e2e:happy-path:probe`.
+E2E happy path (UI → API → Airflow → callback → UI, SQLite first): see `docs/local-admin-e2e-happy-path.md`. CI smoke: `npm run local:e2e:happy-path:smoke`. Live API probe: `npm run local:e2e:happy-path:probe`. DoD matrix (SQLite / Postgres / MongoDB): `docs/local-admin-e2e-dod-matrix.md` · `npm run local:e2e:dod-matrix:smoke`.
 
 ### Superpowers plugin
 
