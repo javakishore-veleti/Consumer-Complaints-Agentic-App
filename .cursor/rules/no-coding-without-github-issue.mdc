@@ -1,0 +1,31 @@
+---
+description: Hard gate — no product coding without an open GitHub story on a GitHub Milestone; no vibe coding
+alwaysApply: true
+---
+
+# No coding without a GitHub issue (hard gate)
+
+## Before any product code change
+
+STOP and do not edit application code (`Middleware/`, `Portals/`, `CICD/` runtime, DAGs, schemas, tests for features) unless **all** of these are true:
+
+1. There is an **open** GitHub issue whose title contains `[Story]`.
+2. That issue is assigned to a **real GitHub Milestone** (`gh issue view N --json milestone` → `milestone` is not null). Markdown `docs/Project_Management/Issues/Milestone_*.md` alone is **not** enough.
+3. The user named that issue (e.g. `/ccaa-story-start N`, “story #N”, or an in-progress story already started in this chat).
+4. Work follows the **Superpowers** row for that story in the matching Milestone markdown (brainstorm → worktree → plan → TDD → …). Do **not** vibe-code or mark Superpowers steps Done without running them.
+
+## Fail closed
+
+If any check fails: **do not code**. Say what is missing (no issue / closed / no Milestone / wrong type / Superpowers step not done). Fix the board first.
+
+## Allowed without a story issue
+
+- Creating/fixing GitHub Milestones and attaching issues
+- Creating/editing GitHub issues and `docs/Project_Management/` / `docs/PRODUCT_FEATURES.md` board docs
+- Creating/editing `.cursor/rules/` and `.cursor/skills/` process gates
+- Answering questions with no repo edits
+
+## Never
+
+- Implement on `main` by skipping Superpowers because the user said “go ahead”
+- Treat labels or epic keys as a substitute for a GitHub Milestone assignment

@@ -10,7 +10,8 @@ Input: story issue number `N`. Run `gh` from the repository root: it reads the r
 
 Scratch files go in `runtime_data/tmp/` (git-ignored), never `/tmp`.
 
-1. `gh issue view N --json title,state,labels,body`. Stop and tell the user if the title has no `[Story]` or the issue is closed.
+1. `gh issue view N --json title,state,labels,body,milestone`. Stop and tell the user if the title has no `[Story]` or the issue is closed.
+1a. **Hard gate — GitHub Milestone required.** If `milestone` is `null`, **STOP**. Do not change labels, body, milestone log, or code. Tell the user to create the GitHub Milestone (repo → Milestones) and attach issue `N` (`gh issue edit N --milestone "<title>"`), then re-run `/ccaa-story-start N`. A `docs/Project_Management/Issues/Milestone_*.md` file alone is not enough.
 2. Labels: `gh issue edit N --remove-label "status: planned" --add-label "status: in-progress"`.
 3. Body: replace the `**Status:**` line with `**Status:** In progress — started YYYY-MM-DD HH:MM.` (use `date '+%F %H:%M'`). Change nothing else. Save to `runtime_data/tmp/issue-N.md`, then `gh issue edit N --body-file runtime_data/tmp/issue-N.md`.
 4. Read `**Epic:** #E · **Feature:** #F` from the body. For each of `F` and `E` that still has `status: planned`, swap it for `status: in-progress`.

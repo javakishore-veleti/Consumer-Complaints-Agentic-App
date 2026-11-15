@@ -9,7 +9,7 @@ Input: optional story issue number `N` (`/ccaa-commit-push 55`). Without it, use
 
 Commit small and often: after each plan task, each passing test with its code, each migration, each document change, and at the end of every story. One logical change per commit.
 
-0. With `N`, read the key: `gh issue view N --json title` (the `M02-00NN` at the start of the title).
+0. With `N`, read: `gh issue view N --json title,milestone`. Use the `M02-00NN` (or `M0N-00NN`) key at the start of the title. If product code is in the staged set (`Middleware/`, `Portals/`, Airflow DAGs, feature tests) and `milestone` is null, **STOP** — do not commit; attach the issue to a GitHub Milestone first (same hard gate as `ccaa-story-start` and `.cursor/rules/no-coding-without-github-issue.mdc`).
 1. `git status -s`. Stage only the files this change touched, by name. Never `git add -A` or `git add .`. Never stage datasets (`*.csv`, `*.zip`), `.env` files, secrets or `runtime_data/`. If a `docs/Project_Management/Issues/Milestone_*.md` is modified (a `ccaa-milestone-log` change), stage it too. Stage the story's spec and plan files in `docs/Superpowers/` as well.
 2. If Python code changed, run `npm run local:api:lint` and `npm run local:api:test` from the repo root. Do not commit on a failure.
 3. Commit with a single-line message (no body): `M02-00NN #N: <imperative summary>`. The key `M02-00NN` is at the start of the story title. For work not tied to one story use `M02: <summary>`.
