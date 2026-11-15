@@ -76,21 +76,20 @@ Portals/consumer-complaints-admin/   Angular admin portal (D65, D80 / story #135
 docs/                         product docs, design images
 ```
 
-### 3.1 Admin portal UI (D80)
+### 3.1 Admin portal UI (D80 + D82)
 
-Production ops console under `Portals/consumer-complaints-admin` (not a student scaffold theme):
+Production ops console under `Portals/consumer-complaints-admin`. **D82:** rebuild Able Pro–class structure from scratch (#137) — do not restyle the old accordion scaffold (#135 insufficient).
 
 | Piece | Choice |
 |---|---|
 | Framework | Angular 22 standalone (D65) |
-| Styling | **Tailwind CSS** (single kit; Able Pro–class chrome) |
-| Layout | Primary-blue top brand bar · white left rail (DataSets → Imports) · white work area |
-| Feedback | Shared alert / banner patterns (error, success, info, warning); real API `detail` on failures |
-| Forms | Consistent select / buttons / disabled + loading |
+| Styling | **Tailwind CSS** (single kit) |
+| Layout (Able Pro chrome) | Primary-blue top app bar · white left sidebar (section label + nav items) · soft surface canvas · rounded white panels |
+| Imports | Page header + panel rows (summary + expandable body); shared alerts / badges / buttons / selects |
 | Brand | Document title + favicon |
-| Out of scope here | Fake analytics tiles; Intellect/agent stats come in later milestones |
+| Out of scope here | Fake analytics / charts / chat; Intellect stats later |
 
-Routes and live Middleware wiring stay as today (`/datasets/imports`, `/api` proxy).
+Routes and live Middleware wiring stay (`/datasets/imports`, `/api` proxy).
 
 ## 4. The conventions that hold it together
 

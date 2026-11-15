@@ -2,7 +2,7 @@
 
 **Scope:** Prove the local path **User → Admin UI → APIs → Apache Airflow → callback APIs → operational DB → Admin UI refresh**, with a pluggable local DB. Default is **SQLite** (fewest containers). Before the epic is Done, the same path must also pass after switching only `.env` to **Postgres**, then to **MongoDB**. Cloud deploy is **M06**. Vector/RAG ingest is **M04+**.
 
-**Status: complete.** 1 epic, 4 features and 10 stories. 13 stories are already done; 0 stories are left to build.
+**Status: in progress.** 1 epic, 4 features and 11 stories. 13 stories are already done; 1 story is left to build (#137 Able Pro rebuild).
 
 How to read this file:
 - `#116` is the GitHub issue number. The `M03-00NN` key is the sequence tag at the start of the issue title. Keys are not always build order.
@@ -50,14 +50,15 @@ Phases 1–3 can run **in parallel tracks** after #116 (decision). Phase 4 waits
 | 10 | #114 | M03-0004 | Feature | Admin UI ↔ API local integration | Parent |
 | 11 | #121 | M03-0011 | Story | Admin Imports: live API list/start/refresh hardening | Live Middleware, no mocks |
 | 12 | #122 | M03-0012 | Story | E2E happy path: UI → API → Airflow → callback → UI | Full path on active DB |
-| 13 | #135 | M03-0015 | Story | Professional Admin UI visual system (shell + Imports) | Production chrome; no student/demo look |
+| 13 | #135 | M03-0015 | Story | Professional Admin UI visual system (shell + Imports) | First pass (restyle) — insufficient |
+| 14 | #137 | M03-0016 | Story | Rebuild Admin UI from Able Pro reference (not restyle) | From-scratch layout (D82) |
 
 ### Phase 4 - DoD matrix
 
 | # | Issue | Key | Type | Title | Why here |
 |---|---|---|---|---|---|
-| 14 | #115 | M03-0005 | Feature | M03 DoD verification (SQLite → Postgres → MongoDB) | Parent |
-| 15 | #123 | M03-0013 | Story | DoD matrix: prove path on SQLite, Postgres, and MongoDB | Epic not Done until all three pass |
+| 15 | #115 | M03-0005 | Feature | M03 DoD verification (SQLite → Postgres → MongoDB) | Parent |
+| 16 | #123 | M03-0013 | Story | DoD matrix: prove path on SQLite, Postgres, and MongoDB | Epic not Done until all three pass |
 
 ## 2. The same issues grouped by epic and feature
 
@@ -77,7 +78,8 @@ Epic #111  M03-0001  Local Admin UI E2E integration
 +-- Feature #114  M03-0004  Admin UI ↔ API local integration
 |     +-- #121  Admin Imports: live API list/start/refresh hardening
 |     +-- #122  E2E happy path: UI → API → Airflow → callback → UI
-|     +-- #135  Professional Admin UI visual system (shell + Imports)
+|     +-- #135  Professional Admin UI visual system (shell + Imports) [insufficient]
+|     +-- #137  Rebuild Admin UI from Able Pro reference (not restyle)
 |
 +-- Feature #115  M03-0005  M03 DoD verification (SQLite → Postgres → MongoDB)
       +-- #123  DoD matrix: prove path on SQLite, Postgres, and MongoDB
@@ -234,7 +236,19 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #135 | 10 | `/ccaa-commit-push 135` | Done | 2026-11-15 02:39 | 2026-11-15 02:39 |
 | #135 | 11 | `/finishing-a-development-branch Story #135` | Done | 2026-11-15 02:39 | 2026-11-15 02:39 |
 | #135 | 12 | `/ccaa-story-complete 135` | Done | 2026-11-15 02:39 | 2026-11-15 02:41 |
-| Feature #114 | 1 | `/ccaa-feature-complete 114` | Done | 2026-11-15 02:34 | 2026-11-15 02:42 |
+| #137 | 1 | `/ccaa-story-start 137` | Planned | - | - |
+| #137 | 2 | `/brainstorming Story #137: D82 rebuild Able Pro layout from scratch — shell, sidebar, page header, Imports panel rows; not a restyle` | Planned | - | - |
+| #137 | 3 | `/using-git-worktrees Story #137: branch m03-0016-able-pro-admin-rebuild` | Planned | - | - |
+| #137 | 4 | `/writing-plans Story #137` | Planned | - | - |
+| #137 | 5 | `/test-driven-development Story #137` | Planned | - | - |
+| #137 | 6 | `/subagent-driven-development Story #137` | Planned | - | - |
+| #137 | 7 | `/ccaa-commit-push 137` after every task (repeat) | Planned | - | - |
+| #137 | 8 | `/verification-before-completion Story #137` | Planned | - | - |
+| #137 | 9 | `/requesting-code-review Story #137` | Planned | - | - |
+| #137 | 10 | `/ccaa-commit-push 137` | Planned | - | - |
+| #137 | 11 | `/finishing-a-development-branch Story #137` | Planned | - | - |
+| #137 | 12 | `/ccaa-story-complete 137` | Planned | - | - |
+| Feature #114 | 1 | `/ccaa-feature-complete 114` | Planned | - | - |
 
 ### Phase 4 - DoD matrix
 
@@ -253,7 +267,7 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #123 | 11 | `/finishing-a-development-branch Story #123` | Done | 2026-11-15 01:57 | 2026-11-15 01:57 |
 | #123 | 12 | `/ccaa-story-complete 123` | Done | 2026-11-15 01:57 | 2026-11-15 01:57 |
 | Feature #115 | 1 | `/ccaa-feature-complete 115` | Done | 2026-11-15 01:57 | 2026-11-15 01:57 |
-| Epic #111 | 1 | `/ccaa-epic-complete 111` | Done | 2026-11-15 02:34 | 2026-11-15 02:42 |
+| Epic #111 | 1 | `/ccaa-epic-complete 111` | Planned | - | - |
 
 ## 4. Project skills (`ccaa-` = Consumer Complaints Agentic App)
 
@@ -278,7 +292,8 @@ The skills live in `.cursor/skills/`. Each takes a GitHub issue number.
 - **DoD:** SQLite path first; then Postgres via `.env`; then MongoDB via `.env` — all locally. No major code changes between backends (DAO/factory seam).
 - **Cloud** issues formerly titled M03 are now **M06** (#73 epic and children). Do not build them in this milestone.
 - **Specs/plans** under `docs/Superpowers/` appear when a story runs `/brainstorming` and `/writing-plans` (e.g. `M03-0006-*-design.md`). They do not exist until a story starts.
-- **Where the details are:** decisions go in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. Next free decision is **D82+** (D75 = pluggable operational DB seam #116; D76 = SQLite-first #117; D77 = Postgres via `.env` #118; D78 = lite local Docker profiles #120; D79 = Mongo operational store #119; D80 = Admin portal visual system / Tailwind / Able Pro–class chrome #135; **D81 = portals:all:start always npm install #132**).
-- Follow-up on **#132**: **D81** — `local:portals:all:start` / `portals-all.sh start` always runs `npm install` in the admin portal before `ng serve`.
+- **Where the details are:** decisions go in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. Next free decision is **D83+** (… D80 visual goals #135; D81 portals always npm install #132; **D82 = Able Pro rebuild from scratch #137** — #135 restyle rejected).
+- Follow-up on **#132**: **D81** — `local:portals:all:start` always `npm install` before serve.
+- **#137 / D82:** rebuild Admin layout from Able Pro reference (shell, sidebar, page header, Imports panel rows) — not CSS on the old accordion.
 - **PR → main**, merge only when CI is green. Git author must be `javakishore-veleti <6062900+javakishore-veleti@users.noreply.github.com>`; strip AI trailers.
 - **D64:** new facades only when needed; prefer extending existing packages.
