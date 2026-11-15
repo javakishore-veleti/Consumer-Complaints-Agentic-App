@@ -9,6 +9,10 @@ from app.core.common.config import ALL_SCHEMAS, PROJECT_ROOT
 
 DOWNLOAD_CFPB_ALL_WORKFLOW_ID = "b4b8014f-d756-5bc8-a041-96899ac037ac"
 FILTER_CFPB_3_MONTHS_WORKFLOW_ID = "4d3f1ee0-0b02-51cb-8959-2499896cc20e"
+ALL_MIO_ID = "01fa6351-cf12-520d-886d-9b8e30515451"
+MIO_3_MONTHS_ID = "a10fbfe0-ac03-5f3f-8d20-5132d470b03a"
+MIOS_WORKFLOWS_ALL_DOWNLOAD_ID = "c23808b9-4e57-5a5b-b301-78dec5ac839e"
+MIOS_WORKFLOWS_3M_FILTER_ID = "edd79fde-5736-5655-9d00-c52bfe172c1f"
 
 
 def test_schema_names():
@@ -239,7 +243,9 @@ def test_migration_0005_runs_down_and_up(data_dir):
 
 
 HTTP_URL = "https://files.consumerfinance.gov/ccdb/complaints.csv.zip"
-SEED_MIO_NAMES = [f"Customer complaints {months} months 2026" for months in (3, 6, 9, 12)]
+SEED_MIO_NAMES = ["Customer complaints all 2026"] + [
+    f"Customer complaints {months} months 2026" for months in (3, 6, 9, 12)
+]
 
 
 def test_the_catalog_seed_is_present(data_dir):
@@ -255,7 +261,7 @@ def test_the_catalog_seed_is_present(data_dir):
         http_id = db.execute("select id from datasets_location where location_type = 'http'").fetchone()[0]
         dataset_id = db.execute("select id from datasets").fetchone()[0]
         links = db.execute("select mio_id, dataset_id, dataset_location_id from mios_datasets").fetchall()
-    assert len(links) == 4 and len({link[0] for link in links}) == 4
+    assert len(links) == 5 and len({link[0] for link in links}) == 5
     assert {(link[1], link[2]) for link in links} == {(dataset_id, http_id)}
 
 
@@ -280,7 +286,7 @@ def test_migration_0006_removes_exactly_the_seed_on_the_way_down_and_restores_it
     command.upgrade(config, "head")
     with _admin_db(data_dir) as db:
         assert sorted(r[0] for r in db.execute("select name from datasets")) == ["cfpb_consumer_complaints", "t_mine"]
-        assert db.execute("select count(*) from mios").fetchone()[0] == 4
+        assert db.execute("select count(*) from mios").fetchone()[0] == 5
 
 
 def test_mios_ingest_log_table_is_in_the_admin_schema_with_the_expected_columns(data_dir):
@@ -414,3 +420,62 @@ def test_migration_0009_removes_the_filter_cfpb_3_months_seed_on_the_way_down(da
             ).fetchone()[0]
             == FILTER_CFPB_3_MONTHS_WORKFLOW_ID
         )
+
+
+def test_mios_workflows_table_exists_with_columns_and_no_foreign_keys(data_dir):
+    with _admin_db(data_dir) as db:
+        columns = _columns(db, "mios_workflows")
+        indexes = {r[1] for r in db.execute("pragma index_list(mios_workflows)")}
+        foreign_keys = db.execute("pragma foreign_key_list(mios_workflows)").fetchall()
+        sql = _table_sql(db, "mios_workflows")
+    assert columns == {
+        "id": ("VARCHAR(36)", 1),
+        "mio_id": ("VARCHAR(36)", 1),
+        "workflow_id": ("VARCHAR(36)", 1),
+        "created_at": ("DATETIME", 1),
+    }
+    assert "uq_mios_workflows_mio_workflow" in sql
+    assert "ix_mios_workflows_mio_id" in indexes
+    assert "ix_mios_workflows_workflow_id" in indexes
+    assert foreign_keys == []
+
+
+def test_mios_workflows_seed_binds_all_and_3_months_only(data_dir):
+    with _admin_db(data_dir) as db:
+        assert db.execute("select id, name from mios where name = 'Customer complaints all 2026'").fetchone() == (
+            ALL_MIO_ID,
+            "Customer complaints all 2026",
+        )
+        rows = db.execute(
+            "select id, mio_id, workflow_id from mios_workflows order by mio_id, workflow_id"
+        ).fetchall()
+        unbound = db.execute(
+            "select m.name from mios m"
+            " left join mios_workflows mw on mw.mio_id = m.id"
+            " where mw.id is null order by m.name"
+        ).fetchall()
+    assert rows == [
+        (MIOS_WORKFLOWS_ALL_DOWNLOAD_ID, ALL_MIO_ID, DOWNLOAD_CFPB_ALL_WORKFLOW_ID),
+        (MIOS_WORKFLOWS_3M_FILTER_ID, MIO_3_MONTHS_ID, FILTER_CFPB_3_MONTHS_WORKFLOW_ID),
+    ]
+    assert [r[0] for r in unbound] == [
+        "Customer complaints 12 months 2026",
+        "Customer complaints 6 months 2026",
+        "Customer complaints 9 months 2026",
+    ]
+
+
+def test_migration_0011_removes_mios_workflows_and_all_mio_on_the_way_down(data_dir):
+    config = Config(str(PROJECT_ROOT / "alembic.ini"))
+    command.downgrade(config, "0010")
+    with _admin_db(data_dir) as db:
+        assert db.execute("select name from sqlite_master where name = 'mios_workflows'").fetchall() == []
+        assert (
+            db.execute("select count(*) from mios where name = 'Customer complaints all 2026'").fetchone()[0] == 0
+        )
+        assert db.execute("select count(*) from mios").fetchone()[0] == 4
+    command.upgrade(config, "head")
+    with _admin_db(data_dir) as db:
+        assert db.execute("select name from sqlite_master where name = 'mios_workflows'").fetchall() != []
+        assert db.execute("select id from mios where name = 'Customer complaints all 2026'").fetchone()[0] == ALL_MIO_ID
+        assert db.execute("select count(*) from mios_workflows").fetchone()[0] == 2

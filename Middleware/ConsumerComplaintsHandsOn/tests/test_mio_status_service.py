@@ -18,6 +18,7 @@ SEEDED_NAMES = [
     "Customer complaints 3 months 2026",
     "Customer complaints 6 months 2026",
     "Customer complaints 9 months 2026",
+    "Customer complaints all 2026",
 ]
 SEEDED_3M = "Customer complaints 3 months 2026"
 

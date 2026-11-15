@@ -75,7 +75,7 @@ def test_get_by_id_or_by_name_and_the_id_wins(data_dir):
     assert dao.get(_ctx(name="nope")) == NOT_FOUND
 
 
-def test_list_is_ordered_by_name_and_includes_the_four_seeded_mios(data_dir):
+def test_list_is_ordered_by_name_and_includes_the_seeded_mios(data_dir):
     dao = DaoObjectsFactory.get_mio_dao()
     _create(dao, name="t_b")
     _create(dao, name="t_a")
@@ -83,7 +83,7 @@ def test_list_is_ordered_by_name_and_includes_the_four_seeded_mios(data_dir):
     assert dao.list(listed) == SUCCESS
     names = [r.name for r in listed.resp.records]
     assert names == sorted(names)
-    assert sum(name.startswith("Customer complaints ") for name in names) == 4
+    assert sum(name.startswith("Customer complaints ") for name in names) == 5
     assert _mine(dao) == ["t_a", "t_b"]
 
 

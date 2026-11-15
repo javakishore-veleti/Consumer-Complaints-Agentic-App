@@ -5,7 +5,9 @@ from app.core.common.dtos.mio_dtos import MioCtx, MioReq
 from app.core.common.return_codes import CONFLICT, SUCCESS
 from app.core.dao.objects_factory import DaoObjectsFactory
 
-SEED_MIO_NAMES = [f"Customer complaints {months} months 2026" for months in (3, 6, 9, 12)]
+SEED_MIO_NAMES = ["Customer complaints all 2026"] + [
+    f"Customer complaints {months} months 2026" for months in (3, 6, 9, 12)
+]
 
 
 def _seed_dataset():
