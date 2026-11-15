@@ -2,5 +2,6 @@
 # Values never appear here. Prefer names containing secret or password so Airflow masks them.
 
 CCA_CALLBACK_SECRET
+CCA_API_URL
 CCA_DB_URL
 LOCAL_DATA_PATH_CFPB
