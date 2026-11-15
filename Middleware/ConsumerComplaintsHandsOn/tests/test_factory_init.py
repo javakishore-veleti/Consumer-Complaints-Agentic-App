@@ -50,3 +50,21 @@ def test_get_lazy_inits_when_init_not_called_first():
     # Relies on process state from other tests / SingletonMeta; asserting the contract:
     # get_* must not require an explicit init() from the caller.
     assert isinstance(DaoObjectsFactory.get_transaction_dao(), object)
+
+
+def test_startup_init_order_matches_main():
+    """main.py must call dao → services → facades → api init, then get_app()."""
+    import main as main_mod
+    from pathlib import Path
+
+    text = Path(main_mod.__file__).read_text()
+    assert "DaoObjectsFactory.init()" in text
+    assert "ServicesObjectsFactory.init()" in text
+    assert "FacadesObjectsFactory.init()" in text
+    assert "ApiObjectsFactory.init()" in text
+    assert text.index("DaoObjectsFactory.init()") < text.index("ServicesObjectsFactory.init()")
+    assert text.index("ServicesObjectsFactory.init()") < text.index(
+        "FacadesObjectsFactory.init()"
+    )
+    assert text.index("FacadesObjectsFactory.init()") < text.index("ApiObjectsFactory.init()")
+    assert text.index("ApiObjectsFactory.init()") < text.index("get_app()")

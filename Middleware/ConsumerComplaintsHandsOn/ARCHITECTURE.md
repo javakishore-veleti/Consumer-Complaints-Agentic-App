@@ -80,9 +80,11 @@ service and DAO interfaces. Nobody imports from another package's `impl/`.
 
 **Every package has an `objects_factory.py`.** It is the only module in that package allowed to import from `impl/`. It
 is a class with **static methods that return the singleton, typed as the interface** (`DaoObjectsFactory`,
-`FacadesObjectsFactory`, `ServicesObjectsFactory`, `ApiObjectsFactory`). It chooses the implementation from configuration,
-for example the DAO factory picks SQLite, Postgres or Mongo. Imports inside a factory can be lazy, so a backend's library
-is only needed when that backend is selected.
+`FacadesObjectsFactory`, `ServicesObjectsFactory`, `ApiObjectsFactory`). Each factory has an `init()` that registers those
+singletons into the shared `app.core.common.bean_registry.bean_registry`; `main` calls the four `init()`s at startup (D45).
+The public lookups stay the typed `get_*` methods (they call `init()` if needed, then read the registry). The factory
+chooses the implementation from configuration, for example the DAO factory picks SQLite, Postgres or Mongo. Imports
+inside a factory can be lazy, so a backend's library is only needed when that backend is selected.
 
 **Every class in `api`, `facades`, `services` and `dao` is a singleton.** The interface declares
 `metaclass=SingletonMeta` (`core/common/singleton.py`) and every implementation inherits it, so one object serves all
