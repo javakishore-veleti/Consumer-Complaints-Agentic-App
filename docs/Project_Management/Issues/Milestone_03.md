@@ -131,9 +131,9 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #117 | 7 | `/ccaa-commit-push 117` after every task (repeat) | Done | 2026-11-15 01:24 | 2026-11-15 01:24 |
 | #117 | 8 | `/verification-before-completion Story #117` | Done | 2026-11-15 01:24 | 2026-11-15 01:25 |
 | #117 | 9 | `/requesting-code-review Story #117` | Done | 2026-11-15 01:25 | 2026-11-15 01:25 |
-| #117 | 10 | `/ccaa-commit-push 117` | In progress | 2026-11-15 01:25 | - |
-| #117 | 11 | `/finishing-a-development-branch Story #117` | Planned | - | - |
-| #117 | 12 | `/ccaa-story-complete 117` | Planned | - | - |
+| #117 | 10 | `/ccaa-commit-push 117` | Done | 2026-11-15 01:25 | 2026-11-15 01:27 |
+| #117 | 11 | `/finishing-a-development-branch Story #117` | Done | 2026-11-15 01:27 | 2026-11-15 01:27 |
+| #117 | 12 | `/ccaa-story-complete 117` | Done | 2026-11-15 01:27 | 2026-11-15 01:27 |
 | #118 | 1 | `/ccaa-story-start 118` | Planned | - | - |
 | #118 | 2 | `/brainstorming Story #118: Postgres via .env only; migrate and verify same APIs and callback path` | Planned | - | - |
 | #118 | 3 | `/using-git-worktrees Story #118: branch m03-0008-postgres-via-env` | Planned | - | - |
