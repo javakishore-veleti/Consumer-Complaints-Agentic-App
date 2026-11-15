@@ -8,7 +8,7 @@ Able Pro restyles (#135, #137) kept iterating on heritage Admin CSS. Home still 
 
 ## Approach
 
-1. Replace `Portals/consumer-complaints-admin` with MIT [TailAdmin/free-angular-tailwind-dashboard](https://github.com/TailAdmin/free-angular-tailwind-dashboard).
+1. Replace `Portals/consumer-complaints-admin` with MIT **TailAdmin Angular Free** ([tailadmin.com/angular](https://tailadmin.com/angular)).
 2. Port only CCAA API modules (`src/app/core/*` HTTP helpers), `environments`, and `proxy.conf.json`.
 3. Do **not** copy legacy `.cca-*` HTML/CSS or `shared/ui`.
 4. Home: KPI cards from `GET /mios/status`; CTA to Imports; never show API base URL.
