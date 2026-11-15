@@ -107,7 +107,7 @@ Every command has its own row with **Status** (`Planned`, `In progress` or `Done
 | #153 | 11 | `/finishing-a-development-branch Story #153` | Done | 2026-11-15 13:54 | 2026-11-15 13:54 |
 | #153 | 12 | `/ccaa-story-complete 153` | Done | 2026-11-15 13:54 | 2026-11-15 13:54 |
 | Feature #145 | 1 | `/ccaa-feature-complete 145` | Planned | - | - |
-| #154 | 1 | `/ccaa-story-start 154` | Planned | - | - |
+| #154 | 1 | `/ccaa-story-start 154` | In progress | 2026-11-15 13:55 | - |
 | #154 | 12 | `/ccaa-story-complete 154` | Planned | - | - |
 | Epic #144 | 1 | `/ccaa-epic-complete 144` | Planned | - | - |
 
