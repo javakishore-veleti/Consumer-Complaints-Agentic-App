@@ -391,17 +391,17 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #63 | 10 | `/ccaa-commit-push 63` | Done | 2026-11-15 00:05 | 2026-11-15 00:05 |
 | #63 | 11 | `/finishing-a-development-branch Story #63` | Done | 2026-11-15 00:05 | 2026-11-15 00:06 |
 | #63 | 12 | `/ccaa-story-complete 63` | Planned | - | - |
-| #64 | 1 | `/ccaa-story-start 64` | Planned | - | - |
-| #64 | 2 | `/brainstorming Story #64: one accordion per MIO with its status from the API (#45)` | Planned | - | - |
-| #64 | 3 | `/using-git-worktrees Story #64: branch m02-0025-mio-accordions-with-status-from-the-api` | Planned | - | - |
-| #64 | 4 | `/writing-plans Story #64` | Planned | - | - |
-| #64 | 5 | `/test-driven-development Story #64` | Planned | - | - |
-| #64 | 6 | `/subagent-driven-development Story #64` | Planned | - | - |
-| #64 | 7 | `/ccaa-commit-push 64` after every task (repeat) | Planned | - | - |
-| #64 | 8 | `/verification-before-completion Story #64` | Planned | - | - |
-| #64 | 9 | `/requesting-code-review Story #64` | Planned | - | - |
-| #64 | 10 | `/ccaa-commit-push 64` | Planned | - | - |
-| #64 | 11 | `/finishing-a-development-branch Story #64` | Planned | - | - |
+| #64 | 1 | `/ccaa-story-start 64` | Done | 2026-11-15 00:15 | 2026-11-15 00:15 |
+| #64 | 2 | `/brainstorming Story #64: one accordion per MIO with its status from the API (#45)` | Done | 2026-11-15 00:15 | 2026-11-15 00:15 |
+| #64 | 3 | `/using-git-worktrees Story #64: branch m02-0025-mio-accordions-with-status-from-the-api` | Done | 2026-11-15 00:15 | 2026-11-15 00:15 |
+| #64 | 4 | `/writing-plans Story #64` | Done | 2026-11-15 00:20 | 2026-11-15 00:20 |
+| #64 | 5 | `/test-driven-development Story #64` | Done | 2026-11-15 00:20 | 2026-11-15 00:20 |
+| #64 | 6 | `/subagent-driven-development Story #64` | Done | 2026-11-15 00:20 | 2026-11-15 00:20 |
+| #64 | 7 | `/ccaa-commit-push 64` after every task (repeat) | Done | 2026-11-15 00:20 | 2026-11-15 00:20 |
+| #64 | 8 | `/verification-before-completion Story #64` | Done | 2026-11-15 00:21 | 2026-11-15 00:21 |
+| #64 | 9 | `/requesting-code-review Story #64` | Done | 2026-11-15 00:21 | 2026-11-15 00:21 |
+| #64 | 10 | `/ccaa-commit-push 64` | Done | 2026-11-15 00:21 | 2026-11-15 00:21 |
+| #64 | 11 | `/finishing-a-development-branch Story #64` | Done | 2026-11-15 00:21 | 2026-11-15 00:21 |
 | #64 | 12 | `/ccaa-story-complete 64` | Planned | - | - |
 | #65 | 1 | `/ccaa-story-start 65` | Planned | - | - |
 | #65 | 2 | `/brainstorming Story #65: start workflow button and status refresh; calls #42; poll or refresh is the open question` | Planned | - | - |
@@ -510,4 +510,4 @@ The skills live in `.cursor/skills/`. Each takes a GitHub issue number.
 - **Open questions on the issues:** #65 (poll or refresh). The #55 question is decided in D42 (revised by D43): credentials in `.env`, copied into Airflow Variables by story #77.
 - **Story #77 was added** while deciding #55 (D42). It is under feature #56 and is built first in Phase 3, because the DAG reads the Variables it creates.
 - **Moved to M03 - Cloud Deployment:** #51 S3, #52 Azure Blob, #53 GCP Cloud Storage, #54 Google Drive, and the cloud migration workflow #24. They are not part of this milestone. #51 to #54 were written as source types, so under D43 they need rewriting as cloud workflows before M03 starts (they are still open).
-- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D71.
+- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D72.

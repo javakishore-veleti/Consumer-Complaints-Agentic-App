@@ -1,10 +1,77 @@
 <section aria-labelledby="imports-heading">
   <h1 id="imports-heading">Imports</h1>
-  <p>Download status for each managed information object will appear here.</p>
+  <p>Download status for each managed information object.</p>
+  @if (loading()) {
+    <p data-testid="mio-status-loading">Loading MIO status…</p>
+  }
+  @if (error()) {
+    <p data-testid="mio-status-error" role="alert">{{ error() }}</p>
+  }
   <div
     data-testid="imports-accordion-shell"
     class="accordion-shell"
     role="region"
     aria-label="MIO accordion shell"
-  ></div>
+  >
+    @for (mio of entries(); track mio.id) {
+      <details data-testid="mio-accordion" class="mio-accordion">
+        <summary>
+          <span class="mio-name">{{ mio.name }}</span>
+          <span class="mio-status">
+            @if (mio.latest_ingest; as ingest) {
+              {{ ingest.status }}
+            } @else {
+              No ingest yet
+            }
+          </span>
+        </summary>
+        <div class="mio-body">
+          @if (mio.description) {
+            <p>{{ mio.description }}</p>
+          }
+          @if (mio.latest_ingest; as ingest) {
+            @if (ingest.message) {
+              <p class="mio-message">{{ ingest.message }}</p>
+            }
+            <dl class="mio-meta">
+              <div>
+                <dt>Requested</dt>
+                <dd>{{ ingest.requested_at }}</dd>
+              </div>
+              @if (ingest.started_at) {
+                <div>
+                  <dt>Started</dt>
+                  <dd>{{ ingest.started_at }}</dd>
+                </div>
+              }
+              @if (ingest.finished_at) {
+                <div>
+                  <dt>Finished</dt>
+                  <dd>{{ ingest.finished_at }}</dd>
+                </div>
+              }
+              @if (ingest.rows_loaded !== null && ingest.rows_loaded !== undefined) {
+                <div>
+                  <dt>Rows loaded</dt>
+                  <dd>{{ ingest.rows_loaded }}</dd>
+                </div>
+              }
+            </dl>
+            @if (ingest.executions.length) {
+              <ul class="mio-executions">
+                @for (ex of ingest.executions; track ex.id) {
+                  <li>
+                    {{ ex.workflow_name }} — {{ ex.status }}
+                    @if (ex.message) {
+                      ({{ ex.message }})
+                    }
+                  </li>
+                }
+              </ul>
+            }
+          }
+        </div>
+      </details>
+    }
+  </div>
 </section>

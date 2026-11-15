@@ -3,4 +3,71 @@
   border: 1px dashed #9ca3af;
   border-radius: 0.25rem;
   padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mio-accordion {
+  border: 1px solid #d1d5db;
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: #fff;
+}
+
+.mio-accordion summary {
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0;
+}
+
+.mio-name {
+  font-weight: 600;
+}
+
+.mio-status {
+  color: #4b5563;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.875rem;
+}
+
+.mio-body {
+  padding: 0 0 0.75rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.mio-message {
+  margin: 0.5rem 0;
+}
+
+.mio-meta {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0.5rem 0;
+}
+
+.mio-meta div {
+  display: grid;
+  grid-template-columns: 8rem 1fr;
+  gap: 0.5rem;
+}
+
+.mio-meta dt {
+  font-weight: 600;
+  margin: 0;
+}
+
+.mio-meta dd {
+  margin: 0;
+}
+
+.mio-executions {
+  margin: 0.5rem 0 0;
+  padding-left: 1.25rem;
+}
+
+[data-testid='mio-status-error'] {
+  color: #b91c1c;
 }
