@@ -2,7 +2,7 @@
 
 **Scope:** Prove the local path **User → Admin UI → APIs → Apache Airflow → callback APIs → operational DB → Admin UI refresh**, with a pluggable local DB. Default is **SQLite** (fewest containers). Before the epic is Done, the same path must also pass after switching only `.env` to **Postgres**, then to **MongoDB**. Cloud deploy is **M06**. Vector/RAG ingest is **M04+**.
 
-**Status: in progress.** 1 epic, 4 features and 8 stories. 0 stories are already done; 8 stories are left to build.
+**Status: in progress.** 1 epic, 4 features and 8 stories. 4 stories are already done; 7 stories are left to build.
 
 How to read this file:
 - `#116` is the GitHub issue number. The `M03-00NN` key is the sequence tag at the start of the issue title. Keys are not always build order.
@@ -115,13 +115,13 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #116 | 3 | `/using-git-worktrees Story #116: branch m03-0006-pluggable-db-seam` | Done | 2026-11-15 01:16 | 2026-11-15 01:16 |
 | #116 | 4 | `/writing-plans Story #116` | Done | 2026-11-15 01:16 | 2026-11-15 01:16 |
 | #116 | 5 | `/test-driven-development Story #116` | Done | 2026-11-15 01:16 | 2026-11-15 01:16 |
-| #116 | 6 | `/subagent-driven-development Story #116` | In progress | 2026-11-15 01:16 | - |
-| #116 | 7 | `/ccaa-commit-push 116` after every task (repeat) | Planned | - | - |
-| #116 | 8 | `/verification-before-completion Story #116` | Planned | - | - |
-| #116 | 9 | `/requesting-code-review Story #116` | Planned | - | - |
-| #116 | 10 | `/ccaa-commit-push 116` | Planned | - | - |
-| #116 | 11 | `/finishing-a-development-branch Story #116` | Planned | - | - |
-| #116 | 12 | `/ccaa-story-complete 116` | Planned | - | - |
+| #116 | 6 | `/subagent-driven-development Story #116` | Done | 2026-11-15 01:16 | 2026-11-15 01:19 |
+| #116 | 7 | `/ccaa-commit-push 116` after every task (repeat) | Done | 2026-11-15 01:19 | 2026-11-15 01:19 |
+| #116 | 8 | `/verification-before-completion Story #116` | Done | 2026-11-15 01:19 | 2026-11-15 01:19 |
+| #116 | 9 | `/requesting-code-review Story #116` | Done | 2026-11-15 01:19 | 2026-11-15 01:19 |
+| #116 | 10 | `/ccaa-commit-push 116` | Done | 2026-11-15 01:19 | 2026-11-15 01:19 |
+| #116 | 11 | `/finishing-a-development-branch Story #116` | Done | 2026-11-15 01:19 | 2026-11-15 01:19 |
+| #116 | 12 | `/ccaa-story-complete 116` | Done | 2026-11-15 01:19 | 2026-11-15 01:19 |
 | #117 | 1 | `/ccaa-story-start 117` | Planned | - | - |
 | #117 | 2 | `/brainstorming Story #117: SQLite-first operational store for admin schema (workflows, catalog, ingest/exec logs); migrations and APIs without Postgres container` | Planned | - | - |
 | #117 | 3 | `/using-git-worktrees Story #117: branch m03-0007-sqlite-first-admin-store` | Planned | - | - |
