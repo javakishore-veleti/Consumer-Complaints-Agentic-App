@@ -65,14 +65,20 @@ def test_invalid_operational_store_rejected(monkeypatch, tmp_path):
         get_settings()
 
 
-def test_dao_factory_rejects_mongodb_until_story_119(monkeypatch, tmp_path):
+def test_dao_factory_registers_mongodb_daos(monkeypatch, tmp_path):
+    import mongomock
+
+    from app.core.dao.impl.mongo.client import MongoDbOverride, set_mongo_db_override
+    from app.core.dao.impl.mongo.mongo_app_wf_dao import MongoAppWfDao
+
     monkeypatch.setenv("CCA_OPERATIONAL_STORE", "mongodb")
     monkeypatch.setenv("CCA_MONGO_OPERATIONAL_URL", "mongodb://localhost:27017/cca_operational")
     monkeypatch.setenv("CCA_DATA_DIR", str(tmp_path))
-    was_initialized = DaoObjectsFactory._initialized
-    DaoObjectsFactory._initialized = False
+    set_mongo_db_override(MongoDbOverride(db=mongomock.MongoClient().cca_operational))
+    DaoObjectsFactory.reset()
     try:
-        with pytest.raises(RuntimeError, match="#119"):
-            DaoObjectsFactory.init()
+        DaoObjectsFactory.init()
+        assert isinstance(DaoObjectsFactory.get_app_wf_dao(), MongoAppWfDao)
     finally:
-        DaoObjectsFactory._initialized = was_initialized
+        DaoObjectsFactory.reset()
+        set_mongo_db_override(MongoDbOverride(db=None))

@@ -52,8 +52,14 @@ cmd_start() {
   echo "Installing dependencies (uv sync)..."
   uv sync --quiet
 
-  echo "Migrating the database (alembic upgrade head)..."
-  .venv/bin/alembic upgrade head
+  store="$(printf '%s' "${CCA_OPERATIONAL_STORE:-}" | tr '[:upper:]' '[:lower:]' | xargs)"
+  if [[ "$store" == "mongodb" ]]; then
+    echo "Bootstrapping Mongo operational store (indexes + seed)..."
+    .venv/bin/python -c "from app.core.dao.impl.mongo.bootstrap import bootstrap_operational_mongo; bootstrap_operational_mongo()"
+  else
+    echo "Migrating the database (alembic upgrade head)..."
+    .venv/bin/alembic upgrade head
+  fi
 
   local reload=()
   [[ "${API_RELOAD:-0}" == "1" ]] && reload=(--reload)

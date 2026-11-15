@@ -147,16 +147,16 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #118 | 11 | `/finishing-a-development-branch Story #118` | Planned | - | - |
 | #118 | 12 | `/ccaa-story-complete 118` | Planned | - | - |
 | #119 | 1 | `/ccaa-story-start 119` | Done | 2026-11-15 01:35 | 2026-11-15 01:35 |
-| #119 | 2 | `/brainstorming Story #119: MongoDB operational store via .env; DAO/factory seam (D45); same Admin UI → API → Airflow → callback path` | In progress | 2026-11-15 01:35 | - |
-| #119 | 3 | `/using-git-worktrees Story #119: branch m03-0009-mongodb-operational-store` | Planned | - | - |
-| #119 | 4 | `/writing-plans Story #119` | Planned | - | - |
-| #119 | 5 | `/test-driven-development Story #119` | Planned | - | - |
-| #119 | 6 | `/subagent-driven-development Story #119` | Planned | - | - |
-| #119 | 7 | `/ccaa-commit-push 119` after every task (repeat) | Planned | - | - |
-| #119 | 8 | `/verification-before-completion Story #119` | Planned | - | - |
-| #119 | 9 | `/requesting-code-review Story #119` | Planned | - | - |
-| #119 | 10 | `/ccaa-commit-push 119` | Planned | - | - |
-| #119 | 11 | `/finishing-a-development-branch Story #119` | Planned | - | - |
+| #119 | 2 | `/brainstorming Story #119: MongoDB operational store via .env; DAO/factory seam (D45); same Admin UI → API → Airflow → callback path` | Done | 2026-11-15 01:38 | 2026-11-15 01:38 |
+| #119 | 3 | `/using-git-worktrees Story #119: branch m03-0009-mongodb-operational-store` | Done | 2026-11-15 01:38 | 2026-11-15 01:38 |
+| #119 | 4 | `/writing-plans Story #119` | Done | 2026-11-15 01:38 | 2026-11-15 01:38 |
+| #119 | 5 | `/test-driven-development Story #119` | Done | 2026-11-15 01:44 | 2026-11-15 01:44 |
+| #119 | 6 | `/subagent-driven-development Story #119` | Done | 2026-11-15 01:44 | 2026-11-15 01:44 |
+| #119 | 7 | `/ccaa-commit-push 119` after every task (repeat) | Done | 2026-11-15 01:44 | 2026-11-15 01:44 |
+| #119 | 8 | `/verification-before-completion Story #119` | Done | 2026-11-15 01:44 | 2026-11-15 01:44 |
+| #119 | 9 | `/requesting-code-review Story #119` | Done | 2026-11-15 01:44 | 2026-11-15 01:44 |
+| #119 | 10 | `/ccaa-commit-push 119` | Done | 2026-11-15 01:44 | 2026-11-15 01:44 |
+| #119 | 11 | `/finishing-a-development-branch Story #119` | In progress | 2026-11-15 01:44 | - |
 | #119 | 12 | `/ccaa-story-complete 119` | Planned | - | - |
 | Feature #112 | 1 | `/ccaa-feature-complete 112` | In progress | 2026-11-15 01:13 | - |
 
@@ -249,6 +249,6 @@ The skills live in `.cursor/skills/`. Each takes a GitHub issue number.
 - **DoD:** SQLite path first; then Postgres via `.env`; then MongoDB via `.env` — all locally. No major code changes between backends (DAO/factory seam).
 - **Cloud** issues formerly titled M03 are now **M06** (#73 epic and children). Do not build them in this milestone.
 - **Specs/plans** under `docs/Superpowers/` appear when a story runs `/brainstorming` and `/writing-plans` (e.g. `M03-0006-*-design.md`). They do not exist until a story starts.
-- **Where the details are:** decisions go in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. Next free decision is **D79+** (D75 = pluggable operational DB seam #116; D76 = SQLite-first #117; D77 = Postgres via `.env` #118; D78 = lite local Docker profiles #120).
+- **Where the details are:** decisions go in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. Next free decision is **D80+** (D75 = pluggable operational DB seam #116; D76 = SQLite-first #117; D77 = Postgres via `.env` #118; D78 = lite local Docker profiles #120; D79 = Mongo operational store #119).
 - **PR → main**, merge only when CI is green. Git author must be `javakishore-veleti <6062900+javakishore-veleti@users.noreply.github.com>`; strip AI trailers.
 - **D64:** new facades only when needed; prefer extending existing packages.
