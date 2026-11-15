@@ -38,18 +38,23 @@ from app.core.facades.impl.tasks.mio_status_call_service_task import MioStatusCa
 from app.core.facades.impl.tasks.wf_exec_status_call_service_task import WfExecStatusCallServiceTask
 from app.core.facades.impl.mio_status_facade_impl import MioStatusFacadeImpl
 from app.core.facades.impl.wf_exec_status_facade_impl import WfExecStatusFacadeImpl
+from app.core.facades.impl.wf_list.tasks.wf_list_call_service_task import WfListCallServiceTask
+from app.core.facades.impl.wf_list.wf_list_facade_impl import WfListFacadeImpl
 from app.core.facades.mio_status_facade import MioStatusFacade
 from app.core.facades.objects_factory import FacadesObjectsFactory
 from app.core.facades.wf_exec_status_facade import WfExecStatusFacade
+from app.core.facades.wf_list_facade import WfListFacade
 from app.core.services.airflow_upsert_secrets_service import AirflowUpsertSecretsService
 from app.core.services.dataset_status_service import DatasetStatusService
 from app.core.services.impl.airflow_upsert_secrets_service_impl import AirflowUpsertSecretsServiceImpl
 from app.core.services.impl.dataset_status_service_impl import DatasetStatusServiceImpl
 from app.core.services.impl.mio_status_service_impl import MioStatusServiceImpl
 from app.core.services.impl.wf_exec_status_service_impl import WfExecStatusServiceImpl
+from app.core.services.impl.wf_list_service_impl import WfListServiceImpl
 from app.core.services.mio_status_service import MioStatusService
 from app.core.services.objects_factory import ServicesObjectsFactory
 from app.core.services.wf_exec_status_service import WfExecStatusService
+from app.core.services.wf_list_service import WfListService
 from app.core.dao.impl.sqlalchemy_system_datasets_dao import SqlAlchemySystemDatasetsDao
 from app.core.dao.impl.sqlalchemy_transaction_dao import SqlAlchemyTransactionDao
 from app.core.dao.system_datasets_dao import SystemDatasetsDao
@@ -79,9 +84,11 @@ def test_factories_return_the_same_object_typed_as_the_interface():
         (ServicesObjectsFactory.get_mio_status_service, MioStatusService),
         (ServicesObjectsFactory.get_wf_exec_status_service, WfExecStatusService),
         (ServicesObjectsFactory.get_airflow_upsert_secrets_service, AirflowUpsertSecretsService),
+        (ServicesObjectsFactory.get_wf_list_service, WfListService),
         (FacadesObjectsFactory.get_mio_status_facade, MioStatusFacade),
         (FacadesObjectsFactory.get_wf_exec_status_facade, WfExecStatusFacade),
         (FacadesObjectsFactory.get_airflow_upsert_secrets_facade, AirflowUpsertSecretsFacade),
+        (FacadesObjectsFactory.get_wf_list_facade, WfListFacade),
     ):
         assert getter() is getter()
         assert isinstance(getter(), interface)
@@ -118,9 +125,11 @@ def test_the_classes_themselves_are_singletons():
     assert MioStatusServiceImpl() is MioStatusServiceImpl()
     assert WfExecStatusServiceImpl() is WfExecStatusServiceImpl()
     assert AirflowUpsertSecretsServiceImpl() is AirflowUpsertSecretsServiceImpl()
+    assert WfListServiceImpl() is WfListServiceImpl()
     assert MioStatusFacadeImpl() is MioStatusFacadeImpl()
     assert WfExecStatusFacadeImpl() is WfExecStatusFacadeImpl()
     assert AirflowUpsertSecretsFacadeImpl() is AirflowUpsertSecretsFacadeImpl()
+    assert WfListFacadeImpl() is WfListFacadeImpl()
     for task in (
         DataIngestValidateRequestTask,
         DataIngestPrepareDaoCtxTask,
@@ -129,6 +138,7 @@ def test_the_classes_themselves_are_singletons():
         MioStatusCallServiceTask,
         WfExecStatusCallServiceTask,
         AirflowUpsertSecretsCallServiceTask,
+        WfListCallServiceTask,
     ):
         assert task() is task()
 

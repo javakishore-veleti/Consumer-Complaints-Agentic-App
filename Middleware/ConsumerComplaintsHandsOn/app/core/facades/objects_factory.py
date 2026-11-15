@@ -10,6 +10,7 @@ from app.core.facades.airflow_upsert_secrets_facade import AirflowUpsertSecretsF
 from app.core.facades.data_ingest_facade import DataIngestFacade
 from app.core.facades.mio_status_facade import MioStatusFacade
 from app.core.facades.wf_exec_status_facade import WfExecStatusFacade
+from app.core.facades.wf_list_facade import WfListFacade
 
 
 class FacadesObjectsFactory:
@@ -29,11 +30,13 @@ class FacadesObjectsFactory:
             from app.core.facades.impl.data_ingest_facade_impl import DataIngestFacadeImpl
             from app.core.facades.impl.mio_status_facade_impl import MioStatusFacadeImpl
             from app.core.facades.impl.wf_exec_status_facade_impl import WfExecStatusFacadeImpl
+            from app.core.facades.impl.wf_list.wf_list_facade_impl import WfListFacadeImpl
 
             bean_registry.register(DataIngestFacade, DataIngestFacadeImpl())
             bean_registry.register(MioStatusFacade, MioStatusFacadeImpl())
             bean_registry.register(WfExecStatusFacade, WfExecStatusFacadeImpl())
             bean_registry.register(AirflowUpsertSecretsFacade, AirflowUpsertSecretsFacadeImpl())
+            bean_registry.register(WfListFacade, WfListFacadeImpl())
             FacadesObjectsFactory._initialized = True
 
     @staticmethod
@@ -55,3 +58,8 @@ class FacadesObjectsFactory:
     def get_airflow_upsert_secrets_facade() -> AirflowUpsertSecretsFacade:
         FacadesObjectsFactory.init()
         return bean_registry.get_one(AirflowUpsertSecretsFacade)  # type: ignore[return-value]
+
+    @staticmethod
+    def get_wf_list_facade() -> WfListFacade:
+        FacadesObjectsFactory.init()
+        return bean_registry.get_one(WfListFacade)  # type: ignore[return-value]
