@@ -2,7 +2,7 @@
 
 **Scope:** Prove the local path **User → Admin UI → APIs → Apache Airflow → callback APIs → operational DB → Admin UI refresh**, with a pluggable local DB. Default is **SQLite** (fewest containers). Before the epic is Done, the same path must also pass after switching only `.env` to **Postgres**, then to **MongoDB**. Cloud deploy is **M06**. Vector/RAG ingest is **M04+**.
 
-**Status: in progress.** 1 epic, 4 features. 15 stories are already done; 1 story is left to build.
+**Status: in progress.** 1 epic, 4 features. 16 stories are already done; 0 stories are left to build.
 
 How to read this file:
 - `#116` is the GitHub issue number. The `M03-00NN` key is the sequence tag at the start of the issue title. Keys are not always build order.
@@ -268,14 +268,14 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #141 | 2 | `/brainstorming Story #141: D84 mios_workflows; All MIO; Imports picker from allowed_workflows; start rejects unbound` | Done | 2026-11-15 03:39 | 2026-11-15 03:39 |
 | #141 | 3 | `/using-git-worktrees Story #141: branch m03-0018-mio-workflow-binding` | Done | 2026-11-15 03:41 | 2026-11-15 03:41 |
 | #141 | 4 | `/writing-plans Story #141` | Done | 2026-11-15 03:41 | 2026-11-15 03:41 |
-| #141 | 5 | `/test-driven-development Story #141` | In progress | 2026-11-15 03:41 | - |
-| #141 | 6 | `/subagent-driven-development Story #141` | Planned | - | - |
-| #141 | 7 | `/ccaa-commit-push 141` after every task (repeat) | Planned | - | - |
-| #141 | 8 | `/verification-before-completion Story #141` | Planned | - | - |
-| #141 | 9 | `/requesting-code-review Story #141` | Planned | - | - |
-| #141 | 10 | `/ccaa-commit-push 141` | Planned | - | - |
-| #141 | 11 | `/finishing-a-development-branch Story #141` | Planned | - | - |
-| #141 | 12 | `/ccaa-story-complete 141` | Planned | - | - |
+| #141 | 5 | `/test-driven-development Story #141` | Done | 2026-11-15 03:41 | 2026-11-15 04:03 |
+| #141 | 6 | `/subagent-driven-development Story #141` | Done | 2026-11-15 04:03 | 2026-11-15 04:03 |
+| #141 | 7 | `/ccaa-commit-push 141` after every task (repeat) | Done | 2026-11-15 04:03 | 2026-11-15 04:03 |
+| #141 | 8 | `/verification-before-completion Story #141` | Done | 2026-11-15 04:03 | 2026-11-15 04:03 |
+| #141 | 9 | `/requesting-code-review Story #141` | Done | 2026-11-15 04:03 | 2026-11-15 04:03 |
+| #141 | 10 | `/ccaa-commit-push 141` | Done | 2026-11-15 04:03 | 2026-11-15 04:03 |
+| #141 | 11 | `/finishing-a-development-branch Story #141` | Done | 2026-11-15 04:03 | 2026-11-15 04:03 |
+| #141 | 12 | `/ccaa-story-complete 141` | Done | 2026-11-15 04:03 | 2026-11-15 04:03 |
 | Feature #114 | 1 | `/ccaa-feature-complete 114` | Planned | - | - |
 
 ### Phase 4 - DoD matrix
