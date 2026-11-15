@@ -4,12 +4,16 @@ import { loadMioStatus, MioStatusCtx, MioStatusEntry } from '../../core/mio-stat
 import { startWorkflow, StartWorkflowCtx } from '../../core/start-workflow';
 import { listWorkflows, WorkflowListCtx, WorkflowListEntry } from '../../core/workflow-list';
 import { SUCCESS } from '../../core/return-codes';
+import { UiAlert } from '../../shared/ui/ui-alert/ui-alert';
+import { UiBadge, UiBadgeTone } from '../../shared/ui/ui-badge/ui-badge';
+import { UiPageHeader } from '../../shared/ui/ui-page-header/ui-page-header';
 
 const RUNNING_STATUSES = new Set(['requested', 'started']);
 const DEFAULT_WORKFLOW_NAME = 'download_cfpb_all';
 
 @Component({
   selector: 'app-imports-page',
+  imports: [UiAlert, UiBadge, UiPageHeader],
   templateUrl: './imports-page.html',
   styleUrl: './imports-page.css',
 })
@@ -78,21 +82,21 @@ export class ImportsPage implements OnInit {
     await this.loadStatus();
   }
 
-  /** Visual tone only — label text stays the API status string. Keeps `.mio-status` for tests. */
-  protected statusBadgeClass(status: string | null | undefined): string {
+  /** Visual tone only — label text stays the API status string. */
+  protected statusTone(status: string | null | undefined): UiBadgeTone {
     if (!status) {
-      return 'mio-status badge badge-muted';
+      return 'muted';
     }
     switch (status) {
       case 'completed':
-        return 'mio-status badge badge-success';
+        return 'success';
       case 'failed':
-        return 'mio-status badge badge-danger';
+        return 'danger';
       case 'started':
       case 'requested':
-        return 'mio-status badge badge-info';
+        return 'info';
       default:
-        return 'mio-status badge badge-warning';
+        return 'warning';
     }
   }
 

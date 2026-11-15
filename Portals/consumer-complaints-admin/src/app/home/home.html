@@ -1,8 +1,11 @@
-<main class="home">
-  <p class="eyebrow">Operations</p>
-  <h1>Consumer Complaints Admin</h1>
-  <p class="lead">
-    Manage dataset imports and workflow runs against the local Middleware API.
-  </p>
-  <p class="meta">API base URL: <code>{{ apiBaseUrl() }}</code></p>
-</main>
+<section class="cca-home">
+  <app-ui-page-header
+    title="Consumer Complaints Admin"
+    subtitle="Manage dataset imports and workflow runs against the local Middleware API."
+    headingId="home-heading"
+  />
+  <div class="cca-home-card">
+    <p class="cca-home-label">API base URL</p>
+    <p class="cca-home-value"><code>{{ apiBaseUrl() }}</code></p>
+  </div>
+</section>
