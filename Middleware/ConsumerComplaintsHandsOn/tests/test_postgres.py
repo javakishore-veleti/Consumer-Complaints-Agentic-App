@@ -40,6 +40,7 @@ pytestmark = pytest.mark.skipif(not URL, reason="CCA_TEST_POSTGRES_URL is not se
 @pytest.fixture
 def postgres(monkeypatch, tmp_path):
     monkeypatch.setenv("CCA_DB_URL", URL)
+    monkeypatch.setenv("CCA_OPERATIONAL_STORE", "postgres")
     monkeypatch.setenv("CCA_DATA_DIR", str(tmp_path))
     reset_engine()
     config = Config(str(PROJECT_ROOT / "alembic.ini"))
@@ -427,3 +428,89 @@ def test_start_wf_service_works_on_postgres(postgres):
     got = AppWfExecLogCtx(req=AppWfExecLogReq(id=ctx.resp.execution_id))
     assert DaoObjectsFactory.get_app_wf_exec_log_dao().get(got) == SUCCESS
     assert got.resp.records[0].status == "requested"
+
+
+def test_start_workflow_and_callback_persist_on_postgres(postgres, monkeypatch):
+    """D77 smoke: HTTP start + callback leave rows readable in the Postgres admin schema."""
+    import httpx
+    from fastapi.testclient import TestClient
+
+    from app.api.objects_factory import ApiObjectsFactory
+    from app.core.services.impl.airflow_dag_runs_client import AirflowDagRunsClient
+    from app.core.services.impl.airflow_start_dag_service_impl import AirflowStartDagServiceImpl
+
+    command.upgrade(postgres, "head")
+    secret = "postgres-via-env-callback-secret"
+    monkeypatch.setenv("CCA_CALLBACK_SECRET", secret)
+    monkeypatch.setenv("CCA_AIRFLOW_API_BASE_URL", "http://airflow.test")
+    monkeypatch.setenv("CCA_AIRFLOW_API_USERNAME", "airflow")
+    monkeypatch.setenv("CCA_AIRFLOW_API_PASSWORD", "airflow")
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.path == "/auth/token":
+            return httpx.Response(201, json={"access_token": "tok"})
+        if request.method == "POST" and "/dagRuns" in request.url.path:
+            return httpx.Response(200, json={"dag_run_id": "pg-run-1"})
+        return httpx.Response(500)
+
+    service = ServicesObjectsFactory.get_airflow_start_dag_service()
+    assert isinstance(service, AirflowStartDagServiceImpl)
+    service._client = AirflowDagRunsClient(transport=httpx.MockTransport(handler))
+
+    client = TestClient(ApiObjectsFactory.get_app())
+    listed = AppWfCtx()
+    assert DaoObjectsFactory.get_app_wf_dao().list(listed) == SUCCESS
+    wf_id = next(r.id for r in listed.resp.records if r.workflow_name == "download_cfpb_all")
+    mio = MioCtx(req=MioReq(name="Customer complaints 3 months 2026"))
+    assert DaoObjectsFactory.get_mio_dao().get(mio) == SUCCESS
+    mio_id = mio.resp.records[0].id
+
+    started = client.post(f"/workflows/{wf_id}/start", json={"mio_id": mio_id})
+    assert started.status_code == 202
+    execution_id = started.json()["execution_id"]
+
+    engine = create_engine(URL)
+    with engine.connect() as c:
+        exec_row = c.execute(
+            text(
+                f"select status, engine_run_id, mios_ingest_log_id from {SCHEMA_ADMIN}.app_workflows_exec_log"
+                " where id = :id"
+            ),
+            {"id": execution_id},
+        ).fetchone()
+        assert exec_row is not None
+        assert exec_row[0] == "requested"
+        assert exec_row[1] == "pg-run-1"
+        ingest_id = exec_row[2]
+        assert ingest_id
+        assert (
+            c.execute(
+                text(f"select status from {SCHEMA_ADMIN}.mios_ingest_log where id = :id"),
+                {"id": ingest_id},
+            ).scalar()
+            == "requested"
+        )
+
+    cb = client.post(
+        f"/callbacks/workflow-executions/{execution_id}/status",
+        json={"status": "started", "engine_run_id": "pg-run-1"},
+        headers={"X-Callback-Secret": secret},
+    )
+    assert cb.status_code == 200
+
+    with engine.connect() as c:
+        assert (
+            c.execute(
+                text(f"select status from {SCHEMA_ADMIN}.app_workflows_exec_log where id = :id"),
+                {"id": execution_id},
+            ).scalar()
+            == "started"
+        )
+        assert (
+            c.execute(
+                text(f"select status from {SCHEMA_ADMIN}.mios_ingest_log where id = :id"),
+                {"id": ingest_id},
+            ).scalar()
+            == "started"
+        )
+    engine.dispose()
