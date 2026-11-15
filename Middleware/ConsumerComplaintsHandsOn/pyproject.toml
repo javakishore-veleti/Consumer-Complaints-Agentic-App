@@ -11,6 +11,7 @@ dependencies = [
     "psycopg[binary]>=3.3.9",
     "sqlalchemy>=2.1.8",
     "uvicorn[standard]>=0.54.0",
+    "pymongo>=4.10.0",
 ]
 
 [dependency-groups]
@@ -18,6 +19,7 @@ dev = [
     "httpx>=0.28.1",
     "import-linter>=2.16",
     "pytest>=9.2.0",
+    "mongomock>=4.3.0",
 ]
 
 [tool.pytest.ini_options]

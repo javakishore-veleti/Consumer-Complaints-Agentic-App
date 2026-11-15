@@ -157,7 +157,7 @@ Three **local operational/admin** backends for the same DAO interfaces (D75). De
 |---|---|---|---|
 | **SQLite** (default) | Leave `CCA_OPERATIONAL_STORE` and `CCA_DB_URL` unset (or `CCA_OPERATIONAL_STORE=sqlite`) | users, admin schema tables (workflow registry, catalog and logs; D48), other operational data | the API only (Airflow reads it, D51) |
 | **Postgres** | `CCA_DB_URL=postgresql+psycopg://...` (or `CCA_OPERATIONAL_STORE=postgres` with that URL) | same operational/admin data | the API only (optional local container + `.env` only — D77 / story #118; verify with `CCA_TEST_POSTGRES_URL` / CI) |
-| **MongoDB (operational)** | `CCA_OPERATIONAL_STORE=mongodb` and `CCA_MONGO_OPERATIONAL_URL=...` | same operational/admin data as collections (DAO impl in story #119) | the API only |
+| **MongoDB (operational)** | `CCA_OPERATIONAL_STORE=mongodb` and `CCA_MONGO_OPERATIONAL_URL=...` | same operational/admin data as collections (Mongo DAOs + bootstrap — D79 / story #119) | the API only |
 
 | Other store | Holds | Written by | Notes |
 |---|---|---|---|

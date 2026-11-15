@@ -16,6 +16,17 @@ from app.core.dao.mio_dataset_dao import MioDatasetDao
 from app.core.dao.mio_ingest_log_dao import MioIngestLogDao
 from app.core.dao.transaction_dao import TransactionDao
 
+_DAO_INTERFACES = (
+    AppWfDao,
+    AppWfExecLogDao,
+    DatasetDao,
+    DatasetLocationDao,
+    MioDao,
+    MioDatasetDao,
+    MioIngestLogDao,
+    TransactionDao,
+)
+
 
 class DaoObjectsFactory:
     _initialized = False
@@ -30,39 +41,59 @@ class DaoObjectsFactory:
                 return
             from app.core.common.config import get_settings
 
-            # D75: DaoObjectsFactory chooses the impl from Settings.operational_store.
-            # Mongo operational DAOs are story #119 — fail fast until then.
+            # D75/D79: DaoObjectsFactory chooses the impl from Settings.operational_store.
             store = get_settings().operational_store
             if store == "mongodb":
-                raise RuntimeError(
-                    "Operational store mongodb is configured (D75) but Mongo DAO "
-                    "implementations are not registered yet — story #119"
+                from app.core.dao.impl.mongo.mongo_app_wf_dao import MongoAppWfDao
+                from app.core.dao.impl.mongo.mongo_app_wf_exec_log_dao import MongoAppWfExecLogDao
+                from app.core.dao.impl.mongo.mongo_dataset_dao import MongoDatasetDao
+                from app.core.dao.impl.mongo.mongo_dataset_location_dao import MongoDatasetLocationDao
+                from app.core.dao.impl.mongo.mongo_mio_dao import MongoMioDao
+                from app.core.dao.impl.mongo.mongo_mio_dataset_dao import MongoMioDatasetDao
+                from app.core.dao.impl.mongo.mongo_mio_ingest_log_dao import MongoMioIngestLogDao
+                from app.core.dao.impl.mongo.mongo_transaction_dao import MongoTransactionDao
+
+                bean_registry.register(AppWfDao, MongoAppWfDao())
+                bean_registry.register(AppWfExecLogDao, MongoAppWfExecLogDao())
+                bean_registry.register(DatasetDao, MongoDatasetDao())
+                bean_registry.register(DatasetLocationDao, MongoDatasetLocationDao())
+                bean_registry.register(MioDao, MongoMioDao())
+                bean_registry.register(MioDatasetDao, MongoMioDatasetDao())
+                bean_registry.register(MioIngestLogDao, MongoMioIngestLogDao())
+                bean_registry.register(TransactionDao, MongoTransactionDao())
+            else:
+                from app.core.dao.impl.sqlalchemy_app_wf_dao import SqlAlchemyAppWfDao
+                from app.core.dao.impl.sqlalchemy_app_wf_exec_log_dao import (
+                    SqlAlchemyAppWfExecLogDao,
                 )
+                from app.core.dao.impl.sqlalchemy_dataset_dao import SqlAlchemyDatasetDao
+                from app.core.dao.impl.sqlalchemy_dataset_location_dao import (
+                    SqlAlchemyDatasetLocationDao,
+                )
+                from app.core.dao.impl.sqlalchemy_mio_dao import SqlAlchemyMioDao
+                from app.core.dao.impl.sqlalchemy_mio_dataset_dao import SqlAlchemyMioDatasetDao
+                from app.core.dao.impl.sqlalchemy_mio_ingest_log_dao import (
+                    SqlAlchemyMioIngestLogDao,
+                )
+                from app.core.dao.impl.sqlalchemy_transaction_dao import SqlAlchemyTransactionDao
 
-            from app.core.dao.impl.sqlalchemy_app_wf_dao import SqlAlchemyAppWfDao
-            from app.core.dao.impl.sqlalchemy_app_wf_exec_log_dao import (
-                SqlAlchemyAppWfExecLogDao,
-            )
-            from app.core.dao.impl.sqlalchemy_dataset_dao import SqlAlchemyDatasetDao
-            from app.core.dao.impl.sqlalchemy_dataset_location_dao import (
-                SqlAlchemyDatasetLocationDao,
-            )
-            from app.core.dao.impl.sqlalchemy_mio_dao import SqlAlchemyMioDao
-            from app.core.dao.impl.sqlalchemy_mio_dataset_dao import SqlAlchemyMioDatasetDao
-            from app.core.dao.impl.sqlalchemy_mio_ingest_log_dao import (
-                SqlAlchemyMioIngestLogDao,
-            )
-            from app.core.dao.impl.sqlalchemy_transaction_dao import SqlAlchemyTransactionDao
-
-            bean_registry.register(AppWfDao, SqlAlchemyAppWfDao())
-            bean_registry.register(AppWfExecLogDao, SqlAlchemyAppWfExecLogDao())
-            bean_registry.register(DatasetDao, SqlAlchemyDatasetDao())
-            bean_registry.register(DatasetLocationDao, SqlAlchemyDatasetLocationDao())
-            bean_registry.register(MioDao, SqlAlchemyMioDao())
-            bean_registry.register(MioDatasetDao, SqlAlchemyMioDatasetDao())
-            bean_registry.register(MioIngestLogDao, SqlAlchemyMioIngestLogDao())
-            bean_registry.register(TransactionDao, SqlAlchemyTransactionDao())
+                bean_registry.register(AppWfDao, SqlAlchemyAppWfDao())
+                bean_registry.register(AppWfExecLogDao, SqlAlchemyAppWfExecLogDao())
+                bean_registry.register(DatasetDao, SqlAlchemyDatasetDao())
+                bean_registry.register(DatasetLocationDao, SqlAlchemyDatasetLocationDao())
+                bean_registry.register(MioDao, SqlAlchemyMioDao())
+                bean_registry.register(MioDatasetDao, SqlAlchemyMioDatasetDao())
+                bean_registry.register(MioIngestLogDao, SqlAlchemyMioIngestLogDao())
+                bean_registry.register(TransactionDao, SqlAlchemyTransactionDao())
             DaoObjectsFactory._initialized = True
+
+    @staticmethod
+    def reset() -> None:
+        """Clear registered DAO beans so the next init() can pick a different store (tests)."""
+        with DaoObjectsFactory._lock:
+            for interface in _DAO_INTERFACES:
+                bean_registry._by_interface.pop(interface, None)
+            DaoObjectsFactory._initialized = False
 
     @staticmethod
     def get_app_wf_dao() -> AppWfDao:
