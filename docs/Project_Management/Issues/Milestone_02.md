@@ -2,7 +2,7 @@
 
 **Scope (decision D38 in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`):** download the free CFPB dataset on demand from the admin portal, asynchronously through Airflow, through registered workflows (D43), and always show whether it has been downloaded. Everything runs locally. Cloud work is M03.
 
-**Status: in progress.** 1 epic, 5 features and 27 stories. 11 stories (and 1 feature) are already done, 16 stories are left to build.
+**Status: in progress.** 1 epic, 5 features and 27 stories. 12 stories (and 1 feature) are already done, 15 stories are left to build.
 
 How to read this file:
 - `#42` is the GitHub issue number in this repository. The `M02-00NN` key is the sequence tag at the start of the issue title. Keys are not in build order.
@@ -263,18 +263,18 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #43 | 10 | `/ccaa-commit-push 43` | Done | 2026-11-14 22:05 | 2026-11-14 22:05 |
 | #43 | 11 | `/finishing-a-development-branch Story #43` | Done | 2026-11-14 22:05 | 2026-11-14 22:05 |
 | #43 | 12 | `/ccaa-story-complete 43` | Done | 2026-11-14 22:05 | 2026-11-14 22:05 |
-| #45 | 1 | `/ccaa-story-start 45` | Planned | - | - |
-| #45 | 2 | `/brainstorming Story #45: read MIO status endpoint; one call returns every MIO with the status of its latest ingest and executions` | Planned | - | - |
-| #45 | 3 | `/using-git-worktrees Story #45: branch m02-0010-read-mio-status-endpoint` | Planned | - | - |
-| #45 | 4 | `/writing-plans Story #45` | Planned | - | - |
-| #45 | 5 | `/test-driven-development Story #45` | Planned | - | - |
-| #45 | 6 | `/subagent-driven-development Story #45` | Planned | - | - |
-| #45 | 7 | `/ccaa-commit-push 45` after every task (repeat) | Planned | - | - |
-| #45 | 8 | `/verification-before-completion Story #45` | Planned | - | - |
-| #45 | 9 | `/requesting-code-review Story #45` | Planned | - | - |
-| #45 | 10 | `/ccaa-commit-push 45` | Planned | - | - |
-| #45 | 11 | `/finishing-a-development-branch Story #45` | Planned | - | - |
-| #45 | 12 | `/ccaa-story-complete 45` | Planned | - | - |
+| #45 | 1 | `/ccaa-story-start 45` | Done | 2026-11-14 22:06 | 2026-11-14 22:06 |
+| #45 | 2 | `/brainstorming Story #45: read MIO status endpoint; one call returns every MIO with the status of its latest ingest and executions` | Done | 2026-11-14 22:06 | 2026-11-14 22:06 |
+| #45 | 3 | `/using-git-worktrees Story #45: branch m02-0010-read-mio-status-endpoint` | Done | 2026-11-14 22:06 | 2026-11-14 22:06 |
+| #45 | 4 | `/writing-plans Story #45` | Done | 2026-11-14 22:06 | 2026-11-14 22:13 |
+| #45 | 5 | `/test-driven-development Story #45` | Done | 2026-11-14 22:13 | 2026-11-14 22:13 |
+| #45 | 6 | `/subagent-driven-development Story #45` | Done | 2026-11-14 22:13 | 2026-11-14 22:21 |
+| #45 | 7 | `/ccaa-commit-push 45` after every task (repeat) | Done | 2026-11-14 22:21 | 2026-11-14 22:21 |
+| #45 | 8 | `/verification-before-completion Story #45` | Done | 2026-11-14 22:21 | 2026-11-14 22:21 |
+| #45 | 9 | `/requesting-code-review Story #45` | Done | 2026-11-14 22:21 | 2026-11-14 22:21 |
+| #45 | 10 | `/ccaa-commit-push 45` | Done | 2026-11-14 22:21 | 2026-11-14 22:21 |
+| #45 | 11 | `/finishing-a-development-branch Story #45` | Done | 2026-11-14 22:21 | 2026-11-14 22:21 |
+| #45 | 12 | `/ccaa-story-complete 45` | Done | 2026-11-14 22:21 | 2026-11-14 22:21 |
 
 ### Phase 3 - Airflow download DAG
 
@@ -510,4 +510,4 @@ The skills live in `.cursor/skills/`. Each takes a GitHub issue number.
 - **Open questions on the issues:** #65 (poll or refresh). The #55 question is decided in D42 (revised by D43): credentials in `.env`, copied into Airflow Variables by story #77.
 - **Story #77 was added** while deciding #55 (D42). It is under feature #56 and is built first in Phase 3, because the DAG reads the Variables it creates.
 - **Moved to M03 - Cloud Deployment:** #51 S3, #52 Azure Blob, #53 GCP Cloud Storage, #54 Google Drive, and the cloud migration workflow #24. They are not part of this milestone. #51 to #54 were written as source types, so under D43 they need rewriting as cloud workflows before M03 starts (they are still open).
-- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D61.
+- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D62.

@@ -133,7 +133,8 @@ Workflows are registered in the database (D43): **`app_workflows`** holds the wo
 (Apache Airflow, AWS Step Functions or another), the engine's own id for it (the Airflow DAG id, the state machine) and a
 JSON config; **`app_workflows_exec_log`** records every execution. The portal lists the registered workflows; the API
 starts the chosen one in its engine asynchronously; the engine calls the API when the run is complete; the portal reads
-the status through the API from the configured database. There may be several download workflows. Each one knows its own
+the status through the API from the configured database. `GET /mios/status` returns every MIO with its latest ingest and that ingest's executions (D61); it needs no callback secret.
+There may be several download workflows. Each one knows its own
 source, so the API has no source-location types. The dataset is never stored in this repository.
 
 The CFPB site cannot export a 3-month filter (limit 100,000), so the **3 months dataset is the All file filtered by date**.
