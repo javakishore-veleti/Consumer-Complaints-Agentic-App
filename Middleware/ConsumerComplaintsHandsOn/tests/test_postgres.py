@@ -24,6 +24,7 @@ from app.core.common.dtos.dataset_status_dtos import DatasetStatusCtx, DatasetSt
 from app.core.common.dtos.mio_dataset_dtos import MioDatasetCtx, MioDatasetReq
 from app.core.common.dtos.mio_dtos import MioCtx, MioReq
 from app.core.common.dtos.mio_ingest_log_dtos import MioIngestLogCtx, MioIngestLogReq
+from app.core.common.dtos.mio_status_dtos import MioStatusCtx, MioStatusReq
 from app.core.common.dtos.wf_exec_status_dtos import WfExecStatusCtx, WfExecStatusReq
 from app.core.common.return_codes import CONFLICT, INVALID_INPUT, NOT_FOUND, SUCCESS
 from app.core.dao.impl import sqlalchemy_app_wf_exec_log_dao as exec_log_impl
@@ -395,3 +396,29 @@ def test_wf_exec_status_service_works_on_postgres(postgres):
     assert (again.code, again.ingest) == (SUCCESS, last.ingest)
     assert report(WfExecStatusReq(execution_id=ids[1], status="completed", batch_count=-1)).code == INVALID_INPUT
     assert report(WfExecStatusReq(execution_id="no-such-execution", status="started")).code == NOT_FOUND
+
+
+def test_mio_status_service_works_on_postgres(postgres):
+    command.upgrade(postgres, "head")
+    mio = MioCtx(req=MioReq(name="t_read_status_mio"))
+    assert DaoObjectsFactory.get_mio_dao().create(mio) == SUCCESS
+    mio_id = mio.resp.records[0].id
+    ingest = MioIngestLogCtx(req=MioIngestLogReq(mio_id=mio_id, message="live"))
+    assert DaoObjectsFactory.get_mio_ingest_log_dao().create(ingest) == SUCCESS
+    made = AppWfCtx(req=AppWfReq(workflow_name="w_read", engine_type="apache_airflow", engine_workflow_id="dag"))
+    assert DaoObjectsFactory.get_app_wf_dao().create(made) == SUCCESS
+    execution = AppWfExecLogCtx(
+        req=AppWfExecLogReq(workflow_id=made.resp.records[0].id, mios_ingest_log_id=ingest.resp.records[0].id)
+    )
+    assert DaoObjectsFactory.get_app_wf_exec_log_dao().create(execution) == SUCCESS
+
+    ctx = MioStatusCtx(req=MioStatusReq(mio_id=mio_id))
+    assert ServicesObjectsFactory.get_mio_status_service().read(ctx) == SUCCESS
+    assert len(ctx.resp.entries) == 1
+    entry = ctx.resp.entries[0]
+    assert entry.id == mio_id
+    assert entry.latest_ingest is not None
+    assert entry.latest_ingest.message == "live"
+    assert [x.id for x in entry.latest_ingest.executions] == [execution.resp.records[0].id]
+    missing = MioStatusCtx(req=MioStatusReq(mio_id="missing"))
+    assert ServicesObjectsFactory.get_mio_status_service().read(missing) == NOT_FOUND
