@@ -53,7 +53,7 @@ def test_seeded_workflows_and_mios(mongo_db):
     names = [r.workflow_name for r in listed.resp.records]
     assert "download_cfpb_all" in names
     assert "filter_cfpb_3_months" in names
-    mio = MioCtx(req=MioReq(name="Customer complaints 3 months 2026"))
+    mio = MioCtx(req=MioReq(name="Customer complaints all 2026"))
     assert DaoObjectsFactory.get_mio_dao().get(mio) == SUCCESS
 
 
@@ -95,7 +95,7 @@ def test_start_workflow_and_callback_persist_on_mongo(mongo_db, monkeypatch):
     listed = AppWfCtx()
     assert DaoObjectsFactory.get_app_wf_dao().list(listed) == SUCCESS
     wf_id = next(r.id for r in listed.resp.records if r.workflow_name == "download_cfpb_all")
-    mio = MioCtx(req=MioReq(name="Customer complaints 3 months 2026"))
+    mio = MioCtx(req=MioReq(name="Customer complaints all 2026"))
     assert DaoObjectsFactory.get_mio_dao().get(mio) == SUCCESS
     mio_id = mio.resp.records[0].id
 

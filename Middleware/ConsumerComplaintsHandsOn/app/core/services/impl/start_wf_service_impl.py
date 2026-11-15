@@ -4,6 +4,7 @@ from app.core.common.dtos.app_wf_dtos import AppWfCtx, AppWfReq
 from app.core.common.dtos.app_wf_exec_log_dtos import AppWfExecLogCtx, AppWfExecLogReq
 from app.core.common.dtos.dataset_location_dtos import DatasetLocationCtx, DatasetLocationReq
 from app.core.common.dtos.mio_ingest_log_dtos import MioIngestLogCtx, MioIngestLogReq
+from app.core.common.dtos.mio_workflow_dtos import MioWorkflowCtx, MioWorkflowReq
 from app.core.common.dtos.start_wf_dtos import StartWfCtx
 from app.core.common.return_codes import INVALID_INPUT, NOT_FOUND, SUCCESS
 from app.core.dao.objects_factory import DaoObjectsFactory
@@ -51,6 +52,16 @@ class StartWfServiceImpl(StartWfService):
         if mio_id is not None:
             mio_id = mio_id.strip()
             if not mio_id:
+                ctx.resp.code = INVALID_INPUT
+                return INVALID_INPUT
+            # D84: when a MIO is given, the workflow must be in mios_workflows for that MIO.
+            link_ctx = MioWorkflowCtx(req=MioWorkflowReq(mio_id=mio_id))
+            code = DaoObjectsFactory.get_mio_workflow_dao().list(link_ctx)
+            if code != SUCCESS:
+                ctx.resp.code = code
+                return code
+            allowed = {r.workflow_id for r in link_ctx.resp.records}
+            if workflow_id not in allowed:
                 ctx.resp.code = INVALID_INPUT
                 return INVALID_INPUT
             ingest_ctx = MioIngestLogCtx(req=MioIngestLogReq(mio_id=mio_id))

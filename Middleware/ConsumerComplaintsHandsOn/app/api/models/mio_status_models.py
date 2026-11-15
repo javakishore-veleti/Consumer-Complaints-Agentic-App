@@ -7,6 +7,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 
 from app.api.models.wf_exec_callback_models import AppWfExecLogOut
+from app.api.models.wf_list_models import WfListOut
 
 
 class MioStatusListReq(BaseModel):
@@ -38,3 +39,4 @@ class MioStatusOut(BaseModel):
     name: str
     description: str | None = None
     latest_ingest: MioStatusIngestOut | None = None
+    allowed_workflows: list[WfListOut] = []

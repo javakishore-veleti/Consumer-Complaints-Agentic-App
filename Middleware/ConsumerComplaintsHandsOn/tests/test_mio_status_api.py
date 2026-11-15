@@ -33,6 +33,14 @@ def test_lists_every_seeded_mio_with_null_ingest(client):
     body = response.json()
     assert [row["name"] for row in body] == SEEDED_NAMES
     assert all(row["latest_ingest"] is None for row in body)
+    by_name = {row["name"]: row for row in body}
+    assert [w["workflow_name"] for w in by_name["Customer complaints all 2026"]["allowed_workflows"]] == [
+        "download_cfpb_all"
+    ]
+    assert [w["workflow_name"] for w in by_name["Customer complaints 3 months 2026"]["allowed_workflows"]] == [
+        "filter_cfpb_3_months"
+    ]
+    assert by_name["Customer complaints 6 months 2026"]["allowed_workflows"] == []
 
 
 def test_nests_latest_ingest_and_executions(client, seeded_3m_id):

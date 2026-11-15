@@ -10,6 +10,7 @@ from fastapi import APIRouter, HTTPException, Query, status
 
 from app.api.models.mio_status_models import MioStatusIngestOut, MioStatusListReq, MioStatusOut
 from app.api.models.wf_exec_callback_models import AppWfExecLogOut
+from app.api.models.wf_list_models import WfListOut
 from app.core.common.dtos.mio_status_dtos import MioStatusEntry, MioStatusReq
 from app.core.common.dtos.mio_status_facade_dtos import MioStatusFacadeCtx
 from app.core.common.return_codes import INVALID_INPUT, NOT_FOUND, SUCCESS
@@ -40,6 +41,7 @@ class MioStatusApi(metaclass=SingletonMeta):
             id=entry.id,
             name=entry.name,
             description=entry.description,
+            allowed_workflows=[WfListOut.model_validate(w) for w in entry.allowed_workflows],
             latest_ingest=(
                 None
                 if ingest is None

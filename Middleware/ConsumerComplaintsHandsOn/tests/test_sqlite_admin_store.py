@@ -25,7 +25,7 @@ ADMIN_TABLES = {
 }
 SECRET = "sqlite-first-callback-secret"
 SEEDED_WF = "download_cfpb_all"
-SEEDED_MIO = "Customer complaints 3 months 2026"
+SEEDED_MIO = "Customer complaints all 2026"
 
 
 def _admin(data_dir):

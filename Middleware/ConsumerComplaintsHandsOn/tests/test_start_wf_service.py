@@ -9,6 +9,7 @@ from app.core.common.dtos.app_wf_dtos import AppWfCtx, AppWfReq
 from app.core.common.dtos.app_wf_exec_log_dtos import AppWfExecLogCtx, AppWfExecLogReq
 from app.core.common.dtos.mio_dtos import MioCtx, MioReq
 from app.core.common.dtos.mio_ingest_log_dtos import MioIngestLogCtx, MioIngestLogReq
+from app.core.common.dtos.mio_workflow_dtos import MioWorkflowCtx, MioWorkflowReq
 from app.core.common.dtos.start_wf_dtos import StartWfCtx, StartWfReq
 from app.core.common.dtos.start_wf_facade_dtos import StartWfFacadeCtx
 from app.core.common.return_codes import INVALID_INPUT, SUCCESS
@@ -50,10 +51,15 @@ def _workflow(name="t_start", enabled=True, engine_type="apache_airflow") -> str
     return ctx.resp.records[0].id
 
 
-def _mio() -> str:
-    ctx = MioCtx(req=MioReq(name="t_mio_start", description="d"))
+def _mio(name="t_mio_start") -> str:
+    ctx = MioCtx(req=MioReq(name=name, description="d"))
     assert DaoObjectsFactory.get_mio_dao().create(ctx) == SUCCESS
     return ctx.resp.records[0].id
+
+
+def _bind(mio_id: str, workflow_id: str) -> None:
+    ctx = MioWorkflowCtx(req=MioWorkflowReq(mio_id=mio_id, workflow_id=workflow_id))
+    assert DaoObjectsFactory.get_mio_workflow_dao().create(ctx) == SUCCESS
 
 
 def test_creates_exec_without_mio(data_dir):
@@ -69,6 +75,7 @@ def test_creates_exec_without_mio(data_dir):
 
 def test_creates_ingest_and_links_exec(data_dir):
     wf_id, mio_id = _workflow("t_start_mio"), _mio()
+    _bind(mio_id, wf_id)
     ctx = StartWfCtx(req=StartWfReq(workflow_id=wf_id, mio_id=mio_id))
     assert ServicesObjectsFactory.get_start_wf_service().start(ctx) == SUCCESS
     got = AppWfExecLogCtx(req=AppWfExecLogReq(id=ctx.resp.execution_id))
@@ -78,6 +85,20 @@ def test_creates_ingest_and_links_exec(data_dir):
     ing = MioIngestLogCtx(req=MioIngestLogReq(id=ingest_id))
     assert DaoObjectsFactory.get_mio_ingest_log_dao().get(ing) == SUCCESS
     assert ing.resp.records[0].mio_id == mio_id and ing.resp.records[0].status == "requested"
+
+
+def test_unbound_workflow_for_mio_is_invalid(data_dir):
+    wf_ok, wf_other = _workflow("t_bound"), _workflow("t_unbound")
+    mio_id = _mio("t_mio_bound")
+    _bind(mio_id, wf_ok)
+    ctx = StartWfCtx(req=StartWfReq(workflow_id=wf_other, mio_id=mio_id))
+    assert ServicesObjectsFactory.get_start_wf_service().start(ctx) == INVALID_INPUT
+
+
+def test_mio_with_no_allowed_workflows_is_invalid(data_dir):
+    wf_id, mio_id = _workflow("t_empty_mio_wf"), _mio("t_mio_empty")
+    ctx = StartWfCtx(req=StartWfReq(workflow_id=wf_id, mio_id=mio_id))
+    assert ServicesObjectsFactory.get_start_wf_service().start(ctx) == INVALID_INPUT
 
 
 def test_unknown_workflow_is_invalid(data_dir):
