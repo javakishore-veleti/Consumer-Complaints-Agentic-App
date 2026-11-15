@@ -196,6 +196,8 @@ unless both share a Docker network, for MongoDB).
 sends in the `X-Callback-Secret` header of every callback; without it every callback endpoint answers 401 (D59). Keep
 the secret plain ASCII. The shell sources `.env`, so quote a value that contains spaces or `$`, and a value in `.env`
 overrides a variable of the same name exported in the shell.
+Airflow workers resolve `CCA_API_URL` (process env, else Airflow Variable; local Docker default
+`http://host.docker.internal:8000`) and POST status with that secret (D67).
 The first callback endpoint is `POST /callbacks/workflow-executions/{execution_id}/status` (D60); `/health` and the
 other endpoints need no secret.
 `POST /management/airflow/upsert-secrets` (D42) copies each name listed in

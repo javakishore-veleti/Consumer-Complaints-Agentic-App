@@ -333,17 +333,17 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #60 | 10 | `/ccaa-commit-push 60` | Done | 2026-11-14 23:14 | 2026-11-14 23:14 |
 | #60 | 11 | `/finishing-a-development-branch Story #60` | Done | 2026-11-14 23:14 | 2026-11-14 23:15 |
 | #60 | 12 | `/ccaa-story-complete 60` | Planned | - | - |
-| #59 | 1 | `/ccaa-story-start 59` | Planned | - | - |
-| #59 | 2 | `/brainstorming Story #59: report started, completed and failed to the API from the DAG; a final task always runs so a crashed run never stays running; callbacks reach the API from the container (host.docker.internal)` | Planned | - | - |
-| #59 | 3 | `/using-git-worktrees Story #59: branch m02-0020-report-started-completed-and-failed-to` | Planned | - | - |
-| #59 | 4 | `/writing-plans Story #59` | Planned | - | - |
-| #59 | 5 | `/test-driven-development Story #59` | Planned | - | - |
-| #59 | 6 | `/subagent-driven-development Story #59` | Planned | - | - |
-| #59 | 7 | `/ccaa-commit-push 59` after every task (repeat) | Planned | - | - |
-| #59 | 8 | `/verification-before-completion Story #59` | Planned | - | - |
-| #59 | 9 | `/requesting-code-review Story #59` | Planned | - | - |
-| #59 | 10 | `/ccaa-commit-push 59` | Planned | - | - |
-| #59 | 11 | `/finishing-a-development-branch Story #59` | Planned | - | - |
+| #59 | 1 | `/ccaa-story-start 59` | Done | 2026-11-14 23:11 | 2026-11-14 23:11 |
+| #59 | 2 | `/brainstorming Story #59: report started, completed and failed to the API from the DAG; a final task always runs so a crashed run never stays running; callbacks reach the API from the container (host.docker.internal)` | Done | 2026-11-14 23:11 | 2026-11-14 23:11 |
+| #59 | 3 | `/using-git-worktrees Story #59: branch m02-0020-report-started-completed-and-failed-to` | Done | 2026-11-14 23:11 | 2026-11-14 23:11 |
+| #59 | 4 | `/writing-plans Story #59` | Done | 2026-11-14 23:11 | 2026-11-14 23:16 |
+| #59 | 5 | `/test-driven-development Story #59` | Done | 2026-11-14 23:16 | 2026-11-14 23:20 |
+| #59 | 6 | `/subagent-driven-development Story #59` | Done | 2026-11-14 23:20 | 2026-11-14 23:20 |
+| #59 | 7 | `/ccaa-commit-push 59` after every task (repeat) | Done | 2026-11-14 23:20 | 2026-11-14 23:20 |
+| #59 | 8 | `/verification-before-completion Story #59` | Done | 2026-11-14 23:20 | 2026-11-14 23:21 |
+| #59 | 9 | `/requesting-code-review Story #59` | Done | 2026-11-14 23:21 | 2026-11-14 23:21 |
+| #59 | 10 | `/ccaa-commit-push 59` | Done | 2026-11-14 23:21 | 2026-11-14 23:21 |
+| #59 | 11 | `/finishing-a-development-branch Story #59` | Done | 2026-11-14 23:21 | 2026-11-14 23:22 |
 | #59 | 12 | `/ccaa-story-complete 59` | Planned | - | - |
 
 ### Phase 4 - Start a workflow
@@ -510,4 +510,4 @@ The skills live in `.cursor/skills/`. Each takes a GitHub issue number.
 - **Open questions on the issues:** #65 (poll or refresh). The #55 question is decided in D42 (revised by D43): credentials in `.env`, copied into Airflow Variables by story #77.
 - **Story #77 was added** while deciding #55 (D42). It is under feature #56 and is built first in Phase 3, because the DAG reads the Variables it creates.
 - **Moved to M03 - Cloud Deployment:** #51 S3, #52 Azure Blob, #53 GCP Cloud Storage, #54 Google Drive, and the cloud migration workflow #24. They are not part of this milestone. #51 to #54 were written as source types, so under D43 they need rewriting as cloud workflows before M03 starts (they are still open).
-- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. D63 and D64 are claimed by story #57 (parallel branch); the next free decision number is D65. Story #60 adds no new decision.
+- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D68.
