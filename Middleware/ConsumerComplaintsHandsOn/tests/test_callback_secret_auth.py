@@ -77,6 +77,19 @@ def test_a_wrong_secret_is_401(secret, given):
     assert _refused(_request(Headers({CALLBACK_SECRET_HEADER: given}))).status_code == 401
 
 
+def test_a_latin_1_secret_matches_when_sent_as_latin_1_bytes(monkeypatch):
+    """Starlette decodes the header bytes as latin-1, so the secret is compared as latin-1 bytes."""
+    monkeypatch.setenv("CCA_CALLBACK_SECRET", "caf\u00e9-fake")
+    sent = Headers(raw=[(b"x-callback-secret", "caf\u00e9-fake".encode("latin-1"))])
+    assert ApiObjectsFactory.get_callback_secret_auth()(_request(sent)) is None
+
+
+def test_a_configured_secret_that_latin_1_cannot_encode_is_401_and_raises_nothing_else(monkeypatch):
+    monkeypatch.setenv("CCA_CALLBACK_SECRET", "\u20ac-fake")
+    for headers in (Headers({}), Headers({CALLBACK_SECRET_HEADER: "wrong"}), Headers({CALLBACK_SECRET_HEADER: "?-fake"})):
+        assert _refused(_request(headers)).status_code == 401
+
+
 def test_without_a_configured_secret_everything_is_refused(no_secret):
     for headers in (Headers({}), Headers({CALLBACK_SECRET_HEADER: ""}), Headers({CALLBACK_SECRET_HEADER: "anything"})):
         assert _refused(_request(headers)).status_code == 401

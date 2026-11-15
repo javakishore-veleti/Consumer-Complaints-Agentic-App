@@ -29,8 +29,14 @@ class CallbackSecretAuth(metaclass=SingletonMeta):
             log.warning("callback refused: CCA_CALLBACK_SECRET is not set, so every callback is refused")
             raise self._unauthorized()
         given = request.headers.get(CALLBACK_SECRET_HEADER, "")
-        # Constant time, on bytes: compare_digest rejects str with non-ASCII characters.
-        if not hmac.compare_digest(given.encode(), expected.encode()):
+        # Constant time, on bytes (compare_digest rejects str with non-ASCII characters). Starlette decodes the header
+        # bytes as latin-1, so both sides are encoded as latin-1; a configured secret that latin-1 cannot encode can
+        # never match (fail closed, no exception).
+        try:
+            expected_bytes = expected.encode("latin-1")
+        except UnicodeEncodeError:
+            expected_bytes = None
+        if expected_bytes is None or not hmac.compare_digest(given.encode("latin-1"), expected_bytes):
             log.warning("callback refused: missing or wrong %s header", CALLBACK_SECRET_HEADER)
             raise self._unauthorized()
 
