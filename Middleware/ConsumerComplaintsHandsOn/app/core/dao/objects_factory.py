@@ -28,6 +28,17 @@ class DaoObjectsFactory:
         with DaoObjectsFactory._lock:
             if DaoObjectsFactory._initialized:
                 return
+            from app.core.common.config import get_settings
+
+            # D75: DaoObjectsFactory chooses the impl from Settings.operational_store.
+            # Mongo operational DAOs are story #119 — fail fast until then.
+            store = get_settings().operational_store
+            if store == "mongodb":
+                raise RuntimeError(
+                    "Operational store mongodb is configured (D75) but Mongo DAO "
+                    "implementations are not registered yet — story #119"
+                )
+
             from app.core.dao.impl.sqlalchemy_app_wf_dao import SqlAlchemyAppWfDao
             from app.core.dao.impl.sqlalchemy_app_wf_exec_log_dao import (
                 SqlAlchemyAppWfExecLogDao,

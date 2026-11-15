@@ -13,7 +13,7 @@ flowchart LR
     UI["Admin portal (Angular)\nPortals/consumer-complaints-admin"] -->|"list workflows, start one, read status"| API["Middleware API (FastAPI)"]
     API --> FAC["Facades, then Services or DAOs"]
     FAC -->|"start the workflow (async)"| AF["Workflow engine: Apache Airflow (others later)"]
-    FAC -->|"only writer"| SQL[("SQLite: operational data")]
+    FAC -->|"only writer"| OPS[("Operational store\nSQLite (default) / Postgres / Mongo")]
     AF -->|"status: started / completed"| API
     AF -->|"each workflow reads its own source"| SRC[["Source of the data (known only to the workflow)"]]
     AF -->|"bulk ingest, batches"| MONGO[("MongoDB: complaint data")]
@@ -22,9 +22,9 @@ flowchart LR
 
 Two write rules that everything follows:
 
-1. **SQLite is written only by the API.** Airflow may read it (D51) but never writes it; it reports progress by calling the API.
+1. **The operational/admin store is written only by the API** (default SQLite; Postgres or Mongo via `.env`, D75). Airflow may read it (D51) but never writes it; it reports progress by calling the API.
 2. **MongoDB (the bulk complaint data) is written only by the Airflow ingest job**, directly, in batches.
-   Pushing millions of records through the API layers would be slow and pointless.
+   Pushing millions of records through the API layers would be slow and pointless. That complaint database is separate from an optional Mongo **operational** profile (D75).
 
 ## 2. Layered architecture (Neal Ford: closed layers, one open layer)
 
@@ -149,11 +149,20 @@ In the part of the file sampled, rows are not sorted by date, so the whole file 
 
 ## 6. Data stores
 
-| Store | Holds | Written by | Swappable |
+Three **local operational/admin** backends for the same DAO interfaces (D75). Default is SQLite (no Postgres container). Switch with `.env` only — no facade/API rewrite.
+
+| Operational backend | How to select (`.env`) | Holds | Written by |
 |---|---|---|---|
-| SQLite | users, the admin schema tables (workflow registry, catalog and logs; D48), other operational data | the API only (Airflow reads it, D51) | yes: Postgres or similar through the DAO interface and SQLAlchemy |
-| MongoDB | the complaint data | the Airflow ingest job | by DAO implementation |
+| **SQLite** (default) | Leave `CCA_OPERATIONAL_STORE` and `CCA_DB_URL` unset (or `CCA_OPERATIONAL_STORE=sqlite`) | users, admin schema tables (workflow registry, catalog and logs; D48), other operational data | the API only (Airflow reads it, D51) |
+| **Postgres** | `CCA_DB_URL=postgresql+psycopg://...` (or `CCA_OPERATIONAL_STORE=postgres` with that URL) | same operational/admin data | the API only |
+| **MongoDB (operational)** | `CCA_OPERATIONAL_STORE=mongodb` and `CCA_MONGO_OPERATIONAL_URL=...` | same operational/admin data as collections (DAO impl in story #119) | the API only |
+
+| Other store | Holds | Written by | Notes |
+|---|---|---|---|
+| MongoDB (complaint data) | bulk complaint documents | the Airflow ingest job | D10; **not** selected by the operational profile |
 | Airflow's own Postgres | Airflow metadata | Airflow | n/a (separate, not used by the app) |
+
+`DaoObjectsFactory.init()` (D45) registers the DAO implementation for the active `Settings.operational_store`. Callers above `dao/` stay on interfaces.
 
 Schemas (names exactly as decided):
 
@@ -166,7 +175,7 @@ Schemas (names exactly as decided):
 
 SQLite has no real schemas, so each one is a separate database file, attached by name, in `Middleware/ConsumerComplaintsHandsOn/.data/`
 (`consumer_comp_db.sqlite`, ...; plus `operational.sqlite` for the Alembic version table). On Postgres and similar databases
-they are real schemas, created by the migration environment. Set `CCA_DB_URL` to switch database and `CCA_DATA_DIR` to move the files.
+they are real schemas, created by the migration environment. Set `CCA_DB_URL` / `CCA_OPERATIONAL_STORE` to switch the operational backend and `CCA_DATA_DIR` to move SQLite files.
 
 ## 7. Schema versioning
 
