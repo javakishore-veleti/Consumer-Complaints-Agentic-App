@@ -343,7 +343,7 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #59 | 8 | `/verification-before-completion Story #59` | Done | 2026-11-14 23:20 | 2026-11-14 23:21 |
 | #59 | 9 | `/requesting-code-review Story #59` | Done | 2026-11-14 23:21 | 2026-11-14 23:21 |
 | #59 | 10 | `/ccaa-commit-push 59` | Done | 2026-11-14 23:21 | 2026-11-14 23:21 |
-| #59 | 11 | `/finishing-a-development-branch Story #59` | In progress | 2026-11-14 23:21 | - |
+| #59 | 11 | `/finishing-a-development-branch Story #59` | Done | 2026-11-14 23:21 | 2026-11-14 23:22 |
 | #59 | 12 | `/ccaa-story-complete 59` | Planned | - | - |
 
 ### Phase 4 - Start a workflow
