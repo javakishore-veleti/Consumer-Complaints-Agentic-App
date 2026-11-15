@@ -213,16 +213,16 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
 | #123 | 1 | `/ccaa-story-start 123` | Done | 2026-11-15 01:51 | 2026-11-15 01:51 |
-| #123 | 2 | `/brainstorming Story #123: DoD matrix checklist/script — prove path on SQLite, Postgres, and MongoDB; epic Done only after all three` | In progress | 2026-11-15 01:51 | - |
-| #123 | 3 | `/using-git-worktrees Story #123: branch m03-0013-dod-matrix` | Planned | - | - |
-| #123 | 4 | `/writing-plans Story #123` | Planned | - | - |
-| #123 | 5 | `/test-driven-development Story #123` | Planned | - | - |
-| #123 | 6 | `/subagent-driven-development Story #123` | Planned | - | - |
-| #123 | 7 | `/ccaa-commit-push 123` after every task (repeat) | Planned | - | - |
-| #123 | 8 | `/verification-before-completion Story #123` | Planned | - | - |
-| #123 | 9 | `/requesting-code-review Story #123` | Planned | - | - |
-| #123 | 10 | `/ccaa-commit-push 123` | Planned | - | - |
-| #123 | 11 | `/finishing-a-development-branch Story #123` | Planned | - | - |
+| #123 | 2 | `/brainstorming Story #123: DoD matrix checklist/script — prove path on SQLite, Postgres, and MongoDB; epic Done only after all three` | Done | 2026-11-15 01:52 | 2026-11-15 01:52 |
+| #123 | 3 | `/using-git-worktrees Story #123: branch m03-0013-dod-matrix` | Done | 2026-11-15 01:52 | 2026-11-15 01:52 |
+| #123 | 4 | `/writing-plans Story #123` | Done | 2026-11-15 01:52 | 2026-11-15 01:52 |
+| #123 | 5 | `/test-driven-development Story #123` | Done | 2026-11-15 01:52 | 2026-11-15 01:52 |
+| #123 | 6 | `/subagent-driven-development Story #123` | Done | 2026-11-15 01:52 | 2026-11-15 01:52 |
+| #123 | 7 | `/ccaa-commit-push 123` after every task (repeat) | Done | 2026-11-15 01:52 | 2026-11-15 01:52 |
+| #123 | 8 | `/verification-before-completion Story #123` | Done | 2026-11-15 01:52 | 2026-11-15 01:52 |
+| #123 | 9 | `/requesting-code-review Story #123` | Done | 2026-11-15 01:52 | 2026-11-15 01:52 |
+| #123 | 10 | `/ccaa-commit-push 123` | Done | 2026-11-15 01:52 | 2026-11-15 01:52 |
+| #123 | 11 | `/finishing-a-development-branch Story #123` | In progress | 2026-11-15 01:52 | - |
 | #123 | 12 | `/ccaa-story-complete 123` | Planned | - | - |
 | Feature #115 | 1 | `/ccaa-feature-complete 115` | In progress | 2026-11-15 01:51 | - |
 | Epic #111 | 1 | `/ccaa-epic-complete 111` | In progress | 2026-11-15 01:12 | - |

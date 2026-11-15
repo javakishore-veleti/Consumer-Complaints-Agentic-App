@@ -32,7 +32,11 @@
     "local:portal:admin:build": "npm --prefix Portals/consumer-complaints-admin run build",
     "local:portal:admin:test": "npm --prefix Portals/consumer-complaints-admin test -- --watch=false",
     "local:e2e:happy-path:smoke": "cd Middleware/ConsumerComplaintsHandsOn && uv run pytest tests/test_e2e_happy_path_smoke.py -q",
-    "local:e2e:happy-path:probe": "python3 CICD/Local/e2e_happy_path_smoke.py"
+    "local:e2e:happy-path:probe": "python3 CICD/Local/e2e_happy_path_smoke.py",
+    "local:e2e:dod-matrix:sqlite": "cd Middleware/ConsumerComplaintsHandsOn && uv run pytest tests/test_e2e_happy_path_smoke.py::test_happy_path_start_callback_mios_status -q",
+    "local:e2e:dod-matrix:postgres": "cd Middleware/ConsumerComplaintsHandsOn && uv run pytest tests/test_postgres.py::test_start_workflow_and_callback_persist_on_postgres -q",
+    "local:e2e:dod-matrix:mongodb": "cd Middleware/ConsumerComplaintsHandsOn && uv run pytest tests/test_mongodb_operational_store.py::test_start_workflow_and_callback_persist_on_mongo -q",
+    "local:e2e:dod-matrix:smoke": "bash CICD/Local/dod_matrix_smoke.sh"
   },
   "author": "",
   "license": "ISC"
