@@ -325,10 +325,10 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #60 | 2 | `/brainstorming Story #60: start an Airflow DAG run asynchronously through Airflow's REST API, called from the start-workflow flow (#42); stores the engine run id on the execution row; later wrapped behind the engine interface (#83)` | Done | 2026-11-14 23:01 | 2026-11-14 23:01 |
 | #60 | 3 | `/using-git-worktrees Story #60: branch m02-0021-airflow-engine-start-a-dag-run` | Done | 2026-11-14 23:01 | 2026-11-14 23:01 |
 | #60 | 4 | `/writing-plans Story #60` | Done | 2026-11-14 23:01 | 2026-11-14 23:05 |
-| #60 | 5 | `/test-driven-development Story #60` | In progress | 2026-11-14 23:05 | - |
-| #60 | 6 | `/subagent-driven-development Story #60` | Planned | - | - |
-| #60 | 7 | `/ccaa-commit-push 60` after every task (repeat) | Planned | - | - |
-| #60 | 8 | `/verification-before-completion Story #60` | Planned | - | - |
+| #60 | 5 | `/test-driven-development Story #60` | Done | 2026-11-14 23:05 | 2026-11-14 23:12 |
+| #60 | 6 | `/subagent-driven-development Story #60` | Done | 2026-11-14 23:12 | 2026-11-14 23:12 |
+| #60 | 7 | `/ccaa-commit-push 60` after every task (repeat) | Done | 2026-11-14 23:12 | 2026-11-14 23:12 |
+| #60 | 8 | `/verification-before-completion Story #60` | In progress | 2026-11-14 23:12 | - |
 | #60 | 9 | `/requesting-code-review Story #60` | Planned | - | - |
 | #60 | 10 | `/ccaa-commit-push 60` | Planned | - | - |
 | #60 | 11 | `/finishing-a-development-branch Story #60` | Planned | - | - |
