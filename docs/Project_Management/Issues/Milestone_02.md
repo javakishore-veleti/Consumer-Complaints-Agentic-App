@@ -309,12 +309,12 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #77 | 10 | `/ccaa-commit-push 77` | Done | 2026-11-14 22:49 | 2026-11-14 22:49 |
 | #77 | 11 | `/finishing-a-development-branch Story #77` | Done | 2026-11-14 22:49 | 2026-11-14 22:49 |
 | #77 | 12 | `/ccaa-story-complete 77` | Done | 2026-11-14 22:49 | 2026-11-14 22:49 |
-| #57 | 1 | `/ccaa-story-start 57` | Planned | - | - |
-| #57 | 2 | `/brainstorming Story #57: download DAG for the All dataset; the DAG reads its workflow, the MIO and the dataset location from the tables (D51); registered in app_workflows; file lands in the agreed place` | Planned | - | - |
-| #57 | 3 | `/using-git-worktrees Story #57: branch m02-0018-download-dag-for-the-all-dataset` | Planned | - | - |
-| #57 | 4 | `/writing-plans Story #57` | Planned | - | - |
-| #57 | 5 | `/test-driven-development Story #57` | Planned | - | - |
-| #57 | 6 | `/subagent-driven-development Story #57` | Planned | - | - |
+| #57 | 1 | `/ccaa-story-start 57` | Done | 2026-11-14 22:54 | 2026-11-14 22:54 |
+| #57 | 2 | `/brainstorming Story #57: download DAG for the All dataset; the DAG reads its workflow, the MIO and the dataset location from the tables (D51); registered in app_workflows; file lands in the agreed place` | Done | 2026-11-14 22:54 | 2026-11-14 22:54 |
+| #57 | 3 | `/using-git-worktrees Story #57: branch m02-0018-download-dag-for-the-all-dataset` | Done | 2026-11-14 22:54 | 2026-11-14 22:54 |
+| #57 | 4 | `/writing-plans Story #57` | Done | 2026-11-14 22:54 | 2026-11-14 22:58 |
+| #57 | 5 | `/test-driven-development Story #57` | Done | 2026-11-14 22:58 | 2026-11-14 22:59 |
+| #57 | 6 | `/subagent-driven-development Story #57` | In progress | 2026-11-14 22:59 | - |
 | #57 | 7 | `/ccaa-commit-push 57` after every task (repeat) | Planned | - | - |
 | #57 | 8 | `/verification-before-completion Story #57` | Planned | - | - |
 | #57 | 9 | `/requesting-code-review Story #57` | Planned | - | - |
@@ -510,4 +510,4 @@ The skills live in `.cursor/skills/`. Each takes a GitHub issue number.
 - **Open questions on the issues:** #65 (poll or refresh). The #55 question is decided in D42 (revised by D43): credentials in `.env`, copied into Airflow Variables by story #77.
 - **Story #77 was added** while deciding #55 (D42). It is under feature #56 and is built first in Phase 3, because the DAG reads the Variables it creates.
 - **Moved to M03 - Cloud Deployment:** #51 S3, #52 Azure Blob, #53 GCP Cloud Storage, #54 Google Drive, and the cloud migration workflow #24. They are not part of this milestone. #51 to #54 were written as source types, so under D43 they need rewriting as cloud workflows before M03 starts (they are still open).
-- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D63.
+- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D65.

@@ -55,7 +55,7 @@ Middleware/ConsumerComplaintsHandsOn/
     core/
       common/                 config (schema names), return_codes, constants
         dtos/                 XxxReq, XxxResp, XxxCtx
-      facades/    impl/       interface + task interface here, facade in impl/, one file per task in impl/tasks/, objects_factory.py
+      facades/    impl/       interface + task interface here; facade impl in impl/ (legacy: tasks in impl/tasks/; new facades D64: impl/<short>/ + impl/<short>/tasks/), objects_factory.py
       services/   impl/
       dao/        impl/       interface here; impl/ holds the SQLAlchemy models, engine and DAO; objects_factory.py
   alembic.ini  alembic/       migrations (versions/0001_create_data_ingest_log.py)
