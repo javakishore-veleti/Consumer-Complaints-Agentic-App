@@ -223,14 +223,14 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #122 | 11 | `/finishing-a-development-branch Story #122` | Done | 2026-11-15 01:29 | 2026-11-15 01:31 |
 | #122 | 12 | `/ccaa-story-complete 122` | Done | 2026-11-15 01:31 | 2026-11-15 01:31 |
 | #135 | 1 | `/ccaa-story-start 135` | Done | 2026-11-15 02:34 | 2026-11-15 02:34 |
-| #135 | 2 | `/brainstorming Story #135: implement D80 — Tailwind + Able Pro–class shell, alerts/forms/favicon; Imports polish; keep live API and data-testids` | In progress | 2026-11-15 02:34 | - |
-| #135 | 3 | `/using-git-worktrees Story #135: branch m03-0015-admin-ui-visual-system` | Planned | - | - |
-| #135 | 4 | `/writing-plans Story #135` | Planned | - | - |
-| #135 | 5 | `/test-driven-development Story #135` | Planned | - | - |
-| #135 | 6 | `/subagent-driven-development Story #135` | Planned | - | - |
-| #135 | 7 | `/ccaa-commit-push 135` after every task (repeat) | Planned | - | - |
-| #135 | 8 | `/verification-before-completion Story #135` | Planned | - | - |
-| #135 | 9 | `/requesting-code-review Story #135` | Planned | - | - |
+| #135 | 2 | `/brainstorming Story #135: implement D80 — Tailwind + Able Pro–class shell, alerts/forms/favicon; Imports polish; keep live API and data-testids` | Done | 2026-11-15 02:34 | 2026-11-15 02:39 |
+| #135 | 3 | `/using-git-worktrees Story #135: branch m03-0015-admin-ui-visual-system` | Done | 2026-11-15 02:39 | 2026-11-15 02:39 |
+| #135 | 4 | `/writing-plans Story #135` | Done | 2026-11-15 02:39 | 2026-11-15 02:39 |
+| #135 | 5 | `/test-driven-development Story #135` | Done | 2026-11-15 02:39 | 2026-11-15 02:39 |
+| #135 | 6 | `/subagent-driven-development Story #135` | Done | 2026-11-15 02:39 | 2026-11-15 02:39 |
+| #135 | 7 | `/ccaa-commit-push 135` after every task (repeat) | Done | 2026-11-15 02:39 | 2026-11-15 02:39 |
+| #135 | 8 | `/verification-before-completion Story #135` | Done | 2026-11-15 02:39 | 2026-11-15 02:39 |
+| #135 | 9 | `/requesting-code-review Story #135` | In progress | 2026-11-15 02:39 | - |
 | #135 | 10 | `/ccaa-commit-push 135` | Planned | - | - |
 | #135 | 11 | `/finishing-a-development-branch Story #135` | Planned | - | - |
 | #135 | 12 | `/ccaa-story-complete 135` | Planned | - | - |
