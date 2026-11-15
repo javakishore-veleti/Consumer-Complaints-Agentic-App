@@ -1,55 +1,161 @@
-# consumer-complaints-admin
+# Free Angular Tailwind Admin Dashboard Template - TailAdmin Angular
 
-Angular **22** admin portal for Consumer Complaints (D65).
+TailAdmin Angular is a **free and open-source admin dashboard template** built with **Angular** and **Tailwind CSS**. It provides developers with everything they need to create a feature-rich, data-driven **back-end, dashboard, or admin panel** for any type of web project.
 
-## Node
+![TailAdmin Angular Admin Dashboard](./angular-tailwind.png)
 
-Requires Node `^22.22.3 || ^24.15.0 || >=26.0.0` (see `engines` in `package.json`). Example:
+With TailAdmin Angular, you’ll get access to a complete set of **dashboard UI components, elements, and ready-to-use pages** to build a modern, high-quality admin panel. Whether it’s for a **complex web application** or a **lightweight project**, TailAdmin Angular is designed to speed up development of any kind of dashboards and admin panels.
+
+TailAdmin leverages the **powerful ecosystem of Angular 20+**, along with **TypeScript** and the utility-first styling of **Tailwind CSS v4**. Combined, they make TailAdmin Angular a perfect foundation to launch your dashboard or admin panel quickly and effectively.
+
+TailAdmin Angular comes with essential UI components and layouts for building **feature-rich, data-driven dashboards** and **admin panels**. TailAdmin Angular is built on:
+
+- **Angular 22+**
+- **TypeScript**
+- **Tailwind CSS v4**
+
+### Quick Links
+
+- ✨ [Visit Website](https://tailadmin.com/)
+- 🚀 [Angular Demo](https://angular-demo.tailadmin.com/)
+- 📄 [Documentation](https://tailadmin.com/docs)
+- ⬇️ [Download](https://tailadmin.com/download)
+- 🖌️ [Figma Design File (Free Edition)](https://www.figma.com/community/file/1463141366275764364)
+- ⚡ [Get PRO Version](https://tailadmin.com/pricing)
+
+---
+
+## Feature Comparison
+
+| Feature                        | Free Version                    | Pro Version 🌟                                                                                                    |
+| ------------------------------ | ------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| **Dashboards**                 | 1 Unique Dashboard              | 7 Unique Dashboards: Analytics, Ecommerce, Marketing, SaaS, CRM, Stocks, Logistics and more (more coming soon) 📈 |
+| **UI Elements and Components** | 100+ UI elements and components | Included in 500+ components and UI elements                                                                       |
+| **Design Files**               | Basic Figma design files        | Complete Figma design system file                                                                                 |
+| **Support**                    | Community support               | Email support                                                                                                     |
+
+### Other Versions
+
+- [Next.js Version](https://github.com/TailAdmin/free-nextjs-admin-dashboard)
+- [React.js Version](https://github.com/TailAdmin/free-react-tailwind-admin-dashboard)
+- [Vue.js Version](https://github.com/TailAdmin/vue-tailwind-admin-dashboard)
+- [Angular Version](https://github.com/TailAdmin/free-angular-tailwind-dashboard)
+- [Laravel Version](https://github.com/TailAdmin/tailadmin-laravel)
+
+## Installation
+
+### Prerequisites
+
+Before you start, make sure you have:
+
+- **Node.js 20.x or later** (Node.js 20.x recommended)
+- **Angular CLI** installed globally:
 
 ```bash
-export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; nvm use 22
+npm install -g @angular/cli
 ```
 
-## Install
+---
+
+### Cloning the Repository
+
+Clone the repository:
+
+```bash
+git clone https://github.com/TailAdmin/free-angular-admin-dashboard.git
+```
+
+---
+
+### Install Dependencies
 
 ```bash
 npm install
+# or
+yarn install
 ```
 
-Or from the repository root:
+---
+
+### Start Development Server
 
 ```bash
-npm --prefix Portals/consumer-complaints-admin install
+npm start
 ```
 
-## Serve / build / test
+Then open:
+👉 `http://localhost:4200`
 
-From this directory:
+---
 
-```bash
-npm start          # ng serve with proxy.conf.json
-npm run build
-npm test -- --watch=false
-```
+## Angular.js Tailwind Components
 
-From the repository root:
+TailAdmin Angular ships with a rich set of **ready-to-use dashboard features**:
 
-```bash
-npm run local:portal:admin:start
-npm run local:portal:admin:build
-npm run local:portal:admin:test
-```
+- **Ecommerce Dashboard** with essential elements
+- Modern, accessible **sidebar navigation**
+- **Data visualization** with charts and graphs
+- **User profile management** and a **custom 404 page**
+- **Tables** and **charts** (line, bar, etc.)
+- **Authentication forms** and reusable input components
+- **UI elements**: alerts, dropdowns, modals, buttons, and more
+- Built-in **Dark Mode** 🕶️
+- and many more
 
-**One-command portal + API** (starts Middleware via `run_app.sh` if needed, then `ng serve`):
+## Changelog
 
-```bash
-npm run local:portal:admin:with-api
-```
+### Version 1.3.0 - [October 28, 2026]
 
-Dev server defaults to http://localhost:4200/. Open **DataSets → Imports** (`/datasets/imports`) for live MIO list / start / refresh.
+- **Design Refresh**: Refactored UI components built on `@spartan-ng/brain` headless primitives.
+- **Updated Pages**: Refreshed and updated all pages for improved consistency, usability, and design..
+- **Improve Project Structure**: Reorganized components by feature for better maintainability and scalability.
+- **Vector Map**: The eCommerce customer demographic map now uses `jsvectormap` instead of AmCharts.
+- **RTL Improvements**: Enhanced right-to-left (RTL) layout support and fixed related styling and alignment issues.
+- **Dependencies**: Added `@spartan-ng/brain` (pinned to 1.6.3), `@floating-ui/dom`, `jsvectormap` and `tw-animate-css`. Removed `@amcharts/amcharts5`, `@amcharts/amcharts5-geodata`, `@popperjs/core`, `ng-otp-input` and `prismjs`.
+- **Page Metadata**: Added unique page titles and meta descriptions for every route in `src/app/core/page-metadata`.
+- **Folder Structure**: Reorganized `src/app` into `core`, `layout`, `shared` and `pages`.
+- **Cleanup**: Removed unused components (modals demo, progress bar item, UI barrel files) and unused images, and refreshed `AGENTS.md` with common agent workflows and verification commands.
 
-Full local E2E (Airflow callbacks → DB → refresh, SQLite first): `docs/local-admin-e2e-happy-path.md`. Automated smoke (no Airflow): from repo root `npm run local:e2e:happy-path:smoke`.
+### Version 1.2.0 - [September 02, 2026]
 
-## API proxy
+- **Framework upgrade**: Angular 21 to 22, including CLI and build tooling
+- **Internationalization**: i18n support added for multi-language content
+- **Dependency updates**: FullCalendar and ApexCharts bumped to their latest majors
+- **Keyboard and dropdown improvements**: Better keyboard navigation and cleaner dropdown behavior
+- **RTL support**: Right-to-left layout support added across components
 
-`proxy.conf.json` forwards `/api` to the Middleware at `http://127.0.0.1:8000` (path rewrite strips `/api`). App code uses `environment.apiBaseUrl` (`'/api'` in development). Imports calls `GET /mios/status`, `GET /workflows`, and `POST /workflows/{id}/start` through that proxy; HTTP failures show the Middleware FastAPI `detail` text (no invented ingest status).
+### Version 1.1.1 - [May 23, 2026]
+
+- **New Feature**: Added **AI Settings** page to configure models, keys, and token limits.
+- **New Feature**: Added **Maps** page with MapLibre GL, Leaflet, and iframe styles.
+- **New Feature**: Added **Vector Maps** page powered by AmCharts 5 geodata (World & USA).
+- **New Feature**: Added **Radar Charts** page with 3 unique formats.
+- **New Feature**: Added **Radial Progress Charts** page featuring 4 custom layout templates.
+- **Enhancement**: Introduced new **Bar Charts Five & Six** and **Pie Charts Four & Five**.
+- **Bug Fix**: Resolved dropdown menu z-index stacking context overlapping issue in AI Chat history.
+- **Enhancement**: Resolved spacing gaps under map card containers.
+
+### Version 1.1.0 - [April 28, 2026]
+
+- **New Feature**: Added **AI Dashboard** with token usage and revenue tracking.
+- **New Feature**: Added **Sales Dashboard** with retention and multi-channel analytics.
+- **New Feature**: Added **Finance Dashboard** with cashflow and balance management.
+- **New Feature**: Introduced **6 New Layout variations** for improved UI flexibility.
+- **Enhancement**: Integrated **Advanced Data Visualization** with 7+ new chart types.
+
+### Version 1.0.3 - [March 15, 2026]
+
+- **Upgrade**: update angular dependencies and remove commented code.
+
+### Version 1.0.2 - [December 30, 2025]
+
+- **Upgrade**: Successfully upgraded project to **Angular 21**.
+- **New Feature**: Implementing **Dynamic API Keys** management.
+- **Enhancement**: Integrated **Flatpickr** date range picker.
+
+## Version 1.0.0 - August 2025
+
+- First release of TailAdmin Angular
+- Core dashboard layout and components
+- Essential UI elements and pages
+- Built with modern Angular best practices

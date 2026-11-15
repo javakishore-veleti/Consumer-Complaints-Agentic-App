@@ -1,0 +1,91 @@
+<div class="space-y-6">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h1
+        id="home-heading"
+        class="text-title-md font-semibold text-gray-800 dark:text-white/90"
+      >
+        Operations dashboard
+      </h1>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        Live managed information object ingest status from Middleware.
+      </p>
+    </div>
+    <a
+      routerLink="/datasets/imports"
+      data-testid="home-cta-imports"
+      app-button
+      variant="primary"
+      class="inline-flex"
+    >
+      Open Imports
+    </a>
+  </div>
+
+  @if (loading()) {
+    <div data-testid="home-status-loading">
+      <app-alert variant="info" title="Loading" message="Loading MIO status…" />
+    </div>
+  }
+
+  @if (error()) {
+    <div data-testid="home-status-error">
+      <app-alert variant="error" title="Unable to load status" [message]="error()" />
+    </div>
+  }
+
+  @if (!loading() && !error()) {
+    <div
+      data-testid="home-kpi-grid"
+      class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 md:gap-6"
+    >
+      <div
+        data-testid="home-kpi-idle"
+        class="rounded-2xl border border-gray-200 bg-white p-5 md:p-6 dark:border-gray-800 dark:bg-white/3"
+      >
+        <span class="text-sm text-gray-500 dark:text-gray-400">No ingest yet</span>
+        <h4 class="mt-2 text-title-sm font-bold text-gray-800 dark:text-white/90">
+          {{ counts().idle }}
+        </h4>
+      </div>
+      <div
+        data-testid="home-kpi-in-progress"
+        class="rounded-2xl border border-gray-200 bg-white p-5 md:p-6 dark:border-gray-800 dark:bg-white/3"
+      >
+        <span class="text-sm text-gray-500 dark:text-gray-400">In progress</span>
+        <h4 class="mt-2 text-title-sm font-bold text-gray-800 dark:text-white/90">
+          {{ counts().inProgress }}
+        </h4>
+      </div>
+      <div
+        data-testid="home-kpi-completed"
+        class="rounded-2xl border border-gray-200 bg-white p-5 md:p-6 dark:border-gray-800 dark:bg-white/3"
+      >
+        <span class="text-sm text-gray-500 dark:text-gray-400">Completed</span>
+        <h4 class="mt-2 text-title-sm font-bold text-gray-800 dark:text-white/90">
+          {{ counts().completed }}
+        </h4>
+      </div>
+      <div
+        data-testid="home-kpi-failed"
+        class="rounded-2xl border border-gray-200 bg-white p-5 md:p-6 dark:border-gray-800 dark:bg-white/3"
+      >
+        <span class="text-sm text-gray-500 dark:text-gray-400">Failed</span>
+        <h4 class="mt-2 text-title-sm font-bold text-gray-800 dark:text-white/90">
+          {{ counts().failed }}
+        </h4>
+      </div>
+    </div>
+
+    <div
+      class="rounded-2xl border border-gray-200 bg-white p-5 md:p-6 dark:border-gray-800 dark:bg-white/3"
+    >
+      <p class="text-sm text-gray-500 dark:text-gray-400">
+        Tracking
+        <span class="font-semibold text-gray-800 dark:text-white/90">{{ counts().total }}</span>
+        managed information object{{ counts().total === 1 ? '' : 's' }}. Use Imports to refresh
+        status or start a workflow.
+      </p>
+    </div>
+  }
+</div>

@@ -4,7 +4,7 @@ Browser apps for this repository live under `Portals/<app-name>/` (D65).
 
 | App | Path | Role |
 |---|---|---|
-| `consumer-complaints-admin` | [`consumer-complaints-admin/`](consumer-complaints-admin/) | Angular admin portal (Imports ↔ live Middleware) |
+| `consumer-complaints-admin` | [`consumer-complaints-admin/`](consumer-complaints-admin/) | Angular admin portal on **TailAdmin Angular Free** (MIT) — Home ops KPIs + Imports ↔ live Middleware (D83 / #139) |
 
 From the repository root — preferred three-step local stack:
 
