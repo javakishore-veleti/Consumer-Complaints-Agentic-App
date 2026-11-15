@@ -452,10 +452,10 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #84 | 5 | `/test-driven-development Story #84` | Done | 2026-11-14 23:06 | 2026-11-14 23:09 |
 | #84 | 6 | `/subagent-driven-development Story #84` | Done | 2026-11-14 23:09 | 2026-11-14 23:10 |
 | #84 | 7 | `/ccaa-commit-push 84` after every task (repeat) | Done | 2026-11-14 23:10 | 2026-11-14 23:10 |
-| #84 | 8 | `/verification-before-completion Story #84` | In progress | 2026-11-14 23:10 | - |
-| #84 | 9 | `/requesting-code-review Story #84` | Planned | - | - |
-| #84 | 10 | `/ccaa-commit-push 84` | Planned | - | - |
-| #84 | 11 | `/finishing-a-development-branch Story #84` | Planned | - | - |
+| #84 | 8 | `/verification-before-completion Story #84` | Done | 2026-11-14 23:10 | 2026-11-14 23:11 |
+| #84 | 9 | `/requesting-code-review Story #84` | Done | 2026-11-14 23:11 | 2026-11-14 23:11 |
+| #84 | 10 | `/ccaa-commit-push 84` | Done | 2026-11-14 23:11 | 2026-11-14 23:11 |
+| #84 | 11 | `/finishing-a-development-branch Story #84` | Done | 2026-11-14 23:11 | 2026-11-14 23:11 |
 | #84 | 12 | `/ccaa-story-complete 84` | Planned | - | - |
 | #58 | 1 | `/ccaa-story-start 58` | Planned | - | - |
 | #58 | 2 | `/brainstorming Story #58: derive the 3 months dataset by filtering the All file on Date received; the file is not date-sorted so read it all; check the row count against the site figure` | Planned | - | - |
