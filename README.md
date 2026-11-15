@@ -18,19 +18,19 @@ npm run local:containers:postgres:start  # Airflow + CCA operational Postgres
 npm run local:containers:mongodb:start   # Airflow + MongoDB
 ```
 
-Then run the API (`npm run local:handson:middlware:all:start`) and Admin UI. For Postgres/Mongo, set `.env` per `Middleware/ConsumerComplaintsHandsOn/.env.example` (D75–D78).
+`npm run local:containers:all:*` still starts/stops/status **every** `CICD/Local/*/docker-compose.yaml` (unchanged). For Postgres/Mongo, set `.env` per `Middleware/ConsumerComplaintsHandsOn/.env.example` (D75–D78).
 
-`npm run local:containers:all:*` still starts/stops/status **every** `CICD/Local/*/docker-compose.yaml` (unchanged).
-
-### Admin portal
-
-Angular app at `Portals/consumer-complaints-admin/` (Node 22+). One-command local UI + Middleware:
+### Recommended local stack (three steps)
 
 ```bash
-npm run local:portal:admin:with-api
+npm run local:containers:all:start          # or :sqlite:start / :postgres:start / :mongodb:start
+npm run local:handson:middlware:all:start   # Middleware API (:8000)
+npm run local:portals:all:start             # all Portals apps (today: admin on :4200)
 ```
 
-Then open http://localhost:4200/datasets/imports. Portal-only: `npm run local:portal:admin:start` (API must already be on `127.0.0.1:8000`).
+`local:portals:all:*` is the umbrella for every app under `Portals/`; add future portals there. Single-app shortcuts remain: `local:portal:admin:start|build|test`. Shortcut `local:portal:admin:with-api` still starts Middleware then `local:portals:all:start`.
+
+Then open http://localhost:4200/datasets/imports.
 
 E2E happy path (UI → API → Airflow → callback → UI, SQLite first): see `docs/local-admin-e2e-happy-path.md`. CI smoke: `npm run local:e2e:happy-path:smoke`. Live API probe: `npm run local:e2e:happy-path:probe`. DoD matrix (SQLite / Postgres / MongoDB): `docs/local-admin-e2e-dod-matrix.md` · `npm run local:e2e:dod-matrix:smoke`.
 
