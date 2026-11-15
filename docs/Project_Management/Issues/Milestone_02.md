@@ -331,7 +331,7 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #60 | 8 | `/verification-before-completion Story #60` | Done | 2026-11-14 23:12 | 2026-11-14 23:14 |
 | #60 | 9 | `/requesting-code-review Story #60` | Done | 2026-11-14 23:14 | 2026-11-14 23:14 |
 | #60 | 10 | `/ccaa-commit-push 60` | Done | 2026-11-14 23:14 | 2026-11-14 23:14 |
-| #60 | 11 | `/finishing-a-development-branch Story #60` | In progress | 2026-11-14 23:14 | - |
+| #60 | 11 | `/finishing-a-development-branch Story #60` | Done | 2026-11-14 23:14 | 2026-11-14 23:15 |
 | #60 | 12 | `/ccaa-story-complete 60` | Planned | - | - |
 | #59 | 1 | `/ccaa-story-start 59` | Planned | - | - |
 | #59 | 2 | `/brainstorming Story #59: report started, completed and failed to the API from the DAG; a final task always runs so a crashed run never stays running; callbacks reach the API from the container (host.docker.internal)` | Planned | - | - |
