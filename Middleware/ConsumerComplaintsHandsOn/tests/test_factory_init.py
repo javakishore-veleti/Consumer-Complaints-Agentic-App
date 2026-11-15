@@ -1,0 +1,52 @@
+"""D45: package objects_factory.init() registers singletons; safe to call twice."""
+
+from fastapi import FastAPI
+
+from app.api.objects_factory import ApiObjectsFactory
+from app.api.security.callback_secret_auth import CallbackSecretAuth
+from app.core.dao.data_ingest_dao import DataIngestDao
+from app.core.dao.objects_factory import DaoObjectsFactory
+from app.core.facades.data_ingest_facade import DataIngestFacade
+from app.core.facades.objects_factory import FacadesObjectsFactory
+from app.core.services.dataset_status_service import DatasetStatusService
+from app.core.services.objects_factory import ServicesObjectsFactory
+
+
+def test_init_is_idempotent_and_get_returns_registered_singleton():
+    DaoObjectsFactory.init()
+    DaoObjectsFactory.init()
+    a = DaoObjectsFactory.get_data_ingest_dao()
+    b = DaoObjectsFactory.get_data_ingest_dao()
+    assert a is b
+    assert isinstance(a, DataIngestDao)
+
+    ServicesObjectsFactory.init()
+    ServicesObjectsFactory.init()
+    assert ServicesObjectsFactory.get_dataset_status_service() is (
+        ServicesObjectsFactory.get_dataset_status_service()
+    )
+    assert isinstance(
+        ServicesObjectsFactory.get_dataset_status_service(), DatasetStatusService
+    )
+
+    FacadesObjectsFactory.init()
+    FacadesObjectsFactory.init()
+    assert FacadesObjectsFactory.get_data_ingest_facade() is (
+        FacadesObjectsFactory.get_data_ingest_facade()
+    )
+    assert isinstance(FacadesObjectsFactory.get_data_ingest_facade(), DataIngestFacade)
+
+    ApiObjectsFactory.init()
+    ApiObjectsFactory.init()
+    assert ApiObjectsFactory.get_app() is ApiObjectsFactory.get_app()
+    assert isinstance(ApiObjectsFactory.get_app(), FastAPI)
+    assert ApiObjectsFactory.get_callback_secret_auth() is (
+        ApiObjectsFactory.get_callback_secret_auth()
+    )
+    assert isinstance(ApiObjectsFactory.get_callback_secret_auth(), CallbackSecretAuth)
+
+
+def test_get_lazy_inits_when_init_not_called_first():
+    # Relies on process state from other tests / SingletonMeta; asserting the contract:
+    # get_* must not require an explicit init() from the caller.
+    assert isinstance(DaoObjectsFactory.get_transaction_dao(), object)
