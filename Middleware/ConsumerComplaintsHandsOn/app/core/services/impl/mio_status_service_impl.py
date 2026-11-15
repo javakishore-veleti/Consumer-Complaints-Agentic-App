@@ -1,0 +1,79 @@
+"""Builds one status entry per MIO from the catalog and the two logs (D61)."""
+
+from app.core.common.dtos.app_wf_exec_log_dtos import AppWfExecLogCtx, AppWfExecLogReq
+from app.core.common.dtos.mio_dtos import MioCtx, MioReq, MioRecord
+from app.core.common.dtos.mio_ingest_log_dtos import MioIngestLogCtx, MioIngestLogReq, MioIngestLogRecord
+from app.core.common.dtos.mio_status_dtos import MioStatusCtx, MioStatusEntry, MioStatusIngest
+from app.core.common.return_codes import FAILURE, INVALID_INPUT, SUCCESS
+from app.core.dao.objects_factory import DaoObjectsFactory
+from app.core.services.mio_status_service import MioStatusService
+
+
+class MioStatusServiceImpl(MioStatusService):
+    def read(self, ctx: MioStatusCtx) -> int:
+        mios, code = self._mios(ctx)
+        if code != SUCCESS:
+            ctx.resp.code = code
+            return code
+        entries: list[MioStatusEntry] = []
+        for mio in mios:
+            ingest, code = self._latest_ingest(mio)
+            if code != SUCCESS:
+                ctx.resp.code = code
+                return code
+            entries.append(
+                MioStatusEntry(id=mio.id, name=mio.name, description=mio.description, latest_ingest=ingest)
+            )
+        ctx.resp.entries = entries
+        ctx.resp.code = SUCCESS
+        return SUCCESS
+
+    @staticmethod
+    def _mios(ctx: MioStatusCtx) -> tuple[list[MioRecord], int]:
+        mio_id = ctx.req.mio_id
+        if mio_id is not None:
+            if not str(mio_id).strip():
+                return [], INVALID_INPUT
+            dao_ctx = MioCtx(req=MioReq(id=str(mio_id).strip()))
+            code = DaoObjectsFactory.get_mio_dao().get(dao_ctx)
+            return (dao_ctx.resp.records, code) if code == SUCCESS else ([], code)
+        dao_ctx = MioCtx()
+        code = DaoObjectsFactory.get_mio_dao().list(dao_ctx)
+        return (dao_ctx.resp.records, code) if code == SUCCESS else ([], code)
+
+    @staticmethod
+    def _latest_ingest(mio: MioRecord) -> tuple[MioStatusIngest | None, int]:
+        ingest_ctx = MioIngestLogCtx(req=MioIngestLogReq(mio_id=mio.id, limit=1))
+        code = DaoObjectsFactory.get_mio_ingest_log_dao().list(ingest_ctx)
+        if code != SUCCESS:
+            return None, FAILURE
+        if not ingest_ctx.resp.records:
+            return None, SUCCESS
+        record = ingest_ctx.resp.records[0]
+        executions, code = MioStatusServiceImpl._executions(record)
+        if code != SUCCESS:
+            return None, code
+        return (
+            MioStatusIngest(
+                id=record.id,
+                mio_id=record.mio_id,
+                status=record.status,
+                message=record.message,
+                requested_at=record.requested_at,
+                started_at=record.started_at,
+                finished_at=record.finished_at,
+                rows_loaded=record.rows_loaded,
+                batch_count=record.batch_count,
+                increment_marker=record.increment_marker,
+                executions=executions,
+            ),
+            SUCCESS,
+        )
+
+    @staticmethod
+    def _executions(ingest: MioIngestLogRecord) -> tuple[list, int]:
+        exec_ctx = AppWfExecLogCtx(req=AppWfExecLogReq(mios_ingest_log_id=ingest.id))
+        code = DaoObjectsFactory.get_app_wf_exec_log_dao().list(exec_ctx)
+        if code != SUCCESS:
+            return [], FAILURE
+        return exec_ctx.resp.records, SUCCESS

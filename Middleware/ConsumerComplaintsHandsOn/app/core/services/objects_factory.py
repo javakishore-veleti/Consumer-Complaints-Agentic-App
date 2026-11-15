@@ -4,6 +4,7 @@ Static methods return the singleton, typed as the interface.
 """
 
 from app.core.services.dataset_status_service import DatasetStatusService
+from app.core.services.mio_status_service import MioStatusService
 from app.core.services.wf_exec_status_service import WfExecStatusService
 
 
@@ -13,6 +14,12 @@ class ServicesObjectsFactory:
         from app.core.services.impl.dataset_status_service_impl import DatasetStatusServiceImpl
 
         return DatasetStatusServiceImpl()
+
+    @staticmethod
+    def get_mio_status_service() -> MioStatusService:
+        from app.core.services.impl.mio_status_service_impl import MioStatusServiceImpl
+
+        return MioStatusServiceImpl()
 
     @staticmethod
     def get_wf_exec_status_service() -> WfExecStatusService:
