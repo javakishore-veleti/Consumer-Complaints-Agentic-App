@@ -1,6 +1,107 @@
 {
   "components": {
     "schemas": {
+      "AppWfExecLogOut": {
+        "properties": {
+          "engine_run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Engine Run Id"
+          },
+          "engine_type": {
+            "title": "Engine Type",
+            "type": "string"
+          },
+          "engine_workflow_id": {
+            "title": "Engine Workflow Id",
+            "type": "string"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "mios_ingest_log_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mios Ingest Log Id"
+          },
+          "requested_at": {
+            "format": "date-time",
+            "title": "Requested At",
+            "type": "string"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "workflow_id": {
+            "title": "Workflow Id",
+            "type": "string"
+          },
+          "workflow_name": {
+            "title": "Workflow Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "workflow_id",
+          "workflow_name",
+          "engine_type",
+          "engine_workflow_id",
+          "status",
+          "requested_at"
+        ],
+        "title": "AppWfExecLogOut",
+        "type": "object"
+      },
       "DataIngestLogCreate": {
         "properties": {
           "message": {
@@ -192,6 +293,103 @@
         "title": "HTTPValidationError",
         "type": "object"
       },
+      "MioIngestLogOut": {
+        "properties": {
+          "batch_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Batch Count"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "increment_marker": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Increment Marker"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "mio_id": {
+            "title": "Mio Id",
+            "type": "string"
+          },
+          "requested_at": {
+            "format": "date-time",
+            "title": "Requested At",
+            "type": "string"
+          },
+          "rows_loaded": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rows Loaded"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "mio_id",
+          "status",
+          "requested_at"
+        ],
+        "title": "MioIngestLogOut",
+        "type": "object"
+      },
       "ValidationError": {
         "properties": {
           "ctx": {
@@ -231,6 +429,108 @@
         ],
         "title": "ValidationError",
         "type": "object"
+      },
+      "WfExecStatusOut": {
+        "description": "The execution and its MIO ingest row (null when it has none) after the call.",
+        "properties": {
+          "execution": {
+            "$ref": "#/components/schemas/AppWfExecLogOut"
+          },
+          "ingest": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MioIngestLogOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "execution"
+        ],
+        "title": "WfExecStatusOut",
+        "type": "object"
+      },
+      "WfExecStatusReport": {
+        "additionalProperties": false,
+        "description": "The body: what the engine reports. engine_run_id and message go to the execution; the volume fields go to its\nMIO ingest row and are ignored when it has none. Unknown fields are refused.",
+        "properties": {
+          "batch_count": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Batch Count"
+          },
+          "engine_run_id": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Engine Run Id"
+          },
+          "increment_marker": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Increment Marker"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "rows_loaded": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rows Loaded"
+          },
+          "status": {
+            "enum": [
+              "started",
+              "completed",
+              "failed"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "WfExecStatusReport",
+        "type": "object"
       }
     }
   },
@@ -241,6 +541,58 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/callbacks/workflow-executions/{execution_id}/status": {
+      "post": {
+        "operationId": "report_status_callbacks_workflow_executions__execution_id__status_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "execution_id",
+            "required": true,
+            "schema": {
+              "title": "Execution Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WfExecStatusReport"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WfExecStatusOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Report Status",
+        "tags": [
+          "callbacks"
+        ]
+      }
+    },
     "/data-ingest-logs": {
       "get": {
         "operationId": "list_logs_data_ingest_logs_get",
