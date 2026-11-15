@@ -8,6 +8,7 @@ import threading
 from app.core.common.bean_registry import bean_registry
 from app.core.services.airflow_start_dag_service import AirflowStartDagService
 from app.core.services.airflow_upsert_secrets_service import AirflowUpsertSecretsService
+from app.core.services.app_endpoint_list_service import AppEndpointListService
 from app.core.services.mio_status_service import MioStatusService
 from app.core.services.start_wf_service import StartWfService
 from app.core.services.wf_exec_status_service import WfExecStatusService
@@ -38,12 +39,16 @@ class ServicesObjectsFactory:
             from app.core.services.impl.mio_status_service_impl import MioStatusServiceImpl
             from app.core.services.impl.wf_exec_status_service_impl import WfExecStatusServiceImpl
             from app.core.services.impl.start_wf_service_impl import StartWfServiceImpl
+            from app.core.services.impl.app_endpoint_list_service_impl import (
+                AppEndpointListServiceImpl,
+            )
             from app.core.services.impl.wf_list_service_impl import WfListServiceImpl
 
             bean_registry.register(MioStatusService, MioStatusServiceImpl())
             bean_registry.register(WfExecStatusService, WfExecStatusServiceImpl())
             bean_registry.register(AirflowUpsertSecretsService, AirflowUpsertSecretsServiceImpl())
             bean_registry.register(WfListService, WfListServiceImpl())
+            bean_registry.register(AppEndpointListService, AppEndpointListServiceImpl())
             bean_registry.register(AirflowStartDagService, AirflowStartDagServiceImpl())
             bean_registry.register(WorkflowEngine, ApacheAirflowWorkflowEngineImpl())
             bean_registry.register(StartWfService, StartWfServiceImpl())
@@ -68,6 +73,11 @@ class ServicesObjectsFactory:
     def get_wf_list_service() -> WfListService:
         ServicesObjectsFactory.init()
         return bean_registry.get_one(WfListService)  # type: ignore[return-value]
+
+    @staticmethod
+    def get_app_endpoint_list_service() -> AppEndpointListService:
+        ServicesObjectsFactory.init()
+        return bean_registry.get_one(AppEndpointListService)  # type: ignore[return-value]
 
     @staticmethod
     def get_airflow_start_dag_service() -> AirflowStartDagService:

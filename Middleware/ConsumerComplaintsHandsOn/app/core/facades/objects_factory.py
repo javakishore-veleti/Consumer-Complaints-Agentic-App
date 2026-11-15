@@ -8,6 +8,7 @@ import threading
 from app.core.common.bean_registry import bean_registry
 from app.core.facades.airflow_start_dag_facade import AirflowStartDagFacade
 from app.core.facades.airflow_upsert_secrets_facade import AirflowUpsertSecretsFacade
+from app.core.facades.app_endpoint_list_facade import AppEndpointListFacade
 from app.core.facades.mio_status_facade import MioStatusFacade
 from app.core.facades.start_wf_facade import StartWfFacade
 from app.core.facades.wf_exec_status_facade import WfExecStatusFacade
@@ -34,12 +35,16 @@ class FacadesObjectsFactory:
             from app.core.facades.impl.mio_status_facade_impl import MioStatusFacadeImpl
             from app.core.facades.impl.wf_exec_status_facade_impl import WfExecStatusFacadeImpl
             from app.core.facades.impl.start_wf.start_wf_facade_impl import StartWfFacadeImpl
+            from app.core.facades.impl.app_ep.app_endpoint_list_facade_impl import (
+                AppEndpointListFacadeImpl,
+            )
             from app.core.facades.impl.wf_list.wf_list_facade_impl import WfListFacadeImpl
 
             bean_registry.register(MioStatusFacade, MioStatusFacadeImpl())
             bean_registry.register(WfExecStatusFacade, WfExecStatusFacadeImpl())
             bean_registry.register(AirflowUpsertSecretsFacade, AirflowUpsertSecretsFacadeImpl())
             bean_registry.register(WfListFacade, WfListFacadeImpl())
+            bean_registry.register(AppEndpointListFacade, AppEndpointListFacadeImpl())
             bean_registry.register(AirflowStartDagFacade, AirflowStartDagFacadeImpl())
             bean_registry.register(StartWfFacade, StartWfFacadeImpl())
             FacadesObjectsFactory._initialized = True
@@ -63,6 +68,11 @@ class FacadesObjectsFactory:
     def get_wf_list_facade() -> WfListFacade:
         FacadesObjectsFactory.init()
         return bean_registry.get_one(WfListFacade)  # type: ignore[return-value]
+
+    @staticmethod
+    def get_app_endpoint_list_facade() -> AppEndpointListFacade:
+        FacadesObjectsFactory.init()
+        return bean_registry.get_one(AppEndpointListFacade)  # type: ignore[return-value]
 
     @staticmethod
     def get_airflow_start_dag_facade() -> AirflowStartDagFacade:

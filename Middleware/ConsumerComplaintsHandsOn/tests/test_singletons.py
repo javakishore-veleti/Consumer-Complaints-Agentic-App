@@ -5,6 +5,7 @@ from app.api.routers.airflow_upsert_secrets_api import AirflowUpsertSecretsApi
 from app.api.routers.mio_status_api import MioStatusApi
 from app.api.routers.start_wf_api import StartWfApi
 from app.api.routers.wf_exec_callback_api import WfExecCallbackApi
+from app.api.routers.app_endpoint_api import AppEndpointApi
 from app.api.routers.wf_list_api import WfListApi
 from app.api.security.callback_secret_auth import CallbackSecretAuth
 from app.core.dao.app_endpoint_dao import AppEndpointDao
@@ -53,6 +54,7 @@ from app.core.facades.mio_status_facade import MioStatusFacade
 from app.core.facades.objects_factory import FacadesObjectsFactory
 from app.core.facades.start_wf_facade import StartWfFacade
 from app.core.facades.wf_exec_status_facade import WfExecStatusFacade
+from app.core.facades.app_endpoint_list_facade import AppEndpointListFacade
 from app.core.facades.wf_list_facade import WfListFacade
 from app.core.services.airflow_start_dag_service import AirflowStartDagService
 from app.core.services.airflow_upsert_secrets_service import AirflowUpsertSecretsService
@@ -69,6 +71,7 @@ from app.core.services.mio_status_service import MioStatusService
 from app.core.services.objects_factory import ServicesObjectsFactory
 from app.core.services.start_wf_service import StartWfService
 from app.core.services.wf_exec_status_service import WfExecStatusService
+from app.core.services.app_endpoint_list_service import AppEndpointListService
 from app.core.services.wf_list_service import WfListService
 from app.core.services.workflow_engine import WorkflowEngine
 
@@ -89,11 +92,13 @@ def test_factories_return_the_same_object_typed_as_the_interface():
         (ServicesObjectsFactory.get_wf_exec_status_service, WfExecStatusService),
         (ServicesObjectsFactory.get_airflow_upsert_secrets_service, AirflowUpsertSecretsService),
         (ServicesObjectsFactory.get_wf_list_service, WfListService),
+        (ServicesObjectsFactory.get_app_endpoint_list_service, AppEndpointListService),
         (ServicesObjectsFactory.get_start_wf_service, StartWfService),
         (FacadesObjectsFactory.get_mio_status_facade, MioStatusFacade),
         (FacadesObjectsFactory.get_wf_exec_status_facade, WfExecStatusFacade),
         (FacadesObjectsFactory.get_airflow_upsert_secrets_facade, AirflowUpsertSecretsFacade),
         (FacadesObjectsFactory.get_wf_list_facade, WfListFacade),
+        (FacadesObjectsFactory.get_app_endpoint_list_facade, AppEndpointListFacade),
         (FacadesObjectsFactory.get_start_wf_facade, StartWfFacade),
         (ServicesObjectsFactory.get_airflow_start_dag_service, AirflowStartDagService),
         (FacadesObjectsFactory.get_airflow_start_dag_facade, AirflowStartDagFacade),
@@ -116,6 +121,8 @@ def test_factories_return_the_same_object_typed_as_the_interface():
     assert isinstance(ApiObjectsFactory.get_mio_status_api(), MioStatusApi)
     assert ApiObjectsFactory.get_wf_list_api() is ApiObjectsFactory.get_wf_list_api()
     assert isinstance(ApiObjectsFactory.get_wf_list_api(), WfListApi)
+    assert ApiObjectsFactory.get_app_endpoint_api() is ApiObjectsFactory.get_app_endpoint_api()
+    assert isinstance(ApiObjectsFactory.get_app_endpoint_api(), AppEndpointApi)
     assert ApiObjectsFactory.get_start_wf_api() is ApiObjectsFactory.get_start_wf_api()
     assert isinstance(ApiObjectsFactory.get_start_wf_api(), StartWfApi)
     assert ApiObjectsFactory.get_airflow_upsert_secrets_api() is ApiObjectsFactory.get_airflow_upsert_secrets_api()
@@ -135,6 +142,7 @@ def test_the_classes_themselves_are_singletons():
     assert WfExecCallbackApi() is WfExecCallbackApi()
     assert MioStatusApi() is MioStatusApi()
     assert WfListApi() is WfListApi()
+    assert AppEndpointApi() is AppEndpointApi()
     assert StartWfApi() is StartWfApi()
     assert AirflowUpsertSecretsApi() is AirflowUpsertSecretsApi()
     assert CallbackSecretAuth() is CallbackSecretAuth()
