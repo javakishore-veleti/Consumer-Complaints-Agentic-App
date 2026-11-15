@@ -10,6 +10,7 @@ from app.core.services.airflow_start_dag_service import AirflowStartDagService
 from app.core.services.airflow_upsert_secrets_service import AirflowUpsertSecretsService
 from app.core.services.dataset_status_service import DatasetStatusService
 from app.core.services.mio_status_service import MioStatusService
+from app.core.services.start_wf_service import StartWfService
 from app.core.services.wf_exec_status_service import WfExecStatusService
 from app.core.services.wf_list_service import WfListService
 
@@ -34,6 +35,7 @@ class ServicesObjectsFactory:
             from app.core.services.impl.dataset_status_service_impl import DatasetStatusServiceImpl
             from app.core.services.impl.mio_status_service_impl import MioStatusServiceImpl
             from app.core.services.impl.wf_exec_status_service_impl import WfExecStatusServiceImpl
+            from app.core.services.impl.start_wf_service_impl import StartWfServiceImpl
             from app.core.services.impl.wf_list_service_impl import WfListServiceImpl
 
             bean_registry.register(DatasetStatusService, DatasetStatusServiceImpl())
@@ -42,6 +44,7 @@ class ServicesObjectsFactory:
             bean_registry.register(AirflowUpsertSecretsService, AirflowUpsertSecretsServiceImpl())
             bean_registry.register(WfListService, WfListServiceImpl())
             bean_registry.register(AirflowStartDagService, AirflowStartDagServiceImpl())
+            bean_registry.register(StartWfService, StartWfServiceImpl())
             ServicesObjectsFactory._initialized = True
 
     @staticmethod
@@ -73,3 +76,8 @@ class ServicesObjectsFactory:
     def get_airflow_start_dag_service() -> AirflowStartDagService:
         ServicesObjectsFactory.init()
         return bean_registry.get_one(AirflowStartDagService)  # type: ignore[return-value]
+
+    @staticmethod
+    def get_start_wf_service() -> StartWfService:
+        ServicesObjectsFactory.init()
+        return bean_registry.get_one(StartWfService)  # type: ignore[return-value]

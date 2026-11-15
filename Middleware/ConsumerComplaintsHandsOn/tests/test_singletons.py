@@ -44,10 +44,16 @@ from app.core.facades.impl.tasks.mio_status_call_service_task import MioStatusCa
 from app.core.facades.impl.tasks.wf_exec_status_call_service_task import WfExecStatusCallServiceTask
 from app.core.facades.impl.mio_status_facade_impl import MioStatusFacadeImpl
 from app.core.facades.impl.wf_exec_status_facade_impl import WfExecStatusFacadeImpl
+from app.core.facades.impl.start_wf.start_wf_facade_impl import StartWfFacadeImpl
+from app.core.facades.impl.start_wf.tasks.start_wf_call_service_task import StartWfCallServiceTask
+from app.core.facades.impl.start_wf.tasks.start_wf_trigger_engine_task import (
+    StartWfTriggerEngineTask,
+)
 from app.core.facades.impl.wf_list.tasks.wf_list_call_service_task import WfListCallServiceTask
 from app.core.facades.impl.wf_list.wf_list_facade_impl import WfListFacadeImpl
 from app.core.facades.mio_status_facade import MioStatusFacade
 from app.core.facades.objects_factory import FacadesObjectsFactory
+from app.core.facades.start_wf_facade import StartWfFacade
 from app.core.facades.wf_exec_status_facade import WfExecStatusFacade
 from app.core.facades.wf_list_facade import WfListFacade
 from app.core.services.airflow_start_dag_service import AirflowStartDagService
@@ -57,10 +63,12 @@ from app.core.services.impl.airflow_start_dag_service_impl import AirflowStartDa
 from app.core.services.impl.airflow_upsert_secrets_service_impl import AirflowUpsertSecretsServiceImpl
 from app.core.services.impl.dataset_status_service_impl import DatasetStatusServiceImpl
 from app.core.services.impl.mio_status_service_impl import MioStatusServiceImpl
+from app.core.services.impl.start_wf_service_impl import StartWfServiceImpl
 from app.core.services.impl.wf_exec_status_service_impl import WfExecStatusServiceImpl
 from app.core.services.impl.wf_list_service_impl import WfListServiceImpl
 from app.core.services.mio_status_service import MioStatusService
 from app.core.services.objects_factory import ServicesObjectsFactory
+from app.core.services.start_wf_service import StartWfService
 from app.core.services.wf_exec_status_service import WfExecStatusService
 from app.core.services.wf_list_service import WfListService
 from app.core.dao.impl.sqlalchemy_system_datasets_dao import SqlAlchemySystemDatasetsDao
@@ -93,10 +101,12 @@ def test_factories_return_the_same_object_typed_as_the_interface():
         (ServicesObjectsFactory.get_wf_exec_status_service, WfExecStatusService),
         (ServicesObjectsFactory.get_airflow_upsert_secrets_service, AirflowUpsertSecretsService),
         (ServicesObjectsFactory.get_wf_list_service, WfListService),
+        (ServicesObjectsFactory.get_start_wf_service, StartWfService),
         (FacadesObjectsFactory.get_mio_status_facade, MioStatusFacade),
         (FacadesObjectsFactory.get_wf_exec_status_facade, WfExecStatusFacade),
         (FacadesObjectsFactory.get_airflow_upsert_secrets_facade, AirflowUpsertSecretsFacade),
         (FacadesObjectsFactory.get_wf_list_facade, WfListFacade),
+        (FacadesObjectsFactory.get_start_wf_facade, StartWfFacade),
         (ServicesObjectsFactory.get_airflow_start_dag_service, AirflowStartDagService),
         (FacadesObjectsFactory.get_airflow_start_dag_facade, AirflowStartDagFacade),
     ):
@@ -139,10 +149,12 @@ def test_the_classes_themselves_are_singletons():
     assert WfExecStatusServiceImpl() is WfExecStatusServiceImpl()
     assert AirflowUpsertSecretsServiceImpl() is AirflowUpsertSecretsServiceImpl()
     assert WfListServiceImpl() is WfListServiceImpl()
+    assert StartWfServiceImpl() is StartWfServiceImpl()
     assert MioStatusFacadeImpl() is MioStatusFacadeImpl()
     assert WfExecStatusFacadeImpl() is WfExecStatusFacadeImpl()
     assert AirflowUpsertSecretsFacadeImpl() is AirflowUpsertSecretsFacadeImpl()
     assert WfListFacadeImpl() is WfListFacadeImpl()
+    assert StartWfFacadeImpl() is StartWfFacadeImpl()
     assert AirflowStartDagServiceImpl() is AirflowStartDagServiceImpl()
     assert AirflowStartDagFacadeImpl() is AirflowStartDagFacadeImpl()
     for task in (
@@ -155,6 +167,8 @@ def test_the_classes_themselves_are_singletons():
         AirflowUpsertSecretsCallServiceTask,
         WfListCallServiceTask,
         AirflowStartDagCallServiceTask,
+        StartWfCallServiceTask,
+        StartWfTriggerEngineTask,
     ):
         assert task() is task()
 

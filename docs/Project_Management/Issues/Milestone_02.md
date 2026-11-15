@@ -350,11 +350,11 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
-| #42 | 1 | `/ccaa-story-start 42` | Planned | - | - |
-| #42 | 2 | `/brainstorming Story #42: start-workflow endpoint taking a registered workflow (and optionally a MIO and a dataset location); creates the execution row, starts the run through #60, returns the execution id at once; unknown workflow returns 422` | Planned | - | - |
-| #42 | 3 | `/using-git-worktrees Story #42: branch m02-0007-start-workflow-endpoint-one-endpoint` | Planned | - | - |
-| #42 | 4 | `/writing-plans Story #42` | Planned | - | - |
-| #42 | 5 | `/test-driven-development Story #42` | Planned | - | - |
+| #42 | 1 | `/ccaa-story-start 42` | Done | 2026-11-15 00:05 | 2026-11-15 00:05 |
+| #42 | 2 | `/brainstorming Story #42: start-workflow endpoint taking a registered workflow (and optionally a MIO and a dataset location); creates the execution row, starts the run through #60, returns the execution id at once; unknown workflow returns 422` | Done | 2026-11-15 00:05 | 2026-11-15 00:05 |
+| #42 | 3 | `/using-git-worktrees Story #42: branch m02-0007-start-workflow-endpoint-one-endpoint` | Done | 2026-11-15 00:05 | 2026-11-15 00:05 |
+| #42 | 4 | `/writing-plans Story #42` | Done | 2026-11-15 00:05 | 2026-11-15 00:05 |
+| #42 | 5 | `/test-driven-development Story #42` | In progress | 2026-11-15 00:05 | - |
 | #42 | 6 | `/subagent-driven-development Story #42` | Planned | - | - |
 | #42 | 7 | `/ccaa-commit-push 42` after every task (repeat) | Planned | - | - |
 | #42 | 8 | `/verification-before-completion Story #42` | Planned | - | - |
@@ -510,4 +510,4 @@ The skills live in `.cursor/skills/`. Each takes a GitHub issue number.
 - **Open questions on the issues:** #65 (poll or refresh). The #55 question is decided in D42 (revised by D43): credentials in `.env`, copied into Airflow Variables by story #77.
 - **Story #77 was added** while deciding #55 (D42). It is under feature #56 and is built first in Phase 3, because the DAG reads the Variables it creates.
 - **Moved to M03 - Cloud Deployment:** #51 S3, #52 Azure Blob, #53 GCP Cloud Storage, #54 Google Drive, and the cloud migration workflow #24. They are not part of this milestone. #51 to #54 were written as source types, so under D43 they need rewriting as cloud workflows before M03 starts (they are still open).
-- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D68.
+- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D69.
