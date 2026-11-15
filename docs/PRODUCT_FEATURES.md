@@ -18,7 +18,7 @@ is done asynchronously by Apache Airflow.
 
 | App | What it is | Status |
 |---|---|---|
-| `consumer-complaints-admin` | Angular admin portal under `Portals/consumer-complaints-admin/`. Imports datasets, ingests them into the database, shows status. | Scaffold [Done] (#62); DataSets/Imports nav shell [Done] (#63); MIO status accordions [Done] (#64); start-workflow UI [Planned] (#65) |
+| `consumer-complaints-admin` | Angular admin portal under `Portals/consumer-complaints-admin/`. Imports datasets, ingests them into the database, shows status. | Scaffold [Done] (#62); DataSets/Imports nav shell [Done] (#63); MIO status accordions [Done] (#64); start-workflow + refresh [Done] (#65) |
 | Middleware API | FastAPI service (`Middleware/ConsumerComplaintsHandsOn`). The only thing the portal talks to. | [Planned] (folder skeleton [Done]) |
 | Apache Airflow | Runs the download and ingest jobs asynchronously. | [Done] locally in Docker, DAGs [Planned] |
 | `consumer-complaints-Intellect` | The intelligence app that works over the complaint data (RAG / agentic). | [Open] scope not defined yet |
@@ -47,13 +47,13 @@ is done asynchronously by Apache Airflow.
 ### F1. Admin portal navigation [In progress]
 - Top-level menu **DataSets** [Done] (#63, D69).
 - Left navigation under it: **Imports** [Done] (#63); **DB Ingest** visible but disabled until its screen is built (D13).
-- Imports shows one accordion per MIO with status from `GET /mios/status` [Done] (#64, D70); start button still [Planned] (#65). DB Ingest will mirror that later.
+- Imports shows one accordion per MIO with status from `GET /mios/status` [Done] (#64, D71); start + refresh [Done] (#65, D72). DB Ingest will mirror that later.
 - Later: more datasets / MIOs are just more accordions / rows (for example "6 months").
 
 ### F2. Imports: bring the dataset in [In progress]
 - Per accordion, show whether that MIO is ingested or not, when, and if it failed, why. Status comes from
-  `GET /mios/status` (#45 / D61), not from guessing [Done] (#64, D70).
-- A button starts the download [Planned] (#65). It returns immediately; the real work runs in Airflow.
+  `GET /mios/status` (#45 / D61), not from guessing [Done] (#64, D71).
+- A button starts the download [Done] (#65, D72): lists workflows (`GET /workflows`), starts with `mio_id` (`POST /workflows/{id}/start`), then refreshes status (manual Refresh; no polling). Start is disabled while the ingest is `requested`/`started`. The real work runs in Airflow.
 - **One API endpoint starts any registered workflow** (D46: there is no usecase).
 - The **3 months** dataset is the **All** file filtered to the last 3 months, because the site cannot export 3 months.
 - The same flow works locally (3 months, small) and in the cloud (All).
