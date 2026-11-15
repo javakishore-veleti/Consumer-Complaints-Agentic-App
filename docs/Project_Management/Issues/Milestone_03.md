@@ -122,8 +122,8 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #116 | 10 | `/ccaa-commit-push 116` | Done | 2026-11-15 01:19 | 2026-11-15 01:19 |
 | #116 | 11 | `/finishing-a-development-branch Story #116` | Done | 2026-11-15 01:19 | 2026-11-15 01:19 |
 | #116 | 12 | `/ccaa-story-complete 116` | Done | 2026-11-15 01:19 | 2026-11-15 01:19 |
-| #117 | 1 | `/ccaa-story-start 117` | Planned | - | - |
-| #117 | 2 | `/brainstorming Story #117: SQLite-first operational store for admin schema (workflows, catalog, ingest/exec logs); migrations and APIs without Postgres container` | Planned | - | - |
+| #117 | 1 | `/ccaa-story-start 117` | Done | 2026-11-15 01:21 | 2026-11-15 01:21 |
+| #117 | 2 | `/brainstorming Story #117: SQLite-first operational store for admin schema (workflows, catalog, ingest/exec logs); migrations and APIs without Postgres container` | In progress | 2026-11-15 01:21 | - |
 | #117 | 3 | `/using-git-worktrees Story #117: branch m03-0007-sqlite-first-admin-store` | Planned | - | - |
 | #117 | 4 | `/writing-plans Story #117` | Planned | - | - |
 | #117 | 5 | `/test-driven-development Story #117` | Planned | - | - |
