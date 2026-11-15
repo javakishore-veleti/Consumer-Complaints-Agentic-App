@@ -212,8 +212,8 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
-| #123 | 1 | `/ccaa-story-start 123` | Planned | - | - |
-| #123 | 2 | `/brainstorming Story #123: DoD matrix checklist/script — prove path on SQLite, Postgres, and MongoDB; epic Done only after all three` | Planned | - | - |
+| #123 | 1 | `/ccaa-story-start 123` | Done | 2026-11-15 01:51 | 2026-11-15 01:51 |
+| #123 | 2 | `/brainstorming Story #123: DoD matrix checklist/script — prove path on SQLite, Postgres, and MongoDB; epic Done only after all three` | In progress | 2026-11-15 01:51 | - |
 | #123 | 3 | `/using-git-worktrees Story #123: branch m03-0013-dod-matrix` | Planned | - | - |
 | #123 | 4 | `/writing-plans Story #123` | Planned | - | - |
 | #123 | 5 | `/test-driven-development Story #123` | Planned | - | - |
@@ -224,7 +224,7 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #123 | 10 | `/ccaa-commit-push 123` | Planned | - | - |
 | #123 | 11 | `/finishing-a-development-branch Story #123` | Planned | - | - |
 | #123 | 12 | `/ccaa-story-complete 123` | Planned | - | - |
-| Feature #115 | 1 | `/ccaa-feature-complete 115` | Planned | - | - |
+| Feature #115 | 1 | `/ccaa-feature-complete 115` | In progress | 2026-11-15 01:51 | - |
 | Epic #111 | 1 | `/ccaa-epic-complete 111` | In progress | 2026-11-15 01:12 | - |
 
 ## 4. Project skills (`ccaa-` = Consumer Complaints Agentic App)
