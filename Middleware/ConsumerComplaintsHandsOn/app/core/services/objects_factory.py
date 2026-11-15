@@ -13,6 +13,7 @@ from app.core.services.mio_status_service import MioStatusService
 from app.core.services.start_wf_service import StartWfService
 from app.core.services.wf_exec_status_service import WfExecStatusService
 from app.core.services.wf_list_service import WfListService
+from app.core.services.workflow_engine import WorkflowEngine
 
 
 class ServicesObjectsFactory:
@@ -32,6 +33,9 @@ class ServicesObjectsFactory:
             from app.core.services.impl.airflow_upsert_secrets_service_impl import (
                 AirflowUpsertSecretsServiceImpl,
             )
+            from app.core.services.impl.apache_airflow_workflow_engine_impl import (
+                ApacheAirflowWorkflowEngineImpl,
+            )
             from app.core.services.impl.dataset_status_service_impl import DatasetStatusServiceImpl
             from app.core.services.impl.mio_status_service_impl import MioStatusServiceImpl
             from app.core.services.impl.wf_exec_status_service_impl import WfExecStatusServiceImpl
@@ -44,6 +48,7 @@ class ServicesObjectsFactory:
             bean_registry.register(AirflowUpsertSecretsService, AirflowUpsertSecretsServiceImpl())
             bean_registry.register(WfListService, WfListServiceImpl())
             bean_registry.register(AirflowStartDagService, AirflowStartDagServiceImpl())
+            bean_registry.register(WorkflowEngine, ApacheAirflowWorkflowEngineImpl())
             bean_registry.register(StartWfService, StartWfServiceImpl())
             ServicesObjectsFactory._initialized = True
 
@@ -81,3 +86,8 @@ class ServicesObjectsFactory:
     def get_start_wf_service() -> StartWfService:
         ServicesObjectsFactory.init()
         return bean_registry.get_one(StartWfService)  # type: ignore[return-value]
+
+    @staticmethod
+    def get_workflow_engines() -> list[WorkflowEngine]:
+        ServicesObjectsFactory.init()
+        return bean_registry.get_all(WorkflowEngine)  # type: ignore[return-value]
