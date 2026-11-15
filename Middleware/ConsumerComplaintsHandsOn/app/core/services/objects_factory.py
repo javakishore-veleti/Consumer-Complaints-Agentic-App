@@ -3,6 +3,7 @@
 Static methods return the singleton, typed as the interface.
 """
 
+from app.core.services.airflow_upsert_secrets_service import AirflowUpsertSecretsService
 from app.core.services.dataset_status_service import DatasetStatusService
 from app.core.services.mio_status_service import MioStatusService
 from app.core.services.wf_exec_status_service import WfExecStatusService
@@ -26,3 +27,9 @@ class ServicesObjectsFactory:
         from app.core.services.impl.wf_exec_status_service_impl import WfExecStatusServiceImpl
 
         return WfExecStatusServiceImpl()
+
+    @staticmethod
+    def get_airflow_upsert_secrets_service() -> AirflowUpsertSecretsService:
+        from app.core.services.impl.airflow_upsert_secrets_service_impl import AirflowUpsertSecretsServiceImpl
+
+        return AirflowUpsertSecretsServiceImpl()
