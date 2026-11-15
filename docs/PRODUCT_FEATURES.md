@@ -132,11 +132,11 @@ Each workflow that downloads or ingests data is registered in the database, so t
 | Airflow download and ingest DAGs | Planned |
 | Admin portal (Angular) | Scaffold Done (#62); features Planned |
 | Cloud deployment and manual migration workflow | Planned (M06) |
-| Local Admin UI E2E (SQLite → Postgres → MongoDB via `.env`) | Planned (M03, epic #111) |
+| Local Admin UI E2E (SQLite → Postgres → MongoDB via `.env`) | Done (M03, epic #111) |
 
-## 6. Next milestone (M03 - Local Admin UI E2E)
+## 6. Milestone M03 - Local Admin UI E2E (complete)
 
-Prove locally: User → Admin UI → APIs → Airflow → callback APIs → operational DB. Default SQLite; also Postgres and MongoDB via `.env` only. See `docs/Project_Management/Issues/Milestone_03.md` and epic #111. Cloud deploy is M06.
+Done: User → Admin UI → APIs → Airflow → callback APIs → operational DB on SQLite, Postgres, and MongoDB via `.env` (epic #111). DoD matrix: `docs/local-admin-e2e-dod-matrix.md`. Cloud deploy is M06.
 
 ## 7. Open questions
 
