@@ -3,7 +3,7 @@
 **Scope (decision D38 in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`):** the foundation of the project, and the data ingest log API.
 Everything runs locally. Downloads management is M02 and cloud work is M03.
 
-**Status: complete.** 2 epics, 6 features and 34 stories, all closed (including follow-up #133).
+**Status: complete.** 2 epics, 6 features and 35 stories, all closed (including follow-ups #133 and #143).
 
 How to read this file:
 - `#12` is the GitHub issue number in this repository. The `M01-00NN` key is the sequence tag at the start of the issue title.
@@ -21,8 +21,9 @@ How to read this file:
   - [Phase 5 - Hardening the slice](#phase-5---hardening-the-slice-commit-177369a)
   - [Phase 6 - Rules that keep the codebase consistent](#phase-6---rules-that-keep-the-codebase-consistent-commits-8442078-2e2b8ad-4562399)
   - [Phase 7 - Follow-up (containers stop wipes volumes)](#phase-7---follow-up-containers-stop-wipes-volumes)
+  - [Phase 8 - Follow-up (README / About / architecture)](#phase-8---follow-up-readme--about--architecture)
 - [2. The same issues grouped by epic and feature](#2-the-same-issues-grouped-by-epic-and-feature)
-- [3. Superpowers workflow (follow-up #133)](#3-superpowers-workflow-follow-up-133)
+- [3. Superpowers workflow (follow-ups #133, #143)](#3-superpowers-workflow-follow-ups-133-143)
 - [4. Notes](#4-notes)
 
 ## 1. Build order
@@ -106,6 +107,12 @@ The foundations the slice needs, then the slice itself.
 |---|---|---|---|---|---|
 | 42 | #133 | M01-0073 | Story | containers stop always removes Docker volumes | Extends #5: `local:containers:*:stop` → `docker compose down -v` by default |
 
+### Phase 8 - Follow-up (README / About / architecture)
+
+| # | Issue | Key | Type | Title | Why here |
+|---|---|---|---|---|---|
+| 43 | #143 | M01-0074 | Story | README introduction, architecture summary, and GitHub About | Extends #8 / Feature #6: clone-facing docs + enterprise diagram |
+
 ## 2. The same issues grouped by epic and feature
 
 ```
@@ -125,6 +132,7 @@ Epic #1  M01-0001  Project Organization
 |     +-- #11  Enforce layer rules with import-linter in the build
 |     +-- #70  Nothing machine- or person-specific in the repo
 |     +-- #71  Scratch space in git-ignored runtime_data/tmp, not /tmp
+|     +-- #143 README introduction, architecture summary, and GitHub About (M01-0074)
 |
 +-- Feature #12  M01-0012  Layered Middleware project structure
 |     +-- #13  uv project and layered folder skeleton
@@ -160,7 +168,7 @@ Epic #76  M01-0072  Data Ingest Log API
       +-- #36  Enforce allowed status transitions
 ```
 
-## 3. Superpowers workflow (follow-up #133)
+## 3. Superpowers workflow (follow-ups #133, #143)
 
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
@@ -176,11 +184,19 @@ Epic #76  M01-0072  Data Ingest Log API
 | #133 | 10 | `/ccaa-commit-push 133` | Done | 2026-11-15 02:16 | 2026-11-15 02:16 |
 | #133 | 11 | `/finishing-a-development-branch Story #133` | Done | 2026-11-15 02:16 | 2026-11-15 02:16 |
 | #133 | 12 | `/ccaa-story-complete 133` | Done | 2026-11-15 02:16 | 2026-11-15 02:16 |
+| #143 | 1 | `/ccaa-story-start 143` | Done | 2026-11-15 12:01 | 2026-11-15 12:01 |
+| #143 | 2 | `/brainstorming Story #143: README Introduction + architecture summary + GitHub About; enterprise diagram` | Done | 2026-11-15 12:01 | 2026-11-15 12:02 |
+| #143 | 3 | `/writing-plans Story #143` | Done | 2026-11-15 12:02 | 2026-11-15 12:02 |
+| #143 | 4 | `/executing-plans Story #143` (docs-only) | Done | 2026-11-15 12:02 | 2026-11-15 12:03 |
+| #143 | 5 | `/verification-before-completion Story #143` | Done | 2026-11-15 12:03 | 2026-11-15 12:03 |
+| #143 | 6 | `/ccaa-commit-push 143` | Done | 2026-11-15 12:03 | 2026-11-15 12:03 |
+| #143 | 7 | `/ccaa-story-complete 143` | Done | 2026-11-15 12:03 | 2026-11-15 12:03 |
 
 ## 4. Notes
 
 - **#17** is a stray duplicate of #18 (the "Facade task pattern" story), created by an interrupted run. It is closed and is not part of the counts above.
 - **Follow-up #133 (M01-0073):** `local:containers:*:stop` always runs `docker compose down -v`; use `--keep-volumes` to retain. Spec/plan under `docs/Superpowers/`.
+- **Follow-up #143 (M01-0074):** GitHub About + README Introduction/architecture + `docs/Design/ccaa-enterprise-architecture.jpg`. Spec/plan under `docs/Superpowers/`.
 - **Moved out of this milestone:**
   - M02 - Downloads Management has the dataset status (`system_datasets`), the download API, source locations, the Airflow download DAG and the admin portal.
   - M06 - Cloud Deployment (was M03) has the cloud migration workflow and the cloud storage sources.

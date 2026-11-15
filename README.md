@@ -12,6 +12,33 @@
 >
 > **The application still runs without Superpowers.** Middleware, Admin portal, Airflow, migrations, and tests work with the npm/local scripts below. Superpowers is for AI-assisted *development process*, not runtime.
 
+## Introduction
+
+**Consumer Complaints Agentic App (CCAA)** is a hands-on platform to bring the public [CFPB Consumer Complaint Database](https://www.consumerfinance.gov/data-research/consumer-complaints/) into your own environment through an **Admin portal**, and to grow toward an **Intellect** layer (search, RAG, agentic analysis) on that data.
+
+Operators do not push millions of rows through a browser. They work in **Managed Information Objects (MIOs)**—for example “all complaints” or “last 3 months”—start the right **registered workflow**, and watch status return through the API. Heavy lifting (download the All zip, derive a date window, later batch ingest into MongoDB) runs **asynchronously** in Apache Airflow. The complaint dataset is **never committed** to this repository.
+
+**Vision:** a reliable local-to-cloud path for complaint data ops first; then intelligence products that reason over the same MongoDB corpus. Milestones already prove Admin → API → Airflow → callback → UI refresh with a pluggable operational store (SQLite by default; Postgres or Mongo via `.env`).
+
+Product intent: [`docs/PRODUCT_FEATURES.md`](docs/PRODUCT_FEATURES.md). Detailed rules: [`Middleware/ConsumerComplaintsHandsOn/DESIGN.md`](Middleware/ConsumerComplaintsHandsOn/DESIGN.md).
+
+## Overall architecture
+
+Capability view (not a folder map):
+
+1. **Experience** — Angular Admin portal: Imports, per-MIO status, start only *allowed* workflows for that MIO.
+2. **Integration** — FastAPI Middleware: workflow registry, start execution, MIO status, Airflow status callbacks (shared secret). Sole writer of the **operational/admin** catalog and logs.
+3. **Orchestration** — Apache Airflow: download CFPB All, filter a 3-month slice, future DB ingest DAG. Reports `started` / `completed` / `failed` back to the API.
+4. **Data** — Operational store (SQLite / Postgres / Mongo) for workflows, MIOs, bindings, ingest/exec logs; separate **complaint documents** MongoDB written only by the ingest job.
+5. **Source** — CFPB public HTTP export (All zip). Filtered site downloads cannot cover multi-million-row windows, so 3 months is derived from All.
+6. **Future** — `consumer-complaints-Intellect` reads complaint MongoDB for RAG / agentic workflows.
+
+Write rules that never bend: **API owns operational data**; **Airflow owns bulk complaint MongoDB** (and may *read* operational config, never write it).
+
+![CCAA enterprise architecture](docs/Design/ccaa-enterprise-architecture.jpg)
+
+Layered Middleware internals (closed API → facades → open services → DAO) and deeper diagrams: [`ARCHITECTURE.md`](Middleware/ConsumerComplaintsHandsOn/ARCHITECTURE.md).
+
 ## Development tooling
 
 ### Local containers (lite profiles)
