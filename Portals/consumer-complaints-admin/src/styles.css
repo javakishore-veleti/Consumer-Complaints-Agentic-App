@@ -3,11 +3,11 @@
 :root {
   --cca-primary: #1e3a5f;
   --cca-primary-hover: #2a4f7a;
-  --cca-surface: #f5f7fa;
+  --cca-surface: #f4f7fb;
   --cca-panel: #ffffff;
   --cca-ink: #1b2430;
-  --cca-muted: #5b6b7c;
-  --cca-border: #d8e0ea;
+  --cca-muted: #6b7c8f;
+  --cca-border: #e2e8f0;
   --cca-success: #0f766e;
   --cca-success-bg: #ecfdf5;
   --cca-warning: #b45309;
@@ -16,6 +16,8 @@
   --cca-danger-bg: #fef2f2;
   --cca-info: #1d4ed8;
   --cca-info-bg: #eff6ff;
+  --cca-topbar-h: 3.5rem;
+  --cca-sidebar-w: 16.25rem;
 }
 
 @layer base {
@@ -35,4 +37,60 @@
       -apple-system,
       sans-serif;
   }
+}
+
+/* Shared Able Pro–class controls */
+.cca-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0.55rem 1rem;
+  border-radius: 0.45rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  line-height: 1.2;
+}
+
+.cca-btn-primary {
+  background: var(--cca-primary);
+  color: #fff;
+}
+
+.cca-btn-primary:hover:not(:disabled) {
+  background: var(--cca-primary-hover);
+}
+
+.cca-btn-secondary {
+  background: #fff;
+  color: var(--cca-primary);
+  border-color: var(--cca-border);
+}
+
+.cca-btn-secondary:hover:not(:disabled) {
+  background: #eef3f9;
+}
+
+.cca-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.cca-select {
+  min-width: 14rem;
+  font: inherit;
+  font-weight: 500;
+  color: var(--cca-ink);
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--cca-border);
+  border-radius: 0.45rem;
+  background: #fff;
+}
+
+.cca-select:focus {
+  outline: 2px solid color-mix(in srgb, var(--cca-primary) 35%, transparent);
+  outline-offset: 1px;
 }

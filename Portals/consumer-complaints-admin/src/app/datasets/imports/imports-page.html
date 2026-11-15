@@ -1,52 +1,61 @@
-<section class="imports" aria-labelledby="imports-heading">
-  <header class="imports-header">
-    <div>
-      <h1 id="imports-heading">Imports</h1>
-      <p class="imports-sub">Download status for each managed information object.</p>
-    </div>
-  </header>
+<section class="cca-imports" aria-labelledby="imports-heading">
+  <app-ui-page-header
+    title="Imports"
+    subtitle="Download status for each managed information object."
+    headingId="imports-heading"
+  >
+    <button
+      type="button"
+      class="cca-btn cca-btn-secondary"
+      data-testid="mio-refresh-status"
+      (click)="onRefresh()"
+    >
+      Refresh status
+    </button>
+  </app-ui-page-header>
 
   @if (loading()) {
-    <p data-testid="mio-status-loading" class="alert alert-info">Loading MIO status…</p>
+    <app-ui-alert tone="info" testId="mio-status-loading">Loading MIO status…</app-ui-alert>
   }
   @if (error()) {
-    <p data-testid="mio-status-error" class="alert alert-danger" role="alert">{{ error() }}</p>
+    <app-ui-alert tone="error" testId="mio-status-error" role="alert">{{ error() }}</app-ui-alert>
   }
   @if (actionError()) {
-    <p data-testid="mio-action-error" class="alert alert-danger" role="alert">{{ actionError() }}</p>
+    <app-ui-alert tone="error" testId="mio-action-error" role="alert">{{
+      actionError()
+    }}</app-ui-alert>
   }
 
   <div
     data-testid="imports-accordion-shell"
-    class="imports-list"
+    class="cca-panel-list"
     role="region"
     aria-label="MIO accordion shell"
   >
     @for (mio of entries(); track mio.id) {
-      <details data-testid="mio-accordion" class="mio-panel">
-        <summary>
-          <span class="mio-name">{{ mio.name }}</span>
-          <span
-            [class]="
-              statusBadgeClass(mio.latest_ingest ? mio.latest_ingest.status : null)
-            "
+      <details data-testid="mio-accordion" class="cca-panel">
+        <summary class="cca-panel-summary">
+          <span class="cca-panel-title">{{ mio.name }}</span>
+          <app-ui-badge
+            [tone]="statusTone(mio.latest_ingest ? mio.latest_ingest.status : null)"
+            extraClass="mio-status"
           >
             @if (mio.latest_ingest; as ingest) {
               {{ ingest.status }}
             } @else {
               No ingest yet
             }
-          </span>
+          </app-ui-badge>
         </summary>
-        <div class="mio-body">
+        <div class="cca-panel-body">
           @if (mio.description) {
-            <p class="mio-description">{{ mio.description }}</p>
+            <p class="cca-panel-desc">{{ mio.description }}</p>
           }
           @if (mio.latest_ingest; as ingest) {
             @if (ingest.message) {
-              <p class="mio-message alert alert-warning">{{ ingest.message }}</p>
+              <app-ui-alert tone="warning">{{ ingest.message }}</app-ui-alert>
             }
-            <dl class="mio-meta">
+            <dl class="cca-meta">
               <div>
                 <dt>Requested</dt>
                 <dd>{{ ingest.requested_at }}</dd>
@@ -71,23 +80,24 @@
               }
             </dl>
             @if (ingest.executions.length) {
-              <ul class="mio-executions">
+              <ul class="cca-executions">
                 @for (ex of ingest.executions; track ex.id) {
                   <li>
-                    <span class="ex-name">{{ ex.workflow_name }}</span>
-                    <span [class]="statusBadgeClass(ex.status)">{{ ex.status }}</span>
+                    <span class="cca-ex-name">{{ ex.workflow_name }}</span>
+                    <app-ui-badge [tone]="statusTone(ex.status)">{{ ex.status }}</app-ui-badge>
                     @if (ex.message) {
-                      <span class="ex-msg">{{ ex.message }}</span>
+                      <span class="cca-ex-msg">{{ ex.message }}</span>
                     }
                   </li>
                 }
               </ul>
             }
           }
-          <div class="mio-actions">
-            <label class="mio-workflow-label">
+          <div class="cca-panel-actions">
+            <label class="cca-field">
               Workflow
               <select
+                class="cca-select"
                 data-testid="mio-workflow-select"
                 [value]="selectedWorkflowId(mio.id)"
                 (change)="onWorkflowChange(mio.id, $event)"
@@ -99,20 +109,12 @@
             </label>
             <button
               type="button"
-              class="btn btn-primary"
+              class="cca-btn cca-btn-primary"
               data-testid="mio-start-workflow"
               [disabled]="isStartDisabled(mio)"
               (click)="onStart(mio)"
             >
               Start workflow
-            </button>
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-testid="mio-refresh-status"
-              (click)="onRefresh()"
-            >
-              Refresh status
             </button>
           </div>
         </div>

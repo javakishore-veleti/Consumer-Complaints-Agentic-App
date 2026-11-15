@@ -1,17 +1,40 @@
-<div class="datasets-layout">
-  <nav class="left-nav" aria-label="DataSets">
-    <p class="left-nav-label">DataSets</p>
-    <a
-      data-testid="left-nav-imports"
-      routerLink="/datasets/imports"
-      routerLinkActive="active"
-      >Imports</a
-    >
-    <span data-testid="left-nav-db-ingest" aria-disabled="true" class="disabled"
-      >DB Ingest</span
-    >
-  </nav>
-  <div class="datasets-content">
+<div class="cca-datasets">
+  <aside class="cca-sidebar" aria-label="DataSets">
+    <div class="cca-sidebar-identity">
+      <div class="cca-avatar" aria-hidden="true">AD</div>
+      <div>
+        <p class="cca-identity-name">Admin</p>
+        <p class="cca-identity-role">Operations</p>
+      </div>
+    </div>
+
+    <p class="cca-sidebar-section">Navigation</p>
+    <nav class="cca-sidebar-nav">
+      <a
+        data-testid="left-nav-imports"
+        routerLink="/datasets/imports"
+        routerLinkActive="active"
+      >
+        <svg class="cca-nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M4 5h16v2H4V5zm0 6h10v2H4v-2zm0 6h16v2H4v-2z"
+          />
+        </svg>
+        Imports
+      </a>
+      <span data-testid="left-nav-db-ingest" aria-disabled="true" class="disabled">
+        <svg class="cca-nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M4 6h16v4H4V6zm0 8h16v4H4v-4zm2-6h2v2H6V8zm0 8h2v2H6v-2z"
+          />
+        </svg>
+        DB Ingest
+      </span>
+    </nav>
+  </aside>
+  <div class="cca-datasets-content">
     <router-outlet />
   </div>
 </div>

@@ -1,8 +1,10 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { checkHealth, HealthCtx } from '../core/health-ctx';
+import { UiPageHeader } from '../shared/ui/ui-page-header/ui-page-header';
 
 @Component({
   selector: 'app-home',
+  imports: [UiPageHeader],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })

@@ -1,0 +1,36 @@
+.ui-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.ui-badge-success {
+  color: var(--cca-success);
+  background: var(--cca-success-bg);
+}
+
+.ui-badge-danger {
+  color: var(--cca-danger);
+  background: var(--cca-danger-bg);
+}
+
+.ui-badge-info {
+  color: var(--cca-info);
+  background: var(--cca-info-bg);
+}
+
+.ui-badge-warning {
+  color: var(--cca-warning);
+  background: var(--cca-warning-bg);
+}
+
+.ui-badge-muted {
+  color: var(--cca-muted);
+  background: #eef2f6;
+}

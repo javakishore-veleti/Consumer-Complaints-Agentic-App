@@ -1,0 +1,7 @@
+<p
+  [class]="'ui-alert ui-alert-' + tone()"
+  [attr.data-testid]="testId() || null"
+  [attr.role]="role()"
+>
+  <ng-content />
+</p>
