@@ -230,10 +230,10 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #135 | 6 | `/subagent-driven-development Story #135` | Done | 2026-11-15 02:39 | 2026-11-15 02:39 |
 | #135 | 7 | `/ccaa-commit-push 135` after every task (repeat) | Done | 2026-11-15 02:39 | 2026-11-15 02:39 |
 | #135 | 8 | `/verification-before-completion Story #135` | Done | 2026-11-15 02:39 | 2026-11-15 02:39 |
-| #135 | 9 | `/requesting-code-review Story #135` | In progress | 2026-11-15 02:39 | - |
-| #135 | 10 | `/ccaa-commit-push 135` | Planned | - | - |
-| #135 | 11 | `/finishing-a-development-branch Story #135` | Planned | - | - |
-| #135 | 12 | `/ccaa-story-complete 135` | Planned | - | - |
+| #135 | 9 | `/requesting-code-review Story #135` | Done | 2026-11-15 02:39 | 2026-11-15 02:39 |
+| #135 | 10 | `/ccaa-commit-push 135` | Done | 2026-11-15 02:39 | 2026-11-15 02:39 |
+| #135 | 11 | `/finishing-a-development-branch Story #135` | Done | 2026-11-15 02:39 | 2026-11-15 02:39 |
+| #135 | 12 | `/ccaa-story-complete 135` | In progress | 2026-11-15 02:39 | - |
 | Feature #114 | 1 | `/ccaa-feature-complete 114` | In progress | 2026-11-15 02:34 | - |
 
 ### Phase 4 - DoD matrix
