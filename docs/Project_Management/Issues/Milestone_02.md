@@ -2,7 +2,7 @@
 
 **Scope (decision D38 in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`):** download the free CFPB dataset on demand from the admin portal, asynchronously through Airflow, through registered workflows (D43), and always show whether it has been downloaded. Everything runs locally. Cloud work is M03.
 
-**Status: in progress.** 1 epic, 5 features and 27 stories. 11 stories (and 1 feature) are already done, 16 stories are left to build.
+**Status: in progress.** 1 epic, 5 features and 27 stories. 12 stories (and 1 feature) are already done, 15 stories are left to build.
 
 How to read this file:
 - `#42` is the GitHub issue number in this repository. The `M02-00NN` key is the sequence tag at the start of the issue title. Keys are not in build order.
@@ -268,13 +268,13 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #45 | 3 | `/using-git-worktrees Story #45: branch m02-0010-read-mio-status-endpoint` | Done | 2026-11-14 22:06 | 2026-11-14 22:06 |
 | #45 | 4 | `/writing-plans Story #45` | Done | 2026-11-14 22:06 | 2026-11-14 22:13 |
 | #45 | 5 | `/test-driven-development Story #45` | Done | 2026-11-14 22:13 | 2026-11-14 22:13 |
-| #45 | 6 | `/subagent-driven-development Story #45` | In progress | 2026-11-14 22:13 | - |
-| #45 | 7 | `/ccaa-commit-push 45` after every task (repeat) | Planned | - | - |
-| #45 | 8 | `/verification-before-completion Story #45` | Planned | - | - |
-| #45 | 9 | `/requesting-code-review Story #45` | Planned | - | - |
-| #45 | 10 | `/ccaa-commit-push 45` | Planned | - | - |
-| #45 | 11 | `/finishing-a-development-branch Story #45` | Planned | - | - |
-| #45 | 12 | `/ccaa-story-complete 45` | Planned | - | - |
+| #45 | 6 | `/subagent-driven-development Story #45` | Done | 2026-11-14 22:13 | 2026-11-14 22:21 |
+| #45 | 7 | `/ccaa-commit-push 45` after every task (repeat) | Done | 2026-11-14 22:21 | 2026-11-14 22:21 |
+| #45 | 8 | `/verification-before-completion Story #45` | Done | 2026-11-14 22:21 | 2026-11-14 22:21 |
+| #45 | 9 | `/requesting-code-review Story #45` | Done | 2026-11-14 22:21 | 2026-11-14 22:21 |
+| #45 | 10 | `/ccaa-commit-push 45` | Done | 2026-11-14 22:21 | 2026-11-14 22:21 |
+| #45 | 11 | `/finishing-a-development-branch Story #45` | Done | 2026-11-14 22:21 | 2026-11-14 22:21 |
+| #45 | 12 | `/ccaa-story-complete 45` | Done | 2026-11-14 22:21 | 2026-11-14 22:21 |
 
 ### Phase 3 - Airflow download DAG
 
