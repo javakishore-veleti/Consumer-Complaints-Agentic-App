@@ -2,7 +2,7 @@
 
 **Scope:** Prove the local path **User → Admin UI → APIs → Apache Airflow → callback APIs → operational DB → Admin UI refresh**, with a pluggable local DB. Default is **SQLite** (fewest containers). Before the epic is Done, the same path must also pass after switching only `.env` to **Postgres**, then to **MongoDB**. Cloud deploy is **M06**. Vector/RAG ingest is **M04+**.
 
-**Status: complete.** 1 epic, 4 features. 15 stories are already done; 0 stories are left to build.
+**Status: in progress.** 1 epic, 4 features. 15 stories are already done; 1 story is left to build.
 
 How to read this file:
 - `#116` is the GitHub issue number. The `M03-00NN` key is the sequence tag at the start of the issue title. Keys are not always build order.
@@ -53,13 +53,14 @@ Phases 1–3 can run **in parallel tracks** after #116 (decision). Phase 4 waits
 | 13 | #135 | M03-0015 | Story | Professional Admin UI visual system (shell + Imports) | First pass (restyle) — insufficient |
 | 14 | #137 | M03-0016 | Story | Rebuild Admin UI from Able Pro reference (not restyle) | From-scratch layout (D82) |
 | 15 | #139 | M03-0017 | Story | TailAdmin Free shell + Home ops dashboard (no API URL) | Replace portal with TailAdmin Free (D83) |
+| 16 | #141 | M03-0018 | Story | MIO↔workflow binding: All MIO + non-misleading Imports picker | Catalog `mios_workflows` (D84) |
 
 ### Phase 4 - DoD matrix
 
 | # | Issue | Key | Type | Title | Why here |
 |---|---|---|---|---|---|
-| 16 | #115 | M03-0005 | Feature | M03 DoD verification (SQLite → Postgres → MongoDB) | Parent |
-| 17 | #123 | M03-0013 | Story | DoD matrix: prove path on SQLite, Postgres, and MongoDB | Epic not Done until all three pass |
+| 17 | #115 | M03-0005 | Feature | M03 DoD verification (SQLite → Postgres → MongoDB) | Parent |
+| 18 | #123 | M03-0013 | Story | DoD matrix: prove path on SQLite, Postgres, and MongoDB | Epic not Done until all three pass |
 
 ## 2. The same issues grouped by epic and feature
 
@@ -82,6 +83,7 @@ Epic #111  M03-0001  Local Admin UI E2E integration
 |     +-- #135  Professional Admin UI visual system (shell + Imports) [insufficient]
 |     +-- #137  Rebuild Admin UI from Able Pro reference (not restyle)
 |     +-- #139  TailAdmin Free shell + Home ops dashboard (no API URL)
+|     +-- #141  MIO↔workflow binding: All MIO + non-misleading Imports picker
 |
 +-- Feature #115  M03-0005  M03 DoD verification (SQLite → Postgres → MongoDB)
       +-- #123  DoD matrix: prove path on SQLite, Postgres, and MongoDB
@@ -262,7 +264,19 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #139 | 10 | `/ccaa-commit-push 139` | Done | 2026-11-15 03:19 | 2026-11-15 03:19 |
 | #139 | 11 | `/finishing-a-development-branch Story #139` | Done | 2026-11-15 03:19 | 2026-11-15 03:19 |
 | #139 | 12 | `/ccaa-story-complete 139` | Done | 2026-11-15 03:19 | 2026-11-15 03:19 |
-| Feature #114 | 1 | `/ccaa-feature-complete 114` | Done | 2026-11-15 02:48 | 2026-11-15 02:51 |
+| #141 | 1 | `/ccaa-story-start 141` | Done | 2026-11-15 03:39 | 2026-11-15 03:39 |
+| #141 | 2 | `/brainstorming Story #141: D84 mios_workflows; All MIO; Imports picker from allowed_workflows; start rejects unbound` | Done | 2026-11-15 03:39 | 2026-11-15 03:39 |
+| #141 | 3 | `/using-git-worktrees Story #141: branch m03-0018-mio-workflow-binding` | In progress | 2026-11-15 03:39 | - |
+| #141 | 4 | `/writing-plans Story #141` | Planned | - | - |
+| #141 | 5 | `/test-driven-development Story #141` | Planned | - | - |
+| #141 | 6 | `/subagent-driven-development Story #141` | Planned | - | - |
+| #141 | 7 | `/ccaa-commit-push 141` after every task (repeat) | Planned | - | - |
+| #141 | 8 | `/verification-before-completion Story #141` | Planned | - | - |
+| #141 | 9 | `/requesting-code-review Story #141` | Planned | - | - |
+| #141 | 10 | `/ccaa-commit-push 141` | Planned | - | - |
+| #141 | 11 | `/finishing-a-development-branch Story #141` | Planned | - | - |
+| #141 | 12 | `/ccaa-story-complete 141` | Planned | - | - |
+| Feature #114 | 1 | `/ccaa-feature-complete 114` | Planned | - | - |
 
 ### Phase 4 - DoD matrix
 
@@ -281,7 +295,7 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #123 | 11 | `/finishing-a-development-branch Story #123` | Done | 2026-11-15 01:57 | 2026-11-15 01:57 |
 | #123 | 12 | `/ccaa-story-complete 123` | Done | 2026-11-15 01:57 | 2026-11-15 01:57 |
 | Feature #115 | 1 | `/ccaa-feature-complete 115` | Done | 2026-11-15 01:57 | 2026-11-15 01:57 |
-| Epic #111 | 1 | `/ccaa-epic-complete 111` | Done | 2026-11-15 02:48 | 2026-11-15 02:51 |
+| Epic #111 | 1 | `/ccaa-epic-complete 111` | Planned | - | - |
 
 ## 4. Project skills (`ccaa-` = Consumer Complaints Agentic App)
 
@@ -306,8 +320,9 @@ The skills live in `.cursor/skills/`. Each takes a GitHub issue number.
 - **DoD:** SQLite path first; then Postgres via `.env`; then MongoDB via `.env` — all locally. No major code changes between backends (DAO/factory seam).
 - **Cloud** issues formerly titled M03 are now **M06** (#73 epic and children). Do not build them in this milestone.
 - **Specs/plans** under `docs/Superpowers/` appear when a story runs `/brainstorming` and `/writing-plans` (e.g. `M03-0006-*-design.md`). They do not exist until a story starts.
-- **Where the details are:** decisions go in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. Next free decision is **D83+** (… D80 visual goals #135; D81 portals always npm install #132; **D82 = Able Pro rebuild from scratch #137** — #135 restyle rejected).
+- **Where the details are:** decisions go in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. Next free decision after #141 is **D85** (**D83** TailAdmin #139; **D84** = MIO↔workflow binding #141).
 - Follow-up on **#132**: **D81** — `local:portals:all:start` always `npm install` before serve.
 - **#137 / D82:** rebuild Admin layout from Able Pro reference (shell, sidebar, page header, Imports panel rows) — not CSS on the old accordion.
+- **#141 / D84:** `mios_workflows` catalog bind; seed All MIO; Imports picker from `allowed_workflows`; start rejects unbound. Spec `docs/Superpowers/specs/M03-0018-mio-workflow-binding-design.md`.
 - **PR → main**, merge only when CI is green. Git author must be `javakishore-veleti <6062900+javakishore-veleti@users.noreply.github.com>`; strip AI trailers.
 - **D64:** new facades only when needed; prefer extending existing packages.
