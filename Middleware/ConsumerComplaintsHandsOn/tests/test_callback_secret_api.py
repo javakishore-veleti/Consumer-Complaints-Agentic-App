@@ -108,4 +108,5 @@ def test_health_and_the_existing_endpoints_stay_open(client, monkeypatch, config
     else:
         monkeypatch.setenv("CCA_CALLBACK_SECRET", configured)
     assert client.get("/health").status_code == 200
-    assert client.get("/data-ingest-logs").status_code == 200
+    assert client.get("/mios/status").status_code == 200
+    assert client.get("/workflows").status_code == 200

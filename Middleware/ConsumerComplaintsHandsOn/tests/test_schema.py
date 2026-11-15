@@ -20,24 +20,36 @@ def test_schema_names():
     )
 
 
-def test_migration_creates_all_schemas_and_the_table_in_the_complaints_schema(data_dir):
+def test_migration_creates_all_schemas_and_drops_retired_complaints_tables(data_dir):
     for schema in ALL_SCHEMAS:
         assert (data_dir / f"{schema}.sqlite").exists()
 
     with sqlite3.connect(data_dir / "consumer_comp_db.sqlite") as db:
         tables = {r[0] for r in db.execute("select name from sqlite_master where type='table'")}
-    assert "data_ingest_log" in tables
+    assert "data_ingest_log" not in tables
+    assert "system_datasets" not in tables
 
 
-def test_system_datasets_is_seeded_with_one_not_started_row_per_dataset_and_stage(data_dir):
+def test_migration_0010_runs_down_and_up(data_dir):
+    config = Config(str(PROJECT_ROOT / "alembic.ini"))
+    command.downgrade(config, "0009")
     with sqlite3.connect(data_dir / "consumer_comp_db.sqlite") as db:
-        rows = db.execute("select dataset, stage, status, last_log_id from system_datasets order by dataset, stage").fetchall()
+        tables = {r[0] for r in db.execute("select name from sqlite_master where type='table'")}
+        rows = db.execute(
+            "select dataset, stage, status, last_log_id from system_datasets order by dataset, stage"
+        ).fetchall()
+    assert {"data_ingest_log", "system_datasets"} <= tables
     assert rows == [
         ("3_months", "db_ingest", "not_started", None),
         ("3_months", "download", "not_started", None),
         ("all", "db_ingest", "not_started", None),
         ("all", "download", "not_started", None),
     ]
+    command.upgrade(config, "head")
+    with sqlite3.connect(data_dir / "consumer_comp_db.sqlite") as db:
+        tables = {r[0] for r in db.execute("select name from sqlite_master where type='table'")}
+    assert "data_ingest_log" not in tables
+    assert "system_datasets" not in tables
 
 
 def _admin_db(data_dir):

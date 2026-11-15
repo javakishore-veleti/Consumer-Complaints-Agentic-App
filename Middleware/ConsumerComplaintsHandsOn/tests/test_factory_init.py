@@ -4,37 +4,35 @@ from fastapi import FastAPI
 
 from app.api.objects_factory import ApiObjectsFactory
 from app.api.security.callback_secret_auth import CallbackSecretAuth
-from app.core.dao.data_ingest_dao import DataIngestDao
+from app.core.dao.mio_dao import MioDao
 from app.core.dao.objects_factory import DaoObjectsFactory
-from app.core.facades.data_ingest_facade import DataIngestFacade
+from app.core.facades.mio_status_facade import MioStatusFacade
 from app.core.facades.objects_factory import FacadesObjectsFactory
-from app.core.services.dataset_status_service import DatasetStatusService
+from app.core.services.mio_status_service import MioStatusService
 from app.core.services.objects_factory import ServicesObjectsFactory
 
 
 def test_init_is_idempotent_and_get_returns_registered_singleton():
     DaoObjectsFactory.init()
     DaoObjectsFactory.init()
-    a = DaoObjectsFactory.get_data_ingest_dao()
-    b = DaoObjectsFactory.get_data_ingest_dao()
+    a = DaoObjectsFactory.get_mio_dao()
+    b = DaoObjectsFactory.get_mio_dao()
     assert a is b
-    assert isinstance(a, DataIngestDao)
+    assert isinstance(a, MioDao)
 
     ServicesObjectsFactory.init()
     ServicesObjectsFactory.init()
-    assert ServicesObjectsFactory.get_dataset_status_service() is (
-        ServicesObjectsFactory.get_dataset_status_service()
+    assert ServicesObjectsFactory.get_mio_status_service() is (
+        ServicesObjectsFactory.get_mio_status_service()
     )
-    assert isinstance(
-        ServicesObjectsFactory.get_dataset_status_service(), DatasetStatusService
-    )
+    assert isinstance(ServicesObjectsFactory.get_mio_status_service(), MioStatusService)
 
     FacadesObjectsFactory.init()
     FacadesObjectsFactory.init()
-    assert FacadesObjectsFactory.get_data_ingest_facade() is (
-        FacadesObjectsFactory.get_data_ingest_facade()
+    assert FacadesObjectsFactory.get_mio_status_facade() is (
+        FacadesObjectsFactory.get_mio_status_facade()
     )
-    assert isinstance(FacadesObjectsFactory.get_data_ingest_facade(), DataIngestFacade)
+    assert isinstance(FacadesObjectsFactory.get_mio_status_facade(), MioStatusFacade)
 
     ApiObjectsFactory.init()
     ApiObjectsFactory.init()

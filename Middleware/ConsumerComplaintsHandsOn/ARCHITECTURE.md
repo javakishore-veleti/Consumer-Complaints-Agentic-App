@@ -98,7 +98,7 @@ and an `XxxResp`, and returns an integer status code. Results go into `ctx.resp`
 **Each facade has its own task interface.** Every task of that facade implements it, takes only that facade's `ctx`
 and returns an integer. The facade declares its ordered task list once (it is a singleton) and runs it.
 
-**One DAO per table**, for example `SystemDatasetsDao` and `DataIngestLogDao`; a complaints DAO for MongoDB later.
+**One DAO per table**, for example `AppWfDao` and `MioIngestLogDao`; a complaints DAO for MongoDB later.
 
 **ORM types never leave `dao/impl/`.** Table classes (SQLAlchemy) stay inside the DAO implementations; everything above
 sees plain request and response objects.
@@ -151,7 +151,7 @@ In the part of the file sampled, rows are not sorted by date, so the whole file 
 
 | Store | Holds | Written by | Swappable |
 |---|---|---|---|
-| SQLite | users, the admin schema tables (workflow registry, catalog and logs; planned, D48), `system_datasets` and `data_ingest_log` (built, retired by D47), other operational data | the API only (Airflow reads it, D51) | yes: Postgres or similar through the DAO interface and SQLAlchemy |
+| SQLite | users, the admin schema tables (workflow registry, catalog and logs; D48), other operational data | the API only (Airflow reads it, D51) | yes: Postgres or similar through the DAO interface and SQLAlchemy |
 | MongoDB | the complaint data | the Airflow ingest job | by DAO implementation |
 | Airflow's own Postgres | Airflow metadata | Airflow | n/a (separate, not used by the app) |
 
@@ -159,7 +159,7 @@ Schemas (names exactly as decided):
 
 | Schema | Holds |
 |---|---|
-| `consumer_comp_db` | `data_ingest_log` and `system_datasets` (built, retired by D47). Also the MongoDB database name for the complaint data. |
+| `consumer_comp_db` | No operational tables at head (retired `data_ingest_log` / `system_datasets` dropped by migration `0010`, D74). Also the MongoDB database name for the complaint data. |
 | `consumer_compl_intellect_db` | the Intellect app's own operational data (empty for now) |
 | `consumer_comp_users_db` | user management (empty for now) |
 | `consumer_comp_admin_db` | everything admin-related (D48): the workflow registry `app_workflows` and `app_workflows_exec_log`, the catalog `datasets`, `datasets_location`, `mios`, `mios_datasets`, and `mios_ingest_log` (planned, D43, D49, D50) |

@@ -17,10 +17,8 @@ from sqlalchemy.exc import IntegrityError
 from app.core.common.config import ALL_SCHEMAS, PROJECT_ROOT, SCHEMA_ADMIN, SCHEMA_COMPLAINTS
 from app.core.common.dtos.app_wf_dtos import AppWfCtx, AppWfReq
 from app.core.common.dtos.app_wf_exec_log_dtos import AppWfExecLogCtx, AppWfExecLogReq
-from app.core.common.dtos.data_ingest_dtos import DataIngestCtx, DataIngestReq
 from app.core.common.dtos.dataset_dtos import DatasetCtx, DatasetReq
 from app.core.common.dtos.dataset_location_dtos import DatasetLocationCtx, DatasetLocationReq
-from app.core.common.dtos.dataset_status_dtos import DatasetStatusCtx, DatasetStatusReq
 from app.core.common.dtos.mio_dataset_dtos import MioDatasetCtx, MioDatasetReq
 from app.core.common.dtos.mio_dtos import MioCtx, MioReq
 from app.core.common.dtos.mio_ingest_log_dtos import MioIngestLogCtx, MioIngestLogReq
@@ -74,6 +72,10 @@ def test_upgrade_downgrade_upgrade(postgres):
         schemas = {r[0] for r in c.execute(text("select schema_name from information_schema.schemata"))}
     engine.dispose()
     assert set(ALL_SCHEMAS) <= schemas
+    assert not {"data_ingest_log", "system_datasets"} & _complaint_tables()
+    assert "app_workflows" in _admin_tables()
+
+    command.downgrade(postgres, "0009")
     assert {"data_ingest_log", "system_datasets"} <= _complaint_tables()
     assert "app_workflows" in _admin_tables()
 
@@ -82,45 +84,8 @@ def test_upgrade_downgrade_upgrade(postgres):
     assert "app_workflows" not in _admin_tables()
 
     command.upgrade(postgres, "head")
-    assert {"data_ingest_log", "system_datasets"} <= _complaint_tables()
+    assert not {"data_ingest_log", "system_datasets"} & _complaint_tables()
     assert "app_workflows" in _admin_tables()
-
-
-def test_dataset_status_service_works_on_postgres(postgres):
-    command.upgrade(postgres, "head")
-    service = ServicesObjectsFactory.get_dataset_status_service()
-    ask = DatasetStatusCtx(req=DatasetStatusReq(usecase="download_all"))
-    assert service.request(ask) == SUCCESS
-    assert service.request(DatasetStatusCtx(req=DatasetStatusReq(usecase="download_all"))) == CONFLICT
-    assert service.record(DatasetStatusCtx(req=DatasetStatusReq(usecase="download_all", status="started"))) == SUCCESS
-    done = DatasetStatusCtx(req=DatasetStatusReq(usecase="download_all", status="completed"))
-    assert service.record(done) == SUCCESS
-    rows = DatasetStatusCtx()
-    assert service.read(rows) == SUCCESS
-    assert {(r.dataset, r.stage): r.status for r in rows.resp.records} == {
-        ("3_months", "db_ingest"): "not_started",
-        ("3_months", "download"): "not_started",
-        ("all", "db_ingest"): "not_started",
-        ("all", "download"): "completed",
-    }
-
-
-def test_dao_works_on_postgres(postgres):
-    command.upgrade(postgres, "head")
-    dao = DaoObjectsFactory.get_data_ingest_dao()
-    created = DataIngestCtx(req=DataIngestReq(purpose="download_all"))
-    assert dao.create(created) == SUCCESS
-    log_id = created.resp.records[0].id
-    assert created.resp.records[0].requested_at.tzinfo is not None
-
-    assert dao.update(DataIngestCtx(req=DataIngestReq(id=log_id, status="completed"))) == CONFLICT
-    started = DataIngestCtx(req=DataIngestReq(id=log_id, status="started"))
-    assert dao.update(started) == SUCCESS
-    assert started.resp.records[0].started_at is not None
-
-    listed = DataIngestCtx(req=DataIngestReq(status="started"))
-    assert dao.list(listed) == SUCCESS and [r.id for r in listed.resp.records] == [log_id]
-    assert dao.delete(DataIngestCtx(req=DataIngestReq(id=log_id))) == SUCCESS
 
 
 def test_app_wf_dao_works_on_postgres(postgres):
