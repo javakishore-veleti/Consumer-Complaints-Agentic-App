@@ -67,7 +67,9 @@ Middleware/ConsumerComplaintsHandsOn/
   main.py  pyproject.toml  (uv project)
 CICD/Local/
   airflow/    docker-compose.yaml     Airflow 3.4.0, LocalExecutor
-  mongodb/    docker-compose.yaml     MongoDB 8.0
+  postgres/   docker-compose.yaml     Operational CCA Postgres 16 (opt-in, D78)
+  mongodb/    docker-compose.yaml     MongoDB 8.0 (opt-in for Mongo profile)
+  profiles.map  docker-profiles.sh
   docker-all-up.sh  docker-all-down.sh  docker-all-status.sh
 Middleware/Airflow-dags/      Airflow DAGs, outside the FastAPI app root, mounted into Airflow by relative path (D44, D62)
 Portals/consumer-complaints-admin/   Angular admin portal (D65, story #62)
@@ -190,14 +192,23 @@ SQLAlchemy ORM with **Alembic** migrations.
 
 | Service | Where | Notes |
 |---|---|---|
-| Airflow UI | <http://localhost:8080> | login `airflow` / `airflow`; compose in `CICD/Local/airflow` |
-| MongoDB | `127.0.0.1:27017` | root user from environment or the local default; compose in `CICD/Local/mongodb` |
+| Airflow UI | <http://localhost:8080> | login `airflow` / `airflow`; compose in `CICD/Local/airflow` (includes Airflow metadata Postgres — not CCA operational store) |
+| Operational Postgres | `127.0.0.1:5432` | opt-in; compose in `CICD/Local/postgres` (`cca-operational-postgres`); set `CCA_DB_URL` (D77/D78) |
+| MongoDB | `127.0.0.1:27017` | opt-in for Mongo profile; compose in `CICD/Local/mongodb` |
 | Middleware API | <http://127.0.0.1:8000> (`/docs` for Swagger) | `npm run local:handson:middlware:all:start` (or `:stop`, `:status`; start migrates first, runs in the background; log and PID in `.data/`); `local:api:migrate` and `local:api:test` also exist |
 | Admin portal | <http://localhost:4200> (`/datasets/imports`) | `npm run local:portal:admin:with-api` starts Middleware then the Angular app; `apiBaseUrl` `/api` proxies to Middleware `:8000` (D65). Portal-only: `local:portal:admin:start` |
 
-Start, stop, check: `npm run local:containers:all:start | stop | status` (they run the three `CICD/Local/docker-all-*.sh`
-scripts, which pick up every `CICD/Local/<service>/docker-compose.yaml`). `stop -- --wipe <service>` also deletes that
-service's data volume.
+**Lite profiles (D78)** — default does **not** require an operational Postgres container:
+
+| Profile | npm scripts | Containers started |
+|---|---|---|
+| `sqlite` (default) | `local:containers:sqlite:start \| stop \| status` | `airflow` only |
+| `postgres` | `local:containers:postgres:start \| stop \| status` | `airflow` + `postgres` |
+| `mongodb` | `local:containers:mongodb:start \| stop \| status` | `airflow` + `mongodb` |
+
+`status` for a profile prints the expected compose projects, then `docker compose ps`. API and Admin UI stay host npm processes.
+
+Start everything (unchanged): `npm run local:containers:all:start | stop | status` (every `CICD/Local/<service>/docker-compose.yaml`). `stop -- --wipe` (or `--wipe --profile …`) also deletes data volumes.
 
 From inside an Airflow container, the host machine is reachable as `host.docker.internal` (for the API callbacks and,
 unless both share a Docker network, for MongoDB).

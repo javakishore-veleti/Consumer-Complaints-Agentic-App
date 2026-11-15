@@ -1,16 +1,23 @@
 #!/usr/bin/env bash
-# Start every local service: each CICD/Local/<service>/docker-compose.yaml is one service.
-# Usage: CICD/Local/docker-all-up.sh [service ...]     (no arguments = all services)
+# Start local Docker services.
+# Usage:
+#   CICD/Local/docker-all-up.sh                         # every service (unchanged)
+#   CICD/Local/docker-all-up.sh --profile sqlite|postgres|mongodb
+#   CICD/Local/docker-all-up.sh [service ...]           # named services only
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=docker-profiles.sh
+source "$ROOT/docker-profiles.sh"
 
-services() {
-  if [ "$#" -gt 0 ]; then printf '%s\n' "$@"; return; fi
-  for f in "$ROOT"/*/docker-compose.y*ml; do [ -e "$f" ] && basename "$(dirname "$f")"; done
-}
+cca_parse_profile_args "$@" || exit 1
 
-for svc in $(services "$@"); do
+if [ -n "${CCA_PROFILE:-}" ]; then
+  echo "profile=$CCA_PROFILE  expected: $(cca_profile_services "$CCA_PROFILE" | paste -sd' ' -)"
+fi
+
+while IFS= read -r svc; do
+  [ -n "$svc" ] || continue
   dir="$ROOT/$svc"
   [ -d "$dir" ] || { echo "no such service: $svc" >&2; exit 1; }
   if [ -f "$dir/.env.example" ] && [ ! -f "$dir/.env" ]; then
@@ -19,7 +26,11 @@ for svc in $(services "$@"); do
   fi
   echo "==> starting $svc"
   (cd "$dir" && docker compose up -d)
-done
+done < <(cca_resolved_services)
 
 echo
-"$ROOT/docker-all-status.sh"
+if [ -n "${CCA_PROFILE:-}" ]; then
+  "$ROOT/docker-all-status.sh" --profile "$CCA_PROFILE"
+else
+  "$ROOT/docker-all-status.sh"
+fi

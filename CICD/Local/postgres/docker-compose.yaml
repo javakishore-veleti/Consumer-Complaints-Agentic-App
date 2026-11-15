@@ -1,0 +1,34 @@
+# Operational / admin Postgres for CCA (D77 / D78) — not Airflow's metadata DB.
+# Opt-in via: npm run local:containers:postgres:start
+#   (or: bash CICD/Local/docker-all-up.sh --profile postgres)
+#
+# Then set Middleware .env:
+#   CCA_OPERATIONAL_STORE=postgres
+#   CCA_DB_URL=postgresql+psycopg://postgres:postgres@127.0.0.1:5432/cca
+#
+# Connect: postgresql://postgres:postgres@127.0.0.1:5432/cca
+# Override with POSTGRES_USER / POSTGRES_PASSWORD / POSTGRES_DB / CCA_POSTGRES_PORT.
+name: cca-postgres
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: cca-operational-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-cca}
+    ports:
+      - "127.0.0.1:${CCA_POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - cca-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+volumes:
+  cca-postgres-data:

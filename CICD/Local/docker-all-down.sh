@@ -1,25 +1,31 @@
 #!/usr/bin/env bash
-# Stop every local service. Data volumes are kept; pass --wipe to delete them too (Airflow's database included).
-# Usage: CICD/Local/docker-all-down.sh [--wipe] [service ...]
+# Stop local Docker services. Data volumes are kept; pass --wipe to delete them too.
+# Usage:
+#   CICD/Local/docker-all-down.sh [--wipe]                         # every service
+#   CICD/Local/docker-all-down.sh [--wipe] --profile sqlite|postgres|mongodb
+#   CICD/Local/docker-all-down.sh [--wipe] [service ...]
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=docker-profiles.sh
+source "$ROOT/docker-profiles.sh"
+
+cca_parse_profile_args "$@" || exit 1
 
 flags=()
-if [ "${1:-}" = "--wipe" ]; then
+if [ "${CCA_WIPE:-0}" = "1" ]; then
   flags=(-v)
-  shift
 fi
 
-services() {
-  if [ "$#" -gt 0 ]; then printf '%s\n' "$@"; return; fi
-  for f in "$ROOT"/*/docker-compose.y*ml; do [ -e "$f" ] && basename "$(dirname "$f")"; done
-}
+if [ -n "${CCA_PROFILE:-}" ]; then
+  echo "profile=$CCA_PROFILE  expected: $(cca_profile_services "$CCA_PROFILE" | paste -sd' ' -)"
+fi
 
-for svc in $(services "$@"); do
+while IFS= read -r svc; do
+  [ -n "$svc" ] || continue
   dir="$ROOT/$svc"
   [ -d "$dir" ] || { echo "no such service: $svc" >&2; exit 1; }
   echo "==> stopping $svc ${flags[*]:-}"
   # Airflow's compose file needs FERNET_KEY at parse time even to stop; an empty value is fine for `down`.
   (cd "$dir" && FERNET_KEY="${FERNET_KEY:-}" docker compose down ${flags[@]+"${flags[@]}"})
-done
+done < <(cca_resolved_services)

@@ -164,19 +164,19 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
-| #120 | 1 | `/ccaa-story-start 120` | Planned | - | - |
-| #120 | 2 | `/brainstorming Story #120: npm/docker profiles — SQLite-lite default; Postgres and Mongo opt-in; document container sets` | Planned | - | - |
-| #120 | 3 | `/using-git-worktrees Story #120: branch m03-0010-local-runtime-profiles` | Planned | - | - |
-| #120 | 4 | `/writing-plans Story #120` | Planned | - | - |
-| #120 | 5 | `/test-driven-development Story #120` | Planned | - | - |
-| #120 | 6 | `/subagent-driven-development Story #120` | Planned | - | - |
-| #120 | 7 | `/ccaa-commit-push 120` after every task (repeat) | Planned | - | - |
-| #120 | 8 | `/verification-before-completion Story #120` | Planned | - | - |
-| #120 | 9 | `/requesting-code-review Story #120` | Planned | - | - |
-| #120 | 10 | `/ccaa-commit-push 120` | Planned | - | - |
-| #120 | 11 | `/finishing-a-development-branch Story #120` | Planned | - | - |
+| #120 | 1 | `/ccaa-story-start 120` | Done | 2026-11-15 01:37 | 2026-11-15 01:37 |
+| #120 | 2 | `/brainstorming Story #120: npm/docker profiles — SQLite-lite default; Postgres and Mongo opt-in; document container sets` | Done | 2026-11-15 01:37 | 2026-11-15 01:37 |
+| #120 | 3 | `/using-git-worktrees Story #120: branch m03-0010-local-runtime-profiles` | Done | 2026-11-15 01:37 | 2026-11-15 01:37 |
+| #120 | 4 | `/writing-plans Story #120` | Done | 2026-11-15 01:37 | 2026-11-15 01:37 |
+| #120 | 5 | `/test-driven-development Story #120` | Done | 2026-11-15 01:37 | 2026-11-15 01:37 |
+| #120 | 6 | `/subagent-driven-development Story #120` | Done | 2026-11-15 01:37 | 2026-11-15 01:37 |
+| #120 | 7 | `/ccaa-commit-push 120` after every task (repeat) | Done | 2026-11-15 01:37 | 2026-11-15 01:37 |
+| #120 | 8 | `/verification-before-completion Story #120` | Done | 2026-11-15 01:37 | 2026-11-15 01:38 |
+| #120 | 9 | `/requesting-code-review Story #120` | Done | 2026-11-15 01:38 | 2026-11-15 01:38 |
+| #120 | 10 | `/ccaa-commit-push 120` | Done | 2026-11-15 01:38 | 2026-11-15 01:38 |
+| #120 | 11 | `/finishing-a-development-branch Story #120` | In progress | 2026-11-15 01:38 | - |
 | #120 | 12 | `/ccaa-story-complete 120` | Planned | - | - |
-| Feature #113 | 1 | `/ccaa-feature-complete 113` | Planned | - | - |
+| Feature #113 | 1 | `/ccaa-feature-complete 113` | In progress | 2026-11-15 01:37 | - |
 
 ### Phase 3 - Admin UI integration
 
@@ -246,6 +246,6 @@ The skills live in `.cursor/skills/`. Each takes a GitHub issue number.
 - **DoD:** SQLite path first; then Postgres via `.env`; then MongoDB via `.env` — all locally. No major code changes between backends (DAO/factory seam).
 - **Cloud** issues formerly titled M03 are now **M06** (#73 epic and children). Do not build them in this milestone.
 - **Specs/plans** under `docs/Superpowers/` appear when a story runs `/brainstorming` and `/writing-plans` (e.g. `M03-0006-*-design.md`). They do not exist until a story starts.
-- **Where the details are:** decisions go in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. Next free decision is **D78+** (D75 = pluggable operational DB seam #116; D76 = SQLite-first #117; D77 = Postgres via `.env` #118).
+- **Where the details are:** decisions go in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. Next free decision is **D79+** (D75 = pluggable operational DB seam #116; D76 = SQLite-first #117; D77 = Postgres via `.env` #118; D78 = lite local Docker profiles #120).
 - **PR → main**, merge only when CI is green. Git author must be `javakishore-veleti <6062900+javakishore-veleti@users.noreply.github.com>`; strip AI trailers.
 - **D64:** new facades only when needed; prefer extending existing packages.

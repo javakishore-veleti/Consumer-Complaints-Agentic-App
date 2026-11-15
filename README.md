@@ -2,6 +2,26 @@
 
 ## Development tooling
 
+### Local containers (lite profiles)
+
+Default local path uses **SQLite** for the operational/admin store — **no operational Postgres container**. Start Airflow only:
+
+```bash
+npm run local:containers:sqlite:start    # Airflow (SQLite-lite default)
+npm run local:containers:sqlite:status   # shows expected: airflow
+```
+
+Opt-in profiles:
+
+```bash
+npm run local:containers:postgres:start  # Airflow + CCA operational Postgres
+npm run local:containers:mongodb:start   # Airflow + MongoDB
+```
+
+Then run the API (`npm run local:handson:middlware:all:start`) and Admin UI. For Postgres/Mongo, set `.env` per `Middleware/ConsumerComplaintsHandsOn/.env.example` (D75–D78).
+
+`npm run local:containers:all:*` still starts/stops/status **every** `CICD/Local/*/docker-compose.yaml` (unchanged).
+
 ### Admin portal
 
 Angular app at `Portals/consumer-complaints-admin/` (Node 22+). One-command local UI + Middleware:

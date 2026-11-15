@@ -1,0 +1,8 @@
+# Lite local container profiles (D78 / story #120).
+# Format: profile=service1 service2 ...
+# Services are CICD/Local/<service>/ directories with docker-compose.y*ml.
+# API and Admin UI are host npm processes — not listed here.
+# Airflow compose still includes Airflow's own metadata Postgres; that is not the CCA operational store.
+sqlite=airflow
+postgres=airflow postgres
+mongodb=airflow mongodb
