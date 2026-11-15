@@ -389,7 +389,7 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #63 | 8 | `/verification-before-completion Story #63` | Done | 2026-11-15 00:05 | 2026-11-15 00:05 |
 | #63 | 9 | `/requesting-code-review Story #63` | Done | 2026-11-15 00:05 | 2026-11-15 00:05 |
 | #63 | 10 | `/ccaa-commit-push 63` | Done | 2026-11-15 00:05 | 2026-11-15 00:05 |
-| #63 | 11 | `/finishing-a-development-branch Story #63` | In progress | 2026-11-15 00:05 | - |
+| #63 | 11 | `/finishing-a-development-branch Story #63` | Done | 2026-11-15 00:05 | 2026-11-15 00:06 |
 | #63 | 12 | `/ccaa-story-complete 63` | Planned | - | - |
 | #64 | 1 | `/ccaa-story-start 64` | Planned | - | - |
 | #64 | 2 | `/brainstorming Story #64: one accordion per MIO with its status from the API (#45)` | Planned | - | - |
