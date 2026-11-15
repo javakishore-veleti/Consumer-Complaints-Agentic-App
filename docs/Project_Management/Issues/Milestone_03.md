@@ -110,8 +110,8 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
-| #116 | 1 | `/ccaa-story-start 116` | Planned | - | - |
-| #116 | 2 | `/brainstorming Story #116: decide SQLite default, Postgres via CCA_DB_URL, MongoDB via .env for operational/admin store; record DESIGN.md decision(s); update .env.example and ARCHITECTURE.md` | Planned | - | - |
+| #116 | 1 | `/ccaa-story-start 116` | Done | 2026-11-15 01:13 | 2026-11-15 01:13 |
+| #116 | 2 | `/brainstorming Story #116: decide SQLite default, Postgres via CCA_DB_URL, MongoDB via .env for operational/admin store; record DESIGN.md decision(s); update .env.example and ARCHITECTURE.md` | In progress | 2026-11-15 01:13 | - |
 | #116 | 3 | `/using-git-worktrees Story #116: branch m03-0006-pluggable-db-seam` | Planned | - | - |
 | #116 | 4 | `/writing-plans Story #116` | Planned | - | - |
 | #116 | 5 | `/test-driven-development Story #116` | Planned | - | - |
@@ -158,7 +158,7 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #119 | 10 | `/ccaa-commit-push 119` | Planned | - | - |
 | #119 | 11 | `/finishing-a-development-branch Story #119` | Planned | - | - |
 | #119 | 12 | `/ccaa-story-complete 119` | Planned | - | - |
-| Feature #112 | 1 | `/ccaa-feature-complete 112` | Planned | - | - |
+| Feature #112 | 1 | `/ccaa-feature-complete 112` | In progress | 2026-11-15 01:13 | - |
 
 ### Phase 2 - Lite local runtime
 
@@ -182,8 +182,8 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
-| #121 | 1 | `/ccaa-story-start 121` | Planned | - | - |
-| #121 | 2 | `/brainstorming Story #121: Admin Imports live API list/start/refresh hardening; no mock status; proxy/apiBaseUrl for local portal` | Planned | - | - |
+| #121 | 1 | `/ccaa-story-start 121` | Done | 2026-11-15 01:12 | 2026-11-15 01:12 |
+| #121 | 2 | `/brainstorming Story #121: Admin Imports live API list/start/refresh hardening; no mock status; proxy/apiBaseUrl for local portal` | In progress | 2026-11-15 01:12 | - |
 | #121 | 3 | `/using-git-worktrees Story #121: branch m03-0011-admin-imports-live-api` | Planned | - | - |
 | #121 | 4 | `/writing-plans Story #121` | Planned | - | - |
 | #121 | 5 | `/test-driven-development Story #121` | Planned | - | - |
@@ -206,7 +206,7 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #122 | 10 | `/ccaa-commit-push 122` | Planned | - | - |
 | #122 | 11 | `/finishing-a-development-branch Story #122` | Planned | - | - |
 | #122 | 12 | `/ccaa-story-complete 122` | Planned | - | - |
-| Feature #114 | 1 | `/ccaa-feature-complete 114` | Planned | - | - |
+| Feature #114 | 1 | `/ccaa-feature-complete 114` | In progress | 2026-11-15 01:12 | - |
 
 ### Phase 4 - DoD matrix
 
@@ -225,7 +225,7 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #123 | 11 | `/finishing-a-development-branch Story #123` | Planned | - | - |
 | #123 | 12 | `/ccaa-story-complete 123` | Planned | - | - |
 | Feature #115 | 1 | `/ccaa-feature-complete 115` | Planned | - | - |
-| Epic #111 | 1 | `/ccaa-epic-complete 111` | Planned | - | - |
+| Epic #111 | 1 | `/ccaa-epic-complete 111` | In progress | 2026-11-15 01:12 | - |
 
 ## 4. Project skills (`ccaa-` = Consumer Complaints Agentic App)
 
