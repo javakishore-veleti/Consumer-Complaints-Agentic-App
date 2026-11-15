@@ -18,7 +18,7 @@ is done asynchronously by Apache Airflow.
 
 | App | What it is | Status |
 |---|---|---|
-| `consumer-complaints-admin` | Angular admin portal. Imports datasets, ingests them into the database, shows status. | [Planned] |
+| `consumer-complaints-admin` | Angular admin portal under `Portals/consumer-complaints-admin/`. Imports datasets, ingests them into the database, shows status. | Scaffold [Done] (#62); features [Planned] |
 | Middleware API | FastAPI service (`Middleware/ConsumerComplaintsHandsOn`). The only thing the portal talks to. | [Planned] (folder skeleton [Done]) |
 | Apache Airflow | Runs the download and ingest jobs asynchronously. | [Done] locally in Docker, DAGs [Planned] |
 | `consumer-complaints-Intellect` | The intelligence app that works over the complaint data (RAG / agentic). | [Open] scope not defined yet |
@@ -130,7 +130,7 @@ Each workflow that downloads or ingests data is registered in the database, so t
 | `system_datasets` table, DAO and the service that updates it with the log in one transaction | Done |
 | Workflow registry (`app_workflows`, `app_workflows_exec_log`), start-download and status-callback endpoints | Planned: next |
 | Airflow download and ingest DAGs | Planned |
-| Admin portal (Angular) | Planned |
+| Admin portal (Angular) | Scaffold Done (#62); features Planned |
 | Cloud deployment and manual migration workflow | Planned |
 
 ## 6. Open questions

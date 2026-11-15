@@ -17,7 +17,10 @@
     "local:handson:middlware:all:status": "bash Middleware/ConsumerComplaintsHandsOn/run_app.sh status",
     "local:api:openapi": "cd Middleware/ConsumerComplaintsHandsOn && uv run python scripts/export_openapi.py",
     "local:api:lint": "cd Middleware/ConsumerComplaintsHandsOn && uv run lint-imports",
-    "local:api:test": "cd Middleware/ConsumerComplaintsHandsOn && uv run pytest"
+    "local:api:test": "cd Middleware/ConsumerComplaintsHandsOn && uv run pytest",
+    "local:portal:admin:start": "npm --prefix Portals/consumer-complaints-admin start",
+    "local:portal:admin:build": "npm --prefix Portals/consumer-complaints-admin run build",
+    "local:portal:admin:test": "npm --prefix Portals/consumer-complaints-admin test -- --watch=false"
   },
   "author": "",
   "license": "ISC"
