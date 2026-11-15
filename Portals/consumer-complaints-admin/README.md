@@ -40,8 +40,14 @@ npm run local:portal:admin:build
 npm run local:portal:admin:test
 ```
 
-Dev server defaults to http://localhost:4200/.
+**One-command portal + API** (starts Middleware via `run_app.sh` if needed, then `ng serve`):
+
+```bash
+npm run local:portal:admin:with-api
+```
+
+Dev server defaults to http://localhost:4200/. Open **DataSets → Imports** (`/datasets/imports`) for live MIO list / start / refresh.
 
 ## API proxy
 
-`proxy.conf.json` forwards `/api` to the Middleware at `http://127.0.0.1:8000` (path rewrite strips `/api`). App code uses `environment.apiBaseUrl` (`'/api'` in development). This scaffold does not call the API yet.
+`proxy.conf.json` forwards `/api` to the Middleware at `http://127.0.0.1:8000` (path rewrite strips `/api`). App code uses `environment.apiBaseUrl` (`'/api'` in development). Imports calls `GET /mios/status`, `GET /workflows`, and `POST /workflows/{id}/start` through that proxy; HTTP failures show the Middleware FastAPI `detail` text (no invented ingest status).
