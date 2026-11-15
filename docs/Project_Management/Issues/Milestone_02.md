@@ -403,17 +403,17 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #64 | 10 | `/ccaa-commit-push 64` | Done | 2026-11-15 00:21 | 2026-11-15 00:21 |
 | #64 | 11 | `/finishing-a-development-branch Story #64` | Done | 2026-11-15 00:21 | 2026-11-15 00:21 |
 | #64 | 12 | `/ccaa-story-complete 64` | Planned | - | - |
-| #65 | 1 | `/ccaa-story-start 65` | Done | 2026-11-15 00:30 | 2026-11-15 00:30 |
-| #65 | 2 | `/brainstorming Story #65: start workflow button and status refresh; calls #42; poll or refresh is the open question` | Done | 2026-11-15 00:30 | 2026-11-15 00:30 |
-| #65 | 3 | `/using-git-worktrees Story #65: branch m02-0026-start-workflow-button-and-status-refresh` | Done | 2026-11-15 00:30 | 2026-11-15 00:30 |
-| #65 | 4 | `/writing-plans Story #65` | Done | 2026-11-15 00:30 | 2026-11-15 00:30 |
-| #65 | 5 | `/test-driven-development Story #65` | Done | 2026-11-15 00:30 | 2026-11-15 00:30 |
-| #65 | 6 | `/subagent-driven-development Story #65` | Done | 2026-11-15 00:30 | 2026-11-15 00:30 |
-| #65 | 7 | `/ccaa-commit-push 65` after every task (repeat) | Done | 2026-11-15 00:30 | 2026-11-15 00:30 |
-| #65 | 8 | `/verification-before-completion Story #65` | Done | 2026-11-15 00:30 | 2026-11-15 00:30 |
-| #65 | 9 | `/requesting-code-review Story #65` | Done | 2026-11-15 00:30 | 2026-11-15 00:30 |
-| #65 | 10 | `/ccaa-commit-push 65` | Done | 2026-11-15 00:30 | 2026-11-15 00:30 |
-| #65 | 11 | `/finishing-a-development-branch Story #65` | In progress | 2026-11-15 00:30 | - |
+| #65 | 1 | `/ccaa-story-start 65` | Done | 2026-11-15 00:30 | 2026-11-15 00:31 |
+| #65 | 2 | `/brainstorming Story #65: start workflow button and status refresh; calls #42; poll or refresh is the open question` | Done | 2026-11-15 00:30 | 2026-11-15 00:31 |
+| #65 | 3 | `/using-git-worktrees Story #65: branch m02-0026-start-workflow-button-and-status-refresh` | Done | 2026-11-15 00:30 | 2026-11-15 00:31 |
+| #65 | 4 | `/writing-plans Story #65` | Done | 2026-11-15 00:30 | 2026-11-15 00:31 |
+| #65 | 5 | `/test-driven-development Story #65` | Done | 2026-11-15 00:30 | 2026-11-15 00:31 |
+| #65 | 6 | `/subagent-driven-development Story #65` | Done | 2026-11-15 00:30 | 2026-11-15 00:31 |
+| #65 | 7 | `/ccaa-commit-push 65` after every task (repeat) | Done | 2026-11-15 00:30 | 2026-11-15 00:31 |
+| #65 | 8 | `/verification-before-completion Story #65` | Done | 2026-11-15 00:30 | 2026-11-15 00:31 |
+| #65 | 9 | `/requesting-code-review Story #65` | Done | 2026-11-15 00:30 | 2026-11-15 00:31 |
+| #65 | 10 | `/ccaa-commit-push 65` | Done | 2026-11-15 00:30 | 2026-11-15 00:31 |
+| #65 | 11 | `/finishing-a-development-branch Story #65` | Done | 2026-11-15 00:30 | 2026-11-15 00:31 |
 | #65 | 12 | `/ccaa-story-complete 65` | Planned | - | - |
 | Feature #61 | 1 | `/ccaa-feature-complete 61` | Planned | - | - |
 
