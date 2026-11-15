@@ -319,6 +319,14 @@
       },
       "MioStatusOut": {
         "properties": {
+          "allowed_workflows": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/WfListOut"
+            },
+            "title": "Allowed Workflows",
+            "type": "array"
+          },
           "description": {
             "anyOf": [
               {
