@@ -1,10 +1,12 @@
-"""Builds the one FastAPI application for the whole project (one OpenAPI spec). The app is a singleton."""
+"""Builds the one FastAPI application for the whole project (one OpenAPI spec) and hands out the other singletons of
+the api package (the callback secret check, D59). The app is a singleton."""
 
 import threading
 
 from fastapi import FastAPI
 
 from app.api.routers.data_ingest_api import DataIngestApi
+from app.api.security.callback_secret_auth import CallbackSecretAuth
 
 
 class ApiObjectsFactory:
@@ -18,6 +20,10 @@ class ApiObjectsFactory:
                 if ApiObjectsFactory._app is None:
                     ApiObjectsFactory._app = ApiObjectsFactory._build_app()
         return ApiObjectsFactory._app
+
+    @staticmethod
+    def get_callback_secret_auth() -> CallbackSecretAuth:
+        return CallbackSecretAuth()
 
     @staticmethod
     def _build_app() -> FastAPI:

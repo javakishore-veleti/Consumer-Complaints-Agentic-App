@@ -12,7 +12,7 @@ On Postgres and similar databases they are real schemas.
 """
 
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 SCHEMA_COMPLAINTS = "consumer_comp_db"
@@ -28,11 +28,15 @@ PROJECT_ROOT = Path(__file__).resolve().parents[3]
 class Settings:
     db_url: str
     data_dir: Path
+    callback_secret: str | None = field(default=None, repr=False)  # repr=False keeps it out of logs and tracebacks
 
 
 def get_settings() -> Settings:
     """CCA_DATA_DIR: folder for the SQLite files (default: .data in the project).
-    CCA_DB_URL: full SQLAlchemy URL; set it to use Postgres or another database instead of SQLite."""
+    CCA_DB_URL: full SQLAlchemy URL; set it to use Postgres or another database instead of SQLite.
+    CCA_CALLBACK_SECRET: the shared secret Airflow sends with every callback (D59). Unset or blank means not
+    configured, and then every protected endpoint answers 401."""
     data_dir = Path(os.environ.get("CCA_DATA_DIR", PROJECT_ROOT / ".data")).resolve()
     db_url = os.environ.get("CCA_DB_URL", f"sqlite:///{data_dir}/operational.sqlite")
-    return Settings(db_url=db_url, data_dir=data_dir)
+    callback_secret = os.environ.get("CCA_CALLBACK_SECRET", "").strip() or None
+    return Settings(db_url=db_url, data_dir=data_dir, callback_secret=callback_secret)
