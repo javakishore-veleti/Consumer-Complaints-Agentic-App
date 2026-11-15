@@ -2,7 +2,7 @@
 
 **Scope:** Prove the local path **User → Admin UI → APIs → Apache Airflow → callback APIs → operational DB → Admin UI refresh**, with a pluggable local DB. Default is **SQLite** (fewest containers). Before the epic is Done, the same path must also pass after switching only `.env` to **Postgres**, then to **MongoDB**. Cloud deploy is **M06**. Vector/RAG ingest is **M04+**.
 
-**Status: complete.** 1 epic, 4 features and 9 stories. 12 stories are already done; 0 stories are left to build.
+**Status: in progress.** 1 epic, 4 features and 10 stories. 12 stories are already done; 1 story is left to build.
 
 How to read this file:
 - `#116` is the GitHub issue number. The `M03-00NN` key is the sequence tag at the start of the issue title. Keys are not always build order.
@@ -50,13 +50,14 @@ Phases 1–3 can run **in parallel tracks** after #116 (decision). Phase 4 waits
 | 10 | #114 | M03-0004 | Feature | Admin UI ↔ API local integration | Parent |
 | 11 | #121 | M03-0011 | Story | Admin Imports: live API list/start/refresh hardening | Live Middleware, no mocks |
 | 12 | #122 | M03-0012 | Story | E2E happy path: UI → API → Airflow → callback → UI | Full path on active DB |
+| 13 | #135 | M03-0015 | Story | Professional Admin UI visual system (shell + Imports) | Production chrome; no student/demo look |
 
 ### Phase 4 - DoD matrix
 
 | # | Issue | Key | Type | Title | Why here |
 |---|---|---|---|---|---|
-| 13 | #115 | M03-0005 | Feature | M03 DoD verification (SQLite → Postgres → MongoDB) | Parent |
-| 14 | #123 | M03-0013 | Story | DoD matrix: prove path on SQLite, Postgres, and MongoDB | Epic not Done until all three pass |
+| 14 | #115 | M03-0005 | Feature | M03 DoD verification (SQLite → Postgres → MongoDB) | Parent |
+| 15 | #123 | M03-0013 | Story | DoD matrix: prove path on SQLite, Postgres, and MongoDB | Epic not Done until all three pass |
 
 ## 2. The same issues grouped by epic and feature
 
@@ -76,6 +77,7 @@ Epic #111  M03-0001  Local Admin UI E2E integration
 +-- Feature #114  M03-0004  Admin UI ↔ API local integration
 |     +-- #121  Admin Imports: live API list/start/refresh hardening
 |     +-- #122  E2E happy path: UI → API → Airflow → callback → UI
+|     +-- #135  Professional Admin UI visual system (shell + Imports)
 |
 +-- Feature #115  M03-0005  M03 DoD verification (SQLite → Postgres → MongoDB)
       +-- #123  DoD matrix: prove path on SQLite, Postgres, and MongoDB
@@ -220,7 +222,19 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #122 | 10 | `/ccaa-commit-push 122` | Done | 2026-11-15 01:29 | 2026-11-15 01:29 |
 | #122 | 11 | `/finishing-a-development-branch Story #122` | Done | 2026-11-15 01:29 | 2026-11-15 01:31 |
 | #122 | 12 | `/ccaa-story-complete 122` | Done | 2026-11-15 01:31 | 2026-11-15 01:31 |
-| Feature #114 | 1 | `/ccaa-feature-complete 114` | Done | 2026-11-15 01:12 | 2026-11-15 01:31 |
+| #135 | 1 | `/ccaa-story-start 135` | Done | 2026-11-15 02:34 | 2026-11-15 02:34 |
+| #135 | 2 | `/brainstorming Story #135: implement D80 — Tailwind + Able Pro–class shell, alerts/forms/favicon; Imports polish; keep live API and data-testids` | In progress | 2026-11-15 02:34 | - |
+| #135 | 3 | `/using-git-worktrees Story #135: branch m03-0015-admin-ui-visual-system` | Planned | - | - |
+| #135 | 4 | `/writing-plans Story #135` | Planned | - | - |
+| #135 | 5 | `/test-driven-development Story #135` | Planned | - | - |
+| #135 | 6 | `/subagent-driven-development Story #135` | Planned | - | - |
+| #135 | 7 | `/ccaa-commit-push 135` after every task (repeat) | Planned | - | - |
+| #135 | 8 | `/verification-before-completion Story #135` | Planned | - | - |
+| #135 | 9 | `/requesting-code-review Story #135` | Planned | - | - |
+| #135 | 10 | `/ccaa-commit-push 135` | Planned | - | - |
+| #135 | 11 | `/finishing-a-development-branch Story #135` | Planned | - | - |
+| #135 | 12 | `/ccaa-story-complete 135` | Planned | - | - |
+| Feature #114 | 1 | `/ccaa-feature-complete 114` | In progress | 2026-11-15 02:34 | - |
 
 ### Phase 4 - DoD matrix
 
@@ -239,7 +253,7 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #123 | 11 | `/finishing-a-development-branch Story #123` | Done | 2026-11-15 01:57 | 2026-11-15 01:57 |
 | #123 | 12 | `/ccaa-story-complete 123` | Done | 2026-11-15 01:57 | 2026-11-15 01:57 |
 | Feature #115 | 1 | `/ccaa-feature-complete 115` | Done | 2026-11-15 01:57 | 2026-11-15 01:57 |
-| Epic #111 | 1 | `/ccaa-epic-complete 111` | Done | 2026-11-15 01:12 | 2026-11-15 01:57 |
+| Epic #111 | 1 | `/ccaa-epic-complete 111` | In progress | 2026-11-15 02:34 | - |
 
 ## 4. Project skills (`ccaa-` = Consumer Complaints Agentic App)
 
@@ -258,11 +272,12 @@ The skills live in `.cursor/skills/`. Each takes a GitHub issue number.
 ## 5. Notes
 
 - Feature #113 (lite local runtime profiles) completed with story #120 (D78); follow-up **#132** (`local:portals:all`) recorded after vibe-coding so M03 tracks the three-step DX (containers → middleware → portals).
+- Follow-up **#135** (M03-0015): professional Admin UI visual system under Feature #114 — reopen of epic/feature after M03 DoD; Superpowers before any CSS.
 
 
 - **DoD:** SQLite path first; then Postgres via `.env`; then MongoDB via `.env` — all locally. No major code changes between backends (DAO/factory seam).
 - **Cloud** issues formerly titled M03 are now **M06** (#73 epic and children). Do not build them in this milestone.
 - **Specs/plans** under `docs/Superpowers/` appear when a story runs `/brainstorming` and `/writing-plans` (e.g. `M03-0006-*-design.md`). They do not exist until a story starts.
-- **Where the details are:** decisions go in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. Next free decision is **D80+** (D75 = pluggable operational DB seam #116; D76 = SQLite-first #117; D77 = Postgres via `.env` #118; D78 = lite local Docker profiles #120; D79 = Mongo operational store #119).
+- **Where the details are:** decisions go in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. Next free decision is **D81+** (D75 = pluggable operational DB seam #116; D76 = SQLite-first #117; D77 = Postgres via `.env` #118; D78 = lite local Docker profiles #120; D79 = Mongo operational store #119; **D80 = Admin portal visual system / Tailwind / Able Pro–class chrome #135**).
 - **PR → main**, merge only when CI is green. Git author must be `javakishore-veleti <6062900+javakishore-veleti@users.noreply.github.com>`; strip AI trailers.
 - **D64:** new facades only when needed; prefer extending existing packages.

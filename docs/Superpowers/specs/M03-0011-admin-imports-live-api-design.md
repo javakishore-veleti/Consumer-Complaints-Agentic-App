@@ -22,7 +22,7 @@ Make `Portals/consumer-complaints-admin` Imports reliable against a **live** loc
 |---|---|---|
 | A | Docs-only: document “start API then portal” | Fails acceptance “real API messages” |
 | B (chosen) | Shared HTTP error extractor → `ctx.resp.error`; keep return codes; one-command npm script + README fix | Smallest change; matches D5/D65; no Middleware edits |
-| C | New toast library / redesign Imports chrome | Scope creep; violates D69 plain CSS |
+| C | New toast library / redesign Imports chrome | Scope creep for this story (visual system is a separate follow-up) |
 
 ## Design
 

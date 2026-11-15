@@ -72,9 +72,25 @@ CICD/Local/
   profiles.map  docker-profiles.sh
   docker-all-up.sh  docker-all-down.sh  docker-all-status.sh
 Middleware/Airflow-dags/      Airflow DAGs, outside the FastAPI app root, mounted into Airflow by relative path (D44, D62)
-Portals/consumer-complaints-admin/   Angular admin portal (D65, story #62)
+Portals/consumer-complaints-admin/   Angular admin portal (D65, D80 / story #135 visual system)
 docs/                         product docs, design images
 ```
+
+### 3.1 Admin portal UI (D80)
+
+Production ops console under `Portals/consumer-complaints-admin` (not a student scaffold theme):
+
+| Piece | Choice |
+|---|---|
+| Framework | Angular 22 standalone (D65) |
+| Styling | **Tailwind CSS** (single kit; Able Pro–class chrome) |
+| Layout | Primary-blue top brand bar · white left rail (DataSets → Imports) · white work area |
+| Feedback | Shared alert / banner patterns (error, success, info, warning); real API `detail` on failures |
+| Forms | Consistent select / buttons / disabled + loading |
+| Brand | Document title + favicon |
+| Out of scope here | Fake analytics tiles; Intellect/agent stats come in later milestones |
+
+Routes and live Middleware wiring stay as today (`/datasets/imports`, `/api` proxy).
 
 ## 4. The conventions that hold it together
 
@@ -196,7 +212,7 @@ SQLAlchemy ORM with **Alembic** migrations.
 | Operational Postgres | `127.0.0.1:5432` | opt-in; compose in `CICD/Local/postgres` (`cca-operational-postgres`); set `CCA_DB_URL` (D77/D78) |
 | MongoDB | `127.0.0.1:27017` | opt-in for Mongo profile; compose in `CICD/Local/mongodb` |
 | Middleware API | <http://127.0.0.1:8000> (`/docs` for Swagger) | `npm run local:handson:middlware:all:start` (or `:stop`, `:status`; start migrates first, runs in the background; log and PID in `.data/`); `local:api:migrate` and `local:api:test` also exist |
-| Admin portal | <http://localhost:4200> (`/datasets/imports`) | `npm run local:portal:admin:with-api` starts Middleware then the Angular app; `apiBaseUrl` `/api` proxies to Middleware `:8000` (D65). Portal-only: `local:portal:admin:start` |
+| Admin portal | <http://localhost:4200> (`/datasets/imports`) | `npm run local:portal:admin:with-api` starts Middleware then the Angular app; `apiBaseUrl` `/api` proxies to Middleware `:8000` (D65). Visual system: Tailwind + Able Pro–class shell (D80 / #135). Portal-only: `local:portal:admin:start` |
 
 **Lite profiles (D78)** — default does **not** require an operational Postgres container:
 
