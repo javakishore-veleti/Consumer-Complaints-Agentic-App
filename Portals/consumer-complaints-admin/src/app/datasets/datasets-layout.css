@@ -1,36 +1,54 @@
 .datasets-layout {
   display: flex;
-  gap: 1.5rem;
-  min-height: 16rem;
+  min-height: calc(100vh - 3.5rem);
 }
 
 .left-nav {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  min-width: 10rem;
-  padding: 0.75rem 0;
-  border-right: 1px solid #d1d5db;
+  gap: 0.35rem;
+  width: 13.5rem;
+  flex-shrink: 0;
+  padding: 1.25rem 0.85rem;
+  background: var(--cca-panel);
+  border-right: 1px solid var(--cca-border);
+}
+
+.left-nav-label {
+  margin: 0 0.75rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--cca-muted);
 }
 
 .left-nav a,
 .left-nav .disabled {
-  padding: 0.35rem 0.75rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 0.4rem;
   text-decoration: none;
-  color: #111827;
+  color: var(--cca-ink);
+  font-weight: 500;
+}
+
+.left-nav a:hover {
+  background: #eef3f9;
 }
 
 .left-nav a.active {
+  background: #e8f1fb;
+  color: var(--cca-primary);
   font-weight: 600;
-  background: #e5e7eb;
 }
 
 .left-nav .disabled {
-  color: #9ca3af;
+  color: #9aa7b5;
   cursor: not-allowed;
 }
 
 .datasets-content {
   flex: 1;
-  padding: 0.75rem 0;
+  padding: 1.5rem 1.75rem;
+  min-width: 0;
 }

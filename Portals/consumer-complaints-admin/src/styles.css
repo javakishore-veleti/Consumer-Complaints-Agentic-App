@@ -1,1 +1,38 @@
-/* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
+
+:root {
+  --cca-primary: #1e3a5f;
+  --cca-primary-hover: #2a4f7a;
+  --cca-surface: #f5f7fa;
+  --cca-panel: #ffffff;
+  --cca-ink: #1b2430;
+  --cca-muted: #5b6b7c;
+  --cca-border: #d8e0ea;
+  --cca-success: #0f766e;
+  --cca-success-bg: #ecfdf5;
+  --cca-warning: #b45309;
+  --cca-warning-bg: #fffbeb;
+  --cca-danger: #b91c1c;
+  --cca-danger-bg: #fef2f2;
+  --cca-info: #1d4ed8;
+  --cca-info-bg: #eff6ff;
+}
+
+@layer base {
+  html,
+  body {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    color: var(--cca-ink);
+    background: var(--cca-surface);
+    font-family:
+      "IBM Plex Sans",
+      "Segoe UI",
+      system-ui,
+      -apple-system,
+      sans-serif;
+  }
+}
