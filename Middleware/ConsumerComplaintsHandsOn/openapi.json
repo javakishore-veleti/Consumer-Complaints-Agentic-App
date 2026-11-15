@@ -711,6 +711,39 @@
         ],
         "title": "WfExecStatusReport",
         "type": "object"
+      },
+      "WfListOut": {
+        "properties": {
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "engine_type": {
+            "title": "Engine Type",
+            "type": "string"
+          },
+          "engine_workflow_id": {
+            "title": "Engine Workflow Id",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "workflow_name": {
+            "title": "Workflow Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "workflow_name",
+          "engine_type",
+          "engine_workflow_id",
+          "enabled"
+        ],
+        "title": "WfListOut",
+        "type": "object"
       }
     }
   },
@@ -1140,6 +1173,31 @@
         "summary": "List Status",
         "tags": [
           "mios"
+        ]
+      }
+    },
+    "/workflows": {
+      "get": {
+        "operationId": "list_workflows_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/WfListOut"
+                  },
+                  "title": "Response List Workflows Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List",
+        "tags": [
+          "workflows"
         ]
       }
     }
