@@ -443,7 +443,7 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #83 | 8 | `/verification-before-completion Story #83` | Done | 2026-11-15 00:43 | 2026-11-15 00:43 |
 | #83 | 9 | `/requesting-code-review Story #83` | Done | 2026-11-15 00:43 | 2026-11-15 00:43 |
 | #83 | 10 | `/ccaa-commit-push 83` | Done | 2026-11-15 00:43 | 2026-11-15 00:43 |
-| #83 | 11 | `/finishing-a-development-branch Story #83` | In progress | 2026-11-15 00:43 | - |
+| #83 | 11 | `/finishing-a-development-branch Story #83` | Done | 2026-11-15 00:43 | 2026-11-15 00:44 |
 | #83 | 12 | `/ccaa-story-complete 83` | Planned | - | - |
 | #84 | 1 | `/ccaa-story-start 84` | Done | 2026-11-14 23:01 | 2026-11-14 23:01 |
 | #84 | 2 | `/brainstorming Story #84: list workflows endpoint for the portal; no secret or config value in the response` | Done | 2026-11-14 23:01 | 2026-11-14 23:01 |
