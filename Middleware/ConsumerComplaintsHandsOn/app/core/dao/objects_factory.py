@@ -4,6 +4,9 @@ Static methods return the singleton, typed as the interface. Imports are lazy so
 needed when that backend is chosen.
 """
 
+import threading
+
+from app.core.common.bean_registry import bean_registry
 from app.core.dao.app_wf_dao import AppWfDao
 from app.core.dao.app_wf_exec_log_dao import AppWfExecLogDao
 from app.core.dao.data_ingest_dao import DataIngestDao
@@ -17,62 +20,93 @@ from app.core.dao.transaction_dao import TransactionDao
 
 
 class DaoObjectsFactory:
+    _initialized = False
+    _lock = threading.RLock()
+
+    @staticmethod
+    def init() -> None:
+        if DaoObjectsFactory._initialized:
+            return
+        with DaoObjectsFactory._lock:
+            if DaoObjectsFactory._initialized:
+                return
+            from app.core.dao.impl.sqlalchemy_app_wf_dao import SqlAlchemyAppWfDao
+            from app.core.dao.impl.sqlalchemy_app_wf_exec_log_dao import (
+                SqlAlchemyAppWfExecLogDao,
+            )
+            from app.core.dao.impl.sqlalchemy_data_ingest_dao import SqlAlchemyDataIngestDao
+            from app.core.dao.impl.sqlalchemy_dataset_dao import SqlAlchemyDatasetDao
+            from app.core.dao.impl.sqlalchemy_dataset_location_dao import (
+                SqlAlchemyDatasetLocationDao,
+            )
+            from app.core.dao.impl.sqlalchemy_mio_dao import SqlAlchemyMioDao
+            from app.core.dao.impl.sqlalchemy_mio_dataset_dao import SqlAlchemyMioDatasetDao
+            from app.core.dao.impl.sqlalchemy_mio_ingest_log_dao import (
+                SqlAlchemyMioIngestLogDao,
+            )
+            from app.core.dao.impl.sqlalchemy_system_datasets_dao import (
+                SqlAlchemySystemDatasetsDao,
+            )
+            from app.core.dao.impl.sqlalchemy_transaction_dao import SqlAlchemyTransactionDao
+
+            bean_registry.register(AppWfDao, SqlAlchemyAppWfDao())
+            bean_registry.register(AppWfExecLogDao, SqlAlchemyAppWfExecLogDao())
+            bean_registry.register(DatasetDao, SqlAlchemyDatasetDao())
+            bean_registry.register(DatasetLocationDao, SqlAlchemyDatasetLocationDao())
+            bean_registry.register(MioDao, SqlAlchemyMioDao())
+            bean_registry.register(MioDatasetDao, SqlAlchemyMioDatasetDao())
+            bean_registry.register(MioIngestLogDao, SqlAlchemyMioIngestLogDao())
+            bean_registry.register(DataIngestDao, SqlAlchemyDataIngestDao())
+            bean_registry.register(SystemDatasetsDao, SqlAlchemySystemDatasetsDao())
+            bean_registry.register(TransactionDao, SqlAlchemyTransactionDao())
+            DaoObjectsFactory._initialized = True
+
     @staticmethod
     def get_app_wf_dao() -> AppWfDao:
-        from app.core.dao.impl.sqlalchemy_app_wf_dao import SqlAlchemyAppWfDao
-
-        return SqlAlchemyAppWfDao()
+        DaoObjectsFactory.init()
+        return bean_registry.get_one(AppWfDao)  # type: ignore[return-value]
 
     @staticmethod
     def get_app_wf_exec_log_dao() -> AppWfExecLogDao:
-        from app.core.dao.impl.sqlalchemy_app_wf_exec_log_dao import SqlAlchemyAppWfExecLogDao
-
-        return SqlAlchemyAppWfExecLogDao()
+        DaoObjectsFactory.init()
+        return bean_registry.get_one(AppWfExecLogDao)  # type: ignore[return-value]
 
     @staticmethod
     def get_dataset_dao() -> DatasetDao:
-        from app.core.dao.impl.sqlalchemy_dataset_dao import SqlAlchemyDatasetDao
-
-        return SqlAlchemyDatasetDao()
+        DaoObjectsFactory.init()
+        return bean_registry.get_one(DatasetDao)  # type: ignore[return-value]
 
     @staticmethod
     def get_dataset_location_dao() -> DatasetLocationDao:
-        from app.core.dao.impl.sqlalchemy_dataset_location_dao import SqlAlchemyDatasetLocationDao
-
-        return SqlAlchemyDatasetLocationDao()
+        DaoObjectsFactory.init()
+        return bean_registry.get_one(DatasetLocationDao)  # type: ignore[return-value]
 
     @staticmethod
     def get_mio_dao() -> MioDao:
-        from app.core.dao.impl.sqlalchemy_mio_dao import SqlAlchemyMioDao
-
-        return SqlAlchemyMioDao()
+        DaoObjectsFactory.init()
+        return bean_registry.get_one(MioDao)  # type: ignore[return-value]
 
     @staticmethod
     def get_mio_dataset_dao() -> MioDatasetDao:
-        from app.core.dao.impl.sqlalchemy_mio_dataset_dao import SqlAlchemyMioDatasetDao
-
-        return SqlAlchemyMioDatasetDao()
+        DaoObjectsFactory.init()
+        return bean_registry.get_one(MioDatasetDao)  # type: ignore[return-value]
 
     @staticmethod
     def get_mio_ingest_log_dao() -> MioIngestLogDao:
-        from app.core.dao.impl.sqlalchemy_mio_ingest_log_dao import SqlAlchemyMioIngestLogDao
-
-        return SqlAlchemyMioIngestLogDao()
+        DaoObjectsFactory.init()
+        return bean_registry.get_one(MioIngestLogDao)  # type: ignore[return-value]
 
     @staticmethod
     def get_data_ingest_dao() -> DataIngestDao:
-        from app.core.dao.impl.sqlalchemy_data_ingest_dao import SqlAlchemyDataIngestDao
-
-        return SqlAlchemyDataIngestDao()
+        DaoObjectsFactory.init()
+        return bean_registry.get_one(DataIngestDao)  # type: ignore[return-value]
 
     @staticmethod
     def get_system_datasets_dao() -> SystemDatasetsDao:
-        from app.core.dao.impl.sqlalchemy_system_datasets_dao import SqlAlchemySystemDatasetsDao
-
-        return SqlAlchemySystemDatasetsDao()
+        DaoObjectsFactory.init()
+        return bean_registry.get_one(SystemDatasetsDao)  # type: ignore[return-value]
 
     @staticmethod
     def get_transaction_dao() -> TransactionDao:
-        from app.core.dao.impl.sqlalchemy_transaction_dao import SqlAlchemyTransactionDao
-
-        return SqlAlchemyTransactionDao()
+        DaoObjectsFactory.init()
+        return bean_registry.get_one(TransactionDao)  # type: ignore[return-value]
