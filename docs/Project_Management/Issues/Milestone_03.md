@@ -2,7 +2,7 @@
 
 **Scope:** Prove the local path **User → Admin UI → APIs → Apache Airflow → callback APIs → operational DB → Admin UI refresh**, with a pluggable local DB. Default is **SQLite** (fewest containers). Before the epic is Done, the same path must also pass after switching only `.env` to **Postgres**, then to **MongoDB**. Cloud deploy is **M06**. Vector/RAG ingest is **M04+**.
 
-**Status: in progress.** 1 epic, 4 features and 11 stories. 13 stories are already done; 1 story is left to build (#137 Able Pro rebuild).
+**Status: complete.** 1 epic, 4 features and 11 stories. 14 stories are already done; 0 stories are left to build.
 
 How to read this file:
 - `#116` is the GitHub issue number. The `M03-00NN` key is the sequence tag at the start of the issue title. Keys are not always build order.
@@ -245,10 +245,10 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #137 | 7 | `/ccaa-commit-push 137` after every task (repeat) | Done | 2026-11-15 02:50 | 2026-11-15 02:50 |
 | #137 | 8 | `/verification-before-completion Story #137` | Done | 2026-11-15 02:50 | 2026-11-15 02:50 |
 | #137 | 9 | `/requesting-code-review Story #137` | Done | 2026-11-15 02:50 | 2026-11-15 02:50 |
-| #137 | 10 | `/ccaa-commit-push 137` | In progress | 2026-11-15 02:50 | - |
-| #137 | 11 | `/finishing-a-development-branch Story #137` | Planned | - | - |
-| #137 | 12 | `/ccaa-story-complete 137` | Planned | - | - |
-| Feature #114 | 1 | `/ccaa-feature-complete 114` | In progress | 2026-11-15 02:48 | - |
+| #137 | 10 | `/ccaa-commit-push 137` | Done | 2026-11-15 02:50 | 2026-11-15 02:51 |
+| #137 | 11 | `/finishing-a-development-branch Story #137` | Done | 2026-11-15 02:51 | 2026-11-15 02:51 |
+| #137 | 12 | `/ccaa-story-complete 137` | Done | 2026-11-15 02:51 | 2026-11-15 02:51 |
+| Feature #114 | 1 | `/ccaa-feature-complete 114` | Done | 2026-11-15 02:48 | 2026-11-15 02:51 |
 
 ### Phase 4 - DoD matrix
 
@@ -267,7 +267,7 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #123 | 11 | `/finishing-a-development-branch Story #123` | Done | 2026-11-15 01:57 | 2026-11-15 01:57 |
 | #123 | 12 | `/ccaa-story-complete 123` | Done | 2026-11-15 01:57 | 2026-11-15 01:57 |
 | Feature #115 | 1 | `/ccaa-feature-complete 115` | Done | 2026-11-15 01:57 | 2026-11-15 01:57 |
-| Epic #111 | 1 | `/ccaa-epic-complete 111` | In progress | 2026-11-15 02:48 | - |
+| Epic #111 | 1 | `/ccaa-epic-complete 111` | Done | 2026-11-15 02:48 | 2026-11-15 02:51 |
 
 ## 4. Project skills (`ccaa-` = Consumer Complaints Agentic App)
 
