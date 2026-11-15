@@ -237,15 +237,15 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #135 | 11 | `/finishing-a-development-branch Story #135` | Done | 2026-11-15 02:39 | 2026-11-15 02:39 |
 | #135 | 12 | `/ccaa-story-complete 135` | Done | 2026-11-15 02:39 | 2026-11-15 02:41 |
 | #137 | 1 | `/ccaa-story-start 137` | Done | 2026-11-15 02:48 | 2026-11-15 02:48 |
-| #137 | 2 | `/brainstorming Story #137: D82 rebuild Able Pro layout from scratch — shell, sidebar, page header, Imports panel rows; not a restyle` | In progress | 2026-11-15 02:48 | - |
-| #137 | 3 | `/using-git-worktrees Story #137: branch m03-0016-able-pro-admin-rebuild` | Planned | - | - |
-| #137 | 4 | `/writing-plans Story #137` | Planned | - | - |
-| #137 | 5 | `/test-driven-development Story #137` | Planned | - | - |
-| #137 | 6 | `/subagent-driven-development Story #137` | Planned | - | - |
-| #137 | 7 | `/ccaa-commit-push 137` after every task (repeat) | Planned | - | - |
-| #137 | 8 | `/verification-before-completion Story #137` | Planned | - | - |
-| #137 | 9 | `/requesting-code-review Story #137` | Planned | - | - |
-| #137 | 10 | `/ccaa-commit-push 137` | Planned | - | - |
+| #137 | 2 | `/brainstorming Story #137: D82 rebuild Able Pro layout from scratch — shell, sidebar, page header, Imports panel rows; not a restyle` | Done | 2026-11-15 02:48 | 2026-11-15 02:50 |
+| #137 | 3 | `/using-git-worktrees Story #137: branch m03-0016-able-pro-admin-rebuild` | Done | 2026-11-15 02:50 | 2026-11-15 02:50 |
+| #137 | 4 | `/writing-plans Story #137` | Done | 2026-11-15 02:50 | 2026-11-15 02:50 |
+| #137 | 5 | `/test-driven-development Story #137` | Done | 2026-11-15 02:50 | 2026-11-15 02:50 |
+| #137 | 6 | `/subagent-driven-development Story #137` | Done | 2026-11-15 02:50 | 2026-11-15 02:50 |
+| #137 | 7 | `/ccaa-commit-push 137` after every task (repeat) | Done | 2026-11-15 02:50 | 2026-11-15 02:50 |
+| #137 | 8 | `/verification-before-completion Story #137` | Done | 2026-11-15 02:50 | 2026-11-15 02:50 |
+| #137 | 9 | `/requesting-code-review Story #137` | Done | 2026-11-15 02:50 | 2026-11-15 02:50 |
+| #137 | 10 | `/ccaa-commit-push 137` | In progress | 2026-11-15 02:50 | - |
 | #137 | 11 | `/finishing-a-development-branch Story #137` | Planned | - | - |
 | #137 | 12 | `/ccaa-story-complete 137` | Planned | - | - |
 | Feature #114 | 1 | `/ccaa-feature-complete 114` | In progress | 2026-11-15 02:48 | - |
