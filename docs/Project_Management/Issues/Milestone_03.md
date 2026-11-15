@@ -2,7 +2,7 @@
 
 **Scope:** Prove the local path **User → Admin UI → APIs → Apache Airflow → callback APIs → operational DB → Admin UI refresh**, with a pluggable local DB. Default is **SQLite** (fewest containers). Before the epic is Done, the same path must also pass after switching only `.env` to **Postgres**, then to **MongoDB**. Cloud deploy is **M06**. Vector/RAG ingest is **M04+**.
 
-**Status: in progress.** 1 epic, 4 features and 8 stories. 9 stories are already done; 2 stories are left to build.
+**Status: in progress.** 1 epic, 4 features and 8 stories. 10 stories are already done; 1 stories are left to build.
 
 How to read this file:
 - `#116` is the GitHub issue number. The `M03-00NN` key is the sequence tag at the start of the issue title. Keys are not always build order.
@@ -222,8 +222,8 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #123 | 8 | `/verification-before-completion Story #123` | Done | 2026-11-15 01:52 | 2026-11-15 01:52 |
 | #123 | 9 | `/requesting-code-review Story #123` | Done | 2026-11-15 01:52 | 2026-11-15 01:52 |
 | #123 | 10 | `/ccaa-commit-push 123` | Done | 2026-11-15 01:52 | 2026-11-15 01:52 |
-| #123 | 11 | `/finishing-a-development-branch Story #123` | In progress | 2026-11-15 01:52 | - |
-| #123 | 12 | `/ccaa-story-complete 123` | Planned | - | - |
+| #123 | 11 | `/finishing-a-development-branch Story #123` | Done | 2026-11-15 01:57 | 2026-11-15 01:57 |
+| #123 | 12 | `/ccaa-story-complete 123` | Done | 2026-11-15 01:57 | 2026-11-15 01:57 |
 | Feature #115 | 1 | `/ccaa-feature-complete 115` | In progress | 2026-11-15 01:51 | - |
 | Epic #111 | 1 | `/ccaa-epic-complete 111` | In progress | 2026-11-15 01:12 | - |
 
