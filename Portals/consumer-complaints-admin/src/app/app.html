@@ -1,1 +1,14 @@
-<router-outlet />
+<header class="top-bar">
+  <a class="brand" routerLink="/">Consumer Complaints Admin</a>
+  <nav class="top-nav" aria-label="Primary">
+    <a
+      data-testid="top-nav-datasets"
+      routerLink="/datasets"
+      routerLinkActive="active"
+      >DataSets</a
+    >
+  </nav>
+</header>
+<main class="app-main">
+  <router-outlet />
+</main>

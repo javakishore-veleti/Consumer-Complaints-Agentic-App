@@ -1,0 +1,36 @@
+.datasets-layout {
+  display: flex;
+  gap: 1.5rem;
+  min-height: 16rem;
+}
+
+.left-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 10rem;
+  padding: 0.75rem 0;
+  border-right: 1px solid #d1d5db;
+}
+
+.left-nav a,
+.left-nav .disabled {
+  padding: 0.35rem 0.75rem;
+  text-decoration: none;
+  color: #111827;
+}
+
+.left-nav a.active {
+  font-weight: 600;
+  background: #e5e7eb;
+}
+
+.left-nav .disabled {
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.datasets-content {
+  flex: 1;
+  padding: 0.75rem 0;
+}

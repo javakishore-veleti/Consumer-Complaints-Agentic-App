@@ -18,7 +18,7 @@ is done asynchronously by Apache Airflow.
 
 | App | What it is | Status |
 |---|---|---|
-| `consumer-complaints-admin` | Angular admin portal under `Portals/consumer-complaints-admin/`. Imports datasets, ingests them into the database, shows status. | Scaffold [Done] (#62); features [Planned] |
+| `consumer-complaints-admin` | Angular admin portal under `Portals/consumer-complaints-admin/`. Imports datasets, ingests them into the database, shows status. | Scaffold [Done] (#62); DataSets/Imports nav shell [Done] (#63); MIO status and start [Planned] |
 | Middleware API | FastAPI service (`Middleware/ConsumerComplaintsHandsOn`). The only thing the portal talks to. | [Planned] (folder skeleton [Done]) |
 | Apache Airflow | Runs the download and ingest jobs asynchronously. | [Done] locally in Docker, DAGs [Planned] |
 | `consumer-complaints-Intellect` | The intelligence app that works over the complaint data (RAG / agentic). | [Open] scope not defined yet |
@@ -44,11 +44,11 @@ is done asynchronously by Apache Airflow.
 
 ## 4. Features
 
-### F1. Admin portal navigation [Planned]
-- Top-level menu **DataSets**.
-- Left navigation under it: **Imports** and **DB Ingest**, side by side.
-- Each of the two screens shows **two accordions**: **3 months dataset** and **All dataset**.
-- Later: more datasets are just more accordions / rows (for example "6 months").
+### F1. Admin portal navigation [In progress]
+- Top-level menu **DataSets** [Done] (#63, D68).
+- Left navigation under it: **Imports** [Done] (#63); **DB Ingest** visible but disabled until its screen is built (D13).
+- Imports hosts an accordion shell for MIO status (#64) and start (#65); DB Ingest will mirror that later.
+- Later: more datasets / MIOs are just more accordions / rows (for example "6 months").
 
 ### F2. Imports: bring the dataset in [Planned]
 - Per accordion, show whether that dataset is downloaded or not, when, and if it failed, why. Status comes from the

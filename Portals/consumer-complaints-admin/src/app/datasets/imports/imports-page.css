@@ -1,0 +1,6 @@
+.accordion-shell {
+  min-height: 8rem;
+  border: 1px dashed #9ca3af;
+  border-radius: 0.25rem;
+  padding: 0.75rem;
+}
