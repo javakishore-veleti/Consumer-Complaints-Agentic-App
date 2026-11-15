@@ -21,7 +21,9 @@
     "local:portal:admin:start": "npm --prefix Portals/consumer-complaints-admin start",
     "local:portal:admin:with-api": "npm run local:handson:middlware:all:start && npm run local:portal:admin:start",
     "local:portal:admin:build": "npm --prefix Portals/consumer-complaints-admin run build",
-    "local:portal:admin:test": "npm --prefix Portals/consumer-complaints-admin test -- --watch=false"
+    "local:portal:admin:test": "npm --prefix Portals/consumer-complaints-admin test -- --watch=false",
+    "local:e2e:happy-path:smoke": "cd Middleware/ConsumerComplaintsHandsOn && uv run pytest tests/test_e2e_happy_path_smoke.py -q",
+    "local:e2e:happy-path:probe": "python3 CICD/Local/e2e_happy_path_smoke.py"
   },
   "author": "",
   "license": "ISC"
