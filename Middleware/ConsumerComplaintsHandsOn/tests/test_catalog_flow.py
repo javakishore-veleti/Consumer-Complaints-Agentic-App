@@ -2,6 +2,7 @@ from app.core.common.dtos.dataset_dtos import DatasetCtx, DatasetReq
 from app.core.common.dtos.dataset_location_dtos import DatasetLocationCtx, DatasetLocationReq
 from app.core.common.dtos.mio_dataset_dtos import MioDatasetCtx, MioDatasetReq
 from app.core.common.dtos.mio_dtos import MioCtx, MioReq
+from app.core.common.dtos.mio_workflow_dtos import MioWorkflowCtx, MioWorkflowReq
 from app.core.common.return_codes import CONFLICT, SUCCESS
 from app.core.dao.objects_factory import DaoObjectsFactory
 
@@ -19,6 +20,12 @@ def _seed_dataset():
 def _links_of(mio_id):
     ctx = MioDatasetCtx(req=MioDatasetReq(mio_id=mio_id))
     assert DaoObjectsFactory.get_mio_dataset_dao().list(ctx) == SUCCESS
+    return ctx.resp.records
+
+
+def _workflow_links_of(mio_id):
+    ctx = MioWorkflowCtx(req=MioWorkflowReq(mio_id=mio_id))
+    assert DaoObjectsFactory.get_mio_workflow_dao().list(ctx) == SUCCESS
     return ctx.resp.records
 
 
@@ -68,6 +75,7 @@ def test_the_catalog_is_taken_apart_from_the_links_to_the_dataset(data_dir):
     locations = DaoObjectsFactory.get_dataset_location_dao()
     mios = DaoObjectsFactory.get_mio_dao()
     links = DaoObjectsFactory.get_mio_dataset_dao()
+    wf_links = DaoObjectsFactory.get_mio_workflow_dao()
     dataset = _seed_dataset()
     assert datasets.delete(DatasetCtx(req=DatasetReq(id=dataset.id))) == CONFLICT  # locations and links use it
 
@@ -78,6 +86,8 @@ def test_the_catalog_is_taken_apart_from_the_links_to_the_dataset(data_dir):
         assert mios.delete(MioCtx(req=MioReq(id=mio_id))) == CONFLICT  # its link is still there
         for link in _links_of(mio_id):
             assert links.delete(MioDatasetCtx(req=MioDatasetReq(id=link.id))) == SUCCESS
+        for link in _workflow_links_of(mio_id):
+            assert wf_links.delete(MioWorkflowCtx(req=MioWorkflowReq(id=link.id))) == SUCCESS
         assert mios.delete(MioCtx(req=MioReq(id=mio_id))) == SUCCESS
 
     places = DatasetLocationCtx(req=DatasetLocationReq(dataset_id=dataset.id))
