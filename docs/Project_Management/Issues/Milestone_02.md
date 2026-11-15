@@ -337,13 +337,13 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #59 | 2 | `/brainstorming Story #59: report started, completed and failed to the API from the DAG; a final task always runs so a crashed run never stays running; callbacks reach the API from the container (host.docker.internal)` | Done | 2026-11-14 23:11 | 2026-11-14 23:11 |
 | #59 | 3 | `/using-git-worktrees Story #59: branch m02-0020-report-started-completed-and-failed-to` | Done | 2026-11-14 23:11 | 2026-11-14 23:11 |
 | #59 | 4 | `/writing-plans Story #59` | Done | 2026-11-14 23:11 | 2026-11-14 23:16 |
-| #59 | 5 | `/test-driven-development Story #59` | In progress | 2026-11-14 23:16 | - |
-| #59 | 6 | `/subagent-driven-development Story #59` | Planned | - | - |
-| #59 | 7 | `/ccaa-commit-push 59` after every task (repeat) | Planned | - | - |
-| #59 | 8 | `/verification-before-completion Story #59` | Planned | - | - |
-| #59 | 9 | `/requesting-code-review Story #59` | Planned | - | - |
-| #59 | 10 | `/ccaa-commit-push 59` | Planned | - | - |
-| #59 | 11 | `/finishing-a-development-branch Story #59` | Planned | - | - |
+| #59 | 5 | `/test-driven-development Story #59` | Done | 2026-11-14 23:16 | 2026-11-14 23:20 |
+| #59 | 6 | `/subagent-driven-development Story #59` | Done | 2026-11-14 23:20 | 2026-11-14 23:20 |
+| #59 | 7 | `/ccaa-commit-push 59` after every task (repeat) | Done | 2026-11-14 23:20 | 2026-11-14 23:20 |
+| #59 | 8 | `/verification-before-completion Story #59` | Done | 2026-11-14 23:20 | 2026-11-14 23:21 |
+| #59 | 9 | `/requesting-code-review Story #59` | Done | 2026-11-14 23:21 | 2026-11-14 23:21 |
+| #59 | 10 | `/ccaa-commit-push 59` | Done | 2026-11-14 23:21 | 2026-11-14 23:21 |
+| #59 | 11 | `/finishing-a-development-branch Story #59` | In progress | 2026-11-14 23:21 | - |
 | #59 | 12 | `/ccaa-story-complete 59` | Planned | - | - |
 
 ### Phase 4 - Start a workflow
