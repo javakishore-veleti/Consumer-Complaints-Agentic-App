@@ -297,12 +297,12 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #85 | 10 | `/ccaa-commit-push 85` | Done | 2026-11-14 22:29 | 2026-11-14 22:29 |
 | #85 | 11 | `/finishing-a-development-branch Story #85` | Done | 2026-11-14 22:29 | 2026-11-14 22:29 |
 | #85 | 12 | `/ccaa-story-complete 85` | Done | 2026-11-14 22:29 | 2026-11-14 22:29 |
-| #77 | 1 | `/ccaa-story-start 77` | Planned | - | - |
-| #77 | 2 | `/brainstorming Story #77: POST /management/airflow/upsert-secrets copies the names listed in CICD/Local/airflow/Airflow_Variables_Upsert.txt from .env into Airflow Variables through Airflow's REST API (D42); result per name, never a value; missing name reported and return code is a failure; protected by the #44 shared secret; .env.example lists the names` | Planned | - | - |
-| #77 | 3 | `/using-git-worktrees Story #77: branch m02-0027-push-env-values-to-airflow-variables` | Planned | - | - |
-| #77 | 4 | `/writing-plans Story #77` | Planned | - | - |
-| #77 | 5 | `/test-driven-development Story #77` | Planned | - | - |
-| #77 | 6 | `/subagent-driven-development Story #77` | Planned | - | - |
+| #77 | 1 | `/ccaa-story-start 77` | Done | 2026-11-14 22:33 | 2026-11-14 22:33 |
+| #77 | 2 | `/brainstorming Story #77: POST /management/airflow/upsert-secrets copies the names listed in CICD/Local/airflow/Airflow_Variables_Upsert.txt from .env into Airflow Variables through Airflow's REST API (D42); result per name, never a value; missing name reported and return code is a failure; protected by the #44 shared secret; .env.example lists the names` | Done | 2026-11-14 22:33 | 2026-11-14 22:33 |
+| #77 | 3 | `/using-git-worktrees Story #77: branch m02-0027-push-env-values-to-airflow-variables` | Done | 2026-11-14 22:33 | 2026-11-14 22:33 |
+| #77 | 4 | `/writing-plans Story #77` | Done | 2026-11-14 22:33 | 2026-11-14 22:41 |
+| #77 | 5 | `/test-driven-development Story #77` | Done | 2026-11-14 22:41 | 2026-11-14 22:42 |
+| #77 | 6 | `/subagent-driven-development Story #77` | In progress | 2026-11-14 22:42 | - |
 | #77 | 7 | `/ccaa-commit-push 77` after every task (repeat) | Planned | - | - |
 | #77 | 8 | `/verification-before-completion Story #77` | Planned | - | - |
 | #77 | 9 | `/requesting-code-review Story #77` | Planned | - | - |
