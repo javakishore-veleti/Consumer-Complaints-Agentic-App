@@ -136,7 +136,7 @@ Workflows are registered in the database (D43): **`app_workflows`** holds the wo
 (Apache Airflow, AWS Step Functions or another), the engine's own id for it (the Airflow DAG id, the state machine) and a
 JSON config; **`app_workflows_exec_log`** records every execution. The portal lists the registered workflows; the API
 starts the chosen one in its engine asynchronously; the engine calls the API when the run is complete; the portal reads
-the status through the API from the configured database. `GET /workflows` returns every registered workflow without `config` (D66); `GET /mios/status` returns every MIO with its latest ingest and that ingest's executions (D61); both need no callback secret.
+the status through the API from the configured database. `GET /workflows` returns every registered workflow without `config` (D66); `POST /workflows/{workflow_id}/start` creates the execution (and optional MIO ingest), triggers Airflow through the start-DAG facade, and returns 202 with the execution id (D68); `GET /mios/status` returns every MIO with its latest ingest and that ingest's executions (D61); all three need no callback secret.
 There may be several download workflows. Each one knows its own
 source, so the API has no source-location types. The dataset is never stored in this repository.
 The All-file download is registered as `download_cfpb_all` (Airflow DAG id of the same name); its landing

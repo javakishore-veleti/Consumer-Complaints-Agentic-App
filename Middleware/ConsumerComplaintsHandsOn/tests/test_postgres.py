@@ -26,6 +26,7 @@ from app.core.common.dtos.mio_dtos import MioCtx, MioReq
 from app.core.common.dtos.mio_ingest_log_dtos import MioIngestLogCtx, MioIngestLogReq
 from app.core.common.dtos.mio_status_dtos import MioStatusCtx, MioStatusReq
 from app.core.common.dtos.wf_exec_status_dtos import WfExecStatusCtx, WfExecStatusReq
+from app.core.common.dtos.start_wf_dtos import StartWfCtx, StartWfReq
 from app.core.common.dtos.wf_list_dtos import WfListCtx, WfListReq
 from app.core.common.return_codes import CONFLICT, INVALID_INPUT, NOT_FOUND, SUCCESS
 from app.core.dao.impl import sqlalchemy_app_wf_exec_log_dao as exec_log_impl
@@ -443,3 +444,16 @@ def test_wf_list_service_works_on_postgres(postgres):
     assert ServicesObjectsFactory.get_wf_list_service().list(ctx) == SUCCESS
     assert [e.workflow_name for e in ctx.resp.entries] == ["download_cfpb_all", "t_pg_list"]
     assert all(not hasattr(e, "config") for e in ctx.resp.entries)
+
+
+def test_start_wf_service_works_on_postgres(postgres):
+    command.upgrade(postgres, "head")
+    listed = AppWfCtx()
+    assert DaoObjectsFactory.get_app_wf_dao().list(listed) == SUCCESS
+    wf_id = next(r.id for r in listed.resp.records if r.workflow_name == "download_cfpb_all")
+    ctx = StartWfCtx(req=StartWfReq(workflow_id=wf_id))
+    assert ServicesObjectsFactory.get_start_wf_service().start(ctx) == SUCCESS
+    assert ctx.resp.execution_id
+    got = AppWfExecLogCtx(req=AppWfExecLogReq(id=ctx.resp.execution_id))
+    assert DaoObjectsFactory.get_app_wf_exec_log_dao().get(got) == SUCCESS
+    assert got.resp.records[0].status == "requested"

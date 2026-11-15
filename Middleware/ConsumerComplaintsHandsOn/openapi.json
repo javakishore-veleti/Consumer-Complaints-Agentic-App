@@ -534,6 +534,48 @@
         "title": "MioStatusOut",
         "type": "object"
       },
+      "StartWfBody": {
+        "additionalProperties": false,
+        "properties": {
+          "dataset_location_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataset Location Id"
+          },
+          "mio_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mio Id"
+          }
+        },
+        "title": "StartWfBody",
+        "type": "object"
+      },
+      "StartWfOut": {
+        "properties": {
+          "execution_id": {
+            "title": "Execution Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "execution_id"
+        ],
+        "title": "StartWfOut",
+        "type": "object"
+      },
       "UpsertSecretResultOut": {
         "additionalProperties": false,
         "properties": {
@@ -1196,6 +1238,58 @@
           }
         },
         "summary": "List",
+        "tags": [
+          "workflows"
+        ]
+      }
+    },
+    "/workflows/{workflow_id}/start": {
+      "post": {
+        "operationId": "start_workflows__workflow_id__start_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workflow_id",
+            "required": true,
+            "schema": {
+              "title": "Workflow Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartWfBody",
+                "default": {}
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StartWfOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Start",
         "tags": [
           "workflows"
         ]
