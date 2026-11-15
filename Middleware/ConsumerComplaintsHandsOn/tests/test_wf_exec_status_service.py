@@ -67,7 +67,7 @@ def new_execution(workflow_id):
 # ---- input
 
 
-@pytest.mark.parametrize("status", ["requested", "running", "", None])
+@pytest.mark.parametrize("status", ["requested", "running", "", None, 123, ["x"]])
 def test_only_started_completed_and_failed_can_be_reported(new_execution, status):
     execution_id = new_execution()
     ctx = _report(WfExecStatusReq(execution_id=execution_id, status=status))
@@ -76,7 +76,7 @@ def test_only_started_completed_and_failed_can_be_reported(new_execution, status
     assert _execution(execution_id).status == "requested"
 
 
-@pytest.mark.parametrize("execution_id", [None, "", "   "])
+@pytest.mark.parametrize("execution_id", [None, "", "   ", 123, ["x"]])
 def test_a_blank_execution_id_is_invalid(data_dir, execution_id):
     assert _report(WfExecStatusReq(execution_id=execution_id, status="started")).resp.code == INVALID_INPUT
 
@@ -198,6 +198,39 @@ def test_duplicate_reports_after_the_ingest_completed_are_success_and_change_not
     assert again.resp.execution.finished_at == first.execution.finished_at
     assert _report(WfExecStatusReq(execution_id=execution_id, status="started")).resp.code == CONFLICT
     assert _ingest(ingest_id) == first.ingest
+
+
+def _move_execution_directly(execution_id, status):
+    """Changes only the execution row (as a crash between the two writes of an older version would have left it)."""
+    ctx = AppWfExecLogCtx(req=AppWfExecLogReq(id=execution_id, status=status))
+    assert DaoObjectsFactory.get_app_wf_exec_log_dao().update(ctx) == SUCCESS
+
+
+def test_a_repeated_completed_heals_an_ingest_left_started(new_execution, ingest_id):
+    execution_id = new_execution(ingest_id)
+    _report(WfExecStatusReq(execution_id=execution_id, status="started"))
+    _move_execution_directly(execution_id, "completed")
+    finished_at = _execution(execution_id).finished_at
+    assert finished_at is not None and _ingest(ingest_id).status == "started"
+    ctx = _report(WfExecStatusReq(execution_id=execution_id, status="completed"))
+    assert ctx.resp.code == SUCCESS
+    assert ctx.resp.execution.finished_at == finished_at
+    assert _execution(execution_id).finished_at == finished_at
+    assert ctx.resp.ingest.status == "completed"
+    assert _ingest(ingest_id).status == "completed"
+
+
+def test_a_repeated_started_heals_an_ingest_left_requested(new_execution, ingest_id):
+    execution_id = new_execution(ingest_id)
+    _move_execution_directly(execution_id, "started")
+    started_at = _execution(execution_id).started_at
+    assert started_at is not None and _ingest(ingest_id).status == "requested"
+    ctx = _report(WfExecStatusReq(execution_id=execution_id, status="started"))
+    assert ctx.resp.code == SUCCESS
+    assert ctx.resp.execution.started_at == started_at
+    assert _execution(execution_id).started_at == started_at
+    assert ctx.resp.ingest.status == "started"
+    assert _ingest(ingest_id).status == "started"
 
 
 def test_a_late_failed_after_completed_is_a_conflict_and_keeps_both_rows(new_execution, ingest_id):
