@@ -2,7 +2,7 @@
 
 **Scope (decision D38 in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`):** download the free CFPB dataset on demand from the admin portal, asynchronously through Airflow, through registered workflows (D43), and always show whether it has been downloaded. Everything runs locally. Cloud work is M03.
 
-**Status: in progress.** 1 epic, 5 features and 27 stories. 12 stories (and 1 feature) are already done, 15 stories are left to build.
+**Status: in progress.** 1 epic, 5 features and 27 stories. 13 stories (and 1 feature) are already done, 14 stories are left to build.
 
 How to read this file:
 - `#42` is the GitHub issue number in this repository. The `M02-00NN` key is the sequence tag at the start of the issue title. Keys are not in build order.
@@ -285,18 +285,18 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #55 | 3 | `/verification-before-completion Story #55` | Done | 2026-11-14 | 2026-11-14 |
 | #55 | 4 | `/ccaa-commit-push 55` | Done | 2026-11-14 | 2026-11-14 |
 | #55 | 5 | `/ccaa-story-complete 55` | Done | 2026-11-14 | 2026-11-14 |
-| #85 | 1 | `/ccaa-story-start 85` | Planned | - | - |
-| #85 | 2 | `/brainstorming Story #85: move the DAGs to Middleware/Airflow-dags (D44), mounted by relative path so a new DAG appears without restarting Airflow; short refresh interval for local use` | Planned | - | - |
-| #85 | 3 | `/using-git-worktrees Story #85: branch m02-0035-move-the-dags-to-middleware-airflow` | Planned | - | - |
-| #85 | 4 | `/writing-plans Story #85` | Planned | - | - |
-| #85 | 5 | `/test-driven-development Story #85` | Planned | - | - |
-| #85 | 6 | `/subagent-driven-development Story #85` | Planned | - | - |
-| #85 | 7 | `/ccaa-commit-push 85` after every task (repeat) | Planned | - | - |
-| #85 | 8 | `/verification-before-completion Story #85` | Planned | - | - |
-| #85 | 9 | `/requesting-code-review Story #85` | Planned | - | - |
-| #85 | 10 | `/ccaa-commit-push 85` | Planned | - | - |
-| #85 | 11 | `/finishing-a-development-branch Story #85` | Planned | - | - |
-| #85 | 12 | `/ccaa-story-complete 85` | Planned | - | - |
+| #85 | 1 | `/ccaa-story-start 85` | Done | 2026-11-14 22:22 | 2026-11-14 22:22 |
+| #85 | 2 | `/brainstorming Story #85: move the DAGs to Middleware/Airflow-dags (D44), mounted by relative path so a new DAG appears without restarting Airflow; short refresh interval for local use` | Done | 2026-11-14 22:22 | 2026-11-14 22:22 |
+| #85 | 3 | `/using-git-worktrees Story #85: branch m02-0035-move-the-dags-to-middleware-airflow` | Done | 2026-11-14 22:22 | 2026-11-14 22:22 |
+| #85 | 4 | `/writing-plans Story #85` | Done | 2026-11-14 22:23 | 2026-11-14 22:24 |
+| #85 | 5 | `/test-driven-development Story #85` | Done | 2026-11-14 22:24 | 2026-11-14 22:25 |
+| #85 | 6 | `/subagent-driven-development Story #85` | Done | 2026-11-14 22:25 | 2026-11-14 22:29 |
+| #85 | 7 | `/ccaa-commit-push 85` after every task (repeat) | Done | 2026-11-14 22:29 | 2026-11-14 22:29 |
+| #85 | 8 | `/verification-before-completion Story #85` | Done | 2026-11-14 22:29 | 2026-11-14 22:29 |
+| #85 | 9 | `/requesting-code-review Story #85` | Done | 2026-11-14 22:29 | 2026-11-14 22:29 |
+| #85 | 10 | `/ccaa-commit-push 85` | Done | 2026-11-14 22:29 | 2026-11-14 22:29 |
+| #85 | 11 | `/finishing-a-development-branch Story #85` | Done | 2026-11-14 22:29 | 2026-11-14 22:29 |
+| #85 | 12 | `/ccaa-story-complete 85` | Done | 2026-11-14 22:29 | 2026-11-14 22:29 |
 | #77 | 1 | `/ccaa-story-start 77` | Planned | - | - |
 | #77 | 2 | `/brainstorming Story #77: POST /management/airflow/upsert-secrets copies the names listed in CICD/Local/airflow/Airflow_Variables_Upsert.txt from .env into Airflow Variables through Airflow's REST API (D42); result per name, never a value; missing name reported and return code is a failure; protected by the #44 shared secret; .env.example lists the names` | Planned | - | - |
 | #77 | 3 | `/using-git-worktrees Story #77: branch m02-0027-push-env-values-to-airflow-variables` | Planned | - | - |
@@ -510,4 +510,4 @@ The skills live in `.cursor/skills/`. Each takes a GitHub issue number.
 - **Open questions on the issues:** #65 (poll or refresh). The #55 question is decided in D42 (revised by D43): credentials in `.env`, copied into Airflow Variables by story #77.
 - **Story #77 was added** while deciding #55 (D42). It is under feature #56 and is built first in Phase 3, because the DAG reads the Variables it creates.
 - **Moved to M03 - Cloud Deployment:** #51 S3, #52 Azure Blob, #53 GCP Cloud Storage, #54 Google Drive, and the cloud migration workflow #24. They are not part of this milestone. #51 to #54 were written as source types, so under D43 they need rewriting as cloud workflows before M03 starts (they are still open).
-- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D62.
+- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D63.
