@@ -2,7 +2,7 @@
 
 **Scope:** Local-only after M03. Product order **C → D → A → B → E**. No paid cloud resources. Cloud remains **M06**. Intellect/ACL are **M05**.
 
-**Status: in progress.** 1 epic, 5 features, 12 stories (1 done; #154 next).
+**Status: in progress.** 1 epic, 5 features, 12 stories (2 done; Feature #145 complete next).
 
 How to read this file:
 - `#144` is the GitHub issue number. The `M04-00NN` key is the sequence tag at the start of the issue title.
@@ -106,9 +106,9 @@ Every command has its own row with **Status** (`Planned`, `In progress` or `Done
 | #153 | 10 | `/ccaa-commit-push 153` | Done | 2026-11-15 13:54 | 2026-11-15 13:54 |
 | #153 | 11 | `/finishing-a-development-branch Story #153` | Done | 2026-11-15 13:54 | 2026-11-15 13:54 |
 | #153 | 12 | `/ccaa-story-complete 153` | Done | 2026-11-15 13:54 | 2026-11-15 13:54 |
-| Feature #145 | 1 | `/ccaa-feature-complete 145` | Planned | - | - |
-| #154 | 1 | `/ccaa-story-start 154` | In progress | 2026-11-15 13:55 | - |
-| #154 | 12 | `/ccaa-story-complete 154` | Planned | - | - |
+| Feature #145 | 1 | `/ccaa-feature-complete 145` | Done | 2026-11-15 13:56 | 2026-11-15 13:56 |
+| #154 | 1 | `/ccaa-story-start 154` | Done | 2026-11-15 13:55 | 2026-11-15 13:56 |
+| #154 | 12 | `/ccaa-story-complete 154` | Done | 2026-11-15 13:56 | 2026-11-15 13:56 |
 | Epic #144 | 1 | `/ccaa-epic-complete 144` | Planned | - | - |
 
 *(Full per-story command tables for #154–#164 are added when each story is started via `/ccaa-story-start`.)*
