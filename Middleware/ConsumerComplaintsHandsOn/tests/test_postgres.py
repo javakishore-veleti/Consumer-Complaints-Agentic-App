@@ -200,11 +200,13 @@ def test_app_wf_exec_log_rival_callback_does_not_overwrite_on_postgres(postgres,
 
 def test_catalog_works_on_postgres(postgres):
     command.upgrade(postgres, "head")
-    assert {"datasets", "datasets_location", "mios", "mios_datasets"} <= _admin_tables()
+    assert {"datasets", "datasets_location", "mios", "mios_datasets", "mios_workflows"} <= _admin_tables()
     engine = create_engine(URL)
     with engine.connect() as c:
         seeded = c.execute(text(f"select count(*) from {SCHEMA_ADMIN}.mios")).scalar()
-    assert seeded == 4
+        bindings = c.execute(text(f"select count(*) from {SCHEMA_ADMIN}.mios_workflows")).scalar()
+    assert seeded == 5  # four month MIOs + All (0011 / D84)
+    assert bindings == 2
 
     datasets = DaoObjectsFactory.get_dataset_dao()
     locations = DaoObjectsFactory.get_dataset_location_dao()
@@ -261,9 +263,9 @@ def test_catalog_works_on_postgres(postgres):
     assert mios.delete(MioCtx(req=MioReq(id=mio_id))) == SUCCESS
 
     command.downgrade(postgres, "0004")
-    assert not {"datasets", "datasets_location", "mios", "mios_datasets"} & _admin_tables()
+    assert not {"datasets", "datasets_location", "mios", "mios_datasets", "mios_workflows"} & _admin_tables()
     command.upgrade(postgres, "head")
-    assert {"datasets", "datasets_location", "mios", "mios_datasets"} <= _admin_tables()
+    assert {"datasets", "datasets_location", "mios", "mios_datasets", "mios_workflows"} <= _admin_tables()
 
 
 def test_mio_ingest_log_works_on_postgres(postgres, monkeypatch):
