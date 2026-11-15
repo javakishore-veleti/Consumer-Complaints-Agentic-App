@@ -68,6 +68,35 @@
   padding-left: 1.25rem;
 }
 
-[data-testid='mio-status-error'] {
+[data-testid='mio-status-error'],
+[data-testid='mio-action-error'] {
   color: #b91c1c;
+}
+
+.mio-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.mio-workflow-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.mio-actions select,
+.mio-actions button {
+  font: inherit;
+  padding: 0.35rem 0.6rem;
+}
+
+.mio-actions button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
