@@ -445,11 +445,11 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #83 | 10 | `/ccaa-commit-push 83` | Planned | - | - |
 | #83 | 11 | `/finishing-a-development-branch Story #83` | Planned | - | - |
 | #83 | 12 | `/ccaa-story-complete 83` | Planned | - | - |
-| #84 | 1 | `/ccaa-story-start 84` | Planned | - | - |
-| #84 | 2 | `/brainstorming Story #84: list workflows endpoint for the portal; no secret or config value in the response` | Planned | - | - |
-| #84 | 3 | `/using-git-worktrees Story #84: branch m02-0034-list-workflows-endpoint` | Planned | - | - |
-| #84 | 4 | `/writing-plans Story #84` | Planned | - | - |
-| #84 | 5 | `/test-driven-development Story #84` | Planned | - | - |
+| #84 | 1 | `/ccaa-story-start 84` | Done | 2026-11-14 23:01 | 2026-11-14 23:01 |
+| #84 | 2 | `/brainstorming Story #84: list workflows endpoint for the portal; no secret or config value in the response` | Done | 2026-11-14 23:01 | 2026-11-14 23:01 |
+| #84 | 3 | `/using-git-worktrees Story #84: branch m02-0034-list-workflows-endpoint` | Done | 2026-11-14 23:01 | 2026-11-14 23:01 |
+| #84 | 4 | `/writing-plans Story #84` | Done | 2026-11-14 23:01 | 2026-11-14 23:06 |
+| #84 | 5 | `/test-driven-development Story #84` | In progress | 2026-11-14 23:06 | - |
 | #84 | 6 | `/subagent-driven-development Story #84` | Planned | - | - |
 | #84 | 7 | `/ccaa-commit-push 84` after every task (repeat) | Planned | - | - |
 | #84 | 8 | `/verification-before-completion Story #84` | Planned | - | - |
@@ -510,4 +510,5 @@ The skills live in `.cursor/skills/`. Each takes a GitHub issue number.
 - **Open questions on the issues:** #65 (poll or refresh). The #55 question is decided in D42 (revised by D43): credentials in `.env`, copied into Airflow Variables by story #77.
 - **Story #77 was added** while deciding #55 (D42). It is under feature #56 and is built first in Phase 3, because the DAG reads the Variables it creates.
 - **Moved to M03 - Cloud Deployment:** #51 S3, #52 Azure Blob, #53 GCP Cloud Storage, #54 Google Drive, and the cloud migration workflow #24. They are not part of this milestone. #51 to #54 were written as source types, so under D43 they need rewriting as cloud workflows before M03 starts (they are still open).
-- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D66.
+- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D67 (D63–D64 story #57; D65 story #62; D66 story #84).
+>>>>>>> a9e7093 (M02-0034 #84: design and plan list-workflows endpoint (D66))
