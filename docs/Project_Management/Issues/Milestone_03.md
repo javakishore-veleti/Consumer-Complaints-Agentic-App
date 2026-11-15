@@ -134,8 +134,8 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #117 | 10 | `/ccaa-commit-push 117` | Done | 2026-11-15 01:25 | 2026-11-15 01:27 |
 | #117 | 11 | `/finishing-a-development-branch Story #117` | Done | 2026-11-15 01:27 | 2026-11-15 01:27 |
 | #117 | 12 | `/ccaa-story-complete 117` | Done | 2026-11-15 01:27 | 2026-11-15 01:27 |
-| #118 | 1 | `/ccaa-story-start 118` | Planned | - | - |
-| #118 | 2 | `/brainstorming Story #118: Postgres via .env only; migrate and verify same APIs and callback path` | Planned | - | - |
+| #118 | 1 | `/ccaa-story-start 118` | Done | 2026-11-15 01:28 | 2026-11-15 01:28 |
+| #118 | 2 | `/brainstorming Story #118: Postgres via .env only; migrate and verify same APIs and callback path` | In progress | 2026-11-15 01:28 | - |
 | #118 | 3 | `/using-git-worktrees Story #118: branch m03-0008-postgres-via-env` | Planned | - | - |
 | #118 | 4 | `/writing-plans Story #118` | Planned | - | - |
 | #118 | 5 | `/test-driven-development Story #118` | Planned | - | - |
