@@ -239,3 +239,9 @@ runtime_data/
 
 # Story worktrees created by /using-git-worktrees
 .worktrees/
+
+# Angular portals
+Portals/**/node_modules/
+Portals/**/.angular/
+Portals/**/dist/
+Portals/**/coverage/

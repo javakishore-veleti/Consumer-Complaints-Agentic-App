@@ -370,10 +370,10 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #62 | 1 | `/ccaa-story-start 62` | Done | 2026-11-14 23:00 | 2026-11-14 23:00 |
 | #62 | 2 | `/brainstorming Story #62: Angular app scaffold consumer-complaints-admin under Portals/; app builds and serves` | Done | 2026-11-14 23:00 | 2026-11-14 23:00 |
 | #62 | 3 | `/using-git-worktrees Story #62: branch m02-0023-angular-app-scaffold-consumer` | Done | 2026-11-14 23:00 | 2026-11-14 23:00 |
-| #62 | 4 | `/writing-plans Story #62` | In progress | 2026-11-14 23:07 | - |
+| #62 | 4 | `/writing-plans Story #62` | Done | 2026-11-14 23:07 | 2026-11-14 23:08 |
 | #62 | 5 | `/test-driven-development Story #62` | In progress | 2026-11-14 23:03 | - |
-| #62 | 6 | `/subagent-driven-development Story #62` | Planned | - | - |
-| #62 | 7 | `/ccaa-commit-push 62` after every task (repeat) | Planned | - | - |
+| #62 | 6 | `/subagent-driven-development Story #62` | In progress | 2026-11-14 23:09 | - |
+| #62 | 7 | `/ccaa-commit-push 62` after every task (repeat) | In progress | 2026-11-14 23:09 | - |
 | #62 | 8 | `/verification-before-completion Story #62` | Planned | - | - |
 | #62 | 9 | `/requesting-code-review Story #62` | Planned | - | - |
 | #62 | 10 | `/ccaa-commit-push 62` | Planned | - | - |
