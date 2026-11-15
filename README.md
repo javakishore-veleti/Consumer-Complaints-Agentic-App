@@ -2,6 +2,10 @@
 
 ## Development tooling
 
+### Admin portal
+
+Angular app at `Portals/consumer-complaints-admin/` — `npm run local:portal:admin:start` (Node 22+).
+
 ### Superpowers plugin
 
 This project uses the [Superpowers](https://github.com/obra/superpowers) plugin in Cursor. It is a core skills library that gives the AI agent structured workflows for development tasks.

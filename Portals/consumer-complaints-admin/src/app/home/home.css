@@ -1,0 +1,15 @@
+main {
+  font-family: system-ui, sans-serif;
+  margin: 2rem;
+  max-width: 40rem;
+}
+
+h1 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+p {
+  margin: 0.35rem 0;
+  color: #333;
+}
