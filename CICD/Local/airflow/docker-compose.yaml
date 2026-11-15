@@ -8,7 +8,8 @@
 #   docker compose up -d     (the one-shot airflow-init service runs first by itself)
 #   open http://localhost:8080      login: airflow / airflow
 #
-# DAGs live in <repo>/dags. Stop with `docker compose down` (add -v to also wipe the metadata database).
+# DAGs live in <repo>/Middleware/Airflow-dags. Local refresh is 10s via AIRFLOW__DAG_PROCESSOR__REFRESH_INTERVAL (Airflow 3.4.0; local-only; default is 300).
+# Stop with `docker compose down` (add -v to also wipe the metadata database).
 name: airflow
 
 x-airflow-common:
@@ -34,8 +35,10 @@ x-airflow-common:
     # Quick experiments only: installs on EVERY container start. Prefer the Dockerfile route above.
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
     AIRFLOW_CONFIG: '/opt/airflow/config/airflow.cfg'
+    # Local only: discover new DAG files quickly (Airflow 3.4.0; default 300). Do not copy to cloud stacks.
+    AIRFLOW__DAG_PROCESSOR__REFRESH_INTERVAL: '10'
   volumes:
-    - ../../../dags:/opt/airflow/dags
+    - ../../../Middleware/Airflow-dags:/opt/airflow/dags
     - ./logs:/opt/airflow/logs
     - ./config:/opt/airflow/config
     - ./plugins:/opt/airflow/plugins
