@@ -2,7 +2,7 @@
 
 **Scope:** Local-only after M03. Product order **C → D → A → B → E**. No paid cloud resources. Cloud remains **M06**. Intellect/ACL are **M05**.
 
-**Status: planned.** 1 epic, 5 features, 12 stories (0 done).
+**Status: in progress.** 1 epic, 5 features, 12 stories (0 done; #153 in progress).
 
 How to read this file:
 - `#144` is the GitHub issue number. The `M04-00NN` key is the sequence tag at the start of the issue title.
@@ -94,8 +94,8 @@ Every command has its own row with **Status** (`Planned`, `In progress` or `Done
 
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
-| #153 | 1 | `/ccaa-story-start 153` | Planned | - | - |
-| #153 | 2 | `/brainstorming Story #153: Admin Sync secrets button → POST upsert-secrets; never show values` | Planned | - | - |
+| #153 | 1 | `/ccaa-story-start 153` | Done | 2026-11-15 13:51 | 2026-11-15 13:51 |
+| #153 | 2 | `/brainstorming Story #153: Admin Sync secrets button → POST upsert-secrets; never show values` | In progress | 2026-11-15 13:51 | - |
 | #153 | 3 | `/using-git-worktrees Story #153: branch m04-0007-admin-sync-secrets` | Planned | - | - |
 | #153 | 4 | `/writing-plans Story #153` | Planned | - | - |
 | #153 | 5 | `/test-driven-development Story #153` | Planned | - | - |
