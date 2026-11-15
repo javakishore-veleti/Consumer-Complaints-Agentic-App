@@ -146,8 +146,8 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #118 | 10 | `/ccaa-commit-push 118` | In progress | 2026-11-15 01:30 | - |
 | #118 | 11 | `/finishing-a-development-branch Story #118` | Planned | - | - |
 | #118 | 12 | `/ccaa-story-complete 118` | Planned | - | - |
-| #119 | 1 | `/ccaa-story-start 119` | Planned | - | - |
-| #119 | 2 | `/brainstorming Story #119: MongoDB operational store via .env; DAO/factory seam (D45); same Admin UI → API → Airflow → callback path` | Planned | - | - |
+| #119 | 1 | `/ccaa-story-start 119` | Done | 2026-11-15 01:35 | 2026-11-15 01:35 |
+| #119 | 2 | `/brainstorming Story #119: MongoDB operational store via .env; DAO/factory seam (D45); same Admin UI → API → Airflow → callback path` | In progress | 2026-11-15 01:35 | - |
 | #119 | 3 | `/using-git-worktrees Story #119: branch m03-0009-mongodb-operational-store` | Planned | - | - |
 | #119 | 4 | `/writing-plans Story #119` | Planned | - | - |
 | #119 | 5 | `/test-driven-development Story #119` | Planned | - | - |
