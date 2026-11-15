@@ -278,6 +278,7 @@ The skills live in `.cursor/skills/`. Each takes a GitHub issue number.
 - **DoD:** SQLite path first; then Postgres via `.env`; then MongoDB via `.env` — all locally. No major code changes between backends (DAO/factory seam).
 - **Cloud** issues formerly titled M03 are now **M06** (#73 epic and children). Do not build them in this milestone.
 - **Specs/plans** under `docs/Superpowers/` appear when a story runs `/brainstorming` and `/writing-plans` (e.g. `M03-0006-*-design.md`). They do not exist until a story starts.
-- **Where the details are:** decisions go in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. Next free decision is **D81+** (D75 = pluggable operational DB seam #116; D76 = SQLite-first #117; D77 = Postgres via `.env` #118; D78 = lite local Docker profiles #120; D79 = Mongo operational store #119; **D80 = Admin portal visual system / Tailwind / Able Pro–class chrome #135**).
+- **Where the details are:** decisions go in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. Next free decision is **D82+** (D75 = pluggable operational DB seam #116; D76 = SQLite-first #117; D77 = Postgres via `.env` #118; D78 = lite local Docker profiles #120; D79 = Mongo operational store #119; D80 = Admin portal visual system / Tailwind / Able Pro–class chrome #135; **D81 = portals:all:start always npm install #132**).
+- Follow-up on **#132**: **D81** — `local:portals:all:start` / `portals-all.sh start` always runs `npm install` in the admin portal before `ng serve`.
 - **PR → main**, merge only when CI is green. Git author must be `javakishore-veleti <6062900+javakishore-veleti@users.noreply.github.com>`; strip AI trailers.
 - **D64:** new facades only when needed; prefer extending existing packages.

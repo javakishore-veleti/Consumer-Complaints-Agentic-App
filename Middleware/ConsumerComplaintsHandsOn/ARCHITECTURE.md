@@ -212,7 +212,7 @@ SQLAlchemy ORM with **Alembic** migrations.
 | Operational Postgres | `127.0.0.1:5432` | opt-in; compose in `CICD/Local/postgres` (`cca-operational-postgres`); set `CCA_DB_URL` (D77/D78) |
 | MongoDB | `127.0.0.1:27017` | opt-in for Mongo profile; compose in `CICD/Local/mongodb` |
 | Middleware API | <http://127.0.0.1:8000> (`/docs` for Swagger) | `npm run local:handson:middlware:all:start` (or `:stop`, `:status`; start migrates first, runs in the background; log and PID in `.data/`); `local:api:migrate` and `local:api:test` also exist |
-| Admin portal | <http://localhost:4200> (`/datasets/imports`) | `npm run local:portal:admin:with-api` starts Middleware then the Angular app; `apiBaseUrl` `/api` proxies to Middleware `:8000` (D65). Visual system: Tailwind + Able Pro–class shell (D80 / #135). Portal-only: `local:portal:admin:start` |
+| Admin portal | <http://localhost:4200> (`/datasets/imports`) | `npm run local:portals:all:start` always `npm install`s admin deps then `ng serve` (D81 / #132); `local:portal:admin:with-api` starts Middleware then portals:all. `apiBaseUrl` `/api` proxies to Middleware `:8000` (D65). Visual system: Tailwind + Able Pro–class shell (D80 / #135). Portal-only: `local:portal:admin:start` |
 
 **Lite profiles (D78)** — default does **not** require an operational Postgres container:
 
