@@ -144,6 +144,21 @@ class MioDatasetModel(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
+class MioWorkflowModel(Base):
+    __tablename__ = "mios_workflows"
+    __table_args__ = (
+        UniqueConstraint("mio_id", "workflow_id", name="uq_mios_workflows_mio_workflow"),
+        Index("ix_mios_workflows_mio_id", "mio_id"),
+        Index("ix_mios_workflows_workflow_id", "workflow_id"),
+        {"schema": SCHEMA_ADMIN},
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    mio_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    workflow_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
 class MioIngestLogModel(Base):
     __tablename__ = "mios_ingest_log"
     __table_args__ = (

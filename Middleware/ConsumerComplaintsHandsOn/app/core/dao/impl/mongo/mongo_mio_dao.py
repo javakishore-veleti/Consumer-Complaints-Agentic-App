@@ -20,6 +20,7 @@ from app.core.dao.mio_dao import MioDao
 log = logging.getLogger(__name__)
 COLL = "mios"
 LINKS = "mios_datasets"
+WF_LINKS = "mios_workflows"
 NAME_MAX = 100
 
 
@@ -138,6 +139,8 @@ class MongoMioDao(MioDao):
                 if doc is None:
                     return NOT_FOUND
                 if uow.find_one(MongoFindReq(collection=LINKS, query={"mio_id": doc["id"]})) is not None:
+                    return CONFLICT
+                if uow.find_one(MongoFindReq(collection=WF_LINKS, query={"mio_id": doc["id"]})) is not None:
                     return CONFLICT
                 ctx.resp.records = [_to_record(MongoDocument(doc))]
                 uow.delete(MongoDeleteReq(collection=COLL, doc_id=req.id))
