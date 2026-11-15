@@ -1,4 +1,4 @@
-"""StartWfService prepares ingest+exec; facade triggers Airflow (#60) (D68)."""
+"""StartWfService prepares ingest+exec; facade triggers via WorkflowEngine (D68/D73)."""
 
 import json
 

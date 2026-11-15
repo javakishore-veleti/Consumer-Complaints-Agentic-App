@@ -13,6 +13,7 @@ class StartWfReq:
 @dataclass
 class StartWfResp:
     execution_id: str | None = None
+    engine_type: str | None = None
     code: int = 0
 
 
