@@ -360,7 +360,7 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #42 | 8 | `/verification-before-completion Story #42` | Done | 2026-11-15 00:20 | 2026-11-15 00:20 |
 | #42 | 9 | `/requesting-code-review Story #42` | Done | 2026-11-15 00:20 | 2026-11-15 00:20 |
 | #42 | 10 | `/ccaa-commit-push 42` | Done | 2026-11-15 00:20 | 2026-11-15 00:20 |
-| #42 | 11 | `/finishing-a-development-branch Story #42` | In progress | 2026-11-15 00:20 | - |
+| #42 | 11 | `/finishing-a-development-branch Story #42` | Done | 2026-11-15 00:20 | 2026-11-15 00:25 |
 | #42 | 12 | `/ccaa-story-complete 42` | Planned | - | - |
 
 ### Phase 5 - Admin portal
