@@ -4,6 +4,7 @@ from app.api.objects_factory import ApiObjectsFactory
 from app.api.routers.airflow_upsert_secrets_api import AirflowUpsertSecretsApi
 from app.api.routers.data_ingest_api import DataIngestApi
 from app.api.routers.mio_status_api import MioStatusApi
+from app.api.routers.start_wf_api import StartWfApi
 from app.api.routers.wf_exec_callback_api import WfExecCallbackApi
 from app.api.routers.wf_list_api import WfListApi
 from app.api.security.callback_secret_auth import CallbackSecretAuth
@@ -122,6 +123,8 @@ def test_factories_return_the_same_object_typed_as_the_interface():
     assert isinstance(ApiObjectsFactory.get_mio_status_api(), MioStatusApi)
     assert ApiObjectsFactory.get_wf_list_api() is ApiObjectsFactory.get_wf_list_api()
     assert isinstance(ApiObjectsFactory.get_wf_list_api(), WfListApi)
+    assert ApiObjectsFactory.get_start_wf_api() is ApiObjectsFactory.get_start_wf_api()
+    assert isinstance(ApiObjectsFactory.get_start_wf_api(), StartWfApi)
     assert ApiObjectsFactory.get_airflow_upsert_secrets_api() is ApiObjectsFactory.get_airflow_upsert_secrets_api()
     assert isinstance(ApiObjectsFactory.get_airflow_upsert_secrets_api(), AirflowUpsertSecretsApi)
 
@@ -139,6 +142,7 @@ def test_the_classes_themselves_are_singletons():
     assert WfExecCallbackApi() is WfExecCallbackApi()
     assert MioStatusApi() is MioStatusApi()
     assert WfListApi() is WfListApi()
+    assert StartWfApi() is StartWfApi()
     assert AirflowUpsertSecretsApi() is AirflowUpsertSecretsApi()
     assert CallbackSecretAuth() is CallbackSecretAuth()
     assert DataIngestFacadeImpl() is DataIngestFacadeImpl()

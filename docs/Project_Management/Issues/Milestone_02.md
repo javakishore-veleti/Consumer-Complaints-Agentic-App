@@ -354,13 +354,13 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #42 | 2 | `/brainstorming Story #42: start-workflow endpoint taking a registered workflow (and optionally a MIO and a dataset location); creates the execution row, starts the run through #60, returns the execution id at once; unknown workflow returns 422` | Done | 2026-11-15 00:05 | 2026-11-15 00:05 |
 | #42 | 3 | `/using-git-worktrees Story #42: branch m02-0007-start-workflow-endpoint-one-endpoint` | Done | 2026-11-15 00:05 | 2026-11-15 00:05 |
 | #42 | 4 | `/writing-plans Story #42` | Done | 2026-11-15 00:05 | 2026-11-15 00:05 |
-| #42 | 5 | `/test-driven-development Story #42` | In progress | 2026-11-15 00:05 | - |
-| #42 | 6 | `/subagent-driven-development Story #42` | Planned | - | - |
-| #42 | 7 | `/ccaa-commit-push 42` after every task (repeat) | Planned | - | - |
-| #42 | 8 | `/verification-before-completion Story #42` | Planned | - | - |
-| #42 | 9 | `/requesting-code-review Story #42` | Planned | - | - |
-| #42 | 10 | `/ccaa-commit-push 42` | Planned | - | - |
-| #42 | 11 | `/finishing-a-development-branch Story #42` | Planned | - | - |
+| #42 | 5 | `/test-driven-development Story #42` | Done | 2026-11-15 00:05 | 2026-11-15 00:20 |
+| #42 | 6 | `/subagent-driven-development Story #42` | Done | 2026-11-15 00:20 | 2026-11-15 00:20 |
+| #42 | 7 | `/ccaa-commit-push 42` after every task (repeat) | Done | 2026-11-15 00:20 | 2026-11-15 00:20 |
+| #42 | 8 | `/verification-before-completion Story #42` | Done | 2026-11-15 00:20 | 2026-11-15 00:20 |
+| #42 | 9 | `/requesting-code-review Story #42` | Done | 2026-11-15 00:20 | 2026-11-15 00:20 |
+| #42 | 10 | `/ccaa-commit-push 42` | Done | 2026-11-15 00:20 | 2026-11-15 00:20 |
+| #42 | 11 | `/finishing-a-development-branch Story #42` | In progress | 2026-11-15 00:20 | - |
 | #42 | 12 | `/ccaa-story-complete 42` | Planned | - | - |
 
 ### Phase 5 - Admin portal
