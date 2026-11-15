@@ -18,10 +18,10 @@ is done asynchronously by Apache Airflow.
 
 | App | What it is | Status |
 |---|---|---|
-| `consumer-complaints-admin` | Angular admin portal under `Portals/consumer-complaints-admin/`. Imports datasets, ingests them into the database, shows status. | Scaffold [Done] (#62); DataSets/Imports nav shell [Done] (#63); MIO status accordions [Done] (#64); start-workflow + refresh [Done] (#65) |
-| Middleware API | FastAPI service (`Middleware/ConsumerComplaintsHandsOn`). The only thing the portal talks to. | [Planned] (folder skeleton [Done]) |
-| Apache Airflow | Runs the download and ingest jobs asynchronously. | [Done] locally in Docker, DAGs [Planned] |
-| `consumer-complaints-Intellect` | The intelligence app that works over the complaint data (RAG / agentic). | [Open] scope not defined yet |
+| `consumer-complaints-admin` | Angular admin portal under `Portals/consumer-complaints-admin/`. Imports datasets, ingests them into the database, shows status; syncs system secrets to Airflow. | Imports path [Done] (M02/M03); DB Ingest / secrets UI / AppEndpoints [Planned] (M04) |
+| Middleware API | FastAPI service (`Middleware/ConsumerComplaintsHandsOn`). The only thing the portal talks to. | Core APIs [Done] (M02/M03); AppEndpoints + ingest/index APIs [Planned] (M04) |
+| Apache Airflow | Runs the download and ingest (and later index) jobs asynchronously. | Local Docker [Done]; download/filter DAGs [Done]; ingest/index DAGs [Planned] (M04) |
+| `consumer-complaints-Intellect` | Intelligence app over complaint Mongo + local vectors (RAG / agentic). | [Planned] M05 (#152) — after M04 vectors |
 
 ## 3. The data
 
@@ -73,79 +73,86 @@ Each workflow that downloads or ingests data is registered in the database, so t
 - Credentials never live in the repo.
 - The registry and the catalog (datasets, dataset locations, MIOs, and their ingest log) live in the admin schema `consumer_comp_admin_db` (D48, D49). The RAG layer is a later milestone (D53).
 
-### F4. DB Ingest: load the data into MongoDB [Planned]
-- A second Airflow job reads the downloaded data and writes it into MongoDB **in batches**.
-- Re-running is safe: records are keyed by Complaint ID, so a retry never creates duplicates.
-- Has its own screen (**DB Ingest**) with the same two accordions and its own status.
-- The Ingest button is only usable once that dataset's download has completed.
-- Ingest speed: start with plain Python batch writes; PySpark only if measurements say it is needed. **[Open]**
+### F4. System secrets sync (C) [Planned — M04 #145]
+- Fixed system names live in git-ignored `.env` (never in git, never shown in Admin UI).
+- Names synced to Airflow Variables today (D42 / `Airflow_Variables_Upsert.txt`): `CCA_CALLBACK_SECRET`, `CCA_API_URL`, `CCA_DB_URL`, `LOCAL_DATA_PATH_CFPB`.
+- API-only (not upserted): `CCA_AIRFLOW_API_*`, `CCA_OPERATIONAL_STORE`, `CCA_DATA_DIR`, `CCA_MONGO_OPERATIONAL_URL` (unless a DAG later needs them).
+- **API already exists:** `POST /management/airflow/upsert-secrets` (#77).
+- **Remaining:** Admin Sync button (#153) + inventory docs (#154). Local only.
 
-### F5. Status tracking and history [Planned]
-- Every execution of a workflow is recorded in `app_workflows_exec_log`, and every ingest of a MIO in `mios_ingest_log` (D50). They replace `data_ingest_log` and `system_datasets` (D47), which the accordions read today.
-- Airflow reports progress by calling the API (a `started` update and a `completed` update); it never writes to SQLite itself.
-- Allowed status changes are enforced by the API, so duplicate or out-of-order callbacks are harmless.
+### F5. AppEndpoints (D) [Planned — M04 #146]
+- Categorized endpoints (source / ingest / index / db) with from/to refs to locations and env-var *names*.
+- Imports (then ingest/index) use AppEndpoints. Local/HTTP first; no cloud spend.
+- Stories: #155 schema/DAO/seed, #156 list/read API, #157 thin Admin UI.
 
-### F6. Two environments, one codebase [Planned]
-- **Local (laptop):** the 3 months dataset, everything in Docker.
-- **Cloud (AWS, Azure or GCP):** the All dataset.
-- Differences are configuration, not code.
+### F6. DB Ingest: load complaints into MongoDB (A) [Planned — M04 #147]
+- Airflow ingest DAG writes **local Mongo** complaint docs in batches (upsert by Complaint ID).
+- **DB Ingest** Admin screen mirrors Imports; only after download completed for that MIO.
+- API never bulk-writes complaint documents.
+- Stories: #158 DAG+callbacks, #159 register/bind, #160 Admin screen.
+- Plain Python batches first; PySpark only if measured. **[Open]**
 
-### F7. Data stores [Planned]
-- **MongoDB** holds the actual complaint data. [Done] a local container is configured.
-- **SQLite** holds operational data only: user management, execution logs, `system_datasets`, `data_ingest_log`.
-  It must be replaceable (Postgres or another database) with the fewest code changes. The workflow registry and its execution log are planned here.
-- Three schemas: **`consumer_comp_db`** (consumer complaints area), **`consumer_compl_intellect_db`** (Intellect app) and
-  **`consumer_comp_users_db`** (users). [Done] created by the first migration.
+### F7. Dataset locations expansion (B) [Planned — M04 #148]
+- Resolve from/to via catalog locations + AppEndpoints (local + HTTP).
+- Cloud location types stub-only until local is hard (M06 later).
+- Stories: #161 DAG resolution, #162 Admin clarity.
 
-### F8. Database schema versioning [Done locally; cloud workflow deferred to M06]
-- Alembic migrations create and evolve the operational database.
-- Locally, the start script runs the migrations first and then starts the API.
-- In the cloud milestone (M06), a manually triggered GitHub Actions workflow will run migrations against cloud databases (AWS RDS, Azure, GCP).
+### F8. Local vector indexing (E) [Planned — M04 #149]
+- Index local Mongo complaints into a **local** vector store (Docker and/or pgvector).
+- Stories: #163 store+DAG, #164 register+Admin start.
+- Cloud vector DBs out of scope until local path is hard.
 
-### F9. API contract [Planned]
-- One OpenAPI (Swagger) specification for the whole hands-on project.
+### F9. Status tracking and history [Done for download; extends with ingest/index]
+- `app_workflows_exec_log` + `mios_ingest_log` (D50); Airflow reports via API callbacks only.
 
-### F10. Developer experience [Done]
-- One command starts, stops or checks all local containers:
-  `npm run local:containers:all:start`, `local:containers:all:stop`, `local:containers:all:status`.
-- Python project managed with `uv`.
+### F10. Two environments, one codebase [Planned]
+- **Local first — 100% until hardened** (M04/M05). **Cloud** in M06 after local DoD. Config, not code forks.
 
-### F11. Users and execution logs [Planned]
-- User management and execution logs live in SQLite (details to be defined).
+### F11. Data stores [In progress]
+- **MongoDB (complaints):** local container [Done]; bulk load [Planned] M04.
+- **Operational store:** SQLite default; Postgres/Mongo via `.env` [Done] M03. Will hold AppEndpoints (M04).
 
-### F12. Intelligence app [Open]
-- `consumer-complaints-Intellect`: scope not defined. An early, unreviewed RAG draft is kept for reference on the branch
-  `backups/Cursor_Initial_Impl`; it is not part of `main`.
+### F12. Database schema versioning [Done locally; cloud workflow deferred to M06]
+- Alembic migrations create and evolve the operational database (Mongo ops profile uses bootstrap).
+- Locally, the start script migrates/bootstraps, then starts the API.
+- Cloud migrations: M06 (#24).
+
+### F13. API contract [Done for current surface]
+- Committed OpenAPI (`openapi.json`) checked in CI; regenerate when models change.
+
+### F14. Developer experience [Done]
+- Profiled local containers + portals npm scripts; `uv` for Middleware; Node 22+ for Admin.
+
+### F15. MIO ACL (F) [Planned — M05 #151]
+- Who may start which MIO (internal / partner / user). Enforce on start-workflow. After users foundation. Story #165.
+
+### F16. Intelligence app (G) [Planned — M05 #152]
+- `consumer-complaints-Intellect`: query local Mongo + local vectors. Not Admin Imports. Story #166.
+- Early RAG draft on `backups/Cursor_Initial_Impl` is reference only.
 
 ## 5. Delivery status
 
 | Item | Status |
 |---|---|
-| Local Apache Airflow 3.4.0 in Docker (`CICD/Local/airflow`) | Done |
-| Local MongoDB 8.0 in Docker (`CICD/Local/mongodb`) | Done (configured; start with the npm command) |
-| Start / stop / status scripts and npm commands | Done |
-| `uv` Python project and layered folder skeleton | Done (folders only, no logic) |
-| Data ingest log: API, facade and tasks, DAO, DTOs, tests (create, get, list, update, delete) | Done |
-| Three schemas and the first Alembic migration (`data_ingest_log`); local start script migrates, then starts the API | Done |
-| `system_datasets` table, DAO and the service that updates it with the log in one transaction | Done |
-| Workflow registry (`app_workflows`, `app_workflows_exec_log`), start-download and status-callback endpoints | Planned: next |
-| Airflow download and ingest DAGs | Planned |
-| Admin portal (Angular) | Scaffold Done (#62); features Planned |
-| Cloud deployment and manual migration workflow | Planned (M06) |
-| Local Admin UI E2E (SQLite → Postgres → MongoDB via `.env`) | Done (M03, epic #111) |
+| M01 foundation / M02 downloads / M03 Admin E2E | Done |
+| Upsert secrets API (D42) | Done (#77); Admin UI [Planned] #153 |
+| AppEndpoints / DB Ingest / locations harden / local vectors | Planned M04 (#144) |
+| MIO ACL + Intellect | Planned M05 (#150) |
+| Cloud deployment | Planned M06 (#73) |
 
-## 6. Milestone M03 - Local Admin UI E2E (complete)
+## 6. Milestones
 
-Done: User → Admin UI → APIs → Airflow → callback APIs → operational DB on SQLite, Postgres, and MongoDB via `.env` (epic #111). DoD matrix: `docs/local-admin-e2e-dod-matrix.md`. Cloud deploy is M06.
+| Milestone | Focus | Status |
+|---|---|---|
+| M01–M03 | Foundation, downloads, Admin E2E | Complete |
+| **M04** | Local ops hardening: **C→D→A→B→E** (#144) | Planned |
+| **M05** | Intellect + MIO ACL: **F→G** (#150) | Planned |
+| M06 | Cloud deployment | Planned (#73) |
 
 ## 7. Open questions
 
-1. Credentials stay in `.env` and Airflow Variables; a workflow's other settings go in its JSON config (proposed). How does a workflow read that config?
-2. How is the status of a MIO ingest derived from its executions, and which location type codes exist?
-3. Where does the downloaded file land between download and ingest (local folder now, object storage in the cloud)?
-4. How is a workflow attached to a MIO (a link table, or a value in its config)?
-5. Should the log record the absolute date range a 3-month dataset covered, and should a new download reset its ingest status?
-6. Should the accordions poll for status while something is running, or only refresh on a button?
-7. One row per dataset and stage in `system_datasets`, JSON, or independent columns? (one row per dataset and stage is proposed)
-8. Does Intellect share the operational database?
-9. What does "Airflow menu bar" in the portal mean (a link to the Airflow UI, or a screen of its own)?
+1. AppEndpoints exact columns / categories beyond source|ingest|index|db — finalize in #155 design.
+2. Complaint Mongo connection string naming for DAGs (alongside ops store) — decide with #158.
+3. Vector store choice for local MVP (pgvector vs dedicated container) — decide with #163.
+4. Does Intellect share the operational database? (still open)
+5. What does "Airflow" mean in the portal chrome (link vs screen)? (still open)
