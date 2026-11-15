@@ -2,6 +2,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from app.api.objects_factory import ApiObjectsFactory
 from app.api.routers.data_ingest_api import DataIngestApi
+from app.api.routers.wf_exec_callback_api import WfExecCallbackApi
 from app.api.security.callback_secret_auth import CallbackSecretAuth
 from app.core.dao.app_wf_dao import AppWfDao
 from app.core.dao.app_wf_exec_log_dao import AppWfExecLogDao
@@ -26,10 +27,15 @@ from app.core.facades.impl.tasks.data_ingest_call_dao_task import DataIngestCall
 from app.core.facades.impl.tasks.data_ingest_collect_response_task import DataIngestCollectResponseTask
 from app.core.facades.impl.tasks.data_ingest_prepare_dao_ctx_task import DataIngestPrepareDaoCtxTask
 from app.core.facades.impl.tasks.data_ingest_validate_request_task import DataIngestValidateRequestTask
+from app.core.facades.impl.tasks.wf_exec_status_call_service_task import WfExecStatusCallServiceTask
+from app.core.facades.impl.wf_exec_status_facade_impl import WfExecStatusFacadeImpl
 from app.core.facades.objects_factory import FacadesObjectsFactory
+from app.core.facades.wf_exec_status_facade import WfExecStatusFacade
 from app.core.services.dataset_status_service import DatasetStatusService
 from app.core.services.impl.dataset_status_service_impl import DatasetStatusServiceImpl
+from app.core.services.impl.wf_exec_status_service_impl import WfExecStatusServiceImpl
 from app.core.services.objects_factory import ServicesObjectsFactory
+from app.core.services.wf_exec_status_service import WfExecStatusService
 from app.core.dao.impl.sqlalchemy_system_datasets_dao import SqlAlchemySystemDatasetsDao
 from app.core.dao.impl.sqlalchemy_transaction_dao import SqlAlchemyTransactionDao
 from app.core.dao.system_datasets_dao import SystemDatasetsDao
@@ -56,6 +62,8 @@ def test_factories_return_the_same_object_typed_as_the_interface():
         (DaoObjectsFactory.get_system_datasets_dao, SystemDatasetsDao),
         (DaoObjectsFactory.get_transaction_dao, TransactionDao),
         (ServicesObjectsFactory.get_dataset_status_service, DatasetStatusService),
+        (ServicesObjectsFactory.get_wf_exec_status_service, WfExecStatusService),
+        (FacadesObjectsFactory.get_wf_exec_status_facade, WfExecStatusFacade),
     ):
         assert getter() is getter()
         assert isinstance(getter(), interface)
@@ -63,6 +71,8 @@ def test_factories_return_the_same_object_typed_as_the_interface():
     assert ApiObjectsFactory.get_app() is ApiObjectsFactory.get_app()
     assert ApiObjectsFactory.get_callback_secret_auth() is ApiObjectsFactory.get_callback_secret_auth()
     assert isinstance(ApiObjectsFactory.get_callback_secret_auth(), CallbackSecretAuth)
+    assert ApiObjectsFactory.get_wf_exec_callback_api() is ApiObjectsFactory.get_wf_exec_callback_api()
+    assert isinstance(ApiObjectsFactory.get_wf_exec_callback_api(), WfExecCallbackApi)
 
 
 def test_the_classes_themselves_are_singletons():
@@ -75,16 +85,20 @@ def test_the_classes_themselves_are_singletons():
     assert SqlAlchemyMioDatasetDao() is SqlAlchemyMioDatasetDao()
     assert SqlAlchemyMioIngestLogDao() is SqlAlchemyMioIngestLogDao()
     assert DataIngestApi() is DataIngestApi()
+    assert WfExecCallbackApi() is WfExecCallbackApi()
     assert CallbackSecretAuth() is CallbackSecretAuth()
     assert DataIngestFacadeImpl() is DataIngestFacadeImpl()
     assert SqlAlchemySystemDatasetsDao() is SqlAlchemySystemDatasetsDao()
     assert SqlAlchemyTransactionDao() is SqlAlchemyTransactionDao()
     assert DatasetStatusServiceImpl() is DatasetStatusServiceImpl()
+    assert WfExecStatusServiceImpl() is WfExecStatusServiceImpl()
+    assert WfExecStatusFacadeImpl() is WfExecStatusFacadeImpl()
     for task in (
         DataIngestValidateRequestTask,
         DataIngestPrepareDaoCtxTask,
         DataIngestCallDaoTask,
         DataIngestCollectResponseTask,
+        WfExecStatusCallServiceTask,
     ):
         assert task() is task()
 

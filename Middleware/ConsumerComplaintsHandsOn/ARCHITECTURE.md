@@ -190,7 +190,8 @@ unless both share a Docker network, for MongoDB).
 sends in the `X-Callback-Secret` header of every callback; without it every callback endpoint answers 401 (D59). Keep
 the secret plain ASCII. The shell sources `.env`, so quote a value that contains spaces or `$`, and a value in `.env`
 overrides a variable of the same name exported in the shell.
-`/health` and the other endpoints need no secret.
+The first callback endpoint is `POST /callbacks/workflow-executions/{execution_id}/status` (D60); `/health` and the
+other endpoints need no secret.
 
 ## 9. Cloud (planned)
 
