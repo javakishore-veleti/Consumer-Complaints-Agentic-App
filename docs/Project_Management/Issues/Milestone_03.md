@@ -236,8 +236,8 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #135 | 10 | `/ccaa-commit-push 135` | Done | 2026-11-15 02:39 | 2026-11-15 02:39 |
 | #135 | 11 | `/finishing-a-development-branch Story #135` | Done | 2026-11-15 02:39 | 2026-11-15 02:39 |
 | #135 | 12 | `/ccaa-story-complete 135` | Done | 2026-11-15 02:39 | 2026-11-15 02:41 |
-| #137 | 1 | `/ccaa-story-start 137` | Planned | - | - |
-| #137 | 2 | `/brainstorming Story #137: D82 rebuild Able Pro layout from scratch — shell, sidebar, page header, Imports panel rows; not a restyle` | Planned | - | - |
+| #137 | 1 | `/ccaa-story-start 137` | Done | 2026-11-15 02:48 | 2026-11-15 02:48 |
+| #137 | 2 | `/brainstorming Story #137: D82 rebuild Able Pro layout from scratch — shell, sidebar, page header, Imports panel rows; not a restyle` | In progress | 2026-11-15 02:48 | - |
 | #137 | 3 | `/using-git-worktrees Story #137: branch m03-0016-able-pro-admin-rebuild` | Planned | - | - |
 | #137 | 4 | `/writing-plans Story #137` | Planned | - | - |
 | #137 | 5 | `/test-driven-development Story #137` | Planned | - | - |
@@ -248,7 +248,7 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #137 | 10 | `/ccaa-commit-push 137` | Planned | - | - |
 | #137 | 11 | `/finishing-a-development-branch Story #137` | Planned | - | - |
 | #137 | 12 | `/ccaa-story-complete 137` | Planned | - | - |
-| Feature #114 | 1 | `/ccaa-feature-complete 114` | Planned | - | - |
+| Feature #114 | 1 | `/ccaa-feature-complete 114` | In progress | 2026-11-15 02:48 | - |
 
 ### Phase 4 - DoD matrix
 
@@ -267,7 +267,7 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #123 | 11 | `/finishing-a-development-branch Story #123` | Done | 2026-11-15 01:57 | 2026-11-15 01:57 |
 | #123 | 12 | `/ccaa-story-complete 123` | Done | 2026-11-15 01:57 | 2026-11-15 01:57 |
 | Feature #115 | 1 | `/ccaa-feature-complete 115` | Done | 2026-11-15 01:57 | 2026-11-15 01:57 |
-| Epic #111 | 1 | `/ccaa-epic-complete 111` | Planned | - | - |
+| Epic #111 | 1 | `/ccaa-epic-complete 111` | In progress | 2026-11-15 02:48 | - |
 
 ## 4. Project skills (`ccaa-` = Consumer Complaints Agentic App)
 
