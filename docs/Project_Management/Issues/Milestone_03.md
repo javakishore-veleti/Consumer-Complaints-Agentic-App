@@ -129,9 +129,9 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #117 | 5 | `/test-driven-development Story #117` | Done | 2026-11-15 01:24 | 2026-11-15 01:24 |
 | #117 | 6 | `/subagent-driven-development Story #117` | Done | 2026-11-15 01:24 | 2026-11-15 01:24 |
 | #117 | 7 | `/ccaa-commit-push 117` after every task (repeat) | Done | 2026-11-15 01:24 | 2026-11-15 01:24 |
-| #117 | 8 | `/verification-before-completion Story #117` | In progress | 2026-11-15 01:24 | - |
-| #117 | 9 | `/requesting-code-review Story #117` | Planned | - | - |
-| #117 | 10 | `/ccaa-commit-push 117` | Planned | - | - |
+| #117 | 8 | `/verification-before-completion Story #117` | Done | 2026-11-15 01:24 | 2026-11-15 01:25 |
+| #117 | 9 | `/requesting-code-review Story #117` | Done | 2026-11-15 01:25 | 2026-11-15 01:25 |
+| #117 | 10 | `/ccaa-commit-push 117` | In progress | 2026-11-15 01:25 | - |
 | #117 | 11 | `/finishing-a-development-branch Story #117` | Planned | - | - |
 | #117 | 12 | `/ccaa-story-complete 117` | Planned | - | - |
 | #118 | 1 | `/ccaa-story-start 118` | Planned | - | - |
