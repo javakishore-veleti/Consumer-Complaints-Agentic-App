@@ -6,6 +6,7 @@ Static methods return the singleton, typed as the interface.
 import threading
 
 from app.core.common.bean_registry import bean_registry
+from app.core.services.airflow_start_dag_service import AirflowStartDagService
 from app.core.services.airflow_upsert_secrets_service import AirflowUpsertSecretsService
 from app.core.services.dataset_status_service import DatasetStatusService
 from app.core.services.mio_status_service import MioStatusService
@@ -24,6 +25,9 @@ class ServicesObjectsFactory:
         with ServicesObjectsFactory._lock:
             if ServicesObjectsFactory._initialized:
                 return
+            from app.core.services.impl.airflow_start_dag_service_impl import (
+                AirflowStartDagServiceImpl,
+            )
             from app.core.services.impl.airflow_upsert_secrets_service_impl import (
                 AirflowUpsertSecretsServiceImpl,
             )
@@ -37,6 +41,7 @@ class ServicesObjectsFactory:
             bean_registry.register(WfExecStatusService, WfExecStatusServiceImpl())
             bean_registry.register(AirflowUpsertSecretsService, AirflowUpsertSecretsServiceImpl())
             bean_registry.register(WfListService, WfListServiceImpl())
+            bean_registry.register(AirflowStartDagService, AirflowStartDagServiceImpl())
             ServicesObjectsFactory._initialized = True
 
     @staticmethod
@@ -63,3 +68,8 @@ class ServicesObjectsFactory:
     def get_wf_list_service() -> WfListService:
         ServicesObjectsFactory.init()
         return bean_registry.get_one(WfListService)  # type: ignore[return-value]
+
+    @staticmethod
+    def get_airflow_start_dag_service() -> AirflowStartDagService:
+        ServicesObjectsFactory.init()
+        return bean_registry.get_one(AirflowStartDagService)  # type: ignore[return-value]

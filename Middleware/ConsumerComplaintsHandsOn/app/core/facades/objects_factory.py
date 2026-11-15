@@ -6,6 +6,7 @@ Static methods return the singleton, typed as the interface.
 import threading
 
 from app.core.common.bean_registry import bean_registry
+from app.core.facades.airflow_start_dag_facade import AirflowStartDagFacade
 from app.core.facades.airflow_upsert_secrets_facade import AirflowUpsertSecretsFacade
 from app.core.facades.data_ingest_facade import DataIngestFacade
 from app.core.facades.mio_status_facade import MioStatusFacade
@@ -24,6 +25,9 @@ class FacadesObjectsFactory:
         with FacadesObjectsFactory._lock:
             if FacadesObjectsFactory._initialized:
                 return
+            from app.core.facades.impl.af_start.airflow_start_dag_facade_impl import (
+                AirflowStartDagFacadeImpl,
+            )
             from app.core.facades.impl.airflow_upsert_secrets_facade_impl import (
                 AirflowUpsertSecretsFacadeImpl,
             )
@@ -37,6 +41,7 @@ class FacadesObjectsFactory:
             bean_registry.register(WfExecStatusFacade, WfExecStatusFacadeImpl())
             bean_registry.register(AirflowUpsertSecretsFacade, AirflowUpsertSecretsFacadeImpl())
             bean_registry.register(WfListFacade, WfListFacadeImpl())
+            bean_registry.register(AirflowStartDagFacade, AirflowStartDagFacadeImpl())
             FacadesObjectsFactory._initialized = True
 
     @staticmethod
@@ -63,3 +68,8 @@ class FacadesObjectsFactory:
     def get_wf_list_facade() -> WfListFacade:
         FacadesObjectsFactory.init()
         return bean_registry.get_one(WfListFacade)  # type: ignore[return-value]
+
+    @staticmethod
+    def get_airflow_start_dag_facade() -> AirflowStartDagFacade:
+        FacadesObjectsFactory.init()
+        return bean_registry.get_one(AirflowStartDagFacade)  # type: ignore[return-value]

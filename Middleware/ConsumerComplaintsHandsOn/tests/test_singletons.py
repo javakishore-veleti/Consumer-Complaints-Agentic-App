@@ -24,8 +24,13 @@ from app.core.dao.mio_dao import MioDao
 from app.core.dao.mio_dataset_dao import MioDatasetDao
 from app.core.dao.mio_ingest_log_dao import MioIngestLogDao
 from app.core.dao.objects_factory import DaoObjectsFactory
+from app.core.facades.airflow_start_dag_facade import AirflowStartDagFacade
 from app.core.facades.airflow_upsert_secrets_facade import AirflowUpsertSecretsFacade
 from app.core.facades.data_ingest_facade import DataIngestFacade
+from app.core.facades.impl.af_start.airflow_start_dag_facade_impl import AirflowStartDagFacadeImpl
+from app.core.facades.impl.af_start.tasks.airflow_start_dag_call_service_task import (
+    AirflowStartDagCallServiceTask,
+)
 from app.core.facades.impl.airflow_upsert_secrets_facade_impl import AirflowUpsertSecretsFacadeImpl
 from app.core.facades.impl.data_ingest_facade_impl import DataIngestFacadeImpl
 from app.core.facades.impl.tasks.airflow_upsert_secrets_call_service_task import (
@@ -45,8 +50,10 @@ from app.core.facades.mio_status_facade import MioStatusFacade
 from app.core.facades.objects_factory import FacadesObjectsFactory
 from app.core.facades.wf_exec_status_facade import WfExecStatusFacade
 from app.core.facades.wf_list_facade import WfListFacade
+from app.core.services.airflow_start_dag_service import AirflowStartDagService
 from app.core.services.airflow_upsert_secrets_service import AirflowUpsertSecretsService
 from app.core.services.dataset_status_service import DatasetStatusService
+from app.core.services.impl.airflow_start_dag_service_impl import AirflowStartDagServiceImpl
 from app.core.services.impl.airflow_upsert_secrets_service_impl import AirflowUpsertSecretsServiceImpl
 from app.core.services.impl.dataset_status_service_impl import DatasetStatusServiceImpl
 from app.core.services.impl.mio_status_service_impl import MioStatusServiceImpl
@@ -90,6 +97,8 @@ def test_factories_return_the_same_object_typed_as_the_interface():
         (FacadesObjectsFactory.get_wf_exec_status_facade, WfExecStatusFacade),
         (FacadesObjectsFactory.get_airflow_upsert_secrets_facade, AirflowUpsertSecretsFacade),
         (FacadesObjectsFactory.get_wf_list_facade, WfListFacade),
+        (ServicesObjectsFactory.get_airflow_start_dag_service, AirflowStartDagService),
+        (FacadesObjectsFactory.get_airflow_start_dag_facade, AirflowStartDagFacade),
     ):
         assert getter() is getter()
         assert isinstance(getter(), interface)
@@ -134,6 +143,8 @@ def test_the_classes_themselves_are_singletons():
     assert WfExecStatusFacadeImpl() is WfExecStatusFacadeImpl()
     assert AirflowUpsertSecretsFacadeImpl() is AirflowUpsertSecretsFacadeImpl()
     assert WfListFacadeImpl() is WfListFacadeImpl()
+    assert AirflowStartDagServiceImpl() is AirflowStartDagServiceImpl()
+    assert AirflowStartDagFacadeImpl() is AirflowStartDagFacadeImpl()
     for task in (
         DataIngestValidateRequestTask,
         DataIngestPrepareDaoCtxTask,
@@ -143,6 +154,7 @@ def test_the_classes_themselves_are_singletons():
         WfExecStatusCallServiceTask,
         AirflowUpsertSecretsCallServiceTask,
         WfListCallServiceTask,
+        AirflowStartDagCallServiceTask,
     ):
         assert task() is task()
 
