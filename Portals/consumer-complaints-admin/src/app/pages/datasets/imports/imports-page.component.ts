@@ -3,13 +3,16 @@ import { HttpClient } from '@angular/common/http';
 import { BadgeDirective, BadgeColor } from '../../../shared/components/ui/badge/badge.directive';
 import { AlertComponent } from '../../../shared/components/ui/alert/alert.component';
 import { ButtonComponent } from '../../../shared/components/ui/button/button.component';
-import { loadMioStatus, MioStatusCtx, MioStatusEntry } from '../../../core/mio-status';
+import {
+  loadMioStatus,
+  MioAllowedWorkflow,
+  MioStatusCtx,
+  MioStatusEntry,
+} from '../../../core/mio-status';
 import { startWorkflow, StartWorkflowCtx } from '../../../core/start-workflow';
-import { listWorkflows, WorkflowListCtx, WorkflowListEntry } from '../../../core/workflow-list';
 import { SUCCESS } from '../../../core/return-codes';
 
 const RUNNING_STATUSES = new Set(['requested', 'started']);
-const DEFAULT_WORKFLOW_NAME = 'download_cfpb_all';
 
 @Component({
   selector: 'app-imports-page',
@@ -21,14 +24,17 @@ export class ImportsPageComponent implements OnInit {
   protected readonly entries = signal<MioStatusEntry[]>([]);
   protected readonly error = signal('');
   protected readonly loading = signal(true);
-  protected readonly enabledWorkflows = signal<WorkflowListEntry[]>([]);
   protected readonly selectedByMio = signal<Record<string, string>>({});
   protected readonly startingMioIds = signal<ReadonlySet<string>>(new Set());
   protected readonly actionError = signal('');
 
   async ngOnInit(): Promise<void> {
-    await Promise.all([this.loadStatus(), this.loadWorkflows()]);
+    await this.loadStatus();
     this.loading.set(false);
+  }
+
+  protected allowedWorkflows(mio: MioStatusEntry): MioAllowedWorkflow[] {
+    return (mio.allowed_workflows ?? []).filter((w) => w.enabled);
   }
 
   protected selectedWorkflowId(mioId: string): string {
@@ -112,33 +118,17 @@ export class ImportsPageComponent implements OnInit {
     }
   }
 
-  private async loadWorkflows(): Promise<void> {
-    const ctx: WorkflowListCtx = { req: {}, resp: { workflows: [], error: '' } };
-    const code = await listWorkflows(this.http, ctx);
-    if (code === SUCCESS) {
-      const enabled = ctx.resp.workflows.filter((w) => w.enabled);
-      this.enabledWorkflows.set(enabled);
-      this.ensureSelections(this.entries());
-    } else {
-      this.enabledWorkflows.set([]);
-      if (!this.error()) {
-        this.actionError.set(ctx.resp.error || 'Failed to load workflows');
-      }
-    }
-  }
-
   private ensureSelections(entries: MioStatusEntry[]): void {
-    const enabled = this.enabledWorkflows();
-    if (!enabled.length) {
-      return;
-    }
-    const preferred =
-      enabled.find((w) => w.workflow_name === DEFAULT_WORKFLOW_NAME) ?? enabled[0];
     this.selectedByMio.update((current) => {
       const next = { ...current };
       for (const mio of entries) {
-        if (!next[mio.id] || !enabled.some((w) => w.id === next[mio.id])) {
-          next[mio.id] = preferred.id;
+        const allowed = this.allowedWorkflows(mio);
+        if (!allowed.length) {
+          delete next[mio.id];
+          continue;
+        }
+        if (!next[mio.id] || !allowed.some((w) => w.id === next[mio.id])) {
+          next[mio.id] = allowed[0].id;
         }
       }
       return next;

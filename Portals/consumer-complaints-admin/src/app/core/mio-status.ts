@@ -33,11 +33,21 @@ export interface MioStatusIngest {
   executions: MioStatusExecution[];
 }
 
+/** Enabled workflows allowed for this MIO (D84). Same shape as GET /workflows rows. */
+export interface MioAllowedWorkflow {
+  id: string;
+  workflow_name: string;
+  engine_type: string;
+  engine_workflow_id: string;
+  enabled: boolean;
+}
+
 export interface MioStatusEntry {
   id: string;
   name: string;
   description: string | null;
   latest_ingest: MioStatusIngest | null;
+  allowed_workflows?: MioAllowedWorkflow[];
 }
 
 export interface MioStatusReq {}
@@ -54,7 +64,10 @@ export async function loadMioStatus(http: HttpClient, ctx: MioStatusCtx): Promis
   const url = `${environment.apiBaseUrl}/mios/status`;
   try {
     const entries = await firstValueFrom(http.get<MioStatusEntry[]>(url));
-    ctx.resp.entries = entries ?? [];
+    ctx.resp.entries = (entries ?? []).map((e) => ({
+      ...e,
+      allowed_workflows: e.allowed_workflows ?? [],
+    }));
     ctx.resp.error = '';
     return SUCCESS;
   } catch (err) {

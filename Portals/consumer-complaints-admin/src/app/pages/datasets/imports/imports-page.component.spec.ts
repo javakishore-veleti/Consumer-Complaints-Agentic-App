@@ -7,15 +7,21 @@ import { ImportsPageComponent } from './imports-page.component';
 describe('ImportsPageComponent', () => {
   let httpMock: HttpTestingController;
 
-  const defaultWorkflows = [
-    {
-      id: 'w1',
-      workflow_name: 'download_cfpb_all',
-      engine_type: 'apache_airflow',
-      engine_workflow_id: 'download_cfpb_all',
-      enabled: true,
-    },
-  ];
+  const downloadAll = {
+    id: 'w1',
+    workflow_name: 'download_cfpb_all',
+    engine_type: 'apache_airflow',
+    engine_workflow_id: 'download_cfpb_all',
+    enabled: true,
+  };
+
+  const filter3m = {
+    id: 'w2',
+    workflow_name: 'filter_cfpb_3_months',
+    engine_type: 'apache_airflow',
+    engine_workflow_id: 'filter_cfpb_3_months',
+    enabled: true,
+  };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -35,26 +41,14 @@ describe('ImportsPageComponent', () => {
     await Promise.resolve();
   }
 
-  function flushInit(
-    status: unknown[] = [],
-    workflows: unknown[] = defaultWorkflows,
-  ): void {
-    const pending = httpMock.match(
-      (r) => r.url.includes('/mios/status') || r.url.includes('/workflows'),
-    );
-    for (const req of pending) {
-      if (req.request.url.includes('/mios/status')) {
-        req.flush(status);
-      } else {
-        req.flush(workflows);
-      }
-    }
+  function flushStatus(status: unknown[] = []): void {
+    httpMock.expectOne((r) => r.url.includes('/mios/status')).flush(status);
   }
 
   it('renders the accordion shell host', async () => {
     const fixture = TestBed.createComponent(ImportsPageComponent);
     fixture.detectChanges();
-    flushInit();
+    flushStatus();
     await settle();
     fixture.detectChanges();
     const host = fixture.debugElement.query(By.css('[data-testid="imports-accordion-shell"]'));
@@ -64,7 +58,7 @@ describe('ImportsPageComponent', () => {
   it('renders one accordion per MIO with API status verbatim', async () => {
     const fixture = TestBed.createComponent(ImportsPageComponent);
     fixture.detectChanges();
-    flushInit([
+    flushStatus([
       {
         id: 'm1',
         name: 'Customer complaints 3 months 2026',
@@ -82,12 +76,14 @@ describe('ImportsPageComponent', () => {
           finished_at: null,
           executions: [],
         },
+        allowed_workflows: [filter3m],
       },
       {
         id: 'm2',
         name: 'Customer complaints all',
         description: null,
         latest_ingest: null,
+        allowed_workflows: [downloadAll],
       },
     ]);
     await settle();
@@ -100,19 +96,58 @@ describe('ImportsPageComponent', () => {
     expect(panels[1].nativeElement.textContent).toContain('No ingest yet');
   });
 
+  it('shows only per-MIO allowed workflows in the picker', async () => {
+    const fixture = TestBed.createComponent(ImportsPageComponent);
+    fixture.detectChanges();
+    flushStatus([
+      {
+        id: 'm1',
+        name: 'Customer complaints 3 months 2026',
+        description: null,
+        latest_ingest: null,
+        allowed_workflows: [filter3m],
+      },
+      {
+        id: 'm2',
+        name: 'Customer complaints all 2026',
+        description: null,
+        latest_ingest: null,
+        allowed_workflows: [downloadAll],
+      },
+    ]);
+    await settle();
+    fixture.detectChanges();
+    const selects = fixture.debugElement.queryAll(By.css('[data-testid="mio-workflow-select"]'));
+    expect(selects[0].nativeElement.textContent).toContain('filter_cfpb_3_months');
+    expect(selects[0].nativeElement.textContent).not.toContain('download_cfpb_all');
+    expect(selects[1].nativeElement.textContent).toContain('download_cfpb_all');
+    expect(selects[1].nativeElement.textContent).not.toContain('filter_cfpb_3_months');
+  });
+
+  it('disables Start when allowed_workflows is empty', async () => {
+    const fixture = TestBed.createComponent(ImportsPageComponent);
+    fixture.detectChanges();
+    flushStatus([
+      {
+        id: 'm1',
+        name: 'Customer complaints 6 months 2026',
+        description: null,
+        latest_ingest: null,
+        allowed_workflows: [],
+      },
+    ]);
+    await settle();
+    fixture.detectChanges();
+    const btn = fixture.debugElement.query(By.css('[data-testid="mio-start-workflow"]'));
+    expect(btn.nativeElement.disabled).toBe(true);
+  });
+
   it('shows load error without fabricating status rows', async () => {
     const fixture = TestBed.createComponent(ImportsPageComponent);
     fixture.detectChanges();
-    const pending = httpMock.match(
-      (r) => r.url.includes('/mios/status') || r.url.includes('/workflows'),
-    );
-    for (const req of pending) {
-      if (req.request.url.includes('/mios/status')) {
-        req.flush('boom', { status: 500, statusText: 'Server Error' });
-      } else {
-        req.flush(defaultWorkflows);
-      }
-    }
+    httpMock
+      .expectOne((r) => r.url.includes('/mios/status'))
+      .flush('boom', { status: 500, statusText: 'Server Error' });
     await settle();
     fixture.detectChanges();
     expect(fixture.debugElement.queryAll(By.css('[data-testid="mio-accordion"]')).length).toBe(0);
@@ -124,7 +159,7 @@ describe('ImportsPageComponent', () => {
   it('disables Start when latest_ingest status is started', async () => {
     const fixture = TestBed.createComponent(ImportsPageComponent);
     fixture.detectChanges();
-    flushInit([
+    flushStatus([
       {
         id: 'm1',
         name: 'Customer complaints all',
@@ -142,6 +177,7 @@ describe('ImportsPageComponent', () => {
           finished_at: null,
           executions: [],
         },
+        allowed_workflows: [downloadAll],
       },
     ]);
     await settle();
@@ -153,12 +189,13 @@ describe('ImportsPageComponent', () => {
   it('starts workflow with mio_id then refreshes status', async () => {
     const fixture = TestBed.createComponent(ImportsPageComponent);
     fixture.detectChanges();
-    flushInit([
+    flushStatus([
       {
         id: 'm1',
         name: 'Customer complaints all',
         description: null,
         latest_ingest: null,
+        allowed_workflows: [downloadAll],
       },
     ]);
     await settle();
@@ -177,6 +214,7 @@ describe('ImportsPageComponent', () => {
         id: 'm1',
         name: 'Customer complaints all',
         description: null,
+        allowed_workflows: [downloadAll],
         latest_ingest: {
           id: 'i2',
           mio_id: 'm1',
@@ -202,12 +240,13 @@ describe('ImportsPageComponent', () => {
   it('Refresh status reloads GET /mios/status', async () => {
     const fixture = TestBed.createComponent(ImportsPageComponent);
     fixture.detectChanges();
-    flushInit([
+    flushStatus([
       {
         id: 'm1',
         name: 'Customer complaints all',
         description: null,
         latest_ingest: null,
+        allowed_workflows: [downloadAll],
       },
     ]);
     await settle();
@@ -219,6 +258,7 @@ describe('ImportsPageComponent', () => {
         id: 'm1',
         name: 'Customer complaints all',
         description: null,
+        allowed_workflows: [downloadAll],
         latest_ingest: {
           id: 'i3',
           mio_id: 'm1',
