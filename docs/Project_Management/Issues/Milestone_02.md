@@ -251,12 +251,12 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #44 | 10 | `/ccaa-commit-push 44` | Done | 2026-11-14 19:14 | 2026-11-14 19:14 |
 | #44 | 11 | `/finishing-a-development-branch Story #44` | Done | 2026-11-14 19:14 | 2026-11-14 19:14 |
 | #44 | 12 | `/ccaa-story-complete 44` | Done | 2026-11-14 19:14 | 2026-11-14 19:14 |
-| #43 | 1 | `/ccaa-story-start 43` | Planned | - | - |
-| #43 | 2 | `/brainstorming Story #43: status callback taking the execution id, status (started, completed, failed), optional engine run id and message; duplicate and out-of-order calls harmless (D30); updates the execution log and the MIO ingest log` | Planned | - | - |
-| #43 | 3 | `/using-git-worktrees Story #43: branch m02-0008-airflow-status-callback-endpoint` | Planned | - | - |
-| #43 | 4 | `/writing-plans Story #43` | Planned | - | - |
-| #43 | 5 | `/test-driven-development Story #43` | Planned | - | - |
-| #43 | 6 | `/subagent-driven-development Story #43` | Planned | - | - |
+| #43 | 1 | `/ccaa-story-start 43` | Done | 2026-11-14 19:15 | 2026-11-14 19:15 |
+| #43 | 2 | `/brainstorming Story #43: status callback taking the execution id, status (started, completed, failed), optional engine run id and message; duplicate and out-of-order calls harmless (D30); updates the execution log and the MIO ingest log` | Done | 2026-11-14 19:15 | 2026-11-14 19:15 |
+| #43 | 3 | `/using-git-worktrees Story #43: branch m02-0008-airflow-status-callback-endpoint` | Done | 2026-11-14 19:15 | 2026-11-14 19:15 |
+| #43 | 4 | `/writing-plans Story #43` | Done | 2026-11-14 19:15 | 2026-11-14 21:47 |
+| #43 | 5 | `/test-driven-development Story #43` | Done | 2026-11-14 21:47 | 2026-11-14 21:47 |
+| #43 | 6 | `/subagent-driven-development Story #43` | In progress | 2026-11-14 21:47 | - |
 | #43 | 7 | `/ccaa-commit-push 43` after every task (repeat) | Planned | - | - |
 | #43 | 8 | `/verification-before-completion Story #43` | Planned | - | - |
 | #43 | 9 | `/requesting-code-review Story #43` | Planned | - | - |
@@ -510,4 +510,4 @@ The skills live in `.cursor/skills/`. Each takes a GitHub issue number.
 - **Open questions on the issues:** #65 (poll or refresh). The #55 question is decided in D42 (revised by D43): credentials in `.env`, copied into Airflow Variables by story #77.
 - **Story #77 was added** while deciding #55 (D42). It is under feature #56 and is built first in Phase 3, because the DAG reads the Variables it creates.
 - **Moved to M03 - Cloud Deployment:** #51 S3, #52 Azure Blob, #53 GCP Cloud Storage, #54 Google Drive, and the cloud migration workflow #24. They are not part of this milestone. #51 to #54 were written as source types, so under D43 they need rewriting as cloud workflows before M03 starts (they are still open).
-- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D60.
+- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D61.
