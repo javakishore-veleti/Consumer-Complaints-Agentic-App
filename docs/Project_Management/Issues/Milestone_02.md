@@ -2,7 +2,7 @@
 
 **Scope (decision D38 in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`):** download the free CFPB dataset on demand from the admin portal, asynchronously through Airflow, through registered workflows (D43), and always show whether it has been downloaded. Everything runs locally. Cloud work is M03.
 
-**Status: in progress.** 1 epic, 5 features and 27 stories. 10 stories (and 1 feature) are already done, 17 stories are left to build.
+**Status: in progress.** 1 epic, 5 features and 27 stories. 11 stories (and 1 feature) are already done, 16 stories are left to build.
 
 How to read this file:
 - `#42` is the GitHub issue number in this repository. The `M02-00NN` key is the sequence tag at the start of the issue title. Keys are not in build order.
@@ -256,13 +256,13 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #43 | 3 | `/using-git-worktrees Story #43: branch m02-0008-airflow-status-callback-endpoint` | Done | 2026-11-14 19:15 | 2026-11-14 19:15 |
 | #43 | 4 | `/writing-plans Story #43` | Done | 2026-11-14 19:15 | 2026-11-14 21:47 |
 | #43 | 5 | `/test-driven-development Story #43` | Done | 2026-11-14 21:47 | 2026-11-14 21:47 |
-| #43 | 6 | `/subagent-driven-development Story #43` | In progress | 2026-11-14 21:47 | - |
-| #43 | 7 | `/ccaa-commit-push 43` after every task (repeat) | Planned | - | - |
-| #43 | 8 | `/verification-before-completion Story #43` | Planned | - | - |
-| #43 | 9 | `/requesting-code-review Story #43` | Planned | - | - |
-| #43 | 10 | `/ccaa-commit-push 43` | Planned | - | - |
-| #43 | 11 | `/finishing-a-development-branch Story #43` | Planned | - | - |
-| #43 | 12 | `/ccaa-story-complete 43` | Planned | - | - |
+| #43 | 6 | `/subagent-driven-development Story #43` | Done | 2026-11-14 21:47 | 2026-11-14 22:05 |
+| #43 | 7 | `/ccaa-commit-push 43` after every task (repeat) | Done | 2026-11-14 22:05 | 2026-11-14 22:05 |
+| #43 | 8 | `/verification-before-completion Story #43` | Done | 2026-11-14 22:05 | 2026-11-14 22:05 |
+| #43 | 9 | `/requesting-code-review Story #43` | Done | 2026-11-14 22:05 | 2026-11-14 22:05 |
+| #43 | 10 | `/ccaa-commit-push 43` | Done | 2026-11-14 22:05 | 2026-11-14 22:05 |
+| #43 | 11 | `/finishing-a-development-branch Story #43` | Done | 2026-11-14 22:05 | 2026-11-14 22:05 |
+| #43 | 12 | `/ccaa-story-complete 43` | Done | 2026-11-14 22:05 | 2026-11-14 22:05 |
 | #45 | 1 | `/ccaa-story-start 45` | Planned | - | - |
 | #45 | 2 | `/brainstorming Story #45: read MIO status endpoint; one call returns every MIO with the status of its latest ingest and executions` | Planned | - | - |
 | #45 | 3 | `/using-git-worktrees Story #45: branch m02-0010-read-mio-status-endpoint` | Planned | - | - |
