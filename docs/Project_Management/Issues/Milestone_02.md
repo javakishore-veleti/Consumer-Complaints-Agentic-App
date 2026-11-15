@@ -379,17 +379,17 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #62 | 10 | `/ccaa-commit-push 62` | Done | 2026-11-14 23:15 | 2026-11-14 23:15 |
 | #62 | 11 | `/finishing-a-development-branch Story #62` | In progress | 2026-11-14 23:15 | - |
 | #62 | 12 | `/ccaa-story-complete 62` | Planned | - | - |
-| #63 | 1 | `/ccaa-story-start 63` | Planned | - | - |
-| #63 | 2 | `/brainstorming Story #63: DataSets top menu and Imports left navigation (DB Ingest comes later); navigation works` | Planned | - | - |
-| #63 | 3 | `/using-git-worktrees Story #63: branch m02-0024-datasets-top-menu-and-imports-left` | Planned | - | - |
-| #63 | 4 | `/writing-plans Story #63` | Planned | - | - |
-| #63 | 5 | `/test-driven-development Story #63` | Planned | - | - |
-| #63 | 6 | `/subagent-driven-development Story #63` | Planned | - | - |
-| #63 | 7 | `/ccaa-commit-push 63` after every task (repeat) | Planned | - | - |
-| #63 | 8 | `/verification-before-completion Story #63` | Planned | - | - |
-| #63 | 9 | `/requesting-code-review Story #63` | Planned | - | - |
-| #63 | 10 | `/ccaa-commit-push 63` | Planned | - | - |
-| #63 | 11 | `/finishing-a-development-branch Story #63` | Planned | - | - |
+| #63 | 1 | `/ccaa-story-start 63` | Done | 2026-11-15 00:03 | 2026-11-15 00:03 |
+| #63 | 2 | `/brainstorming Story #63: DataSets top menu and Imports left navigation (DB Ingest comes later); navigation works` | Done | 2026-11-15 00:03 | 2026-11-15 00:03 |
+| #63 | 3 | `/using-git-worktrees Story #63: branch m02-0024-datasets-top-menu-and-imports-left` | Done | 2026-11-15 00:03 | 2026-11-15 00:03 |
+| #63 | 4 | `/writing-plans Story #63` | Done | 2026-11-15 00:03 | 2026-11-15 00:03 |
+| #63 | 5 | `/test-driven-development Story #63` | Done | 2026-11-15 00:03 | 2026-11-15 00:05 |
+| #63 | 6 | `/subagent-driven-development Story #63` | Done | 2026-11-15 00:05 | 2026-11-15 00:05 |
+| #63 | 7 | `/ccaa-commit-push 63` after every task (repeat) | Done | 2026-11-15 00:05 | 2026-11-15 00:05 |
+| #63 | 8 | `/verification-before-completion Story #63` | Done | 2026-11-15 00:05 | 2026-11-15 00:05 |
+| #63 | 9 | `/requesting-code-review Story #63` | Done | 2026-11-15 00:05 | 2026-11-15 00:05 |
+| #63 | 10 | `/ccaa-commit-push 63` | Done | 2026-11-15 00:05 | 2026-11-15 00:05 |
+| #63 | 11 | `/finishing-a-development-branch Story #63` | Done | 2026-11-15 00:05 | 2026-11-15 00:06 |
 | #63 | 12 | `/ccaa-story-complete 63` | Planned | - | - |
 | #64 | 1 | `/ccaa-story-start 64` | Planned | - | - |
 | #64 | 2 | `/brainstorming Story #64: one accordion per MIO with its status from the API (#45)` | Planned | - | - |

@@ -1,0 +1,16 @@
+<div class="datasets-layout">
+  <nav class="left-nav" aria-label="DataSets">
+    <a
+      data-testid="left-nav-imports"
+      routerLink="/datasets/imports"
+      routerLinkActive="active"
+      >Imports</a
+    >
+    <span data-testid="left-nav-db-ingest" aria-disabled="true" class="disabled"
+      >DB Ingest</span
+    >
+  </nav>
+  <div class="datasets-content">
+    <router-outlet />
+  </div>
+</div>
