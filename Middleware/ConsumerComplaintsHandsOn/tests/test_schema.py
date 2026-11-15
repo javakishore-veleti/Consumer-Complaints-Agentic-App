@@ -8,6 +8,7 @@ from alembic.config import Config
 from app.core.common.config import ALL_SCHEMAS, PROJECT_ROOT
 
 DOWNLOAD_CFPB_ALL_WORKFLOW_ID = "b4b8014f-d756-5bc8-a041-96899ac037ac"
+FILTER_CFPB_3_MONTHS_WORKFLOW_ID = "4d3f1ee0-0b02-51cb-8959-2499896cc20e"
 
 
 def test_schema_names():
@@ -354,4 +355,50 @@ def test_migration_0008_removes_the_download_cfpb_all_seed_on_the_way_down(data_
                 "select id from app_workflows where workflow_name = 'download_cfpb_all'"
             ).fetchone()[0]
             == DOWNLOAD_CFPB_ALL_WORKFLOW_ID
+        )
+
+
+def test_filter_cfpb_3_months_workflow_is_seeded(data_dir):
+    with _admin_db(data_dir) as db:
+        row = db.execute(
+            "select id, workflow_name, engine_type, engine_workflow_id, config, enabled"
+            " from app_workflows where workflow_name = 'filter_cfpb_3_months'"
+        ).fetchone()
+    assert row is not None
+    assert row[0] == FILTER_CFPB_3_MONTHS_WORKFLOW_ID
+    assert row[1:4] == ("filter_cfpb_3_months", "apache_airflow", "filter_cfpb_3_months")
+    config = row[4] if isinstance(row[4], dict) else json.loads(row[4])
+    assert config == {
+        "dataset_code": "CFPB",
+        "months": 3,
+        "source_filename": "complaints.csv.zip",
+        "output_filename": "complaints_3_months.csv.zip",
+        "date_column": "Date received",
+    }
+    assert row[5] in (1, True)
+
+
+def test_migration_0009_removes_the_filter_cfpb_3_months_seed_on_the_way_down(data_dir):
+    config = Config(str(PROJECT_ROOT / "alembic.ini"))
+    command.downgrade(config, "0008")
+    with _admin_db(data_dir) as db:
+        assert (
+            db.execute(
+                "select count(*) from app_workflows where workflow_name = 'filter_cfpb_3_months'"
+            ).fetchone()[0]
+            == 0
+        )
+        assert (
+            db.execute(
+                "select id from app_workflows where workflow_name = 'download_cfpb_all'"
+            ).fetchone()[0]
+            == DOWNLOAD_CFPB_ALL_WORKFLOW_ID
+        )
+    command.upgrade(config, "head")
+    with _admin_db(data_dir) as db:
+        assert (
+            db.execute(
+                "select id from app_workflows where workflow_name = 'filter_cfpb_3_months'"
+            ).fetchone()[0]
+            == FILTER_CFPB_3_MONTHS_WORKFLOW_ID
         )

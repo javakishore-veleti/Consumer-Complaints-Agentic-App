@@ -141,6 +141,8 @@ There may be several download workflows. Each one knows its own
 source, so the API has no source-location types. The dataset is never stored in this repository.
 The All-file download is registered as `download_cfpb_all` (Airflow DAG id of the same name); its landing
 directory is the value of `LOCAL_DATA_PATH_CFPB` (name only in the catalog; value per environment).
+The 3-month slice is registered as `filter_cfpb_3_months` (D70): it reads `complaints.csv.zip` from that landing
+directory, filters on `Date received`, and writes `complaints_3_months.csv.zip` beside it (status callbacks D67).
 
 The CFPB site cannot export a 3-month filter (limit 100,000), so the **3 months dataset is the All file filtered by date**.
 In the part of the file sampled, rows are not sorted by date, so the whole file is read.

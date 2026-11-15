@@ -457,17 +457,17 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #84 | 10 | `/ccaa-commit-push 84` | Done | 2026-11-14 23:11 | 2026-11-14 23:11 |
 | #84 | 11 | `/finishing-a-development-branch Story #84` | Done | 2026-11-14 23:11 | 2026-11-14 23:11 |
 | #84 | 12 | `/ccaa-story-complete 84` | Planned | - | - |
-| #58 | 1 | `/ccaa-story-start 58` | Planned | - | - |
-| #58 | 2 | `/brainstorming Story #58: derive the 3 months dataset by filtering the All file on Date received; the file is not date-sorted so read it all; check the row count against the site figure` | Planned | - | - |
-| #58 | 3 | `/using-git-worktrees Story #58: branch m02-0019-3-months-dataset-filter-the-all-file-by` | Planned | - | - |
-| #58 | 4 | `/writing-plans Story #58` | Planned | - | - |
-| #58 | 5 | `/test-driven-development Story #58` | Planned | - | - |
-| #58 | 6 | `/subagent-driven-development Story #58` | Planned | - | - |
-| #58 | 7 | `/ccaa-commit-push 58` after every task (repeat) | Planned | - | - |
-| #58 | 8 | `/verification-before-completion Story #58` | Planned | - | - |
-| #58 | 9 | `/requesting-code-review Story #58` | Planned | - | - |
-| #58 | 10 | `/ccaa-commit-push 58` | Planned | - | - |
-| #58 | 11 | `/finishing-a-development-branch Story #58` | Planned | - | - |
+| #58 | 1 | `/ccaa-story-start 58` | Done | 2026-11-15 00:20 | 2026-11-15 00:20 |
+| #58 | 2 | `/brainstorming Story #58: derive the 3 months dataset by filtering the All file on Date received; the file is not date-sorted so read it all; check the row count against the site figure` | Done | 2026-11-15 00:20 | 2026-11-15 00:20 |
+| #58 | 3 | `/using-git-worktrees Story #58: branch m02-0019-3-months-dataset-filter-the-all-file-by` | Done | 2026-11-15 00:20 | 2026-11-15 00:20 |
+| #58 | 4 | `/writing-plans Story #58` | Done | 2026-11-15 00:20 | 2026-11-15 00:20 |
+| #58 | 5 | `/test-driven-development Story #58` | Done | 2026-11-15 00:20 | 2026-11-15 00:20 |
+| #58 | 6 | `/subagent-driven-development Story #58` | Done | 2026-11-15 00:20 | 2026-11-15 00:20 |
+| #58 | 7 | `/ccaa-commit-push 58` after every task (repeat) | Done | 2026-11-15 00:20 | 2026-11-15 00:20 |
+| #58 | 8 | `/verification-before-completion Story #58` | Done | 2026-11-15 00:20 | 2026-11-15 00:20 |
+| #58 | 9 | `/requesting-code-review Story #58` | Done | 2026-11-15 00:20 | 2026-11-15 00:20 |
+| #58 | 10 | `/ccaa-commit-push 58` | Done | 2026-11-15 00:20 | 2026-11-15 00:20 |
+| #58 | 11 | `/finishing-a-development-branch Story #58` | Done | 2026-11-15 00:20 | 2026-11-15 00:20 |
 | #58 | 12 | `/ccaa-story-complete 58` | Planned | - | - |
 | #88 | 1 | `/ccaa-story-start 88` | Planned | - | - |
 | #88 | 2 | `/brainstorming Story #88: remove system_datasets and data_ingest_log (D47): DAOs, DatasetStatusService, /data-ingest-logs endpoints, DTOs, tests, and a migration that drops the tables` | Planned | - | - |
@@ -510,4 +510,4 @@ The skills live in `.cursor/skills/`. Each takes a GitHub issue number.
 - **Open questions on the issues:** #65 (poll or refresh). The #55 question is decided in D42 (revised by D43): credentials in `.env`, copied into Airflow Variables by story #77.
 - **Story #77 was added** while deciding #55 (D42). It is under feature #56 and is built first in Phase 3, because the DAG reads the Variables it creates.
 - **Moved to M03 - Cloud Deployment:** #51 S3, #52 Azure Blob, #53 GCP Cloud Storage, #54 Google Drive, and the cloud migration workflow #24. They are not part of this milestone. #51 to #54 were written as source types, so under D43 they need rewriting as cloud workflows before M03 starts (they are still open).
-- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D69.
+- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D71.

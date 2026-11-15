@@ -147,6 +147,7 @@ def test_app_wf_dao_works_on_postgres(postgres):
     assert dao.list(listed) == SUCCESS and [r.workflow_name for r in listed.resp.records] == [
         "download_3_months",
         "download_cfpb_all",
+        "filter_cfpb_3_months",
     ]
     assert dao.update(AppWfCtx(req=AppWfReq(id=row.id, enabled=False))) == SUCCESS
     disabled = AppWfCtx(req=AppWfReq(enabled=False))
@@ -442,7 +443,11 @@ def test_wf_list_service_works_on_postgres(postgres):
     assert DaoObjectsFactory.get_app_wf_dao().create(made) == SUCCESS
     ctx = WfListCtx(req=WfListReq())
     assert ServicesObjectsFactory.get_wf_list_service().list(ctx) == SUCCESS
-    assert [e.workflow_name for e in ctx.resp.entries] == ["download_cfpb_all", "t_pg_list"]
+    assert [e.workflow_name for e in ctx.resp.entries] == [
+        "download_cfpb_all",
+        "filter_cfpb_3_months",
+        "t_pg_list",
+    ]
     assert all(not hasattr(e, "config") for e in ctx.resp.entries)
 
 
