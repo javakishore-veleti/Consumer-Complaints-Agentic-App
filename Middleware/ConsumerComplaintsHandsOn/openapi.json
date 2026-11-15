@@ -534,6 +534,42 @@
         "title": "MioStatusOut",
         "type": "object"
       },
+      "UpsertSecretResultOut": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "outcome": {
+            "title": "Outcome",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "outcome"
+        ],
+        "title": "UpsertSecretResultOut",
+        "type": "object"
+      },
+      "UpsertSecretsOut": {
+        "additionalProperties": false,
+        "properties": {
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/UpsertSecretResultOut"
+            },
+            "title": "Results",
+            "type": "array"
+          }
+        },
+        "required": [
+          "results"
+        ],
+        "title": "UpsertSecretsOut",
+        "type": "object"
+      },
       "ValidationError": {
         "properties": {
           "ctx": {
@@ -1030,6 +1066,27 @@
         "summary": "Health",
         "tags": [
           "health"
+        ]
+      }
+    },
+    "/management/airflow/upsert-secrets": {
+      "post": {
+        "operationId": "upsert_secrets_management_airflow_upsert_secrets_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpsertSecretsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Upsert Secrets",
+        "tags": [
+          "management"
         ]
       }
     },

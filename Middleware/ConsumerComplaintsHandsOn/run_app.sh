@@ -10,8 +10,10 @@
 # Environment (all optional):
 #   API_HOST (127.0.0.1)   API_PORT (8000)   API_RELOAD=1 (auto-reload on code changes)
 #   CCA_DATA_DIR           folder for the SQLite files, the PID file and the log (default: ./.data)
-#   CCA_DB_URL             use another database (for example Postgres) instead of SQLite
-#   CCA_CALLBACK_SECRET    shared secret of the endpoints Airflow calls (D59); without it they answer 401
+#   CCA_DB_URL             use another database (for example Postgres) instead of SQLite; also upserted into Airflow Variables (D42)
+#   CCA_CALLBACK_SECRET    shared secret of the endpoints Airflow calls (D59); without it they answer 401; also upserted (D42)
+#   CCA_AIRFLOW_API_BASE_URL / CCA_AIRFLOW_API_USERNAME / CCA_AIRFLOW_API_PASSWORD
+#                          Airflow REST client for POST /management/airflow/upsert-secrets only (not upserted into Variables)
 # Every name set in ./.env (git-ignored; the names are in .env.example) is exported first.
 set -euo pipefail
 cd "$(dirname "$0")"

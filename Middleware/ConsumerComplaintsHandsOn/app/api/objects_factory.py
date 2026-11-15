@@ -1,11 +1,12 @@
 """Builds the one FastAPI application for the whole project (one OpenAPI spec) and hands out the other singletons of
-the api package (the callback secret check, D59; the status callback API, D60; and the MIO status API, D61). The app is a
-singleton."""
+the api package (the callback secret check, D59; the status callback API, D60; the MIO status API, D61; and the
+Airflow Variables upsert API, D42). The app is a singleton."""
 
 import threading
 
 from fastapi import Depends, FastAPI
 
+from app.api.routers.airflow_upsert_secrets_api import AirflowUpsertSecretsApi
 from app.api.routers.data_ingest_api import DataIngestApi
 from app.api.routers.mio_status_api import MioStatusApi
 from app.api.routers.wf_exec_callback_api import WfExecCallbackApi
@@ -37,6 +38,10 @@ class ApiObjectsFactory:
         return MioStatusApi()
 
     @staticmethod
+    def get_airflow_upsert_secrets_api() -> AirflowUpsertSecretsApi:
+        return AirflowUpsertSecretsApi()
+
+    @staticmethod
     def _build_app() -> FastAPI:
         app = FastAPI(
             title="Consumer Complaints Hands-On API",
@@ -49,6 +54,10 @@ class ApiObjectsFactory:
         # Every router an engine calls is protected as a whole by the callback secret (D59).
         app.include_router(
             ApiObjectsFactory.get_wf_exec_callback_api().router,
+            dependencies=[Depends(ApiObjectsFactory.get_callback_secret_auth())],
+        )
+        app.include_router(
+            ApiObjectsFactory.get_airflow_upsert_secrets_api().router,
             dependencies=[Depends(ApiObjectsFactory.get_callback_secret_auth())],
         )
 

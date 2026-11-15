@@ -1,0 +1,5 @@
+# Names copied from the environment into Airflow Variables by POST /management/airflow/upsert-secrets (D42).
+# Values never appear here. Prefer names containing secret or password so Airflow masks them.
+
+CCA_CALLBACK_SECRET
+CCA_DB_URL

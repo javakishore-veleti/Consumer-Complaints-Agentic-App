@@ -193,6 +193,11 @@ the secret plain ASCII. The shell sources `.env`, so quote a value that contains
 overrides a variable of the same name exported in the shell.
 The first callback endpoint is `POST /callbacks/workflow-executions/{execution_id}/status` (D60); `/health` and the
 other endpoints need no secret.
+`POST /management/airflow/upsert-secrets` (D42) copies each name listed in
+`CICD/Local/airflow/Airflow_Variables_Upsert.txt` from the process environment into Airflow Variables (one result per
+name: created / updated / missing; never a value, and values are never logged). It is protected by the same callback
+secret. `CCA_AIRFLOW_API_BASE_URL`, `CCA_AIRFLOW_API_USERNAME` and `CCA_AIRFLOW_API_PASSWORD` configure the Airflow
+REST client for that call only and are not upserted into Variables.
 
 ## 9. Cloud (planned)
 

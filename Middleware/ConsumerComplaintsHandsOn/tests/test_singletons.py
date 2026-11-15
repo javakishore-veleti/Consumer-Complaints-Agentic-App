@@ -1,6 +1,7 @@
 from concurrent.futures import ThreadPoolExecutor
 
 from app.api.objects_factory import ApiObjectsFactory
+from app.api.routers.airflow_upsert_secrets_api import AirflowUpsertSecretsApi
 from app.api.routers.data_ingest_api import DataIngestApi
 from app.api.routers.mio_status_api import MioStatusApi
 from app.api.routers.wf_exec_callback_api import WfExecCallbackApi
@@ -22,8 +23,13 @@ from app.core.dao.mio_dao import MioDao
 from app.core.dao.mio_dataset_dao import MioDatasetDao
 from app.core.dao.mio_ingest_log_dao import MioIngestLogDao
 from app.core.dao.objects_factory import DaoObjectsFactory
+from app.core.facades.airflow_upsert_secrets_facade import AirflowUpsertSecretsFacade
 from app.core.facades.data_ingest_facade import DataIngestFacade
+from app.core.facades.impl.airflow_upsert_secrets_facade_impl import AirflowUpsertSecretsFacadeImpl
 from app.core.facades.impl.data_ingest_facade_impl import DataIngestFacadeImpl
+from app.core.facades.impl.tasks.airflow_upsert_secrets_call_service_task import (
+    AirflowUpsertSecretsCallServiceTask,
+)
 from app.core.facades.impl.tasks.data_ingest_call_dao_task import DataIngestCallDaoTask
 from app.core.facades.impl.tasks.data_ingest_collect_response_task import DataIngestCollectResponseTask
 from app.core.facades.impl.tasks.data_ingest_prepare_dao_ctx_task import DataIngestPrepareDaoCtxTask
@@ -35,7 +41,9 @@ from app.core.facades.impl.wf_exec_status_facade_impl import WfExecStatusFacadeI
 from app.core.facades.mio_status_facade import MioStatusFacade
 from app.core.facades.objects_factory import FacadesObjectsFactory
 from app.core.facades.wf_exec_status_facade import WfExecStatusFacade
+from app.core.services.airflow_upsert_secrets_service import AirflowUpsertSecretsService
 from app.core.services.dataset_status_service import DatasetStatusService
+from app.core.services.impl.airflow_upsert_secrets_service_impl import AirflowUpsertSecretsServiceImpl
 from app.core.services.impl.dataset_status_service_impl import DatasetStatusServiceImpl
 from app.core.services.impl.mio_status_service_impl import MioStatusServiceImpl
 from app.core.services.impl.wf_exec_status_service_impl import WfExecStatusServiceImpl
@@ -70,8 +78,10 @@ def test_factories_return_the_same_object_typed_as_the_interface():
         (ServicesObjectsFactory.get_dataset_status_service, DatasetStatusService),
         (ServicesObjectsFactory.get_mio_status_service, MioStatusService),
         (ServicesObjectsFactory.get_wf_exec_status_service, WfExecStatusService),
+        (ServicesObjectsFactory.get_airflow_upsert_secrets_service, AirflowUpsertSecretsService),
         (FacadesObjectsFactory.get_mio_status_facade, MioStatusFacade),
         (FacadesObjectsFactory.get_wf_exec_status_facade, WfExecStatusFacade),
+        (FacadesObjectsFactory.get_airflow_upsert_secrets_facade, AirflowUpsertSecretsFacade),
     ):
         assert getter() is getter()
         assert isinstance(getter(), interface)
@@ -83,6 +93,8 @@ def test_factories_return_the_same_object_typed_as_the_interface():
     assert isinstance(ApiObjectsFactory.get_wf_exec_callback_api(), WfExecCallbackApi)
     assert ApiObjectsFactory.get_mio_status_api() is ApiObjectsFactory.get_mio_status_api()
     assert isinstance(ApiObjectsFactory.get_mio_status_api(), MioStatusApi)
+    assert ApiObjectsFactory.get_airflow_upsert_secrets_api() is ApiObjectsFactory.get_airflow_upsert_secrets_api()
+    assert isinstance(ApiObjectsFactory.get_airflow_upsert_secrets_api(), AirflowUpsertSecretsApi)
 
 
 def test_the_classes_themselves_are_singletons():
@@ -97,6 +109,7 @@ def test_the_classes_themselves_are_singletons():
     assert DataIngestApi() is DataIngestApi()
     assert WfExecCallbackApi() is WfExecCallbackApi()
     assert MioStatusApi() is MioStatusApi()
+    assert AirflowUpsertSecretsApi() is AirflowUpsertSecretsApi()
     assert CallbackSecretAuth() is CallbackSecretAuth()
     assert DataIngestFacadeImpl() is DataIngestFacadeImpl()
     assert SqlAlchemySystemDatasetsDao() is SqlAlchemySystemDatasetsDao()
@@ -104,8 +117,10 @@ def test_the_classes_themselves_are_singletons():
     assert DatasetStatusServiceImpl() is DatasetStatusServiceImpl()
     assert MioStatusServiceImpl() is MioStatusServiceImpl()
     assert WfExecStatusServiceImpl() is WfExecStatusServiceImpl()
+    assert AirflowUpsertSecretsServiceImpl() is AirflowUpsertSecretsServiceImpl()
     assert MioStatusFacadeImpl() is MioStatusFacadeImpl()
     assert WfExecStatusFacadeImpl() is WfExecStatusFacadeImpl()
+    assert AirflowUpsertSecretsFacadeImpl() is AirflowUpsertSecretsFacadeImpl()
     for task in (
         DataIngestValidateRequestTask,
         DataIngestPrepareDaoCtxTask,
@@ -113,6 +128,7 @@ def test_the_classes_themselves_are_singletons():
         DataIngestCollectResponseTask,
         MioStatusCallServiceTask,
         WfExecStatusCallServiceTask,
+        AirflowUpsertSecretsCallServiceTask,
     ):
         assert task() is task()
 
