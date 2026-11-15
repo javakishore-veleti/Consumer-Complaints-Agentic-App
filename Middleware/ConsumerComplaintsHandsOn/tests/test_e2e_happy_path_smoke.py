@@ -12,7 +12,7 @@ from app.core.services.impl.airflow_start_dag_service_impl import AirflowStartDa
 from app.core.services.objects_factory import ServicesObjectsFactory
 
 SEEDED_WF = "download_cfpb_all"
-SEEDED_MIO = "Customer complaints 3 months 2026"
+SEEDED_MIO = "Customer complaints all 2026"
 SECRET = "e2e-smoke-secret"
 HEADERS = {"X-Callback-Secret": SECRET}
 ALLOWED = ("requested", "started", "completed", "failed")

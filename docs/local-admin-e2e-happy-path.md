@@ -45,8 +45,8 @@ Open http://localhost:4200/ → **DataSets → Imports** (`/datasets/imports`).
 
 ### 3. Exercise
 
-1. Confirm MIOs and workflows load (live API; errors show Middleware `detail`).
-2. Start **`download_cfpb_all`** (or another seeded/enabled workflow) for a MIO.
+1. Confirm MIOs load with per-MIO pickers from `allowed_workflows` (live API; errors show Middleware `detail`). Unbound MIOs (6/9/12) show an empty picker and disabled Start.
+2. On **Customer complaints all 2026**, start **`download_cfpb_all`**. (Or on **Customer complaints 3 months 2026**, start **`filter_cfpb_3_months`** after All has landed.)
 3. Click **Refresh** while Airflow runs.
 
 ### 4. Expected status

@@ -11,7 +11,7 @@ from sqlalchemy.exc import IntegrityError
 
 from app.core.common.dtos.mio_dtos import MioCtx, MioRecord, MioReq
 from app.core.common.return_codes import CONFLICT, FAILURE, INVALID_INPUT, NOT_FOUND, SUCCESS
-from app.core.dao.impl.models import MioDatasetModel, MioModel
+from app.core.dao.impl.models import MioDatasetModel, MioModel, MioWorkflowModel
 from app.core.dao.impl.unit_of_work import unit_of_work
 from app.core.dao.mio_dao import MioDao
 
@@ -146,6 +146,9 @@ class SqlAlchemyMioDao(MioDao):
                     return NOT_FOUND
                 has_link = select(MioDatasetModel.id).where(MioDatasetModel.mio_id == row.id)
                 if session.scalars(has_link).first() is not None:
+                    return CONFLICT
+                has_wf = select(MioWorkflowModel.id).where(MioWorkflowModel.mio_id == row.id)
+                if session.scalars(has_wf).first() is not None:
                     return CONFLICT
                 ctx.resp.records = [_to_record(row)]
                 session.delete(row)

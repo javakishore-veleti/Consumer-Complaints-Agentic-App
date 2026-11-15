@@ -153,7 +153,7 @@ Workflows are registered in the database (D43): **`app_workflows`** holds the wo
 (Apache Airflow, AWS Step Functions or another), the engine's own id for it (the Airflow DAG id, the state machine) and a
 JSON config; **`app_workflows_exec_log`** records every execution. The portal lists the registered workflows; the API
 starts the chosen one in its engine asynchronously; the engine calls the API when the run is complete; the portal reads
-the status through the API from the configured database. `GET /workflows` returns every registered workflow without `config` (D66); `POST /workflows/{workflow_id}/start` creates the execution (and optional MIO ingest), triggers Airflow through the start-DAG facade, and returns 202 with the execution id (D68); `GET /mios/status` returns every MIO with its latest ingest and that ingest's executions (D61); all three need no callback secret.
+the status through the API from the configured database. `GET /workflows` returns every registered workflow without `config` (D66); `POST /workflows/{workflow_id}/start` creates the execution (and optional MIO ingest), triggers Airflow through the start-DAG facade, and returns 202 with the execution id (D68); when `mio_id` is set the workflow must be allowed for that MIO via catalog `mios_workflows` (D84); `GET /mios/status` returns every MIO with its `allowed_workflows`, latest ingest and that ingest's executions (D61 / D84); all three need no callback secret.
 There may be several download workflows. Each one knows its own
 source, so the API has no source-location types. The dataset is never stored in this repository.
 The All-file download is registered as `download_cfpb_all` (Airflow DAG id of the same name); its landing
@@ -188,7 +188,7 @@ Schemas (names exactly as decided):
 | `consumer_comp_db` | No operational tables at head (retired `data_ingest_log` / `system_datasets` dropped by migration `0010`, D74). Also the MongoDB database name for the complaint data. |
 | `consumer_compl_intellect_db` | the Intellect app's own operational data (empty for now) |
 | `consumer_comp_users_db` | user management (empty for now) |
-| `consumer_comp_admin_db` | everything admin-related (D48): the workflow registry `app_workflows` and `app_workflows_exec_log`, the catalog `datasets`, `datasets_location`, `mios`, `mios_datasets`, and `mios_ingest_log` (planned, D43, D49, D50) |
+| `consumer_comp_admin_db` | everything admin-related (D48): the workflow registry `app_workflows` and `app_workflows_exec_log`, the catalog `datasets`, `datasets_location`, `mios`, `mios_datasets`, `mios_workflows` (D84), and `mios_ingest_log` (D43, D49, D50) |
 
 SQLite has no real schemas, so each one is a separate database file, attached by name, in `Middleware/ConsumerComplaintsHandsOn/.data/`
 (`consumer_comp_db.sqlite`, ...; plus `operational.sqlite` for the Alembic version table). On Postgres and similar databases

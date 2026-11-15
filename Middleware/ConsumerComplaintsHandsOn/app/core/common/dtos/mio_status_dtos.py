@@ -24,11 +24,23 @@ class MioStatusIngest:
 
 
 @dataclass
+class MioStatusAllowedWorkflow:
+    """Enabled workflow allowed for this MIO (D84). Same fields as GET /workflows (D66), no config."""
+
+    id: str
+    workflow_name: str
+    engine_type: str
+    engine_workflow_id: str
+    enabled: bool
+
+
+@dataclass
 class MioStatusEntry:
     id: str
     name: str
     description: str | None
     latest_ingest: MioStatusIngest | None = None
+    allowed_workflows: list[MioStatusAllowedWorkflow] = field(default_factory=list)
 
 
 @dataclass

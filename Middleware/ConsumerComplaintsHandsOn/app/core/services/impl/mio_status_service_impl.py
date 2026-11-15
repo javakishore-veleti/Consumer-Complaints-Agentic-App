@@ -1,10 +1,17 @@
-"""Builds one status entry per MIO from the catalog and the two logs (D61)."""
+"""Builds one status entry per MIO from the catalog, logs, and allowed workflows (D61 / D84)."""
 
+from app.core.common.dtos.app_wf_dtos import AppWfCtx, AppWfReq
 from app.core.common.dtos.app_wf_exec_log_dtos import AppWfExecLogCtx, AppWfExecLogReq
 from app.core.common.dtos.mio_dtos import MioCtx, MioReq, MioRecord
 from app.core.common.dtos.mio_ingest_log_dtos import MioIngestLogCtx, MioIngestLogReq, MioIngestLogRecord
-from app.core.common.dtos.mio_status_dtos import MioStatusCtx, MioStatusEntry, MioStatusIngest
-from app.core.common.return_codes import FAILURE, INVALID_INPUT, SUCCESS
+from app.core.common.dtos.mio_status_dtos import (
+    MioStatusAllowedWorkflow,
+    MioStatusCtx,
+    MioStatusEntry,
+    MioStatusIngest,
+)
+from app.core.common.dtos.mio_workflow_dtos import MioWorkflowCtx, MioWorkflowReq
+from app.core.common.return_codes import FAILURE, INVALID_INPUT, NOT_FOUND, SUCCESS
 from app.core.dao.objects_factory import DaoObjectsFactory
 from app.core.services.mio_status_service import MioStatusService
 
@@ -21,8 +28,18 @@ class MioStatusServiceImpl(MioStatusService):
             if code != SUCCESS:
                 ctx.resp.code = code
                 return code
+            allowed, code = self._allowed_workflows(mio)
+            if code != SUCCESS:
+                ctx.resp.code = code
+                return code
             entries.append(
-                MioStatusEntry(id=mio.id, name=mio.name, description=mio.description, latest_ingest=ingest)
+                MioStatusEntry(
+                    id=mio.id,
+                    name=mio.name,
+                    description=mio.description,
+                    latest_ingest=ingest,
+                    allowed_workflows=allowed,
+                )
             )
         ctx.resp.entries = entries
         ctx.resp.code = SUCCESS
@@ -77,3 +94,32 @@ class MioStatusServiceImpl(MioStatusService):
         if code != SUCCESS:
             return [], FAILURE
         return exec_ctx.resp.records, SUCCESS
+
+    @staticmethod
+    def _allowed_workflows(mio: MioRecord) -> tuple[list[MioStatusAllowedWorkflow], int]:
+        link_ctx = MioWorkflowCtx(req=MioWorkflowReq(mio_id=mio.id))
+        code = DaoObjectsFactory.get_mio_workflow_dao().list(link_ctx)
+        if code != SUCCESS:
+            return [], FAILURE
+        allowed: list[MioStatusAllowedWorkflow] = []
+        for link in link_ctx.resp.records:
+            wf_ctx = AppWfCtx(req=AppWfReq(id=link.workflow_id))
+            code = DaoObjectsFactory.get_app_wf_dao().get(wf_ctx)
+            if code == NOT_FOUND:
+                continue
+            if code != SUCCESS:
+                return [], FAILURE
+            wf = wf_ctx.resp.records[0]
+            if not wf.enabled:
+                continue
+            allowed.append(
+                MioStatusAllowedWorkflow(
+                    id=wf.id,
+                    workflow_name=wf.workflow_name,
+                    engine_type=wf.engine_type,
+                    engine_workflow_id=wf.engine_workflow_id,
+                    enabled=wf.enabled,
+                )
+            )
+        allowed.sort(key=lambda w: w.workflow_name)
+        return allowed, SUCCESS

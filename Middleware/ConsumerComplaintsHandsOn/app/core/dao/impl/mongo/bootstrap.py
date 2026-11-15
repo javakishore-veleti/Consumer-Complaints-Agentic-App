@@ -22,6 +22,11 @@ MIOS = (
 )
 DOWNLOAD_WF_ID = "b4b8014f-d756-5bc8-a041-96899ac037ac"
 FILTER_WF_ID = "4d3f1ee0-0b02-51cb-8959-2499896cc20e"
+ALL_MIO_ID = "01fa6351-cf12-520d-886d-9b8e30515451"
+ALL_MIOS_DATASETS_ID = "038915b0-1a19-50e9-9333-e49f3816a0f8"
+MW_ALL_DOWNLOAD_ID = "c23808b9-4e57-5a5b-b301-78dec5ac839e"
+MW_3M_FILTER_ID = "edd79fde-5736-5655-9d00-c52bfe172c1f"
+MIO_3_MONTHS_ID = "a10fbfe0-ac03-5f3f-8d20-5132d470b03a"
 
 COLLECTIONS = (
     "app_workflows",
@@ -30,6 +35,7 @@ COLLECTIONS = (
     "datasets_location",
     "mios",
     "mios_datasets",
+    "mios_workflows",
     "mios_ingest_log",
 )
 
@@ -53,6 +59,9 @@ def ensure_indexes() -> None:
         partialFilterExpression={"local_env_var_name": {"$type": "string"}},
     )
     db["mios_datasets"].create_index([("mio_id", 1), ("dataset_id", 1)], unique=True)
+    db["mios_workflows"].create_index([("mio_id", 1), ("workflow_id", 1)], unique=True)
+    db["mios_workflows"].create_index("mio_id")
+    db["mios_workflows"].create_index("workflow_id")
     db["app_workflows_exec_log"].create_index([("workflow_id", 1), ("status", 1)])
     db["app_workflows_exec_log"].create_index("mios_ingest_log_id")
     db["mios_ingest_log"].create_index([("mio_id", 1), ("status", 1)])
@@ -145,6 +154,30 @@ def seed_if_empty() -> None:
     _upsert(
         MongoDocument(
             {
+                "_collection": "mios",
+                "id": ALL_MIO_ID,
+                "name": "Customer complaints all 2026",
+                "description": "A label only. The data is what mios_datasets links.",
+                "created_at": NOW_FILTER,
+                "updated_at": NOW_FILTER,
+            }
+        )
+    )
+    _upsert(
+        MongoDocument(
+            {
+                "_collection": "mios_datasets",
+                "id": ALL_MIOS_DATASETS_ID,
+                "mio_id": ALL_MIO_ID,
+                "dataset_id": DATASET_ID,
+                "dataset_location_id": HTTP_LOCATION_ID,
+                "created_at": NOW_FILTER,
+            }
+        )
+    )
+    _upsert(
+        MongoDocument(
+            {
                 "_collection": "app_workflows",
                 "id": DOWNLOAD_WF_ID,
                 "workflow_name": "download_cfpb_all",
@@ -175,6 +208,28 @@ def seed_if_empty() -> None:
                 "enabled": True,
                 "created_at": NOW_FILTER,
                 "updated_at": NOW_FILTER,
+            }
+        )
+    )
+    _upsert(
+        MongoDocument(
+            {
+                "_collection": "mios_workflows",
+                "id": MW_ALL_DOWNLOAD_ID,
+                "mio_id": ALL_MIO_ID,
+                "workflow_id": DOWNLOAD_WF_ID,
+                "created_at": NOW_FILTER,
+            }
+        )
+    )
+    _upsert(
+        MongoDocument(
+            {
+                "_collection": "mios_workflows",
+                "id": MW_3M_FILTER_ID,
+                "mio_id": MIO_3_MONTHS_ID,
+                "workflow_id": FILTER_WF_ID,
+                "created_at": NOW_FILTER,
             }
         )
     )

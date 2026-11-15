@@ -18,10 +18,12 @@ from app.core.dao.impl.sqlalchemy_dataset_location_dao import SqlAlchemyDatasetL
 from app.core.dao.impl.sqlalchemy_mio_dao import SqlAlchemyMioDao
 from app.core.dao.impl.sqlalchemy_mio_dataset_dao import SqlAlchemyMioDatasetDao
 from app.core.dao.impl.sqlalchemy_mio_ingest_log_dao import SqlAlchemyMioIngestLogDao
+from app.core.dao.impl.sqlalchemy_mio_workflow_dao import SqlAlchemyMioWorkflowDao
 from app.core.dao.impl.sqlalchemy_transaction_dao import SqlAlchemyTransactionDao
 from app.core.dao.mio_dao import MioDao
 from app.core.dao.mio_dataset_dao import MioDatasetDao
 from app.core.dao.mio_ingest_log_dao import MioIngestLogDao
+from app.core.dao.mio_workflow_dao import MioWorkflowDao
 from app.core.dao.objects_factory import DaoObjectsFactory
 from app.core.dao.transaction_dao import TransactionDao
 from app.core.facades.airflow_start_dag_facade import AirflowStartDagFacade
@@ -77,6 +79,7 @@ def test_factories_return_the_same_object_typed_as_the_interface():
         (DaoObjectsFactory.get_dataset_location_dao, DatasetLocationDao),
         (DaoObjectsFactory.get_mio_dao, MioDao),
         (DaoObjectsFactory.get_mio_dataset_dao, MioDatasetDao),
+        (DaoObjectsFactory.get_mio_workflow_dao, MioWorkflowDao),
         (DaoObjectsFactory.get_mio_ingest_log_dao, MioIngestLogDao),
         (DaoObjectsFactory.get_transaction_dao, TransactionDao),
         (ServicesObjectsFactory.get_mio_status_service, MioStatusService),
@@ -123,6 +126,7 @@ def test_the_classes_themselves_are_singletons():
     assert SqlAlchemyDatasetLocationDao() is SqlAlchemyDatasetLocationDao()
     assert SqlAlchemyMioDao() is SqlAlchemyMioDao()
     assert SqlAlchemyMioDatasetDao() is SqlAlchemyMioDatasetDao()
+    assert SqlAlchemyMioWorkflowDao() is SqlAlchemyMioWorkflowDao()
     assert SqlAlchemyMioIngestLogDao() is SqlAlchemyMioIngestLogDao()
     assert WfExecCallbackApi() is WfExecCallbackApi()
     assert MioStatusApi() is MioStatusApi()
