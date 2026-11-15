@@ -142,7 +142,10 @@ def test_app_wf_dao_works_on_postgres(postgres):
     fetched = AppWfCtx(req=AppWfReq(id=row.id))
     assert dao.get(fetched) == SUCCESS and fetched.resp.records[0].config == config
     listed = AppWfCtx(req=AppWfReq(engine_type="apache_airflow"))
-    assert dao.list(listed) == SUCCESS and [r.workflow_name for r in listed.resp.records] == ["download_3_months"]
+    assert dao.list(listed) == SUCCESS and [r.workflow_name for r in listed.resp.records] == [
+        "download_3_months",
+        "download_cfpb_all",
+    ]
     assert dao.update(AppWfCtx(req=AppWfReq(id=row.id, enabled=False))) == SUCCESS
     disabled = AppWfCtx(req=AppWfReq(enabled=False))
     assert dao.list(disabled) == SUCCESS and [r.workflow_name for r in disabled.resp.records] == ["download_3_months"]

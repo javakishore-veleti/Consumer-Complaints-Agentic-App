@@ -47,6 +47,9 @@ def names_file(tmp_path: Path, monkeypatch):
         )
 
     monkeypatch.setattr(config, "get_settings", fake_get_settings)
+    from app.core.services.impl import airflow_upsert_secrets_service_impl as impl_mod
+
+    monkeypatch.setattr(impl_mod, "get_settings", fake_get_settings)
     return path
 
 
