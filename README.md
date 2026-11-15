@@ -12,6 +12,8 @@ npm run local:portal:admin:with-api
 
 Then open http://localhost:4200/datasets/imports. Portal-only: `npm run local:portal:admin:start` (API must already be on `127.0.0.1:8000`).
 
+E2E happy path (UI → API → Airflow → callback → UI, SQLite first): see `docs/local-admin-e2e-happy-path.md`. CI smoke: `npm run local:e2e:happy-path:smoke`. Live API probe: `npm run local:e2e:happy-path:probe`.
+
 ### Superpowers plugin
 
 This project uses the [Superpowers](https://github.com/obra/superpowers) plugin in Cursor. It is a core skills library that gives the AI agent structured workflows for development tasks.

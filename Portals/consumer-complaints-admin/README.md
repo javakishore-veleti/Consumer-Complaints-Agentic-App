@@ -48,6 +48,8 @@ npm run local:portal:admin:with-api
 
 Dev server defaults to http://localhost:4200/. Open **DataSets → Imports** (`/datasets/imports`) for live MIO list / start / refresh.
 
+Full local E2E (Airflow callbacks → DB → refresh, SQLite first): `docs/local-admin-e2e-happy-path.md`. Automated smoke (no Airflow): from repo root `npm run local:e2e:happy-path:smoke`.
+
 ## API proxy
 
 `proxy.conf.json` forwards `/api` to the Middleware at `http://127.0.0.1:8000` (path rewrite strips `/api`). App code uses `environment.apiBaseUrl` (`'/api'` in development). Imports calls `GET /mios/status`, `GET /workflows`, and `POST /workflows/{id}/start` through that proxy; HTTP failures show the Middleware FastAPI `detail` text (no invented ingest status).
