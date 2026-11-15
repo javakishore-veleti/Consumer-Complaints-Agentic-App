@@ -10,7 +10,7 @@
 
 ## Global Constraints
 
-- Spec: `docs/Superpowers/specs/M02-0025-mio-accordions-design.md`. Decisions: D5, D54, D61, D65, D69, **D70**.
+- Spec: `docs/Superpowers/specs/M02-0025-mio-accordions-design.md`. Decisions: D5, D54, D61, D65, D69, **D71**.
 - Work only under `.worktrees/m02-0025-mio-accordions` on branch `m02-0025-mio-accordions-with-status`.
 - Use Node 22 (`nvm use 22`) before every `ng` / `npm` command.
 - Commit messages: `M02-0025 #64: <imperative summary>` (single line). Author from git config (javakishore-veleti). Strip AI trailers before push.
@@ -31,7 +31,7 @@
 | `Portals/consumer-complaints-admin/src/app/datasets/imports/imports-page.css` | Panel styles |
 | `Portals/consumer-complaints-admin/src/app/datasets/imports/imports-page.spec.ts` | Page render tests |
 | `Middleware/ConsumerComplaintsHandsOn/DESIGN.md` | D70; next D71 |
-| `docs/Project_Management/Issues/Milestone_02.md` | next decision D71; workflow |
+| `docs/Project_Management/Issues/Milestone_02.md` | next decision D72; workflow |
 | `docs/PRODUCT_FEATURES.md` | F1/F2 / portal status note |
 
 ---

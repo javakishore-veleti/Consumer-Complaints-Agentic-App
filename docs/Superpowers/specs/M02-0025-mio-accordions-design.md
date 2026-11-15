@@ -1,8 +1,8 @@
 # M02-0025 (#64) MIO accordions with status from the API
 
-Decisions: D5, D54, D61, D65, D69 and **D70** in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. Decided without the user present (D70); review and reverse if needed.
+Decisions: D5, D54, D61, D65, D69 and **D71** in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. Decided without the user present (D71); review and reverse if needed.
 
-**Numbering note:** On this worktree after fetch from `origin/main`, DESIGN.md ends at **D69** (#63 portal chrome). Story #42 recorded **D68** (start-workflow). Next free is **D70**. Do not reuse numbers claimed on parallel branches without checking DESIGN.md first.
+**Numbering note:** On this worktree after fetch from `origin/main`, DESIGN.md ends at **D69** (#63 portal chrome). Story #42 recorded **D68** (start-workflow). Next free is **D71**. Do not reuse numbers claimed on parallel branches without checking DESIGN.md first.
 
 ## Goal
 
@@ -16,7 +16,7 @@ Fill the Imports accordion shell (#63 / D69) with one expandable panel per MIO, 
 | B (chosen) | Native `<details>` / `<summary>` per MIO inside the existing accordion shell; HttpClient + ctx helper for the fetch | Zero new packages; matches portal chrome; accessible expand/collapse |
 | C | Always-open stacked cards, no expand | Loses accordion UX promised by PRODUCT_FEATURES F1/F2; harder for many MIOs |
 
-## Decision D70 (summary)
+## Decision D71 (summary)
 
 1. **Load on Imports:** when `ImportsPage` initializes, call `GET {apiBaseUrl}/mios/status` (dev: `/api/mios/status` via proxy). No query filters. Provide `provideHttpClient()` in `app.config.ts`.
 2. **Ctx helper (D5 / D65):** a portal method `loadMioStatus(ctx)` takes one `MioStatusCtx` (`req` + `resp`) and returns a Promise of the integer code. On HTTP 200, put the JSON list on `ctx.resp.entries` and return `SUCCESS`. On network/HTTP failure, leave entries empty (or unchanged), set `ctx.resp.error` to a short non-status message, return `FAILURE`. Never synthesize a MIO status string.
@@ -57,8 +57,8 @@ Fill the Imports accordion shell (#63 / D69) with one expandable panel per MIO, 
 
 | File | Change |
 |---|---|
-| `DESIGN.md` | D70 row; next decision D71 |
-| `Milestone_02.md` | next decision D71; workflow rows for #64 |
+| `DESIGN.md` | D70 row; next decision D72 |
+| `Milestone_02.md` | next decision D72; workflow rows for #64 |
 | `docs/PRODUCT_FEATURES.md` | F1/F2 / portal row: MIO status accordions Done for this slice; start still Planned (#65) |
 
 ## Out of scope
