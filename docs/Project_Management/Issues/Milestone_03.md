@@ -111,11 +111,11 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
 | #116 | 1 | `/ccaa-story-start 116` | Done | 2026-11-15 01:13 | 2026-11-15 01:13 |
-| #116 | 2 | `/brainstorming Story #116: decide SQLite default, Postgres via CCA_DB_URL, MongoDB via .env for operational/admin store; record DESIGN.md decision(s); update .env.example and ARCHITECTURE.md` | In progress | 2026-11-15 01:13 | - |
-| #116 | 3 | `/using-git-worktrees Story #116: branch m03-0006-pluggable-db-seam` | Planned | - | - |
-| #116 | 4 | `/writing-plans Story #116` | Planned | - | - |
-| #116 | 5 | `/test-driven-development Story #116` | Planned | - | - |
-| #116 | 6 | `/subagent-driven-development Story #116` | Planned | - | - |
+| #116 | 2 | `/brainstorming Story #116: decide SQLite default, Postgres via CCA_DB_URL, MongoDB via .env for operational/admin store; record DESIGN.md decision(s); update .env.example and ARCHITECTURE.md` | Done | 2026-11-15 01:13 | 2026-11-15 01:16 |
+| #116 | 3 | `/using-git-worktrees Story #116: branch m03-0006-pluggable-db-seam` | Done | 2026-11-15 01:16 | 2026-11-15 01:16 |
+| #116 | 4 | `/writing-plans Story #116` | Done | 2026-11-15 01:16 | 2026-11-15 01:16 |
+| #116 | 5 | `/test-driven-development Story #116` | Done | 2026-11-15 01:16 | 2026-11-15 01:16 |
+| #116 | 6 | `/subagent-driven-development Story #116` | In progress | 2026-11-15 01:16 | - |
 | #116 | 7 | `/ccaa-commit-push 116` after every task (repeat) | Planned | - | - |
 | #116 | 8 | `/verification-before-completion Story #116` | Planned | - | - |
 | #116 | 9 | `/requesting-code-review Story #116` | Planned | - | - |
@@ -246,6 +246,6 @@ The skills live in `.cursor/skills/`. Each takes a GitHub issue number.
 - **DoD:** SQLite path first; then Postgres via `.env`; then MongoDB via `.env` — all locally. No major code changes between backends (DAO/factory seam).
 - **Cloud** issues formerly titled M03 are now **M06** (#73 epic and children). Do not build them in this milestone.
 - **Specs/plans** under `docs/Superpowers/` appear when a story runs `/brainstorming` and `/writing-plans` (e.g. `M03-0006-*-design.md`). They do not exist until a story starts.
-- **Where the details are:** decisions go in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. Next free decision after M02 is **D75**.
+- **Where the details are:** decisions go in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. Next free decision is **D76+** (D75 = pluggable operational DB seam, story #116).
 - **PR → main**, merge only when CI is green. Git author must be `javakishore-veleti <6062900+javakishore-veleti@users.noreply.github.com>`; strip AI trailers.
 - **D64:** new facades only when needed; prefer extending existing packages.
