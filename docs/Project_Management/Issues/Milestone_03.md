@@ -194,8 +194,8 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #121 | 10 | `/ccaa-commit-push 121` | Done | 2026-11-15 01:18 | 2026-11-15 01:18 |
 | #121 | 11 | `/finishing-a-development-branch Story #121` | Done | 2026-11-15 01:18 | 2026-11-15 01:22 |
 | #121 | 12 | `/ccaa-story-complete 121` | Done | 2026-11-15 01:22 | 2026-11-15 01:22 |
-| #122 | 1 | `/ccaa-story-start 122` | Planned | - | - |
-| #122 | 2 | `/brainstorming Story #122: E2E happy path UI → API → Airflow → callback → UI on active DB profile` | Planned | - | - |
+| #122 | 1 | `/ccaa-story-start 122` | Done | 2026-11-15 01:24 | 2026-11-15 01:24 |
+| #122 | 2 | `/brainstorming Story #122: E2E happy path UI → API → Airflow → callback → UI on active DB profile` | In progress | 2026-11-15 01:24 | - |
 | #122 | 3 | `/using-git-worktrees Story #122: branch m03-0012-e2e-happy-path` | Planned | - | - |
 | #122 | 4 | `/writing-plans Story #122` | Planned | - | - |
 | #122 | 5 | `/test-driven-development Story #122` | Planned | - | - |
