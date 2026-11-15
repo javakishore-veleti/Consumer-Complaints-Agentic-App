@@ -8,7 +8,7 @@ from app.core.dao.objects_factory import DaoObjectsFactory
 from app.core.facades.objects_factory import FacadesObjectsFactory
 from app.core.services.objects_factory import ServicesObjectsFactory
 
-SEEDED = "download_cfpb_all"
+SEEDED = ["download_cfpb_all", "filter_cfpb_3_months"]
 
 
 def _list() -> WfListCtx:
@@ -20,7 +20,7 @@ def _list() -> WfListCtx:
 def test_seeded_registry_lists_download_cfpb_all(data_dir):
     ctx = _list()
     assert ctx.resp.code == SUCCESS
-    assert [e.workflow_name for e in ctx.resp.entries] == [SEEDED]
+    assert [e.workflow_name for e in ctx.resp.entries] == SEEDED
     assert all(not hasattr(e, "config") for e in ctx.resp.entries)
 
 
@@ -39,7 +39,7 @@ def test_lists_every_workflow_ordered_by_name_without_config(data_dir):
 
     ctx = _list()
     assert ctx.resp.code == SUCCESS
-    assert [e.workflow_name for e in ctx.resp.entries] == [SEEDED, "t_a", "t_b", "t_c"]
+    assert [e.workflow_name for e in ctx.resp.entries] == [*SEEDED, "t_a", "t_b", "t_c"]
     by_name = {e.workflow_name: e for e in ctx.resp.entries}
     assert [by_name[n].enabled for n in ("t_a", "t_b", "t_c")] == [False, True, True]
     assert all(e.engine_type == "apache_airflow" for e in ctx.resp.entries)
@@ -59,4 +59,4 @@ def test_facade_hands_the_list_on(data_dir):
     assert DaoObjectsFactory.get_app_wf_dao().create(made) == SUCCESS
     ctx = WfListFacadeCtx(req=WfListReq())
     assert FacadesObjectsFactory.get_wf_list_facade().list(ctx) == SUCCESS
-    assert [e.workflow_name for e in ctx.resp.entries] == [SEEDED, "t_facade"]
+    assert [e.workflow_name for e in ctx.resp.entries] == [*SEEDED, "t_facade"]

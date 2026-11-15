@@ -7,14 +7,14 @@ from app.core.common.return_codes import SUCCESS
 from app.core.dao.objects_factory import DaoObjectsFactory
 
 URL = "/workflows"
-SEEDED = "download_cfpb_all"
+SEEDED = ["download_cfpb_all", "filter_cfpb_3_months"]
 
 
 def test_seeded_registry_lists_download_cfpb_all(client):
     response = client.get(URL)
     assert response.status_code == 200
     body = response.json()
-    assert [row["workflow_name"] for row in body] == [SEEDED]
+    assert [row["workflow_name"] for row in body] == SEEDED
     for row in body:
         assert "config" not in row
 
@@ -32,7 +32,7 @@ def test_lists_workflows_without_config(client):
         assert DaoObjectsFactory.get_app_wf_dao().create(ctx) == SUCCESS
 
     body = client.get(URL).json()
-    assert [row["workflow_name"] for row in body] == [SEEDED, "t_y", "t_z"]
+    assert [row["workflow_name"] for row in body] == [*SEEDED, "t_y", "t_z"]
     for row in body:
         assert set(row) == {"id", "workflow_name", "engine_type", "engine_workflow_id", "enabled"}
         assert "config" not in row

@@ -108,6 +108,7 @@ def test_list_is_ordered_by_name_and_filters(data_dir):
         "b_flow",
         "c_flow",
         "download_cfpb_all",
+        "filter_cfpb_3_months",
     ]
 
     airflow = _ctx(engine_type="apache_airflow")
@@ -115,6 +116,7 @@ def test_list_is_ordered_by_name_and_filters(data_dir):
         "a_flow",
         "b_flow",
         "download_cfpb_all",
+        "filter_cfpb_3_months",
     ]
     disabled = _ctx(enabled=False)
     assert dao.list(disabled) == SUCCESS and [r.workflow_name for r in disabled.resp.records] == ["a_flow"]
@@ -222,6 +224,7 @@ def test_a_duplicate_name_that_slips_past_the_pre_check_is_a_conflict(data_dir, 
     assert dao.list(listed) == SUCCESS
     assert sorted(r.workflow_name for r in listed.resp.records) == [
         "download_cfpb_all",
+        "filter_cfpb_3_months",
         "other",
         "taken",
     ]
