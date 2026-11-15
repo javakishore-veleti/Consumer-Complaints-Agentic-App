@@ -188,7 +188,7 @@ Schemas (names exactly as decided):
 | `consumer_comp_db` | No operational tables at head (retired `data_ingest_log` / `system_datasets` dropped by migration `0010`, D74). Also the MongoDB database name for the complaint data. |
 | `consumer_compl_intellect_db` | the Intellect app's own operational data (empty for now) |
 | `consumer_comp_users_db` | user management (empty for now) |
-| `consumer_comp_admin_db` | everything admin-related (D48): the workflow registry `app_workflows` and `app_workflows_exec_log`, the catalog `datasets`, `datasets_location`, `mios`, `mios_datasets`, `mios_workflows` (D84), and `mios_ingest_log` (D43, D49, D50) |
+| `consumer_comp_admin_db` | everything admin-related (D48): the workflow registry `app_workflows` and `app_workflows_exec_log`, the catalog `datasets`, `datasets_location`, `app_endpoints` (D85), `mios`, `mios_datasets`, `mios_workflows` (D84), and `mios_ingest_log` (D43, D49, D50) |
 
 SQLite has no real schemas, so each one is a separate database file, attached by name, in `Middleware/ConsumerComplaintsHandsOn/.data/`
 (`consumer_comp_db.sqlite`, ...; plus `operational.sqlite` for the Alembic version table). On Postgres and similar databases

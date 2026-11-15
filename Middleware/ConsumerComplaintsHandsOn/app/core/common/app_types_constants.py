@@ -59,3 +59,13 @@ class DatasetLocationType(AppTypeEnum):
     GCS = "gcs"
     GOOGLE_DRIVE = "google_drive"
     FTP = "ftp"
+
+
+class AppEndpointCategory(AppTypeEnum):
+    """Category of an AppEndpoint from/to config (D85)."""
+
+    SOURCE = "source"
+    INGEST = "ingest"
+    INDEX = "index"
+    DB = "db"
+

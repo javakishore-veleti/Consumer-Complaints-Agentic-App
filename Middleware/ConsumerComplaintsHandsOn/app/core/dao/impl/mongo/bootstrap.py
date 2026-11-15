@@ -27,12 +27,16 @@ ALL_MIOS_DATASETS_ID = "038915b0-1a19-50e9-9333-e49f3816a0f8"
 MW_ALL_DOWNLOAD_ID = "c23808b9-4e57-5a5b-b301-78dec5ac839e"
 MW_3M_FILTER_ID = "edd79fde-5736-5655-9d00-c52bfe172c1f"
 MIO_3_MONTHS_ID = "a10fbfe0-ac03-5f3f-8d20-5132d470b03a"
+# uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m04-0009/ep-cfpb-source-http-local")
+APP_ENDPOINT_SOURCE_ID = "ccbce57d-bd9f-56fe-a258-fa2deb9dd393"
+NOW_ENDPOINTS = datetime(2026, 11, 15, tzinfo=timezone.utc)
 
 COLLECTIONS = (
     "app_workflows",
     "app_workflows_exec_log",
     "datasets",
     "datasets_location",
+    "app_endpoints",
     "mios",
     "mios_datasets",
     "mios_workflows",
@@ -62,6 +66,8 @@ def ensure_indexes() -> None:
     db["mios_workflows"].create_index([("mio_id", 1), ("workflow_id", 1)], unique=True)
     db["mios_workflows"].create_index("mio_id")
     db["mios_workflows"].create_index("workflow_id")
+    db["app_endpoints"].create_index("name", unique=True)
+    db["app_endpoints"].create_index("category")
     db["app_workflows_exec_log"].create_index([("workflow_id", 1), ("status", 1)])
     db["app_workflows_exec_log"].create_index("mios_ingest_log_id")
     db["mios_ingest_log"].create_index([("mio_id", 1), ("status", 1)])
@@ -230,6 +236,25 @@ def seed_if_empty() -> None:
                 "mio_id": MIO_3_MONTHS_ID,
                 "workflow_id": FILTER_WF_ID,
                 "created_at": NOW_FILTER,
+            }
+        )
+    )
+    _upsert(
+        MongoDocument(
+            {
+                "_collection": "app_endpoints",
+                "id": APP_ENDPOINT_SOURCE_ID,
+                "name": "cfpb_source_http_to_local",
+                "category": "source",
+                "from_dataset_location_id": HTTP_LOCATION_ID,
+                "from_env_var_name": None,
+                "to_dataset_location_id": LOCAL_LOCATION_ID,
+                "to_env_var_name": None,
+                "credentials_ref": None,
+                "description": "CFPB download HTTP source to local landing (D63)",
+                "enabled": True,
+                "created_at": NOW_ENDPOINTS,
+                "updated_at": NOW_ENDPOINTS,
             }
         )
     )

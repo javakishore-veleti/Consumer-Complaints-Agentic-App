@@ -159,6 +159,40 @@ class MioWorkflowModel(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
+class AppEndpointModel(Base):
+    """From/to endpoint configs for Imports, ingest, index, and db (D85). No foreign keys."""
+
+    __tablename__ = "app_endpoints"
+    __table_args__ = (
+        UniqueConstraint("name", name="uq_app_endpoints_name"),
+        CheckConstraint(
+            "(from_dataset_location_id IS NOT NULL AND from_env_var_name IS NULL) OR "
+            "(from_dataset_location_id IS NULL AND from_env_var_name IS NOT NULL)",
+            name="ck_app_endpoints_from_xor",
+        ),
+        CheckConstraint(
+            "(to_dataset_location_id IS NOT NULL AND to_env_var_name IS NULL) OR "
+            "(to_dataset_location_id IS NULL AND to_env_var_name IS NOT NULL)",
+            name="ck_app_endpoints_to_xor",
+        ),
+        Index("ix_app_endpoints_category", "category"),
+        {"schema": SCHEMA_ADMIN},
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    category: Mapped[str] = mapped_column(String(32), nullable=False)
+    from_dataset_location_id: Mapped[str | None] = mapped_column(String(36))
+    from_env_var_name: Mapped[str | None] = mapped_column(String(64))
+    to_dataset_location_id: Mapped[str | None] = mapped_column(String(36))
+    to_env_var_name: Mapped[str | None] = mapped_column(String(64))
+    credentials_ref: Mapped[str | None] = mapped_column(String(100))
+    description: Mapped[str | None] = mapped_column(Text)
+    enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True, server_default=true())
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
 class MioIngestLogModel(Base):
     __tablename__ = "mios_ingest_log"
     __table_args__ = (

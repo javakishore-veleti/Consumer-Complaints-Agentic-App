@@ -1,4 +1,10 @@
-from app.core.common.app_types_constants import AppTypeEnum, DatasetLocationType, EngineType, ExecStatus
+from app.core.common.app_types_constants import (
+    AppEndpointCategory,
+    AppTypeEnum,
+    DatasetLocationType,
+    EngineType,
+    ExecStatus,
+)
 
 
 def test_engine_type_values_are_the_short_codes():
@@ -47,3 +53,9 @@ def test_dataset_location_type_values_are_the_short_codes():
     assert DatasetLocationType.LOCAL == "local"
     assert "dropbox" not in DatasetLocationType.values()
     assert issubclass(DatasetLocationType, AppTypeEnum)
+
+
+def test_app_endpoint_category_values():
+    assert AppEndpointCategory.values() == ["source", "ingest", "index", "db"]
+    assert AppEndpointCategory.SOURCE == "source"
+    assert issubclass(AppEndpointCategory, AppTypeEnum)

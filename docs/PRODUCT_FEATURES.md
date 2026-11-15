@@ -83,10 +83,10 @@ Each workflow that downloads or ingests data is registered in the database, so t
 - Admin **Operations → Sync secrets** POSTs `POST /management/airflow/upsert-secrets` (#77 API, #153 UI). Outcomes only; values never rendered.
 - Local only until M06.
 
-### F5. AppEndpoints (D) [Planned — M04 #146]
-- Categorized endpoints (source / ingest / index / db) with from/to refs to locations and env-var *names*.
+### F5. AppEndpoints (D) [In progress — M04 #146]
+- Categorized endpoints (source / ingest / index / db) with from/to refs to locations and env-var *names* (D85).
+- Schema + DAO + CFPB source seed: #155. List/read API #156; thin Admin UI #157.
 - Imports (then ingest/index) use AppEndpoints. Local/HTTP first; no cloud spend.
-- Stories: #155 schema/DAO/seed, #156 list/read API, #157 thin Admin UI.
 
 ### F6. DB Ingest: load complaints into MongoDB (A) [Planned — M04 #147]
 - Airflow ingest DAG writes **local Mongo** complaint docs in batches (upsert by Complaint ID).
@@ -154,7 +154,7 @@ Each workflow that downloads or ingests data is registered in the database, so t
 
 ## 7. Open questions
 
-1. AppEndpoints exact columns / categories beyond source|ingest|index|db — finalize in #155 design.
+1. ~~AppEndpoints exact columns / categories~~ — closed by D85 / #155 (`source`\|`ingest`\|`index`\|`db`).
 2. Complaint Mongo connection string naming for DAGs (alongside ops store) — decide with #158.
 3. Vector store choice for local MVP (pgvector vs dedicated container) — decide with #163.
 4. Does Intellect share the operational database? (still open)

@@ -479,3 +479,48 @@ def test_migration_0011_removes_mios_workflows_and_all_mio_on_the_way_down(data_
         assert db.execute("select name from sqlite_master where name = 'mios_workflows'").fetchall() != []
         assert db.execute("select id from mios where name = 'Customer complaints all 2026'").fetchone()[0] == ALL_MIO_ID
         assert db.execute("select count(*) from mios_workflows").fetchone()[0] == 2
+
+
+APP_ENDPOINT_SOURCE_ID = "ccbce57d-bd9f-56fe-a258-fa2deb9dd393"
+HTTP_LOCATION_ID = "776fc47e-efe7-59e6-b213-549261919d79"
+LOCAL_LOCATION_ID = "2fc79860-7a4a-58b0-a0eb-45f994cfbace"
+
+
+def test_app_endpoints_table_exists_with_xor_and_no_foreign_keys(data_dir):
+    with _admin_db(data_dir) as db:
+        columns = _columns(db, "app_endpoints")
+        indexes = {r[1] for r in db.execute("pragma index_list(app_endpoints)")}
+        foreign_keys = db.execute("pragma foreign_key_list(app_endpoints)").fetchall()
+        sql = _table_sql(db, "app_endpoints")
+    assert "id" in columns and "name" in columns and "category" in columns
+    assert "uq_app_endpoints_name" in sql
+    assert "ck_app_endpoints_from_xor" in sql
+    assert "ck_app_endpoints_to_xor" in sql
+    assert "ix_app_endpoints_category" in indexes
+    assert foreign_keys == []
+
+
+def test_app_endpoints_seed_cfpb_source_http_to_local(data_dir):
+    with _admin_db(data_dir) as db:
+        row = db.execute(
+            "select id, name, category, from_dataset_location_id, to_dataset_location_id, enabled"
+            " from app_endpoints"
+        ).fetchone()
+    assert row == (
+        APP_ENDPOINT_SOURCE_ID,
+        "cfpb_source_http_to_local",
+        "source",
+        HTTP_LOCATION_ID,
+        LOCAL_LOCATION_ID,
+        1,
+    )
+
+
+def test_migration_0012_removes_app_endpoints_on_the_way_down(data_dir):
+    config = Config(str(PROJECT_ROOT / "alembic.ini"))
+    command.downgrade(config, "0011")
+    with _admin_db(data_dir) as db:
+        assert db.execute("select name from sqlite_master where name = 'app_endpoints'").fetchall() == []
+    command.upgrade(config, "head")
+    with _admin_db(data_dir) as db:
+        assert db.execute("select count(*) from app_endpoints").fetchone()[0] == 1

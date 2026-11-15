@@ -7,6 +7,7 @@ needed when that backend is chosen.
 import threading
 
 from app.core.common.bean_registry import bean_registry
+from app.core.dao.app_endpoint_dao import AppEndpointDao
 from app.core.dao.app_wf_dao import AppWfDao
 from app.core.dao.app_wf_exec_log_dao import AppWfExecLogDao
 from app.core.dao.dataset_dao import DatasetDao
@@ -20,6 +21,7 @@ from app.core.dao.transaction_dao import TransactionDao
 _DAO_INTERFACES = (
     AppWfDao,
     AppWfExecLogDao,
+    AppEndpointDao,
     DatasetDao,
     DatasetLocationDao,
     MioDao,
@@ -46,6 +48,7 @@ class DaoObjectsFactory:
             # D75/D79: DaoObjectsFactory chooses the impl from Settings.operational_store.
             store = get_settings().operational_store
             if store == "mongodb":
+                from app.core.dao.impl.mongo.mongo_app_endpoint_dao import MongoAppEndpointDao
                 from app.core.dao.impl.mongo.mongo_app_wf_dao import MongoAppWfDao
                 from app.core.dao.impl.mongo.mongo_app_wf_exec_log_dao import MongoAppWfExecLogDao
                 from app.core.dao.impl.mongo.mongo_dataset_dao import MongoDatasetDao
@@ -58,6 +61,7 @@ class DaoObjectsFactory:
 
                 bean_registry.register(AppWfDao, MongoAppWfDao())
                 bean_registry.register(AppWfExecLogDao, MongoAppWfExecLogDao())
+                bean_registry.register(AppEndpointDao, MongoAppEndpointDao())
                 bean_registry.register(DatasetDao, MongoDatasetDao())
                 bean_registry.register(DatasetLocationDao, MongoDatasetLocationDao())
                 bean_registry.register(MioDao, MongoMioDao())
@@ -66,6 +70,7 @@ class DaoObjectsFactory:
                 bean_registry.register(MioWorkflowDao, MongoMioWorkflowDao())
                 bean_registry.register(TransactionDao, MongoTransactionDao())
             else:
+                from app.core.dao.impl.sqlalchemy_app_endpoint_dao import SqlAlchemyAppEndpointDao
                 from app.core.dao.impl.sqlalchemy_app_wf_dao import SqlAlchemyAppWfDao
                 from app.core.dao.impl.sqlalchemy_app_wf_exec_log_dao import (
                     SqlAlchemyAppWfExecLogDao,
@@ -84,6 +89,7 @@ class DaoObjectsFactory:
 
                 bean_registry.register(AppWfDao, SqlAlchemyAppWfDao())
                 bean_registry.register(AppWfExecLogDao, SqlAlchemyAppWfExecLogDao())
+                bean_registry.register(AppEndpointDao, SqlAlchemyAppEndpointDao())
                 bean_registry.register(DatasetDao, SqlAlchemyDatasetDao())
                 bean_registry.register(DatasetLocationDao, SqlAlchemyDatasetLocationDao())
                 bean_registry.register(MioDao, SqlAlchemyMioDao())
@@ -120,6 +126,11 @@ class DaoObjectsFactory:
     def get_dataset_location_dao() -> DatasetLocationDao:
         DaoObjectsFactory.init()
         return bean_registry.get_one(DatasetLocationDao)  # type: ignore[return-value]
+
+    @staticmethod
+    def get_app_endpoint_dao() -> AppEndpointDao:
+        DaoObjectsFactory.init()
+        return bean_registry.get_one(AppEndpointDao)  # type: ignore[return-value]
 
     @staticmethod
     def get_mio_dao() -> MioDao:

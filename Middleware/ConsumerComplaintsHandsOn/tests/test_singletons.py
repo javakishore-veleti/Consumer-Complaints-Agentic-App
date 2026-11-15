@@ -7,10 +7,12 @@ from app.api.routers.start_wf_api import StartWfApi
 from app.api.routers.wf_exec_callback_api import WfExecCallbackApi
 from app.api.routers.wf_list_api import WfListApi
 from app.api.security.callback_secret_auth import CallbackSecretAuth
+from app.core.dao.app_endpoint_dao import AppEndpointDao
 from app.core.dao.app_wf_dao import AppWfDao
 from app.core.dao.app_wf_exec_log_dao import AppWfExecLogDao
 from app.core.dao.dataset_dao import DatasetDao
 from app.core.dao.dataset_location_dao import DatasetLocationDao
+from app.core.dao.impl.sqlalchemy_app_endpoint_dao import SqlAlchemyAppEndpointDao
 from app.core.dao.impl.sqlalchemy_app_wf_dao import SqlAlchemyAppWfDao
 from app.core.dao.impl.sqlalchemy_app_wf_exec_log_dao import SqlAlchemyAppWfExecLogDao
 from app.core.dao.impl.sqlalchemy_dataset_dao import SqlAlchemyDatasetDao
@@ -77,6 +79,7 @@ def test_factories_return_the_same_object_typed_as_the_interface():
         (DaoObjectsFactory.get_app_wf_exec_log_dao, AppWfExecLogDao),
         (DaoObjectsFactory.get_dataset_dao, DatasetDao),
         (DaoObjectsFactory.get_dataset_location_dao, DatasetLocationDao),
+        (DaoObjectsFactory.get_app_endpoint_dao, AppEndpointDao),
         (DaoObjectsFactory.get_mio_dao, MioDao),
         (DaoObjectsFactory.get_mio_dataset_dao, MioDatasetDao),
         (DaoObjectsFactory.get_mio_workflow_dao, MioWorkflowDao),
@@ -124,6 +127,7 @@ def test_the_classes_themselves_are_singletons():
     assert SqlAlchemyAppWfExecLogDao() is SqlAlchemyAppWfExecLogDao()
     assert SqlAlchemyDatasetDao() is SqlAlchemyDatasetDao()
     assert SqlAlchemyDatasetLocationDao() is SqlAlchemyDatasetLocationDao()
+    assert SqlAlchemyAppEndpointDao() is SqlAlchemyAppEndpointDao()
     assert SqlAlchemyMioDao() is SqlAlchemyMioDao()
     assert SqlAlchemyMioDatasetDao() is SqlAlchemyMioDatasetDao()
     assert SqlAlchemyMioWorkflowDao() is SqlAlchemyMioWorkflowDao()
