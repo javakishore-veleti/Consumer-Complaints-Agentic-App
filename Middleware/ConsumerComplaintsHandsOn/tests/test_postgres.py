@@ -441,5 +441,5 @@ def test_wf_list_service_works_on_postgres(postgres):
     assert DaoObjectsFactory.get_app_wf_dao().create(made) == SUCCESS
     ctx = WfListCtx(req=WfListReq())
     assert ServicesObjectsFactory.get_wf_list_service().list(ctx) == SUCCESS
-    assert [e.workflow_name for e in ctx.resp.entries] == ["t_pg_list"]
+    assert [e.workflow_name for e in ctx.resp.entries] == ["download_cfpb_all", "t_pg_list"]
     assert all(not hasattr(e, "config") for e in ctx.resp.entries)
