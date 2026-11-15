@@ -309,23 +309,23 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #77 | 10 | `/ccaa-commit-push 77` | Done | 2026-11-14 22:49 | 2026-11-14 22:49 |
 | #77 | 11 | `/finishing-a-development-branch Story #77` | Done | 2026-11-14 22:49 | 2026-11-14 22:49 |
 | #77 | 12 | `/ccaa-story-complete 77` | Done | 2026-11-14 22:49 | 2026-11-14 22:49 |
-| #57 | 1 | `/ccaa-story-start 57` | Done | 2026-11-14 22:54 | 2026-11-14 22:54 |
-| #57 | 2 | `/brainstorming Story #57: download DAG for the All dataset; the DAG reads its workflow, the MIO and the dataset location from the tables (D51); registered in app_workflows; file lands in the agreed place` | Done | 2026-11-14 22:54 | 2026-11-14 22:54 |
-| #57 | 3 | `/using-git-worktrees Story #57: branch m02-0018-download-dag-for-the-all-dataset` | Done | 2026-11-14 22:54 | 2026-11-14 22:54 |
-| #57 | 4 | `/writing-plans Story #57` | Done | 2026-11-14 22:54 | 2026-11-14 22:58 |
-| #57 | 5 | `/test-driven-development Story #57` | Done | 2026-11-14 22:58 | 2026-11-14 22:59 |
-| #57 | 6 | `/subagent-driven-development Story #57` | Done | 2026-11-14 22:59 | 2026-11-14 23:04 |
-| #57 | 7 | `/ccaa-commit-push 57` after every task (repeat) | Done | 2026-11-14 23:04 | 2026-11-14 23:04 |
-| #57 | 8 | `/verification-before-completion Story #57` | Done | 2026-11-14 23:04 | 2026-11-14 23:04 |
-| #57 | 9 | `/requesting-code-review Story #57` | Done | 2026-11-14 23:04 | 2026-11-14 23:04 |
-| #57 | 10 | `/ccaa-commit-push 57` | Done | 2026-11-14 23:04 | 2026-11-14 23:04 |
-| #57 | 11 | `/finishing-a-development-branch Story #57` | Done | 2026-11-14 23:04 | 2026-11-14 23:04 |
-| #57 | 12 | `/ccaa-story-complete 57` | Done | 2026-11-14 23:04 | 2026-11-14 23:04 |
-| #60 | 1 | `/ccaa-story-start 60` | Planned | - | - |
-| #60 | 2 | `/brainstorming Story #60: start an Airflow DAG run asynchronously through Airflow's REST API, called from the start-workflow flow (#42); stores the engine run id on the execution row; later wrapped behind the engine interface (#83)` | Planned | - | - |
-| #60 | 3 | `/using-git-worktrees Story #60: branch m02-0021-airflow-engine-start-a-dag-run` | Planned | - | - |
-| #60 | 4 | `/writing-plans Story #60` | Planned | - | - |
-| #60 | 5 | `/test-driven-development Story #60` | Planned | - | - |
+| #57 | 1 | `/ccaa-story-start 57` | Planned | - | - |
+| #57 | 2 | `/brainstorming Story #57: download DAG for the All dataset; the DAG reads its workflow, the MIO and the dataset location from the tables (D51); registered in app_workflows; file lands in the agreed place` | Planned | - | - |
+| #57 | 3 | `/using-git-worktrees Story #57: branch m02-0018-download-dag-for-the-all-dataset` | Planned | - | - |
+| #57 | 4 | `/writing-plans Story #57` | Planned | - | - |
+| #57 | 5 | `/test-driven-development Story #57` | Planned | - | - |
+| #57 | 6 | `/subagent-driven-development Story #57` | Planned | - | - |
+| #57 | 7 | `/ccaa-commit-push 57` after every task (repeat) | Planned | - | - |
+| #57 | 8 | `/verification-before-completion Story #57` | Planned | - | - |
+| #57 | 9 | `/requesting-code-review Story #57` | Planned | - | - |
+| #57 | 10 | `/ccaa-commit-push 57` | Planned | - | - |
+| #57 | 11 | `/finishing-a-development-branch Story #57` | Planned | - | - |
+| #57 | 12 | `/ccaa-story-complete 57` | Planned | - | - |
+| #60 | 1 | `/ccaa-story-start 60` | Done | 2026-11-14 23:01 | 2026-11-14 23:01 |
+| #60 | 2 | `/brainstorming Story #60: start an Airflow DAG run asynchronously through Airflow's REST API, called from the start-workflow flow (#42); stores the engine run id on the execution row; later wrapped behind the engine interface (#83)` | Done | 2026-11-14 23:01 | 2026-11-14 23:01 |
+| #60 | 3 | `/using-git-worktrees Story #60: branch m02-0021-airflow-engine-start-a-dag-run` | Done | 2026-11-14 23:01 | 2026-11-14 23:01 |
+| #60 | 4 | `/writing-plans Story #60` | Done | 2026-11-14 23:01 | 2026-11-14 23:05 |
+| #60 | 5 | `/test-driven-development Story #60` | In progress | 2026-11-14 23:05 | - |
 | #60 | 6 | `/subagent-driven-development Story #60` | Planned | - | - |
 | #60 | 7 | `/ccaa-commit-push 60` after every task (repeat) | Planned | - | - |
 | #60 | 8 | `/verification-before-completion Story #60` | Planned | - | - |
@@ -510,4 +510,4 @@ The skills live in `.cursor/skills/`. Each takes a GitHub issue number.
 - **Open questions on the issues:** #65 (poll or refresh). The #55 question is decided in D42 (revised by D43): credentials in `.env`, copied into Airflow Variables by story #77.
 - **Story #77 was added** while deciding #55 (D42). It is under feature #56 and is built first in Phase 3, because the DAG reads the Variables it creates.
 - **Moved to M03 - Cloud Deployment:** #51 S3, #52 Azure Blob, #53 GCP Cloud Storage, #54 Google Drive, and the cloud migration workflow #24. They are not part of this milestone. #51 to #54 were written as source types, so under D43 they need rewriting as cloud workflows before M03 starts (they are still open).
-- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D67 (D63–D64 story #57; D65 story #62; D66 story #84).
+- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. D63 and D64 are claimed by story #57 (parallel branch); the next free decision number is D65. Story #60 adds no new decision.
