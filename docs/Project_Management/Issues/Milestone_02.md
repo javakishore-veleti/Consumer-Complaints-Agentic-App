@@ -433,17 +433,17 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #80 | 10 | `/ccaa-commit-push 80` | Done | 2026-11-14 23:11 | 2026-11-14 23:11 |
 | #80 | 11 | `/finishing-a-development-branch Story #80` | Done | 2026-11-14 23:11 | 2026-11-14 23:11 |
 | #80 | 12 | `/ccaa-story-complete 80` | In progress | 2026-11-14 23:11 | - |
-| #83 | 1 | `/ccaa-story-start 83` | Planned | - | - |
-| #83 | 2 | `/brainstorming Story #83: workflow engine interface in services, one implementation per engine type, looked up through the factory (D45); unknown engine type returns INVALID_INPUT` | Planned | - | - |
-| #83 | 3 | `/using-git-worktrees Story #83: branch m02-0033-workflow-engine-interface-and-lookup` | Planned | - | - |
-| #83 | 4 | `/writing-plans Story #83` | Planned | - | - |
-| #83 | 5 | `/test-driven-development Story #83` | Planned | - | - |
-| #83 | 6 | `/subagent-driven-development Story #83` | Planned | - | - |
-| #83 | 7 | `/ccaa-commit-push 83` after every task (repeat) | Planned | - | - |
-| #83 | 8 | `/verification-before-completion Story #83` | Planned | - | - |
-| #83 | 9 | `/requesting-code-review Story #83` | Planned | - | - |
-| #83 | 10 | `/ccaa-commit-push 83` | Planned | - | - |
-| #83 | 11 | `/finishing-a-development-branch Story #83` | Planned | - | - |
+| #83 | 1 | `/ccaa-story-start 83` | Done | 2026-11-15 00:41 | 2026-11-15 00:41 |
+| #83 | 2 | `/brainstorming Story #83: workflow engine interface in services, one implementation per engine type, looked up through the factory (D45); unknown engine type returns INVALID_INPUT` | Done | 2026-11-15 00:41 | 2026-11-15 00:41 |
+| #83 | 3 | `/using-git-worktrees Story #83: branch m02-0033-workflow-engine-interface-and-lookup` | Done | 2026-11-15 00:41 | 2026-11-15 00:41 |
+| #83 | 4 | `/writing-plans Story #83` | Done | 2026-11-15 00:41 | 2026-11-15 00:41 |
+| #83 | 5 | `/test-driven-development Story #83` | Done | 2026-11-15 00:41 | 2026-11-15 00:43 |
+| #83 | 6 | `/subagent-driven-development Story #83` | Done | 2026-11-15 00:43 | 2026-11-15 00:43 |
+| #83 | 7 | `/ccaa-commit-push 83` after every task (repeat) | Done | 2026-11-15 00:43 | 2026-11-15 00:43 |
+| #83 | 8 | `/verification-before-completion Story #83` | Done | 2026-11-15 00:43 | 2026-11-15 00:43 |
+| #83 | 9 | `/requesting-code-review Story #83` | Done | 2026-11-15 00:43 | 2026-11-15 00:43 |
+| #83 | 10 | `/ccaa-commit-push 83` | Done | 2026-11-15 00:43 | 2026-11-15 00:43 |
+| #83 | 11 | `/finishing-a-development-branch Story #83` | In progress | 2026-11-15 00:43 | - |
 | #83 | 12 | `/ccaa-story-complete 83` | Planned | - | - |
 | #84 | 1 | `/ccaa-story-start 84` | Done | 2026-11-14 23:01 | 2026-11-14 23:01 |
 | #84 | 2 | `/brainstorming Story #84: list workflows endpoint for the portal; no secret or config value in the response` | Done | 2026-11-14 23:01 | 2026-11-14 23:01 |
@@ -510,4 +510,4 @@ The skills live in `.cursor/skills/`. Each takes a GitHub issue number.
 - **Open questions on the issues:** #65 (poll or refresh) is **Decided (D72):** manual Refresh (and refresh after start); no polling for MVP. The #55 question is decided in D42 (revised by D43): credentials in `.env`, copied into Airflow Variables by story #77.
 - **Story #77 was added** while deciding #55 (D42). It is under feature #56 and is built first in Phase 3, because the DAG reads the Variables it creates.
 - **Moved to M03 - Cloud Deployment:** #51 S3, #52 Azure Blob, #53 GCP Cloud Storage, #54 Google Drive, and the cloud migration workflow #24. They are not part of this milestone. #51 to #54 were written as source types, so under D43 they need rewriting as cloud workflows before M03 starts (they are still open).
-- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D73.
+- **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. The next decision number is D74.
