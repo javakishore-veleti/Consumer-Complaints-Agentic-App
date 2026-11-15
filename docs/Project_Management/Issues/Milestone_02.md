@@ -2,7 +2,7 @@
 
 **Scope (decision D38 in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`):** download the free CFPB dataset on demand from the admin portal, asynchronously through Airflow, through registered workflows (D43), and always show whether it has been downloaded. Everything runs locally. Cloud work is M03.
 
-**Status: in progress.** 1 epic, 5 features and 27 stories. 15 stories (and 1 feature) are already done, 12 stories are left to build.
+**Status: complete.** Epic #29 and features #37, #41, #56, #61, #78 are done. 27 stories done (3 Phase 0 + 24 completed); 0 left.
 
 How to read this file:
 - `#42` is the GitHub issue number in this repository. The `M02-00NN` key is the sequence tag at the start of the issue title. Keys are not in build order.
@@ -38,7 +38,7 @@ The MVP is Phases 1 to 5: the smallest flow that runs end to end (start a workfl
 
 | # | Issue | Key | Type | Title | Status |
 |---|---|---|---|---|---|
-| 1 | #29 | M02-0001 | Epic | Downloads Management | In progress |
+| 1 | #29 | M02-0001 | Epic | Downloads Management | Done |
 | 2 | #37 | M02-0002 | Feature | Dataset status (system_datasets) | Done |
 | 3 | #38 | M02-0003 | Story | system_datasets table and migration | Done |
 | 4 | #39 | M02-0004 | Story | system_datasets DAO | Done |
@@ -309,18 +309,18 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #77 | 10 | `/ccaa-commit-push 77` | Done | 2026-11-14 22:49 | 2026-11-14 22:49 |
 | #77 | 11 | `/finishing-a-development-branch Story #77` | Done | 2026-11-14 22:49 | 2026-11-14 22:49 |
 | #77 | 12 | `/ccaa-story-complete 77` | Done | 2026-11-14 22:49 | 2026-11-14 22:49 |
-| #57 | 1 | `/ccaa-story-start 57` | Planned | - | - |
-| #57 | 2 | `/brainstorming Story #57: download DAG for the All dataset; the DAG reads its workflow, the MIO and the dataset location from the tables (D51); registered in app_workflows; file lands in the agreed place` | Planned | - | - |
-| #57 | 3 | `/using-git-worktrees Story #57: branch m02-0018-download-dag-for-the-all-dataset` | Planned | - | - |
-| #57 | 4 | `/writing-plans Story #57` | Planned | - | - |
-| #57 | 5 | `/test-driven-development Story #57` | Planned | - | - |
-| #57 | 6 | `/subagent-driven-development Story #57` | Planned | - | - |
-| #57 | 7 | `/ccaa-commit-push 57` after every task (repeat) | Planned | - | - |
-| #57 | 8 | `/verification-before-completion Story #57` | Planned | - | - |
-| #57 | 9 | `/requesting-code-review Story #57` | Planned | - | - |
-| #57 | 10 | `/ccaa-commit-push 57` | Planned | - | - |
-| #57 | 11 | `/finishing-a-development-branch Story #57` | Planned | - | - |
-| #57 | 12 | `/ccaa-story-complete 57` | Planned | - | - |
+| #57 | 1 | `/ccaa-story-start 57` | Done | 2026-11-15 00:56 | 2026-11-15 00:56 |
+| #57 | 2 | `/brainstorming Story #57: download DAG for the All dataset; the DAG reads its workflow, the MIO and the dataset location from the tables (D51); registered in app_workflows; file lands in the agreed place` | Done | 2026-11-15 00:56 | 2026-11-15 00:56 |
+| #57 | 3 | `/using-git-worktrees Story #57: branch m02-0018-download-dag-for-the-all-dataset` | Done | 2026-11-15 00:56 | 2026-11-15 00:56 |
+| #57 | 4 | `/writing-plans Story #57` | Done | 2026-11-15 00:56 | 2026-11-15 00:56 |
+| #57 | 5 | `/test-driven-development Story #57` | Done | 2026-11-15 00:56 | 2026-11-15 00:56 |
+| #57 | 6 | `/subagent-driven-development Story #57` | Done | 2026-11-15 00:56 | 2026-11-15 00:56 |
+| #57 | 7 | `/ccaa-commit-push 57` after every task (repeat) | Done | 2026-11-15 00:56 | 2026-11-15 00:56 |
+| #57 | 8 | `/verification-before-completion Story #57` | Done | 2026-11-15 00:56 | 2026-11-15 00:56 |
+| #57 | 9 | `/requesting-code-review Story #57` | Done | 2026-11-15 00:56 | 2026-11-15 00:56 |
+| #57 | 10 | `/ccaa-commit-push 57` | Done | 2026-11-15 00:56 | 2026-11-15 00:56 |
+| #57 | 11 | `/finishing-a-development-branch Story #57` | Done | 2026-11-15 00:56 | 2026-11-15 00:56 |
+| #57 | 12 | `/ccaa-story-complete 57` | Done | 2026-11-15 00:56 | 2026-11-15 00:56 |
 | #60 | 1 | `/ccaa-story-start 60` | Done | 2026-11-14 23:01 | 2026-11-14 23:01 |
 | #60 | 2 | `/brainstorming Story #60: start an Airflow DAG run asynchronously through Airflow's REST API, called from the start-workflow flow (#42); stores the engine run id on the execution row; later wrapped behind the engine interface (#83)` | Done | 2026-11-14 23:01 | 2026-11-14 23:01 |
 | #60 | 3 | `/using-git-worktrees Story #60: branch m02-0021-airflow-engine-start-a-dag-run` | Done | 2026-11-14 23:01 | 2026-11-14 23:01 |
@@ -332,7 +332,7 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #60 | 9 | `/requesting-code-review Story #60` | Done | 2026-11-14 23:14 | 2026-11-14 23:14 |
 | #60 | 10 | `/ccaa-commit-push 60` | Done | 2026-11-14 23:14 | 2026-11-14 23:14 |
 | #60 | 11 | `/finishing-a-development-branch Story #60` | Done | 2026-11-14 23:14 | 2026-11-14 23:15 |
-| #60 | 12 | `/ccaa-story-complete 60` | Planned | - | - |
+| #60 | 12 | `/ccaa-story-complete 60` | Done | 2026-11-15 00:56 | 2026-11-15 00:56 |
 | #59 | 1 | `/ccaa-story-start 59` | Done | 2026-11-14 23:11 | 2026-11-14 23:11 |
 | #59 | 2 | `/brainstorming Story #59: report started, completed and failed to the API from the DAG; a final task always runs so a crashed run never stays running; callbacks reach the API from the container (host.docker.internal)` | Done | 2026-11-14 23:11 | 2026-11-14 23:11 |
 | #59 | 3 | `/using-git-worktrees Story #59: branch m02-0020-report-started-completed-and-failed-to` | Done | 2026-11-14 23:11 | 2026-11-14 23:11 |
@@ -344,7 +344,7 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #59 | 9 | `/requesting-code-review Story #59` | Done | 2026-11-14 23:21 | 2026-11-14 23:21 |
 | #59 | 10 | `/ccaa-commit-push 59` | Done | 2026-11-14 23:21 | 2026-11-14 23:21 |
 | #59 | 11 | `/finishing-a-development-branch Story #59` | Done | 2026-11-14 23:21 | 2026-11-14 23:22 |
-| #59 | 12 | `/ccaa-story-complete 59` | Planned | - | - |
+| #59 | 12 | `/ccaa-story-complete 59` | Done | 2026-11-15 00:56 | 2026-11-15 00:56 |
 
 ### Phase 4 - Start a workflow
 
@@ -361,7 +361,7 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #42 | 9 | `/requesting-code-review Story #42` | Done | 2026-11-15 00:20 | 2026-11-15 00:20 |
 | #42 | 10 | `/ccaa-commit-push 42` | Done | 2026-11-15 00:20 | 2026-11-15 00:20 |
 | #42 | 11 | `/finishing-a-development-branch Story #42` | Done | 2026-11-15 00:20 | 2026-11-15 00:25 |
-| #42 | 12 | `/ccaa-story-complete 42` | Planned | - | - |
+| #42 | 12 | `/ccaa-story-complete 42` | Done | 2026-11-15 00:56 | 2026-11-15 00:56 |
 
 ### Phase 5 - Admin portal
 
@@ -377,8 +377,8 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #62 | 8 | `/verification-before-completion Story #62` | Done | 2026-11-14 23:11 | 2026-11-14 23:15 |
 | #62 | 9 | `/requesting-code-review Story #62` | Done | 2026-11-14 23:15 | 2026-11-14 23:15 |
 | #62 | 10 | `/ccaa-commit-push 62` | Done | 2026-11-14 23:15 | 2026-11-14 23:15 |
-| #62 | 11 | `/finishing-a-development-branch Story #62` | In progress | 2026-11-14 23:15 | - |
-| #62 | 12 | `/ccaa-story-complete 62` | Planned | - | - |
+| #62 | 11 | `/finishing-a-development-branch Story #62` | Done | 2026-11-14 23:15 | 2026-11-15 00:56 |
+| #62 | 12 | `/ccaa-story-complete 62` | Done | 2026-11-15 00:56 | 2026-11-15 00:56 |
 | #63 | 1 | `/ccaa-story-start 63` | Done | 2026-11-15 00:03 | 2026-11-15 00:03 |
 | #63 | 2 | `/brainstorming Story #63: DataSets top menu and Imports left navigation (DB Ingest comes later); navigation works` | Done | 2026-11-15 00:03 | 2026-11-15 00:03 |
 | #63 | 3 | `/using-git-worktrees Story #63: branch m02-0024-datasets-top-menu-and-imports-left` | Done | 2026-11-15 00:03 | 2026-11-15 00:03 |
@@ -390,7 +390,7 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #63 | 9 | `/requesting-code-review Story #63` | Done | 2026-11-15 00:05 | 2026-11-15 00:05 |
 | #63 | 10 | `/ccaa-commit-push 63` | Done | 2026-11-15 00:05 | 2026-11-15 00:05 |
 | #63 | 11 | `/finishing-a-development-branch Story #63` | Done | 2026-11-15 00:05 | 2026-11-15 00:06 |
-| #63 | 12 | `/ccaa-story-complete 63` | Planned | - | - |
+| #63 | 12 | `/ccaa-story-complete 63` | Done | 2026-11-15 00:56 | 2026-11-15 00:56 |
 | #64 | 1 | `/ccaa-story-start 64` | Done | 2026-11-15 00:15 | 2026-11-15 00:15 |
 | #64 | 2 | `/brainstorming Story #64: one accordion per MIO with its status from the API (#45)` | Done | 2026-11-15 00:15 | 2026-11-15 00:15 |
 | #64 | 3 | `/using-git-worktrees Story #64: branch m02-0025-mio-accordions-with-status-from-the-api` | Done | 2026-11-15 00:15 | 2026-11-15 00:15 |
@@ -402,7 +402,7 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #64 | 9 | `/requesting-code-review Story #64` | Done | 2026-11-15 00:21 | 2026-11-15 00:21 |
 | #64 | 10 | `/ccaa-commit-push 64` | Done | 2026-11-15 00:21 | 2026-11-15 00:21 |
 | #64 | 11 | `/finishing-a-development-branch Story #64` | Done | 2026-11-15 00:21 | 2026-11-15 00:21 |
-| #64 | 12 | `/ccaa-story-complete 64` | Planned | - | - |
+| #64 | 12 | `/ccaa-story-complete 64` | Done | 2026-11-15 00:56 | 2026-11-15 00:56 |
 | #65 | 1 | `/ccaa-story-start 65` | Done | 2026-11-15 00:30 | 2026-11-15 00:31 |
 | #65 | 2 | `/brainstorming Story #65: start workflow button and status refresh; calls #42; poll or refresh is the open question` | Done | 2026-11-15 00:30 | 2026-11-15 00:31 |
 | #65 | 3 | `/using-git-worktrees Story #65: branch m02-0026-start-workflow-button-and-status-refresh` | Done | 2026-11-15 00:30 | 2026-11-15 00:31 |
@@ -414,8 +414,8 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #65 | 9 | `/requesting-code-review Story #65` | Done | 2026-11-15 00:30 | 2026-11-15 00:31 |
 | #65 | 10 | `/ccaa-commit-push 65` | Done | 2026-11-15 00:30 | 2026-11-15 00:31 |
 | #65 | 11 | `/finishing-a-development-branch Story #65` | Done | 2026-11-15 00:30 | 2026-11-15 00:31 |
-| #65 | 12 | `/ccaa-story-complete 65` | Planned | - | - |
-| Feature #61 | 1 | `/ccaa-feature-complete 61` | Planned | - | - |
+| #65 | 12 | `/ccaa-story-complete 65` | Done | 2026-11-15 00:56 | 2026-11-15 00:56 |
+| Feature #61 | 1 | `/ccaa-feature-complete 61` | Done | 2026-11-15 00:56 | 2026-11-15 00:56 |
 
 ### Phase 6 - After the MVP
 
@@ -432,7 +432,7 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #80 | 9 | `/requesting-code-review Story #80` | Done | 2026-11-14 23:11 | 2026-11-14 23:11 |
 | #80 | 10 | `/ccaa-commit-push 80` | Done | 2026-11-14 23:11 | 2026-11-14 23:11 |
 | #80 | 11 | `/finishing-a-development-branch Story #80` | Done | 2026-11-14 23:11 | 2026-11-14 23:11 |
-| #80 | 12 | `/ccaa-story-complete 80` | In progress | 2026-11-14 23:11 | - |
+| #80 | 12 | `/ccaa-story-complete 80` | Done | 2026-11-14 23:11 | 2026-11-15 00:56 |
 | #83 | 1 | `/ccaa-story-start 83` | Done | 2026-11-15 00:41 | 2026-11-15 00:41 |
 | #83 | 2 | `/brainstorming Story #83: workflow engine interface in services, one implementation per engine type, looked up through the factory (D45); unknown engine type returns INVALID_INPUT` | Done | 2026-11-15 00:41 | 2026-11-15 00:41 |
 | #83 | 3 | `/using-git-worktrees Story #83: branch m02-0033-workflow-engine-interface-and-lookup` | Done | 2026-11-15 00:41 | 2026-11-15 00:41 |
@@ -444,7 +444,7 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #83 | 9 | `/requesting-code-review Story #83` | Done | 2026-11-15 00:43 | 2026-11-15 00:43 |
 | #83 | 10 | `/ccaa-commit-push 83` | Done | 2026-11-15 00:43 | 2026-11-15 00:43 |
 | #83 | 11 | `/finishing-a-development-branch Story #83` | Done | 2026-11-15 00:43 | 2026-11-15 00:44 |
-| #83 | 12 | `/ccaa-story-complete 83` | Planned | - | - |
+| #83 | 12 | `/ccaa-story-complete 83` | Done | 2026-11-15 00:52 | 2026-11-15 00:52 |
 | #84 | 1 | `/ccaa-story-start 84` | Done | 2026-11-14 23:01 | 2026-11-14 23:01 |
 | #84 | 2 | `/brainstorming Story #84: list workflows endpoint for the portal; no secret or config value in the response` | Done | 2026-11-14 23:01 | 2026-11-14 23:01 |
 | #84 | 3 | `/using-git-worktrees Story #84: branch m02-0034-list-workflows-endpoint` | Done | 2026-11-14 23:01 | 2026-11-14 23:01 |
@@ -456,7 +456,7 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #84 | 9 | `/requesting-code-review Story #84` | Done | 2026-11-14 23:11 | 2026-11-14 23:11 |
 | #84 | 10 | `/ccaa-commit-push 84` | Done | 2026-11-14 23:11 | 2026-11-14 23:11 |
 | #84 | 11 | `/finishing-a-development-branch Story #84` | Done | 2026-11-14 23:11 | 2026-11-14 23:11 |
-| #84 | 12 | `/ccaa-story-complete 84` | Planned | - | - |
+| #84 | 12 | `/ccaa-story-complete 84` | Done | 2026-11-15 00:56 | 2026-11-15 00:56 |
 | #58 | 1 | `/ccaa-story-start 58` | Done | 2026-11-15 00:20 | 2026-11-15 00:20 |
 | #58 | 2 | `/brainstorming Story #58: derive the 3 months dataset by filtering the All file on Date received; the file is not date-sorted so read it all; check the row count against the site figure` | Done | 2026-11-15 00:20 | 2026-11-15 00:20 |
 | #58 | 3 | `/using-git-worktrees Story #58: branch m02-0019-3-months-dataset-filter-the-all-file-by` | Done | 2026-11-15 00:20 | 2026-11-15 00:20 |
@@ -468,7 +468,7 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #58 | 9 | `/requesting-code-review Story #58` | Done | 2026-11-15 00:20 | 2026-11-15 00:20 |
 | #58 | 10 | `/ccaa-commit-push 58` | Done | 2026-11-15 00:20 | 2026-11-15 00:20 |
 | #58 | 11 | `/finishing-a-development-branch Story #58` | Done | 2026-11-15 00:20 | 2026-11-15 00:20 |
-| #58 | 12 | `/ccaa-story-complete 58` | Planned | - | - |
+| #58 | 12 | `/ccaa-story-complete 58` | Done | 2026-11-15 00:56 | 2026-11-15 00:56 |
 | #88 | 1 | `/ccaa-story-start 88` | Done | 2026-11-15 00:40 | 2026-11-15 00:43 |
 | #88 | 2 | `/brainstorming Story #88: remove system_datasets and data_ingest_log (D47): DAOs, DatasetStatusService, /data-ingest-logs endpoints, DTOs, tests, and a migration that drops the tables` | Done | 2026-11-15 00:40 | 2026-11-15 00:43 |
 | #88 | 3 | `/using-git-worktrees Story #88: branch m02-0038-remove-system-datasets-and-data-ingest` | Done | 2026-11-15 00:40 | 2026-11-15 00:43 |
@@ -480,11 +480,11 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #88 | 9 | `/requesting-code-review Story #88` | Done | 2026-11-15 00:43 | 2026-11-15 00:43 |
 | #88 | 10 | `/ccaa-commit-push 88` | Done | 2026-11-15 00:43 | 2026-11-15 00:43 |
 | #88 | 11 | `/finishing-a-development-branch Story #88` | Done | 2026-11-15 00:43 | 2026-11-15 00:43 |
-| #88 | 12 | `/ccaa-story-complete 88` | Planned | - | - |
-| Feature #78 | 1 | `/ccaa-feature-complete 78` | In progress | 2026-11-14 | - |
-| Feature #41 | 1 | `/ccaa-feature-complete 41` | In progress | 2026-11-14 18:57 | - |
-| Feature #56 | 1 | `/ccaa-feature-complete 56` | Planned | - | - |
-| Epic #29 | 1 | `/ccaa-epic-complete 29` | In progress | 2026-11-14 | - |
+| #88 | 12 | `/ccaa-story-complete 88` | Done | 2026-11-15 00:52 | 2026-11-15 00:52 |
+| Feature #78 | 1 | `/ccaa-feature-complete 78` | Done | 2026-11-14 | 2026-11-15 00:56 |
+| Feature #41 | 1 | `/ccaa-feature-complete 41` | Done | 2026-11-14 18:57 | 2026-11-15 00:56 |
+| Feature #56 | 1 | `/ccaa-feature-complete 56` | Done | 2026-11-15 00:56 | 2026-11-15 00:56 |
+| Epic #29 | 1 | `/ccaa-epic-complete 29` | Done | 2026-11-14 | 2026-11-15 00:56 |
 
 ## 4. Project skills (`ccaa-` = Consumer Complaints Agentic App)
 
