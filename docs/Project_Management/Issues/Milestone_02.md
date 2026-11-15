@@ -2,7 +2,7 @@
 
 **Scope (decision D38 in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`):** download the free CFPB dataset on demand from the admin portal, asynchronously through Airflow, through registered workflows (D43), and always show whether it has been downloaded. Everything runs locally. Cloud work is M03.
 
-**Status: in progress.** 1 epic, 5 features and 27 stories. 13 stories (and 1 feature) are already done, 14 stories are left to build.
+**Status: in progress.** 1 epic, 5 features and 27 stories. 14 stories (and 1 feature) are already done, 13 stories are left to build.
 
 How to read this file:
 - `#42` is the GitHub issue number in this repository. The `M02-00NN` key is the sequence tag at the start of the issue title. Keys are not in build order.
@@ -302,13 +302,13 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #77 | 3 | `/using-git-worktrees Story #77: branch m02-0027-push-env-values-to-airflow-variables` | Done | 2026-11-14 22:33 | 2026-11-14 22:33 |
 | #77 | 4 | `/writing-plans Story #77` | Done | 2026-11-14 22:33 | 2026-11-14 22:41 |
 | #77 | 5 | `/test-driven-development Story #77` | Done | 2026-11-14 22:41 | 2026-11-14 22:42 |
-| #77 | 6 | `/subagent-driven-development Story #77` | In progress | 2026-11-14 22:42 | - |
-| #77 | 7 | `/ccaa-commit-push 77` after every task (repeat) | Planned | - | - |
-| #77 | 8 | `/verification-before-completion Story #77` | Planned | - | - |
-| #77 | 9 | `/requesting-code-review Story #77` | Planned | - | - |
-| #77 | 10 | `/ccaa-commit-push 77` | Planned | - | - |
-| #77 | 11 | `/finishing-a-development-branch Story #77` | Planned | - | - |
-| #77 | 12 | `/ccaa-story-complete 77` | Planned | - | - |
+| #77 | 6 | `/subagent-driven-development Story #77` | Done | 2026-11-14 22:42 | 2026-11-14 22:49 |
+| #77 | 7 | `/ccaa-commit-push 77` after every task (repeat) | Done | 2026-11-14 22:49 | 2026-11-14 22:49 |
+| #77 | 8 | `/verification-before-completion Story #77` | Done | 2026-11-14 22:49 | 2026-11-14 22:49 |
+| #77 | 9 | `/requesting-code-review Story #77` | Done | 2026-11-14 22:49 | 2026-11-14 22:49 |
+| #77 | 10 | `/ccaa-commit-push 77` | Done | 2026-11-14 22:49 | 2026-11-14 22:49 |
+| #77 | 11 | `/finishing-a-development-branch Story #77` | Done | 2026-11-14 22:49 | 2026-11-14 22:49 |
+| #77 | 12 | `/ccaa-story-complete 77` | Done | 2026-11-14 22:49 | 2026-11-14 22:49 |
 | #57 | 1 | `/ccaa-story-start 57` | Planned | - | - |
 | #57 | 2 | `/brainstorming Story #57: download DAG for the All dataset; the DAG reads its workflow, the MIO and the dataset location from the tables (D51); registered in app_workflows; file lands in the agreed place` | Planned | - | - |
 | #57 | 3 | `/using-git-worktrees Story #57: branch m02-0018-download-dag-for-the-all-dataset` | Planned | - | - |
