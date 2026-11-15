@@ -18,7 +18,7 @@ is done asynchronously by Apache Airflow.
 
 | App | What it is | Status |
 |---|---|---|
-| `consumer-complaints-admin` | Angular admin portal under `Portals/consumer-complaints-admin/`. Imports datasets, ingests them into the database, shows status; syncs system secrets to Airflow. | Imports path [Done] (M02/M03); DB Ingest / secrets UI / AppEndpoints [Planned] (M04) |
+| `consumer-complaints-admin` | Angular admin portal under `Portals/consumer-complaints-admin/`. Imports datasets, ingests them into the database, shows status; syncs system secrets to Airflow. | Imports [Done]; Sync secrets UI [Done] (#153); DB Ingest / AppEndpoints [Planned] (M04) |
 | Middleware API | FastAPI service (`Middleware/ConsumerComplaintsHandsOn`). The only thing the portal talks to. | Core APIs [Done] (M02/M03); AppEndpoints + ingest/index APIs [Planned] (M04) |
 | Apache Airflow | Runs the download and ingest (and later index) jobs asynchronously. | Local Docker [Done]; download/filter DAGs [Done]; ingest/index DAGs [Planned] (M04) |
 | `consumer-complaints-Intellect` | Intelligence app over complaint Mongo + local vectors (RAG / agentic). | [Planned] M05 (#152) — after M04 vectors |
@@ -73,12 +73,15 @@ Each workflow that downloads or ingests data is registered in the database, so t
 - Credentials never live in the repo.
 - The registry and the catalog (datasets, dataset locations, MIOs, and their ingest log) live in the admin schema `consumer_comp_admin_db` (D48, D49). The RAG layer is a later milestone (D53).
 
-### F4. System secrets sync (C) [Planned — M04 #145]
+### F4. System secrets sync (C) [In progress — M04 #145]
 - Fixed system names live in git-ignored `.env` (never in git, never shown in Admin UI).
-- Names synced to Airflow Variables today (D42 / `Airflow_Variables_Upsert.txt`): `CCA_CALLBACK_SECRET`, `CCA_API_URL`, `CCA_DB_URL`, `LOCAL_DATA_PATH_CFPB`.
-- API-only (not upserted): `CCA_AIRFLOW_API_*`, `CCA_OPERATIONAL_STORE`, `CCA_DATA_DIR`, `CCA_MONGO_OPERATIONAL_URL` (unless a DAG later needs them).
-- **API already exists:** `POST /management/airflow/upsert-secrets` (#77).
-- **Remaining:** Admin Sync button (#153) + inventory docs (#154). Local only.
+- **Inventory (names only):**
+  | Role | Names | Source of truth |
+  |---|---|---|
+  | Synced to Airflow Variables (D42) | `CCA_CALLBACK_SECRET`, `CCA_API_URL`, `CCA_DB_URL`, `LOCAL_DATA_PATH_CFPB` | `CICD/Local/airflow/Airflow_Variables_Upsert.txt` |
+  | API-only (not upserted) | `CCA_AIRFLOW_API_BASE_URL`, `CCA_AIRFLOW_API_USERNAME`, `CCA_AIRFLOW_API_PASSWORD`, `CCA_OPERATIONAL_STORE`, `CCA_DATA_DIR`, `CCA_MONGO_OPERATIONAL_URL` | `.env.example` comments |
+- Admin **Operations → Sync secrets** POSTs `POST /management/airflow/upsert-secrets` (#77 API, #153 UI). Outcomes only; values never rendered.
+- Local only until M06.
 
 ### F5. AppEndpoints (D) [Planned — M04 #146]
 - Categorized endpoints (source / ingest / index / db) with from/to refs to locations and env-var *names*.
@@ -135,7 +138,7 @@ Each workflow that downloads or ingests data is registered in the database, so t
 | Item | Status |
 |---|---|
 | M01 foundation / M02 downloads / M03 Admin E2E | Done |
-| Upsert secrets API (D42) | Done (#77); Admin UI [Planned] #153 |
+| Upsert secrets API (D42) + Admin Sync UI | Done (#77, #153); inventory docs #154 |
 | AppEndpoints / DB Ingest / locations harden / local vectors | Planned M04 (#144) |
 | MIO ACL + Intellect | Planned M05 (#150) |
 | Cloud deployment | Planned M06 (#73) |
@@ -145,7 +148,7 @@ Each workflow that downloads or ingests data is registered in the database, so t
 | Milestone | Focus | Status |
 |---|---|---|
 | M01–M03 | Foundation, downloads, Admin E2E | Complete |
-| **M04** | Local ops hardening: **C→D→A→B→E** (#144) | Planned |
+| **M04** | Local ops hardening: **C→D→A→B→E** (#144) | In progress |
 | **M05** | Intellect + MIO ACL: **F→G** (#150) | Planned |
 | M06 | Cloud deployment | Planned (#73) |
 

@@ -1,5 +1,7 @@
 # Names copied from the environment into Airflow Variables by POST /management/airflow/upsert-secrets (D42).
 # Values never appear here. Prefer names containing secret or password so Airflow masks them.
+# Keep in sync with docs/PRODUCT_FEATURES.md F4 and Middleware .env.example [upsert] tags (M04 #154).
+# Not listed here (API-only): CCA_AIRFLOW_API_*, CCA_OPERATIONAL_STORE, CCA_DATA_DIR, CCA_MONGO_OPERATIONAL_URL.
 
 CCA_CALLBACK_SECRET
 CCA_API_URL
