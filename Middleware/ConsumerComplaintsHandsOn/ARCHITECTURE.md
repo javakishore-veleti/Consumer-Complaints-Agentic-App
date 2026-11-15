@@ -69,7 +69,7 @@ CICD/Local/
   airflow/    docker-compose.yaml     Airflow 3.4.0, LocalExecutor
   mongodb/    docker-compose.yaml     MongoDB 8.0
   docker-all-up.sh  docker-all-down.sh  docker-all-status.sh
-Middleware/Airflow-dags/      Airflow DAGs, outside the FastAPI app root, mounted into Airflow by relative path (D44; planned, replaces dags/)
+Middleware/Airflow-dags/      Airflow DAGs, outside the FastAPI app root, mounted into Airflow by relative path (D44, D62)
 docs/                         product docs, design images
 ```
 
