@@ -450,9 +450,9 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #84 | 3 | `/using-git-worktrees Story #84: branch m02-0034-list-workflows-endpoint` | Done | 2026-11-14 23:01 | 2026-11-14 23:01 |
 | #84 | 4 | `/writing-plans Story #84` | Done | 2026-11-14 23:01 | 2026-11-14 23:06 |
 | #84 | 5 | `/test-driven-development Story #84` | Done | 2026-11-14 23:06 | 2026-11-14 23:09 |
-| #84 | 6 | `/subagent-driven-development Story #84` | In progress | 2026-11-14 23:09 | - |
-| #84 | 7 | `/ccaa-commit-push 84` after every task (repeat) | Planned | - | - |
-| #84 | 8 | `/verification-before-completion Story #84` | Planned | - | - |
+| #84 | 6 | `/subagent-driven-development Story #84` | Done | 2026-11-14 23:09 | 2026-11-14 23:10 |
+| #84 | 7 | `/ccaa-commit-push 84` after every task (repeat) | Done | 2026-11-14 23:10 | 2026-11-14 23:10 |
+| #84 | 8 | `/verification-before-completion Story #84` | In progress | 2026-11-14 23:10 | - |
 | #84 | 9 | `/requesting-code-review Story #84` | Planned | - | - |
 | #84 | 10 | `/ccaa-commit-push 84` | Planned | - | - |
 | #84 | 11 | `/finishing-a-development-branch Story #84` | Planned | - | - |

@@ -26,6 +26,7 @@ from app.core.common.dtos.mio_dtos import MioCtx, MioReq
 from app.core.common.dtos.mio_ingest_log_dtos import MioIngestLogCtx, MioIngestLogReq
 from app.core.common.dtos.mio_status_dtos import MioStatusCtx, MioStatusReq
 from app.core.common.dtos.wf_exec_status_dtos import WfExecStatusCtx, WfExecStatusReq
+from app.core.common.dtos.wf_list_dtos import WfListCtx, WfListReq
 from app.core.common.return_codes import CONFLICT, INVALID_INPUT, NOT_FOUND, SUCCESS
 from app.core.dao.impl import sqlalchemy_app_wf_exec_log_dao as exec_log_impl
 from app.core.dao.impl import sqlalchemy_mio_ingest_log_dao as ingest_log_impl
@@ -425,3 +426,20 @@ def test_mio_status_service_works_on_postgres(postgres):
     assert [x.id for x in entry.latest_ingest.executions] == [execution.resp.records[0].id]
     missing = MioStatusCtx(req=MioStatusReq(mio_id="missing"))
     assert ServicesObjectsFactory.get_mio_status_service().read(missing) == NOT_FOUND
+
+
+def test_wf_list_service_works_on_postgres(postgres):
+    command.upgrade(postgres, "head")
+    made = AppWfCtx(
+        req=AppWfReq(
+            workflow_name="t_pg_list",
+            engine_type="apache_airflow",
+            engine_workflow_id="dag",
+            config={"hide": True},
+        )
+    )
+    assert DaoObjectsFactory.get_app_wf_dao().create(made) == SUCCESS
+    ctx = WfListCtx(req=WfListReq())
+    assert ServicesObjectsFactory.get_wf_list_service().list(ctx) == SUCCESS
+    assert [e.workflow_name for e in ctx.resp.entries] == ["t_pg_list"]
+    assert all(not hasattr(e, "config") for e in ctx.resp.entries)
