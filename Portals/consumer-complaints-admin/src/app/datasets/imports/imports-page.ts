@@ -78,6 +78,24 @@ export class ImportsPage implements OnInit {
     await this.loadStatus();
   }
 
+  /** Visual tone only — label text stays the API status string. Keeps `.mio-status` for tests. */
+  protected statusBadgeClass(status: string | null | undefined): string {
+    if (!status) {
+      return 'mio-status badge badge-muted';
+    }
+    switch (status) {
+      case 'completed':
+        return 'mio-status badge badge-success';
+      case 'failed':
+        return 'mio-status badge badge-danger';
+      case 'started':
+      case 'requested':
+        return 'mio-status badge badge-info';
+      default:
+        return 'mio-status badge badge-warning';
+    }
+  }
+
   private async loadStatus(): Promise<void> {
     const ctx: MioStatusCtx = { req: {}, resp: { entries: [], error: '' } };
     const code = await loadMioStatus(this.http, ctx);

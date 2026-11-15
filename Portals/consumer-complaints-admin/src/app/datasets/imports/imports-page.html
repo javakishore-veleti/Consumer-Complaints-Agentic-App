@@ -1,26 +1,36 @@
-<section aria-labelledby="imports-heading">
-  <h1 id="imports-heading">Imports</h1>
-  <p>Download status for each managed information object.</p>
+<section class="imports" aria-labelledby="imports-heading">
+  <header class="imports-header">
+    <div>
+      <h1 id="imports-heading">Imports</h1>
+      <p class="imports-sub">Download status for each managed information object.</p>
+    </div>
+  </header>
+
   @if (loading()) {
-    <p data-testid="mio-status-loading">Loading MIO status…</p>
+    <p data-testid="mio-status-loading" class="alert alert-info">Loading MIO status…</p>
   }
   @if (error()) {
-    <p data-testid="mio-status-error" role="alert">{{ error() }}</p>
+    <p data-testid="mio-status-error" class="alert alert-danger" role="alert">{{ error() }}</p>
   }
   @if (actionError()) {
-    <p data-testid="mio-action-error" role="alert">{{ actionError() }}</p>
+    <p data-testid="mio-action-error" class="alert alert-danger" role="alert">{{ actionError() }}</p>
   }
+
   <div
     data-testid="imports-accordion-shell"
-    class="accordion-shell"
+    class="imports-list"
     role="region"
     aria-label="MIO accordion shell"
   >
     @for (mio of entries(); track mio.id) {
-      <details data-testid="mio-accordion" class="mio-accordion">
+      <details data-testid="mio-accordion" class="mio-panel">
         <summary>
           <span class="mio-name">{{ mio.name }}</span>
-          <span class="mio-status">
+          <span
+            [class]="
+              statusBadgeClass(mio.latest_ingest ? mio.latest_ingest.status : null)
+            "
+          >
             @if (mio.latest_ingest; as ingest) {
               {{ ingest.status }}
             } @else {
@@ -30,11 +40,11 @@
         </summary>
         <div class="mio-body">
           @if (mio.description) {
-            <p>{{ mio.description }}</p>
+            <p class="mio-description">{{ mio.description }}</p>
           }
           @if (mio.latest_ingest; as ingest) {
             @if (ingest.message) {
-              <p class="mio-message">{{ ingest.message }}</p>
+              <p class="mio-message alert alert-warning">{{ ingest.message }}</p>
             }
             <dl class="mio-meta">
               <div>
@@ -64,9 +74,10 @@
               <ul class="mio-executions">
                 @for (ex of ingest.executions; track ex.id) {
                   <li>
-                    {{ ex.workflow_name }} — {{ ex.status }}
+                    <span class="ex-name">{{ ex.workflow_name }}</span>
+                    <span [class]="statusBadgeClass(ex.status)">{{ ex.status }}</span>
                     @if (ex.message) {
-                      ({{ ex.message }})
+                      <span class="ex-msg">{{ ex.message }}</span>
                     }
                   </li>
                 }
@@ -88,13 +99,19 @@
             </label>
             <button
               type="button"
+              class="btn btn-primary"
               data-testid="mio-start-workflow"
               [disabled]="isStartDisabled(mio)"
               (click)="onStart(mio)"
             >
               Start workflow
             </button>
-            <button type="button" data-testid="mio-refresh-status" (click)="onRefresh()">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-testid="mio-refresh-status"
+              (click)="onRefresh()"
+            >
               Refresh status
             </button>
           </div>
