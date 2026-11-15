@@ -18,7 +18,7 @@ npm run local:containers:postgres:start  # Airflow + CCA operational Postgres
 npm run local:containers:mongodb:start   # Airflow + MongoDB
 ```
 
-`npm run local:containers:all:*` still starts/stops/status **every** `CICD/Local/*/docker-compose.yaml` (unchanged). For Postgres/Mongo, set `.env` per `Middleware/ConsumerComplaintsHandsOn/.env.example` (D75–D78).
+`npm run local:containers:all:*` still starts/stops/status **every** `CICD/Local/*/docker-compose.yaml`. **Stop always removes Docker volumes** (`docker compose down -v`) so Airflow/Mongo/Postgres data does not linger (M01-0073 / #133). Pass `--keep-volumes` to `CICD/Local/docker-all-down.sh` only when you intentionally want to keep them. For Postgres/Mongo app config, set `.env` per `Middleware/ConsumerComplaintsHandsOn/.env.example` (D75–D78).
 
 ### Recommended local stack (three steps)
 

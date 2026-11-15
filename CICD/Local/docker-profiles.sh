@@ -50,11 +50,11 @@ cca_profile_services() {
 
 # Sets:
 #   CCA_PROFILE   — empty or profile name
-#   CCA_WIPE      — 0 or 1
+#   CCA_WIPE      — 1 by default (M01-0073 / #133: stop removes volumes); 0 with --keep-volumes
 #   CCA_SVC_ARGS  — remaining positional service names (array)
 cca_parse_profile_args() {
   CCA_PROFILE=""
-  CCA_WIPE=0
+  CCA_WIPE=1
   CCA_SVC_ARGS=()
   while [ "$#" -gt 0 ]; do
     case "$1" in
@@ -76,7 +76,12 @@ cca_parse_profile_args() {
         shift
         ;;
       --wipe)
+        # Alias: wipe is already the default (kept for older scripts/docs).
         CCA_WIPE=1
+        shift
+        ;;
+      --keep-volumes)
+        CCA_WIPE=0
         shift
         ;;
       -*)

@@ -3,7 +3,7 @@
 **Scope (decision D38 in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`):** the foundation of the project, and the data ingest log API.
 Everything runs locally. Downloads management is M02 and cloud work is M03.
 
-**Status: complete.** 2 epics, 6 features and 33 stories, all closed.
+**Status: complete.** 2 epics, 6 features and 34 stories, all closed (including follow-up #133).
 
 How to read this file:
 - `#12` is the GitHub issue number in this repository. The `M01-00NN` key is the sequence tag at the start of the issue title.
@@ -20,8 +20,10 @@ How to read this file:
   - [Phase 4 - The data ingest log, from API to database](#phase-4---the-data-ingest-log-from-api-to-database-commit-78a4d47)
   - [Phase 5 - Hardening the slice](#phase-5---hardening-the-slice-commit-177369a)
   - [Phase 6 - Rules that keep the codebase consistent](#phase-6---rules-that-keep-the-codebase-consistent-commits-8442078-2e2b8ad-4562399)
+  - [Phase 7 - Follow-up (containers stop wipes volumes)](#phase-7---follow-up-containers-stop-wipes-volumes)
 - [2. The same issues grouped by epic and feature](#2-the-same-issues-grouped-by-epic-and-feature)
-- [3. Notes](#3-notes)
+- [3. Superpowers workflow (follow-up #133)](#3-superpowers-workflow-follow-up-133)
+- [4. Notes](#4-notes)
 
 ## 1. Build order
 
@@ -98,6 +100,12 @@ The foundations the slice needs, then the slice itself.
 | 40 | #71 | M01-0070 | Story | Scratch space in git-ignored runtime_data/tmp, not /tmp | `8442078`, fixed in `4562399` |
 | 41 | #72 | M01-0071 | Story | Every function takes nothing or one ctx object | `2e2b8ad` |
 
+### Phase 7 - Follow-up (containers stop wipes volumes)
+
+| # | Issue | Key | Type | Title | Why here |
+|---|---|---|---|---|---|
+| 42 | #133 | M01-0073 | Story | containers stop always removes Docker volumes | Extends #5: `local:containers:*:stop` → `docker compose down -v` by default |
+
 ## 2. The same issues grouped by epic and feature
 
 ```
@@ -107,6 +115,7 @@ Epic #1  M01-0001  Project Organization
 |     +-- #3   Local Apache Airflow 3.4.0 in Docker
 |     +-- #4   Local MongoDB 8.0 in Docker
 |     +-- #5   Start, stop and status scripts and npm commands
+|     +-- #133 containers stop always removes Docker volumes (M01-0073)
 |
 +-- Feature #6   M01-0006  Repository, documentation and conventions
 |     +-- #7   Repository layout and backup of the early draft
@@ -151,10 +160,28 @@ Epic #76  M01-0072  Data Ingest Log API
       +-- #36  Enforce allowed status transitions
 ```
 
-## 3. Notes
+## 3. Superpowers workflow (follow-up #133)
+
+| Issue | Step | Command | Status | Started | Completed |
+|---|---|---|---|---|---|
+| #133 | 1 | `/ccaa-story-start 133` | Done | 2026-11-15 02:16 | 2026-11-15 02:16 |
+| #133 | 2 | `/brainstorming Story #133: containers stop always removes Docker volumes; optional --keep-volumes` | Done | 2026-11-15 02:16 | 2026-11-15 02:16 |
+| #133 | 3 | `/using-git-worktrees Story #133: branch m01-0073-containers-stop-wipe-volumes` | Done | 2026-11-15 02:16 | 2026-11-15 02:16 |
+| #133 | 4 | `/writing-plans Story #133` | Done | 2026-11-15 02:16 | 2026-11-15 02:16 |
+| #133 | 5 | `/test-driven-development Story #133` | Done | 2026-11-15 02:16 | 2026-11-15 02:16 |
+| #133 | 6 | `/subagent-driven-development Story #133` | Done | 2026-11-15 02:16 | 2026-11-15 02:16 |
+| #133 | 7 | `/ccaa-commit-push 133` after every task (repeat) | Done | 2026-11-15 02:16 | 2026-11-15 02:16 |
+| #133 | 8 | `/verification-before-completion Story #133` | Done | 2026-11-15 02:16 | 2026-11-15 02:16 |
+| #133 | 9 | `/requesting-code-review Story #133` | Done | 2026-11-15 02:16 | 2026-11-15 02:16 |
+| #133 | 10 | `/ccaa-commit-push 133` | Done | 2026-11-15 02:16 | 2026-11-15 02:16 |
+| #133 | 11 | `/finishing-a-development-branch Story #133` | Done | 2026-11-15 02:16 | 2026-11-15 02:16 |
+| #133 | 12 | `/ccaa-story-complete 133` | Done | 2026-11-15 02:16 | 2026-11-15 02:16 |
+
+## 4. Notes
 
 - **#17** is a stray duplicate of #18 (the "Facade task pattern" story), created by an interrupted run. It is closed and is not part of the counts above.
+- **Follow-up #133 (M01-0073):** `local:containers:*:stop` always runs `docker compose down -v`; use `--keep-volumes` to retain. Spec/plan under `docs/Superpowers/`.
 - **Moved out of this milestone:**
   - M02 - Downloads Management has the dataset status (`system_datasets`), the download API, source locations, the Airflow download DAG and the admin portal.
-  - M03 - Cloud Deployment has the cloud migration workflow and the cloud storage sources.
+  - M06 - Cloud Deployment (was M03) has the cloud migration workflow and the cloud storage sources.
 - **Where the details are:** every decision behind these issues is in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md` (D1 to D41). The issue numbers above are the GitHub issues of this repository.
