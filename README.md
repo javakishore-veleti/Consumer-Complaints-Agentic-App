@@ -1,5 +1,17 @@
 # Consumer-Complaints-Agentic-App
 
+> [!CAUTION]
+> # Install Superpowers on your laptop
+> **To truly use this repo’s Superpowers integration (structured agent workflows: brainstorm → plan → TDD → review), each developer must install the [Superpowers](https://github.com/obra/superpowers) plugin in Cursor on their machine.**
+>
+> In Cursor, run:
+> ```text
+> /add-plugin superpowers
+> ```
+> Workspace setting `.cursor/settings.json` only *enables* the plugin for this project — it does **not** ship the skills in git.
+>
+> **The application still runs without Superpowers.** Middleware, Admin portal, Airflow, migrations, and tests work with the npm/local scripts below. Superpowers is for AI-assisted *development process*, not runtime.
+
 ## Development tooling
 
 ### Local containers (lite profiles)
@@ -43,7 +55,10 @@ E2E happy path (UI → API → Airflow → callback → UI, SQLite first): see `
 
 ### Superpowers plugin
 
-This project uses the [Superpowers](https://github.com/obra/superpowers) plugin in Cursor. It is a core skills library that gives the AI agent structured workflows for development tasks.
+> [!IMPORTANT]
+> Superpowers is **required for the agent workflow** documented here, but **optional for running the product**. See the red **CAUTION** banner at the top of this README.
+
+This project uses the [Superpowers](https://github.com/obra/superpowers) plugin in Cursor (install on **your laptop**, not vendored into this repo). It is a core skills library that gives the AI agent structured workflows for development tasks.
 
 Skills included:
 
