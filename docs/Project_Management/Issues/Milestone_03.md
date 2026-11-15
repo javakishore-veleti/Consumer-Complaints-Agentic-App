@@ -123,15 +123,15 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #116 | 11 | `/finishing-a-development-branch Story #116` | Done | 2026-11-15 01:19 | 2026-11-15 01:19 |
 | #116 | 12 | `/ccaa-story-complete 116` | Done | 2026-11-15 01:19 | 2026-11-15 01:19 |
 | #117 | 1 | `/ccaa-story-start 117` | Done | 2026-11-15 01:21 | 2026-11-15 01:21 |
-| #117 | 2 | `/brainstorming Story #117: SQLite-first operational store for admin schema (workflows, catalog, ingest/exec logs); migrations and APIs without Postgres container` | In progress | 2026-11-15 01:21 | - |
-| #117 | 3 | `/using-git-worktrees Story #117: branch m03-0007-sqlite-first-admin-store` | Planned | - | - |
-| #117 | 4 | `/writing-plans Story #117` | Planned | - | - |
-| #117 | 5 | `/test-driven-development Story #117` | Planned | - | - |
-| #117 | 6 | `/subagent-driven-development Story #117` | Planned | - | - |
-| #117 | 7 | `/ccaa-commit-push 117` after every task (repeat) | Planned | - | - |
-| #117 | 8 | `/verification-before-completion Story #117` | Planned | - | - |
-| #117 | 9 | `/requesting-code-review Story #117` | Planned | - | - |
-| #117 | 10 | `/ccaa-commit-push 117` | Planned | - | - |
+| #117 | 2 | `/brainstorming Story #117: SQLite-first operational store for admin schema (workflows, catalog, ingest/exec logs); migrations and APIs without Postgres container` | Done | 2026-11-15 01:21 | 2026-11-15 01:24 |
+| #117 | 3 | `/using-git-worktrees Story #117: branch m03-0007-sqlite-first-admin-store` | Done | 2026-11-15 01:22 | 2026-11-15 01:22 |
+| #117 | 4 | `/writing-plans Story #117` | Done | 2026-11-15 01:23 | 2026-11-15 01:23 |
+| #117 | 5 | `/test-driven-development Story #117` | Done | 2026-11-15 01:24 | 2026-11-15 01:24 |
+| #117 | 6 | `/subagent-driven-development Story #117` | Done | 2026-11-15 01:24 | 2026-11-15 01:24 |
+| #117 | 7 | `/ccaa-commit-push 117` after every task (repeat) | Done | 2026-11-15 01:24 | 2026-11-15 01:24 |
+| #117 | 8 | `/verification-before-completion Story #117` | Done | 2026-11-15 01:24 | 2026-11-15 01:25 |
+| #117 | 9 | `/requesting-code-review Story #117` | Done | 2026-11-15 01:25 | 2026-11-15 01:25 |
+| #117 | 10 | `/ccaa-commit-push 117` | In progress | 2026-11-15 01:25 | - |
 | #117 | 11 | `/finishing-a-development-branch Story #117` | Planned | - | - |
 | #117 | 12 | `/ccaa-story-complete 117` | Planned | - | - |
 | #118 | 1 | `/ccaa-story-start 118` | Planned | - | - |
@@ -246,6 +246,6 @@ The skills live in `.cursor/skills/`. Each takes a GitHub issue number.
 - **DoD:** SQLite path first; then Postgres via `.env`; then MongoDB via `.env` — all locally. No major code changes between backends (DAO/factory seam).
 - **Cloud** issues formerly titled M03 are now **M06** (#73 epic and children). Do not build them in this milestone.
 - **Specs/plans** under `docs/Superpowers/` appear when a story runs `/brainstorming` and `/writing-plans` (e.g. `M03-0006-*-design.md`). They do not exist until a story starts.
-- **Where the details are:** decisions go in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. Next free decision is **D76+** (D75 = pluggable operational DB seam, story #116).
+- **Where the details are:** decisions go in `Middleware/ConsumerComplaintsHandsOn/DESIGN.md`. Next free decision is **D77+** (D75 = pluggable operational DB seam, story #116; D76 = SQLite-first admin store reliability, story #117).
 - **PR → main**, merge only when CI is green. Git author must be `javakishore-veleti <6062900+javakishore-veleti@users.noreply.github.com>`; strip AI trailers.
 - **D64:** new facades only when needed; prefer extending existing packages.

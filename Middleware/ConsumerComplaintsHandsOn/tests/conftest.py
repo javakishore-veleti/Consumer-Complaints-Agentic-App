@@ -23,6 +23,8 @@ def data_dir(tmp_path, monkeypatch):
     """A fresh, migrated operational database in a temporary folder."""
     monkeypatch.setenv("CCA_DATA_DIR", str(tmp_path))
     monkeypatch.delenv("CCA_DB_URL", raising=False)
+    monkeypatch.delenv("CCA_OPERATIONAL_STORE", raising=False)
+    monkeypatch.delenv("CCA_MONGO_OPERATIONAL_URL", raising=False)
     reset_engine()
     command.upgrade(Config(str(PROJECT_ROOT / "alembic.ini")), "head")
     yield tmp_path
