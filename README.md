@@ -28,7 +28,14 @@ npm run local:handson:middlware:all:start   # Middleware API (:8000)
 npm run local:portals:all:start             # all Portals apps (today: admin on :4200)
 ```
 
-`local:portals:all:*` is the umbrella for every app under `Portals/`; add future portals there. Single-app shortcuts remain: `local:portal:admin:start|build|test`. Shortcut `local:portal:admin:with-api` still starts Middleware then `local:portals:all:start`.
+`local:portals:all:*` is the umbrella for every app under `Portals/`; add future portals there. `local:portals:all:start` always runs `npm install` in the admin portal first (so pulls never leave deps stale), then `ng serve`. Single-app shortcuts remain: `local:portal:admin:start|build|test`. Shortcut `local:portal:admin:with-api` still starts Middleware then `local:portals:all:start`.
+
+Admin Angular needs **Node.js 22+** (see root `.nvmrc`). If `nvm` defaults to 20:
+
+```bash
+nvm use    # or: nvm use 22
+npm run local:portals:all:start
+```
 
 Then open http://localhost:4200/datasets/imports.
 

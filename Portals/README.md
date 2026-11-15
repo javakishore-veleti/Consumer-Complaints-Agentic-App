@@ -11,7 +11,7 @@ From the repository root — preferred three-step local stack:
 ```bash
 npm run local:containers:all:start          # Docker deps (or :sqlite:start, …)
 npm run local:handson:middlware:all:start   # Middleware API
-npm run local:portals:all:start             # every Portals app (today: admin only)
+npm run local:portals:all:start             # npm install admin deps, then every Portals app (today: admin)
 ```
 
 Portal umbrella / single-app:
