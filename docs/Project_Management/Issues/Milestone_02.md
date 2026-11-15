@@ -428,11 +428,11 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #80 | 5 | `/test-driven-development Story #80` | Done | 2026-11-14 23:05 | 2026-11-14 23:11 |
 | #80 | 6 | `/subagent-driven-development Story #80` | Done | 2026-11-14 23:11 | 2026-11-14 23:11 |
 | #80 | 7 | `/ccaa-commit-push 80` after every task (repeat) | Done | 2026-11-14 23:11 | 2026-11-14 23:11 |
-| #80 | 8 | `/verification-before-completion Story #80` | In progress | 2026-11-14 23:11 | - |
-| #80 | 9 | `/requesting-code-review Story #80` | Planned | - | - |
-| #80 | 10 | `/ccaa-commit-push 80` | Planned | - | - |
-| #80 | 11 | `/finishing-a-development-branch Story #80` | Planned | - | - |
-| #80 | 12 | `/ccaa-story-complete 80` | Planned | - | - |
+| #80 | 8 | `/verification-before-completion Story #80` | Done | 2026-11-14 23:11 | 2026-11-14 23:11 |
+| #80 | 9 | `/requesting-code-review Story #80` | Done | 2026-11-14 23:11 | 2026-11-14 23:11 |
+| #80 | 10 | `/ccaa-commit-push 80` | Done | 2026-11-14 23:11 | 2026-11-14 23:11 |
+| #80 | 11 | `/finishing-a-development-branch Story #80` | Done | 2026-11-14 23:11 | 2026-11-14 23:11 |
+| #80 | 12 | `/ccaa-story-complete 80` | In progress | 2026-11-14 23:11 | - |
 | #83 | 1 | `/ccaa-story-start 83` | Planned | - | - |
 | #83 | 2 | `/brainstorming Story #83: workflow engine interface in services, one implementation per engine type, looked up through the factory (D45); unknown engine type returns INVALID_INPUT` | Planned | - | - |
 | #83 | 3 | `/using-git-worktrees Story #83: branch m02-0033-workflow-engine-interface-and-lookup` | Planned | - | - |
