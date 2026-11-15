@@ -24,6 +24,7 @@ from app.core.common.dtos.dataset_status_dtos import DatasetStatusCtx, DatasetSt
 from app.core.common.dtos.mio_dataset_dtos import MioDatasetCtx, MioDatasetReq
 from app.core.common.dtos.mio_dtos import MioCtx, MioReq
 from app.core.common.dtos.mio_ingest_log_dtos import MioIngestLogCtx, MioIngestLogReq
+from app.core.common.dtos.wf_exec_status_dtos import WfExecStatusCtx, WfExecStatusReq
 from app.core.common.return_codes import CONFLICT, INVALID_INPUT, NOT_FOUND, SUCCESS
 from app.core.dao.impl import sqlalchemy_app_wf_exec_log_dao as exec_log_impl
 from app.core.dao.impl import sqlalchemy_mio_ingest_log_dao as ingest_log_impl
@@ -360,3 +361,37 @@ def test_mio_ingest_log_works_on_postgres(postgres, monkeypatch):
     command.upgrade(postgres, "head")
     assert "mios_ingest_log" in _admin_tables()
     assert "mios_ingest_log_id" in exec_log_columns()
+
+
+def test_wf_exec_status_service_works_on_postgres(postgres):
+    command.upgrade(postgres, "head")
+    mio = MioCtx(req=MioReq(name="t_status_mio"))
+    assert DaoObjectsFactory.get_mio_dao().create(mio) == SUCCESS
+    ingest = MioIngestLogCtx(req=MioIngestLogReq(mio_id=mio.resp.records[0].id))
+    assert DaoObjectsFactory.get_mio_ingest_log_dao().create(ingest) == SUCCESS
+    ingest_id = ingest.resp.records[0].id
+    made = AppWfCtx(req=AppWfReq(workflow_name="w", engine_type="apache_airflow", engine_workflow_id="dag"))
+    assert DaoObjectsFactory.get_app_wf_dao().create(made) == SUCCESS
+    ids = []
+    for _ in range(2):
+        req = AppWfExecLogReq(workflow_id=made.resp.records[0].id, mios_ingest_log_id=ingest_id)
+        execution = AppWfExecLogCtx(req=req)
+        assert DaoObjectsFactory.get_app_wf_exec_log_dao().create(execution) == SUCCESS
+        ids.append(execution.resp.records[0].id)
+
+    def report(req):
+        ctx = WfExecStatusCtx(req=req)
+        ServicesObjectsFactory.get_wf_exec_status_service().record(ctx)
+        return ctx.resp
+
+    for execution_id in ids:
+        assert report(WfExecStatusReq(execution_id=execution_id, status="started")).code == SUCCESS
+    first = report(WfExecStatusReq(execution_id=ids[0], status="completed", rows_loaded=5_000_000_000))
+    assert (first.code, first.ingest.status, first.ingest.rows_loaded) == (SUCCESS, "started", 5_000_000_000)
+    assert report(WfExecStatusReq(execution_id=ids[0], status="failed")).code == CONFLICT
+    last = report(WfExecStatusReq(execution_id=ids[1], status="completed", message="done"))
+    assert (last.code, last.ingest.status, last.ingest.message) == (SUCCESS, "completed", "done")
+    again = report(WfExecStatusReq(execution_id=ids[1], status="completed"))
+    assert (again.code, again.ingest) == (SUCCESS, last.ingest)
+    assert report(WfExecStatusReq(execution_id=ids[1], status="completed", batch_count=-1)).code == INVALID_INPUT
+    assert report(WfExecStatusReq(execution_id="no-such-execution", status="started")).code == NOT_FOUND
