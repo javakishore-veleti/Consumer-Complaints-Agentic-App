@@ -1,20 +1,27 @@
-"""Triggers Airflow through the #60 AirflowStartDagFacade (af_start)."""
+"""Looks up WorkflowEngine by type and starts the run (D73); no engine-specific imports."""
 
-from app.core.common.dtos.airflow_start_dag_dtos import AirflowStartDagReq
-from app.core.common.dtos.airflow_start_dag_facade_dtos import AirflowStartDagFacadeCtx
 from app.core.common.dtos.start_wf_facade_dtos import StartWfFacadeCtx
+from app.core.common.dtos.workflow_engine_dtos import WorkflowEngineCtx, WorkflowEngineReq
 from app.core.common.return_codes import INVALID_INPUT
-from app.core.facades.objects_factory import FacadesObjectsFactory
 from app.core.facades.start_wf_facade_task import StartWfFacadeTask
+from app.core.services.objects_factory import ServicesObjectsFactory
 
 
 class StartWfTriggerEngineTask(StartWfFacadeTask):
     def execute(self, ctx: StartWfFacadeCtx) -> int:
         execution_id = ctx.resp.execution_id
-        if not execution_id:
+        engine_type = ctx.resp.engine_type
+        if not execution_id or not engine_type:
             ctx.resp.code = INVALID_INPUT
             return INVALID_INPUT
-        engine_ctx = AirflowStartDagFacadeCtx(req=AirflowStartDagReq(execution_id=execution_id))
-        code = FacadesObjectsFactory.get_airflow_start_dag_facade().start(engine_ctx)
+        engine = next(
+            (e for e in ServicesObjectsFactory.get_workflow_engines() if e.engine_type == engine_type),
+            None,
+        )
+        if engine is None:
+            ctx.resp.code = INVALID_INPUT
+            return INVALID_INPUT
+        eng_ctx = WorkflowEngineCtx(req=WorkflowEngineReq(execution_id=execution_id))
+        code = engine.start(eng_ctx)
         ctx.resp.code = code
         return code

@@ -62,6 +62,9 @@ from app.core.services.airflow_upsert_secrets_service import AirflowUpsertSecret
 from app.core.services.dataset_status_service import DatasetStatusService
 from app.core.services.impl.airflow_start_dag_service_impl import AirflowStartDagServiceImpl
 from app.core.services.impl.airflow_upsert_secrets_service_impl import AirflowUpsertSecretsServiceImpl
+from app.core.services.impl.apache_airflow_workflow_engine_impl import (
+    ApacheAirflowWorkflowEngineImpl,
+)
 from app.core.services.impl.dataset_status_service_impl import DatasetStatusServiceImpl
 from app.core.services.impl.mio_status_service_impl import MioStatusServiceImpl
 from app.core.services.impl.start_wf_service_impl import StartWfServiceImpl
@@ -72,6 +75,7 @@ from app.core.services.objects_factory import ServicesObjectsFactory
 from app.core.services.start_wf_service import StartWfService
 from app.core.services.wf_exec_status_service import WfExecStatusService
 from app.core.services.wf_list_service import WfListService
+from app.core.services.workflow_engine import WorkflowEngine
 from app.core.dao.impl.sqlalchemy_system_datasets_dao import SqlAlchemySystemDatasetsDao
 from app.core.dao.impl.sqlalchemy_transaction_dao import SqlAlchemyTransactionDao
 from app.core.dao.system_datasets_dao import SystemDatasetsDao
@@ -113,6 +117,12 @@ def test_factories_return_the_same_object_typed_as_the_interface():
     ):
         assert getter() is getter()
         assert isinstance(getter(), interface)
+
+    engines = ServicesObjectsFactory.get_workflow_engines()
+    assert engines
+    assert engines == ServicesObjectsFactory.get_workflow_engines()
+    assert all(isinstance(e, WorkflowEngine) for e in engines)
+    assert engines[0] is ApacheAirflowWorkflowEngineImpl()
 
     assert ApiObjectsFactory.get_app() is ApiObjectsFactory.get_app()
     assert ApiObjectsFactory.get_callback_secret_auth() is ApiObjectsFactory.get_callback_secret_auth()
@@ -160,6 +170,7 @@ def test_the_classes_themselves_are_singletons():
     assert WfListFacadeImpl() is WfListFacadeImpl()
     assert StartWfFacadeImpl() is StartWfFacadeImpl()
     assert AirflowStartDagServiceImpl() is AirflowStartDagServiceImpl()
+    assert ApacheAirflowWorkflowEngineImpl() is ApacheAirflowWorkflowEngineImpl()
     assert AirflowStartDagFacadeImpl() is AirflowStartDagFacadeImpl()
     for task in (
         DataIngestValidateRequestTask,

@@ -1,6 +1,5 @@
-"""Look up the workflow, optional ingest + location checks, create the exec log (D68)."""
+"""Look up the workflow, optional ingest + location checks, create the exec log (D68/D73)."""
 
-from app.core.common.app_types_constants import EngineType
 from app.core.common.dtos.app_wf_dtos import AppWfCtx, AppWfReq
 from app.core.common.dtos.app_wf_exec_log_dtos import AppWfExecLogCtx, AppWfExecLogReq
 from app.core.common.dtos.dataset_location_dtos import DatasetLocationCtx, DatasetLocationReq
@@ -8,12 +7,14 @@ from app.core.common.dtos.mio_ingest_log_dtos import MioIngestLogCtx, MioIngestL
 from app.core.common.dtos.start_wf_dtos import StartWfCtx
 from app.core.common.return_codes import INVALID_INPUT, NOT_FOUND, SUCCESS
 from app.core.dao.objects_factory import DaoObjectsFactory
+from app.core.services.objects_factory import ServicesObjectsFactory
 from app.core.services.start_wf_service import StartWfService
 
 
 class StartWfServiceImpl(StartWfService):
     def start(self, ctx: StartWfCtx) -> int:
         ctx.resp.execution_id = None
+        ctx.resp.engine_type = None
         workflow_id = (ctx.req.workflow_id or "").strip()
         if not workflow_id:
             ctx.resp.code = INVALID_INPUT
@@ -28,7 +29,8 @@ class StartWfServiceImpl(StartWfService):
             ctx.resp.code = code
             return code
         workflow = wf_ctx.resp.records[0]
-        if not workflow.enabled or workflow.engine_type != EngineType.APACHE_AIRFLOW.value:
+        registered = {e.engine_type for e in ServicesObjectsFactory.get_workflow_engines()}
+        if not workflow.enabled or workflow.engine_type not in registered:
             ctx.resp.code = INVALID_INPUT
             return INVALID_INPUT
 
@@ -69,5 +71,6 @@ class StartWfServiceImpl(StartWfService):
             ctx.resp.code = code
             return code
         ctx.resp.execution_id = exec_ctx.resp.records[0].id
+        ctx.resp.engine_type = workflow.engine_type
         ctx.resp.code = SUCCESS
         return SUCCESS

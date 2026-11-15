@@ -11,5 +11,6 @@ class StartWfCallServiceTask(StartWfFacadeTask):
         ctx.start_ctx = StartWfCtx(req=ctx.req)
         code = ServicesObjectsFactory.get_start_wf_service().start(ctx.start_ctx)
         ctx.resp.execution_id = ctx.start_ctx.resp.execution_id
+        ctx.resp.engine_type = ctx.start_ctx.resp.engine_type
         ctx.resp.code = code
         return code
