@@ -401,7 +401,7 @@ Every command carries its issue number (`Story #N` or `N`), so a chat history or
 | #64 | 8 | `/verification-before-completion Story #64` | Done | 2026-11-15 00:21 | 2026-11-15 00:21 |
 | #64 | 9 | `/requesting-code-review Story #64` | Done | 2026-11-15 00:21 | 2026-11-15 00:21 |
 | #64 | 10 | `/ccaa-commit-push 64` | Done | 2026-11-15 00:21 | 2026-11-15 00:21 |
-| #64 | 11 | `/finishing-a-development-branch Story #64` | In progress | 2026-11-15 00:21 | - |
+| #64 | 11 | `/finishing-a-development-branch Story #64` | Done | 2026-11-15 00:21 | 2026-11-15 00:21 |
 | #64 | 12 | `/ccaa-story-complete 64` | Planned | - | - |
 | #65 | 1 | `/ccaa-story-start 65` | Planned | - | - |
 | #65 | 2 | `/brainstorming Story #65: start workflow button and status refresh; calls #42; poll or refresh is the open question` | Planned | - | - |
