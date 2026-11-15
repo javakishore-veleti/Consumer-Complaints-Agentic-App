@@ -266,9 +266,9 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #139 | 12 | `/ccaa-story-complete 139` | Done | 2026-11-15 03:19 | 2026-11-15 03:19 |
 | #141 | 1 | `/ccaa-story-start 141` | Done | 2026-11-15 03:39 | 2026-11-15 03:39 |
 | #141 | 2 | `/brainstorming Story #141: D84 mios_workflows; All MIO; Imports picker from allowed_workflows; start rejects unbound` | Done | 2026-11-15 03:39 | 2026-11-15 03:39 |
-| #141 | 3 | `/using-git-worktrees Story #141: branch m03-0018-mio-workflow-binding` | In progress | 2026-11-15 03:39 | - |
-| #141 | 4 | `/writing-plans Story #141` | Planned | - | - |
-| #141 | 5 | `/test-driven-development Story #141` | Planned | - | - |
+| #141 | 3 | `/using-git-worktrees Story #141: branch m03-0018-mio-workflow-binding` | Done | 2026-11-15 03:41 | 2026-11-15 03:41 |
+| #141 | 4 | `/writing-plans Story #141` | Done | 2026-11-15 03:41 | 2026-11-15 03:41 |
+| #141 | 5 | `/test-driven-development Story #141` | In progress | 2026-11-15 03:41 | - |
 | #141 | 6 | `/subagent-driven-development Story #141` | Planned | - | - |
 | #141 | 7 | `/ccaa-commit-push 141` after every task (repeat) | Planned | - | - |
 | #141 | 8 | `/verification-before-completion Story #141` | Planned | - | - |
