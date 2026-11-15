@@ -9,6 +9,8 @@
 #   open http://localhost:8080      login: airflow / airflow
 #
 # DAGs live in <repo>/Middleware/Airflow-dags. Local refresh is 10s via AIRFLOW__DAG_PROCESSOR__REFRESH_INTERVAL (Airflow 3.4.0; local-only; default is 300).
+# For Docker Airflow download DAGs (D63): set Airflow Variable CCA_DB_URL to a Postgres URL the containers can reach,
+# and set LOCAL_DATA_PATH_CFPB (env or Variable) to a path mounted writable into the worker.
 # Stop with `docker compose down` (add -v to also wipe the metadata database).
 name: airflow
 
