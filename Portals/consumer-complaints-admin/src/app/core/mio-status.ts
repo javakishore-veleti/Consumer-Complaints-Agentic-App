@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { httpErrorMessage } from './http-error-message';
 import { FAILURE, SUCCESS } from './return-codes';
 
 export interface MioStatusExecution {
@@ -56,9 +57,9 @@ export async function loadMioStatus(http: HttpClient, ctx: MioStatusCtx): Promis
     ctx.resp.entries = entries ?? [];
     ctx.resp.error = '';
     return SUCCESS;
-  } catch {
+  } catch (err) {
     ctx.resp.entries = [];
-    ctx.resp.error = 'Failed to load MIO status';
+    ctx.resp.error = httpErrorMessage(err, 'Failed to load MIO status');
     return FAILURE;
   }
 }

@@ -43,12 +43,12 @@ describe('listWorkflows', () => {
   it('maps HTTP error to FAILURE without inventing workflows', async () => {
     const ctx: WorkflowListCtx = { req: {}, resp: { workflows: [], error: '' } };
     const pending = listWorkflows(http, ctx);
-    httpMock.expectOne('/api/workflows').flush('boom', {
-      status: 500,
-      statusText: 'Server Error',
-    });
+    httpMock.expectOne('/api/workflows').flush(
+      { detail: 'request failed' },
+      { status: 500, statusText: 'Server Error' },
+    );
     await expect(pending).resolves.toBe(FAILURE);
     expect(ctx.resp.workflows).toEqual([]);
-    expect(ctx.resp.error.length).toBeGreaterThan(0);
+    expect(ctx.resp.error).toBe('request failed');
   });
 });

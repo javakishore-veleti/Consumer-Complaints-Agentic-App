@@ -19,6 +19,7 @@
     "local:api:lint": "cd Middleware/ConsumerComplaintsHandsOn && uv run lint-imports",
     "local:api:test": "cd Middleware/ConsumerComplaintsHandsOn && uv run pytest",
     "local:portal:admin:start": "npm --prefix Portals/consumer-complaints-admin start",
+    "local:portal:admin:with-api": "npm run local:handson:middlware:all:start && npm run local:portal:admin:start",
     "local:portal:admin:build": "npm --prefix Portals/consumer-complaints-admin run build",
     "local:portal:admin:test": "npm --prefix Portals/consumer-complaints-admin test -- --watch=false"
   },

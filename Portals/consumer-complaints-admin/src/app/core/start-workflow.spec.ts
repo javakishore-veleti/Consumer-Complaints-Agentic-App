@@ -35,7 +35,7 @@ describe('startWorkflow', () => {
     expect(ctx.resp.error).toBe('');
   });
 
-  it('maps 422 to INVALID_INPUT', async () => {
+  it('maps 422 to INVALID_INPUT with API detail', async () => {
     const ctx: StartWorkflowCtx = {
       req: { workflowId: 'w1', mioId: 'm1' },
       resp: { executionId: '', error: '' },
@@ -47,10 +47,24 @@ describe('startWorkflow', () => {
     );
     await expect(pending).resolves.toBe(INVALID_INPUT);
     expect(ctx.resp.executionId).toBe('');
-    expect(ctx.resp.error.length).toBeGreaterThan(0);
+    expect(ctx.resp.error).toBe('invalid request');
   });
 
-  it('maps other HTTP errors to FAILURE', async () => {
+  it('maps 502 to FAILURE with engine detail', async () => {
+    const ctx: StartWorkflowCtx = {
+      req: { workflowId: 'w1', mioId: 'm1' },
+      resp: { executionId: '', error: '' },
+    };
+    const pending = startWorkflow(http, ctx);
+    httpMock.expectOne('/api/workflows/w1/start').flush(
+      { detail: 'engine start failed' },
+      { status: 502, statusText: 'Bad Gateway' },
+    );
+    await expect(pending).resolves.toBe(FAILURE);
+    expect(ctx.resp.error).toBe('engine start failed');
+  });
+
+  it('maps other HTTP errors to FAILURE with statusText when no detail', async () => {
     const ctx: StartWorkflowCtx = {
       req: { workflowId: 'w1', mioId: 'm1' },
       resp: { executionId: '', error: '' },
@@ -61,6 +75,6 @@ describe('startWorkflow', () => {
       statusText: 'Server Error',
     });
     await expect(pending).resolves.toBe(FAILURE);
-    expect(ctx.resp.error.length).toBeGreaterThan(0);
+    expect(ctx.resp.error).toBe('HTTP 500: Server Error');
   });
 });

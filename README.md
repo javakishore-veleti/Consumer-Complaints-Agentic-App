@@ -4,7 +4,13 @@
 
 ### Admin portal
 
-Angular app at `Portals/consumer-complaints-admin/` — `npm run local:portal:admin:start` (Node 22+).
+Angular app at `Portals/consumer-complaints-admin/` (Node 22+). One-command local UI + Middleware:
+
+```bash
+npm run local:portal:admin:with-api
+```
+
+Then open http://localhost:4200/datasets/imports. Portal-only: `npm run local:portal:admin:start` (API must already be on `127.0.0.1:8000`).
 
 ### Superpowers plugin
 

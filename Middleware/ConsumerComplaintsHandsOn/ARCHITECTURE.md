@@ -193,6 +193,7 @@ SQLAlchemy ORM with **Alembic** migrations.
 | Airflow UI | <http://localhost:8080> | login `airflow` / `airflow`; compose in `CICD/Local/airflow` |
 | MongoDB | `127.0.0.1:27017` | root user from environment or the local default; compose in `CICD/Local/mongodb` |
 | Middleware API | <http://127.0.0.1:8000> (`/docs` for Swagger) | `npm run local:handson:middlware:all:start` (or `:stop`, `:status`; start migrates first, runs in the background; log and PID in `.data/`); `local:api:migrate` and `local:api:test` also exist |
+| Admin portal | <http://localhost:4200> (`/datasets/imports`) | `npm run local:portal:admin:with-api` starts Middleware then the Angular app; `apiBaseUrl` `/api` proxies to Middleware `:8000` (D65). Portal-only: `local:portal:admin:start` |
 
 Start, stop, check: `npm run local:containers:all:start | stop | status` (they run the three `CICD/Local/docker-all-*.sh`
 scripts, which pick up every `CICD/Local/<service>/docker-compose.yaml`). `stop -- --wipe <service>` also deletes that
