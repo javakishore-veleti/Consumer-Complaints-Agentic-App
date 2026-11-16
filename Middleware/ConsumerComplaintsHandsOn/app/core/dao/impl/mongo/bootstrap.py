@@ -22,14 +22,19 @@ MIOS = (
 )
 DOWNLOAD_WF_ID = "b4b8014f-d756-5bc8-a041-96899ac037ac"
 FILTER_WF_ID = "4d3f1ee0-0b02-51cb-8959-2499896cc20e"
+# uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m04-0013/ingest_cfpb_all")
+INGEST_WF_ID = "0064095f-9f8e-5f09-94cf-3b4fe28e2b33"
 ALL_MIO_ID = "01fa6351-cf12-520d-886d-9b8e30515451"
 ALL_MIOS_DATASETS_ID = "038915b0-1a19-50e9-9333-e49f3816a0f8"
 MW_ALL_DOWNLOAD_ID = "c23808b9-4e57-5a5b-b301-78dec5ac839e"
 MW_3M_FILTER_ID = "edd79fde-5736-5655-9d00-c52bfe172c1f"
+# uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m04-0013/mios-workflows-all-ingest")
+MW_ALL_INGEST_ID = "251b44d2-9aea-5d9d-b1a0-0816e8db3f80"
 MIO_3_MONTHS_ID = "a10fbfe0-ac03-5f3f-8d20-5132d470b03a"
 # uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m04-0009/ep-cfpb-source-http-local")
 APP_ENDPOINT_SOURCE_ID = "ccbce57d-bd9f-56fe-a258-fa2deb9dd393"
 NOW_ENDPOINTS = datetime(2026, 11, 15, tzinfo=timezone.utc)
+NOW_INGEST = datetime(2026, 11, 15, tzinfo=timezone.utc)
 
 COLLECTIONS = (
     "app_workflows",
@@ -236,6 +241,36 @@ def seed_if_empty() -> None:
                 "mio_id": MIO_3_MONTHS_ID,
                 "workflow_id": FILTER_WF_ID,
                 "created_at": NOW_FILTER,
+            }
+        )
+    )
+    _upsert(
+        MongoDocument(
+            {
+                "_collection": "app_workflows",
+                "id": INGEST_WF_ID,
+                "workflow_name": "ingest_cfpb_all",
+                "engine_type": "apache_airflow",
+                "engine_workflow_id": "ingest_cfpb_all",
+                "config": {
+                    "dataset_code": "CFPB",
+                    "source_filename": "complaints.csv.zip",
+                    "batch_size": 500,
+                },
+                "enabled": True,
+                "created_at": NOW_INGEST,
+                "updated_at": NOW_INGEST,
+            }
+        )
+    )
+    _upsert(
+        MongoDocument(
+            {
+                "_collection": "mios_workflows",
+                "id": MW_ALL_INGEST_ID,
+                "mio_id": ALL_MIO_ID,
+                "workflow_id": INGEST_WF_ID,
+                "created_at": NOW_INGEST,
             }
         )
     )

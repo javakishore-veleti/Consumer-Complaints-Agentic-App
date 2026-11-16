@@ -140,7 +140,20 @@ Every command has its own row with **Status** (`Planned`, `In progress` or `Done
 | #158 | 10 | `/ccaa-commit-push 158` | Done | 2026-11-15 19:52 | 2026-11-15 19:52 |
 | #158 | 11 | `/finishing-a-development-branch Story #158` | Done | 2026-11-15 19:52 | 2026-11-15 19:52 |
 | #158 | 12 | `/ccaa-story-complete 158` | Done | 2026-11-15 19:52 | 2026-11-15 19:52 |
-*(Full per-story command tables for #159–#164 are added when each story is started via `/ccaa-story-start`.)*
+| #159 | 1 | `/ccaa-story-start 159` | Done | 2026-11-15 19:55 | 2026-11-15 19:55 |
+| #159 | 2 | `/brainstorming Story #159: seed ingest_cfpb_all + All MIO bind` | Done | 2026-11-15 19:55 | 2026-11-15 19:55 |
+| #159 | 3 | `/using-git-worktrees Story #159: branch m04-0013-register-ingest-workflow` | Done | 2026-11-15 19:55 | 2026-11-15 19:55 |
+| #159 | 4 | `/writing-plans Story #159` | Done | 2026-11-15 19:55 | 2026-11-15 19:55 |
+| #159 | 5 | `/test-driven-development Story #159` | Done | 2026-11-15 19:55 | 2026-11-15 19:55 |
+| #159 | 6 | `/subagent-driven-development Story #159` | Done | 2026-11-15 19:55 | 2026-11-15 19:55 |
+| #159 | 7 | `/ccaa-commit-push 159 after every task (repeat)` | Done | 2026-11-15 19:55 | 2026-11-15 19:55 |
+| #159 | 8 | `/verification-before-completion Story #159` | Done | 2026-11-15 19:55 | 2026-11-15 19:55 |
+| #159 | 9 | `/requesting-code-review Story #159` | Done | 2026-11-15 19:55 | 2026-11-15 19:55 |
+| #159 | 10 | `/ccaa-commit-push 159` | Done | 2026-11-15 19:55 | 2026-11-15 19:55 |
+| #159 | 11 | `/finishing-a-development-branch Story #159` | Done | 2026-11-15 19:55 | 2026-11-15 19:55 |
+| #159 | 12 | `/ccaa-story-complete 159` | Done | 2026-11-15 19:55 | 2026-11-15 19:55 |
+*(Full per-story command tables for #160–#164 are added when each story is started via `/ccaa-story-start`.)*
+
 
 ## 4. Notes
 

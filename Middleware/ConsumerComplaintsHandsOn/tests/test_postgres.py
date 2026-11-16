@@ -114,6 +114,7 @@ def test_app_wf_dao_works_on_postgres(postgres):
         "download_3_months",
         "download_cfpb_all",
         "filter_cfpb_3_months",
+        "ingest_cfpb_all",
     ]
     assert dao.update(AppWfCtx(req=AppWfReq(id=row.id, enabled=False))) == SUCCESS
     disabled = AppWfCtx(req=AppWfReq(enabled=False))
@@ -214,7 +215,7 @@ def test_catalog_works_on_postgres(postgres):
         bindings = c.execute(text(f"select count(*) from {SCHEMA_ADMIN}.mios_workflows")).scalar()
         endpoints = c.execute(text(f"select count(*) from {SCHEMA_ADMIN}.app_endpoints")).scalar()
     assert seeded == 5  # four month MIOs + All (0011 / D84)
-    assert bindings == 2
+    assert bindings == 3
     assert endpoints == 1  # CFPB source HTTP→local (0012 / D85)
 
     datasets = DaoObjectsFactory.get_dataset_dao()
@@ -437,6 +438,7 @@ def test_wf_list_service_works_on_postgres(postgres):
     assert [e.workflow_name for e in ctx.resp.entries] == [
         "download_cfpb_all",
         "filter_cfpb_3_months",
+        "ingest_cfpb_all",
         "t_pg_list",
     ]
     assert all(not hasattr(e, "config") for e in ctx.resp.entries)

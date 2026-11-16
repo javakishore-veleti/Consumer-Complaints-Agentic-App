@@ -35,7 +35,8 @@ def test_lists_every_seeded_mio_with_null_ingest(client):
     assert all(row["latest_ingest"] is None for row in body)
     by_name = {row["name"]: row for row in body}
     assert [w["workflow_name"] for w in by_name["Customer complaints all 2026"]["allowed_workflows"]] == [
-        "download_cfpb_all"
+        "download_cfpb_all",
+        "ingest_cfpb_all",
     ]
     assert [w["workflow_name"] for w in by_name["Customer complaints 3 months 2026"]["allowed_workflows"]] == [
         "filter_cfpb_3_months"

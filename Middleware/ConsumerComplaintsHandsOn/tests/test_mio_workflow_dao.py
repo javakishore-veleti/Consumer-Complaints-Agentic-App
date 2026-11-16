@@ -8,6 +8,7 @@ from app.core.dao.objects_factory import DaoObjectsFactory
 
 DOWNLOAD_WF = "download_cfpb_all"
 FILTER_WF = "filter_cfpb_3_months"
+INGEST_WF = "ingest_cfpb_all"
 
 
 def _mio(name="t_mio") -> str:
@@ -110,5 +111,7 @@ def test_seeded_all_and_3_months_bindings_are_readable(data_dir):
     three_links = _ctx(mio_id=three.resp.records[0].id)
     assert dao.list(all_links) == SUCCESS
     assert dao.list(three_links) == SUCCESS
-    assert [r.workflow_id for r in all_links.resp.records] == [_wf(DOWNLOAD_WF)]
+    assert sorted(r.workflow_id for r in all_links.resp.records) == sorted(
+        [_wf(DOWNLOAD_WF), _wf(INGEST_WF)]
+    )
     assert [r.workflow_id for r in three_links.resp.records] == [_wf(FILTER_WF)]
