@@ -128,7 +128,19 @@ Every command has its own row with **Status** (`Planned`, `In progress` or `Done
 | #157 | 11 | `/finishing-a-development-branch Story #157` | Done | 2026-11-15 19:46 | 2026-11-15 19:46 |
 | #157 | 12 | `/ccaa-story-complete 157` | Done | 2026-11-15 19:46 | 2026-11-15 19:46 |
 
-*(Full per-story command tables for #158–#164 are added when each story is started via `/ccaa-story-start`.)*
+| #158 | 1 | `/ccaa-story-start 158` | Done | 2026-11-15 19:52 | 2026-11-15 19:52 |
+| #158 | 2 | `/brainstorming Story #158: ingest_cfpb_all + CCA_MONGO_COMPLAINTS_URL (D86)` | Done | 2026-11-15 19:52 | 2026-11-15 19:52 |
+| #158 | 3 | `/using-git-worktrees Story #158: branch m04-0012-local-mongo-ingest-dag` | Done | 2026-11-15 19:52 | 2026-11-15 19:52 |
+| #158 | 4 | `/writing-plans Story #158` | Done | 2026-11-15 19:52 | 2026-11-15 19:52 |
+| #158 | 5 | `/test-driven-development Story #158` | Done | 2026-11-15 19:52 | 2026-11-15 19:52 |
+| #158 | 6 | `/subagent-driven-development Story #158` | Done | 2026-11-15 19:52 | 2026-11-15 19:52 |
+| #158 | 7 | `/ccaa-commit-push 158` after every task (repeat) | Done | 2026-11-15 19:52 | 2026-11-15 19:52 |
+| #158 | 8 | `/verification-before-completion Story #158` | Done | 2026-11-15 19:52 | 2026-11-15 19:52 |
+| #158 | 9 | `/requesting-code-review Story #158` | Done | 2026-11-15 19:52 | 2026-11-15 19:52 |
+| #158 | 10 | `/ccaa-commit-push 158` | Done | 2026-11-15 19:52 | 2026-11-15 19:52 |
+| #158 | 11 | `/finishing-a-development-branch Story #158` | Done | 2026-11-15 19:52 | 2026-11-15 19:52 |
+| #158 | 12 | `/ccaa-story-complete 158` | Done | 2026-11-15 19:52 | 2026-11-15 19:52 |
+*(Full per-story command tables for #159–#164 are added when each story is started via `/ccaa-story-start`.)*
 
 ## 4. Notes
 
