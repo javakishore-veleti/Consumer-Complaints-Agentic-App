@@ -2,7 +2,7 @@
 
 **Scope:** Local-only after M03. Product order **C → D → A → B → E**. No paid cloud resources. Cloud remains **M06**. Intellect/ACL are **M05**.
 
-**Status: in progress.** 1 epic, 5 features, 12 stories (2 done; Feature #145 complete next).
+**Status: in progress.** 1 epic, 5 features, 12 stories (Phase C done; Feature #146 AppEndpoints stories done; ingest next).
 
 How to read this file:
 - `#144` is the GitHub issue number. The `M04-00NN` key is the sequence tag at the start of the issue title.
@@ -124,9 +124,9 @@ Every command has its own row with **Status** (`Planned`, `In progress` or `Done
 | #157 | 7 | `/ccaa-commit-push 157` after every task (repeat) | Done | 2026-11-15 19:45 | 2026-11-15 19:46 |
 | #157 | 8 | `/verification-before-completion Story #157` | Done | 2026-11-15 19:45 | 2026-11-15 19:45 |
 | #157 | 9 | `/requesting-code-review Story #157` | Done | 2026-11-15 19:45 | 2026-11-15 19:45 |
-| #157 | 10 | `/ccaa-commit-push 157` | In progress | 2026-11-15 19:46 | - |
-| #157 | 11 | `/finishing-a-development-branch Story #157` | Planned | - | - |
-| #157 | 12 | `/ccaa-story-complete 157` | Planned | - | - |
+| #157 | 10 | `/ccaa-commit-push 157` | Done | 2026-11-15 19:46 | 2026-11-15 19:46 |
+| #157 | 11 | `/finishing-a-development-branch Story #157` | Done | 2026-11-15 19:46 | 2026-11-15 19:46 |
+| #157 | 12 | `/ccaa-story-complete 157` | Done | 2026-11-15 19:46 | 2026-11-15 19:46 |
 
 *(Full per-story command tables for #158–#164 are added when each story is started via `/ccaa-story-start`.)*
 
