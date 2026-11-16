@@ -46,8 +46,8 @@ is done asynchronously by Apache Airflow.
 
 ### F1. Admin portal navigation [In progress]
 - Top-level menu **DataSets** [Done] (#63, D69).
-- Left navigation under it: **Imports** [Done] (#63); **DB Ingest** visible but disabled until its screen is built (D13).
-- Imports shows one accordion per MIO with status from `GET /mios/status` [Done] (#64, D71); start + refresh [Done] (#65, D72); picker is per-MIO `allowed_workflows` [Done] (#141, D84). DB Ingest will mirror that later.
+- Left navigation under it: **Imports** [Done] (#63); **DB Ingest** [Done] (#160).
+- Imports shows one accordion per MIO with status from `GET /mios/status` [Done] (#64, D71); start + refresh [Done] (#65, D72); picker is per-MIO `allowed_workflows` excluding ingest/index (#141, D84, #160). DB Ingest mirrors Imports for `ingest_*` workflows (#160).
 - Later: more datasets / MIOs are just more accordions / rows (for example "6 months").
 
 ### F2. Imports: bring the dataset in [In progress]

@@ -152,7 +152,20 @@ Every command has its own row with **Status** (`Planned`, `In progress` or `Done
 | #159 | 10 | `/ccaa-commit-push 159` | Done | 2026-11-15 19:55 | 2026-11-15 19:55 |
 | #159 | 11 | `/finishing-a-development-branch Story #159` | Done | 2026-11-15 19:55 | 2026-11-15 19:55 |
 | #159 | 12 | `/ccaa-story-complete 159` | Done | 2026-11-15 19:55 | 2026-11-15 19:55 |
-*(Full per-story command tables for #160–#164 are added when each story is started via `/ccaa-story-start`.)*
+| #160 | 1 | `/ccaa-story-start 160` | Done | 2026-11-15 19:57 | 2026-11-15 19:57 |
+| #160 | 2 | `/brainstorming Story #160: DB Ingest screen + ingest_* filter` | Done | 2026-11-15 19:57 | 2026-11-15 19:57 |
+| #160 | 3 | `/using-git-worktrees Story #160` | Done | 2026-11-15 19:57 | 2026-11-15 19:57 |
+| #160 | 4 | `/writing-plans Story #160` | Done | 2026-11-15 19:57 | 2026-11-15 19:57 |
+| #160 | 5 | `/test-driven-development Story #160` | Done | 2026-11-15 19:57 | 2026-11-15 19:57 |
+| #160 | 6 | `/subagent-driven-development Story #160` | Done | 2026-11-15 19:57 | 2026-11-15 19:57 |
+| #160 | 7 | `/ccaa-commit-push 160 after every task (repeat)` | Done | 2026-11-15 19:57 | 2026-11-15 19:57 |
+| #160 | 8 | `/verification-before-completion Story #160` | Done | 2026-11-15 19:57 | 2026-11-15 19:57 |
+| #160 | 9 | `/requesting-code-review Story #160` | Done | 2026-11-15 19:57 | 2026-11-15 19:57 |
+| #160 | 10 | `/ccaa-commit-push 160` | Done | 2026-11-15 19:57 | 2026-11-15 19:57 |
+| #160 | 11 | `/finishing-a-development-branch Story #160` | Done | 2026-11-15 19:57 | 2026-11-15 19:57 |
+| #160 | 12 | `/ccaa-story-complete 160` | Done | 2026-11-15 19:57 | 2026-11-15 19:57 |
+*(Full per-story command tables for #161–#164 are added when each story is started via `/ccaa-story-start`.)*
+
 
 
 ## 4. Notes

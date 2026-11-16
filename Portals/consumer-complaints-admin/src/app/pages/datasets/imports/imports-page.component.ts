@@ -43,7 +43,12 @@ export class ImportsPageComponent implements OnInit {
   }
 
   protected allowedWorkflows(mio: MioStatusEntry): MioAllowedWorkflow[] {
-    return (mio.allowed_workflows ?? []).filter((w) => w.enabled);
+    return (mio.allowed_workflows ?? []).filter(
+      (w) =>
+        w.enabled &&
+        !w.workflow_name.startsWith('ingest_') &&
+        !w.workflow_name.startsWith('index_'),
+    );
   }
 
   protected selectedWorkflowId(mioId: string): string {
