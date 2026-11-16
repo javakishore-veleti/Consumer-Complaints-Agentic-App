@@ -354,7 +354,8 @@ def test_download_cfpb_all_workflow_is_seeded(data_dir):
     assert row[0] == DOWNLOAD_CFPB_ALL_WORKFLOW_ID
     assert row[1:4] == ("download_cfpb_all", "apache_airflow", "download_cfpb_all")
     config = row[4] if isinstance(row[4], dict) else json.loads(row[4])
-    assert config == {"dataset_code": "CFPB"}
+    assert config["dataset_code"] == "CFPB"
+    assert config.get("app_endpoint_name") == "cfpb_source_http_to_local"
     assert row[5] in (1, True)
 
 
@@ -482,6 +483,7 @@ def test_ingest_cfpb_all_workflow_is_seeded(data_dir):
         "dataset_code": "CFPB",
         "source_filename": "complaints.csv.zip",
         "batch_size": 500,
+        "app_endpoint_name": "cfpb_ingest_local_to_mongo",
     }
     assert row[5] in (1, True)
 
@@ -544,4 +546,4 @@ def test_migration_0012_removes_app_endpoints_on_the_way_down(data_dir):
         assert db.execute("select name from sqlite_master where name = 'app_endpoints'").fetchall() == []
     command.upgrade(config, "head")
     with _admin_db(data_dir) as db:
-        assert db.execute("select count(*) from app_endpoints").fetchone()[0] == 1
+        assert db.execute("select count(*) from app_endpoints").fetchone()[0] == 2

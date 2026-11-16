@@ -216,7 +216,7 @@ def test_catalog_works_on_postgres(postgres):
         endpoints = c.execute(text(f"select count(*) from {SCHEMA_ADMIN}.app_endpoints")).scalar()
     assert seeded == 5  # four month MIOs + All (0011 / D84)
     assert bindings == 3
-    assert endpoints == 1  # CFPB source HTTP→local (0012 / D85)
+    assert endpoints == 2  # source + ingest AppEndpoints (0012 / 0014)
 
     datasets = DaoObjectsFactory.get_dataset_dao()
     locations = DaoObjectsFactory.get_dataset_location_dao()

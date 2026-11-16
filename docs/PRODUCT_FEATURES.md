@@ -95,10 +95,10 @@ Each workflow that downloads or ingests data is registered in the database, so t
 - Stories: #158 DAG+callbacks, #159 register/bind, #160 Admin screen.
 - Plain Python batches first; PySpark only if measured. **[Open]**
 
-### F7. Dataset locations expansion (B) [Planned — M04 #148]
-- Resolve from/to via catalog locations + AppEndpoints (local + HTTP).
+### F7. Dataset locations expansion (B) [Done — M04 #148]
+- DAGs resolve from/to via AppEndpoints when `app_endpoint_name` is set (D87 / #161); locations remain single path/env rows.
+- Admin Imports panel clarifies location vs AppEndpoint; secrets never shown (#162).
 - Cloud location types stub-only until local is hard (M06 later).
-- Stories: #161 DAG resolution, #162 Admin clarity.
 
 ### F8. Local vector indexing (E) [Planned — M04 #149]
 - Index local Mongo complaints into a **local** vector store (Docker and/or pgvector).

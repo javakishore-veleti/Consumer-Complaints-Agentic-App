@@ -16,6 +16,7 @@ from ccaa.db_reader import (
     load_dataset_locations,
     load_execution_config,
     make_engine,
+    resolve_app_endpoint,
     resolve_landing_dir,
 )
 from ccaa.download import download_url_to_path
@@ -47,20 +48,39 @@ def resolve_and_download(**context) -> str:
     engine = make_engine(db_url)
     with engine.connect() as conn:
         cfg = load_execution_config(conn, execution_id)
-        code = cfg.get("dataset_code")
-        if not code:
-            raise ValueError("config_used.dataset_code is required")
-        locs = load_dataset_locations(conn, code)
+        ep_name = (cfg.get("app_endpoint_name") or "").strip()
+        if ep_name:
+            resolved = resolve_app_endpoint(
+                conn,
+                ep_name,
+                getenv=os.getenv,
+                get_variable=Variable.get,
+            )
+            url = resolved["from"].get("path") or resolved["from"].get("value")
+            if not url:
+                raise ValueError(f"app_endpoint {ep_name} from side has no URL/path")
+            to = resolved["to"]
+            if to.get("kind") == "env" and to.get("value"):
+                landing = Path(to["value"])
+            elif to.get("kind") == "path" and to.get("path"):
+                landing = Path(to["path"])
+            else:
+                raise ValueError(f"app_endpoint {ep_name} to side is not a landing path")
+        else:
+            code = cfg.get("dataset_code")
+            if not code:
+                raise ValueError("config_used.dataset_code is required")
+            locs = load_dataset_locations(conn, code)
+            url = locs["http"]["path"]
+            landing = resolve_landing_dir(
+                locs["local"]["local_env_var_name"],
+                getenv=os.getenv,
+                get_variable=Variable.get,
+            )
 
-    url = locs["http"]["path"]
-    landing = resolve_landing_dir(
-        locs["local"]["local_env_var_name"],
-        getenv=os.getenv,
-        get_variable=Variable.get,
-    )
-    name = Path(urlparse(url).path).name or "complaints.csv.zip"
+    name = Path(urlparse(str(url)).path).name or "complaints.csv.zip"
     dest = landing / name
-    download_url_to_path(url, dest)
+    download_url_to_path(str(url), dest)
     return str(dest)
 
 

@@ -33,6 +33,8 @@ MW_ALL_INGEST_ID = "251b44d2-9aea-5d9d-b1a0-0816e8db3f80"
 MIO_3_MONTHS_ID = "a10fbfe0-ac03-5f3f-8d20-5132d470b03a"
 # uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m04-0009/ep-cfpb-source-http-local")
 APP_ENDPOINT_SOURCE_ID = "ccbce57d-bd9f-56fe-a258-fa2deb9dd393"
+# uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m04-0015/ep-cfpb-ingest-local-mongo")
+APP_ENDPOINT_INGEST_ID = "8ca22b0c-1c7c-5a25-be9d-d51c6063a3a5"
 NOW_ENDPOINTS = datetime(2026, 11, 15, tzinfo=timezone.utc)
 NOW_INGEST = datetime(2026, 11, 15, tzinfo=timezone.utc)
 
@@ -194,7 +196,10 @@ def seed_if_empty() -> None:
                 "workflow_name": "download_cfpb_all",
                 "engine_type": "apache_airflow",
                 "engine_workflow_id": "download_cfpb_all",
-                "config": {"dataset_code": "CFPB"},
+                "config": {
+                    "dataset_code": "CFPB",
+                    "app_endpoint_name": "cfpb_source_http_to_local",
+                },
                 "enabled": True,
                 "created_at": NOW_CATALOG,
                 "updated_at": NOW_CATALOG,
@@ -256,6 +261,7 @@ def seed_if_empty() -> None:
                     "dataset_code": "CFPB",
                     "source_filename": "complaints.csv.zip",
                     "batch_size": 500,
+                    "app_endpoint_name": "cfpb_ingest_local_to_mongo",
                 },
                 "enabled": True,
                 "created_at": NOW_INGEST,
@@ -287,6 +293,25 @@ def seed_if_empty() -> None:
                 "to_env_var_name": None,
                 "credentials_ref": None,
                 "description": "CFPB download HTTP source to local landing (D63)",
+                "enabled": True,
+                "created_at": NOW_ENDPOINTS,
+                "updated_at": NOW_ENDPOINTS,
+            }
+        )
+    )
+    _upsert(
+        MongoDocument(
+            {
+                "_collection": "app_endpoints",
+                "id": APP_ENDPOINT_INGEST_ID,
+                "name": "cfpb_ingest_local_to_mongo",
+                "category": "ingest",
+                "from_dataset_location_id": LOCAL_LOCATION_ID,
+                "from_env_var_name": None,
+                "to_dataset_location_id": None,
+                "to_env_var_name": "CCA_MONGO_COMPLAINTS_URL",
+                "credentials_ref": None,
+                "description": "Local landing → complaint Mongo (D86/D87)",
                 "enabled": True,
                 "created_at": NOW_ENDPOINTS,
                 "updated_at": NOW_ENDPOINTS,
