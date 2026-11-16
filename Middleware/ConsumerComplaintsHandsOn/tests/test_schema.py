@@ -358,7 +358,10 @@ def test_download_cfpb_all_workflow_is_seeded(data_dir):
     assert row[1:4] == ("download_cfpb_all", "apache_airflow", "download_cfpb_all")
     config = row[4] if isinstance(row[4], dict) else json.loads(row[4])
     assert config["dataset_code"] == "CFPB"
-    assert config.get("app_endpoint_name") == "cfpb_source_http_to_local"
+    assert config.get("source_mode") == "split"
+    assert config.get("source_filename_glob") == "complaints_part_*.csv.zip"
+    assert config.get("stage_from_env") == "CCA_CFPB_SPLIT_SOURCE_PATH"
+    assert config.get("app_endpoint_name") == "cfpb_stage_split_to_local"
     assert row[5] in (1, True)
 
 
@@ -485,7 +488,7 @@ def test_ingest_cfpb_all_workflow_is_seeded(data_dir):
     config = row[4] if isinstance(row[4], dict) else json.loads(row[4])
     assert config == {
         "dataset_code": "CFPB",
-        "source_filename": "complaints.csv.zip",
+        "source_filename_glob": "complaints_part_*.csv.zip",
         "batch_size": 500,
         "app_endpoint_name": "cfpb_ingest_local_to_mongo",
     }
@@ -550,7 +553,7 @@ def test_migration_0012_removes_app_endpoints_on_the_way_down(data_dir):
         assert db.execute("select name from sqlite_master where name = 'app_endpoints'").fetchall() == []
     command.upgrade(config, "head")
     with _admin_db(data_dir) as db:
-        assert db.execute("select count(*) from app_endpoints").fetchone()[0] == 3
+        assert db.execute("select count(*) from app_endpoints").fetchone()[0] == 4
 
 
 def test_index_cfpb_all_workflow_is_seeded(data_dir):
@@ -588,7 +591,24 @@ def test_index_cfpb_all_workflow_is_seeded(data_dir):
     )
 
 
+def test_app_endpoints_seed_cfpb_stage_split_to_local(data_dir):
+    with _admin_db(data_dir) as db:
+        ep = db.execute(
+            "select id, name, category, from_env_var_name, to_env_var_name, enabled"
+            " from app_endpoints where name = 'cfpb_stage_split_to_local'"
+        ).fetchone()
+    assert ep == (
+        "763c400e-09e1-59a5-92ed-ed910df667ac",
+        "cfpb_stage_split_to_local",
+        "source",
+        "CCA_CFPB_SPLIT_SOURCE_PATH",
+        "LOCAL_DATA_PATH_CFPB",
+        1,
+    )
+
+
 def test_mios_acl_seeded_for_all_and_3_months(data_dir):
+
     with _admin_db(data_dir) as db:
         rows = db.execute(
             "select id, mio_id, audience from mios_acl order by mio_id, audience"

@@ -14,3 +14,5 @@ def test_ingest_cfpb_all_dag_file_exists_with_dag_id():
     assert "report_execution_status" in text or "status_callback" in text
     assert "rows_loaded" in text or "mongo_ingest" in text
     assert "from app." not in text
+    assert "list_part_files" in text or "source_filename_glob" in text
+    assert "ingest_complaints_parts" in text

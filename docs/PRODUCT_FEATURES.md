@@ -78,7 +78,7 @@ Each workflow that downloads or ingests data is registered in the database, so t
 - **Inventory (names only):**
   | Role | Names | Source of truth |
   |---|---|---|
-  | Synced to Airflow Variables (D42) | `CCA_CALLBACK_SECRET`, `CCA_API_URL`, `CCA_DB_URL`, `CCA_MONGO_COMPLAINTS_URL`, `CCA_VECTOR_STORE_PATH`, `LOCAL_DATA_PATH_CFPB` | `CICD/Local/airflow/Airflow_Variables_Upsert.txt` |
+  | Synced to Airflow Variables (D42) | `CCA_CALLBACK_SECRET`, `CCA_API_URL`, `CCA_DB_URL`, `CCA_MONGO_COMPLAINTS_URL`, `CCA_VECTOR_STORE_PATH`, `LOCAL_DATA_PATH_CFPB`, `CCA_CFPB_SPLIT_SOURCE_PATH` | `CICD/Local/airflow/Airflow_Variables_Upsert.txt` |
   | API-only (not upserted) | `CCA_AIRFLOW_API_BASE_URL`, `CCA_AIRFLOW_API_USERNAME`, `CCA_AIRFLOW_API_PASSWORD`, `CCA_OPERATIONAL_STORE`, `CCA_DATA_DIR`, `CCA_MONGO_OPERATIONAL_URL` | `.env.example` comments |
 - Admin **Operations → Sync secrets** POSTs `POST /management/airflow/upsert-secrets` (#77 API, #153 UI). Outcomes only; values never rendered.
 - Local only until M06.
@@ -88,11 +88,12 @@ Each workflow that downloads or ingests data is registered in the database, so t
 - Schema + DAO + CFPB source seed: #155. List/read API #156; thin Admin UI on Imports #157.
 - Imports (then ingest/index) use AppEndpoints. Local/HTTP first; no cloud spend.
 
-### F6. DB Ingest: load complaints into MongoDB (A) [Done — M04 #147]
+### F6. DB Ingest: load complaints into MongoDB (A) [Done — M04 #147; split parts M06 #169]
 - Airflow ingest DAG `ingest_cfpb_all` writes **local Mongo** complaint docs in batches (upsert by Complaint ID) via `CCA_MONGO_COMPLAINTS_URL` (D86 / #158).
+- **Split parts (D91 / M06):** stage `complaints_part_*.csv.zip` from `CCA_CFPB_SPLIT_SOURCE_PATH` into `LOCAL_DATA_PATH_CFPB` (`cfpb_stage_split_to_local`), then ingest loops the glob (#172–#174).
 - **DB Ingest** Admin screen mirrors Imports; only after download completed for that MIO (#160).
 - API never bulk-writes complaint documents.
-- Stories: #158 DAG+callbacks, #159 register/bind, #160 Admin screen.
+- Stories: #158 DAG+callbacks, #159 register/bind, #160 Admin screen; M06 #172/#173/#174.
 - Plain Python batches first; PySpark only if measured. **[Open]**
 
 ### F7. Dataset locations expansion (B) [Done — M04 #148]
@@ -141,7 +142,7 @@ Each workflow that downloads or ingests data is registered in the database, so t
 | Upsert secrets API (D42) + Admin Sync UI | Done (#77, #153); inventory docs #154 |
 | AppEndpoints / DB Ingest / locations harden / local vectors | Done M04 (#144) |
 | MIO ACL + Intellect | Done M05 (#150) |
-| Split CFPB landing + SoT batch ingest | Planned M06 (#169) |
+| Split CFPB landing + SoT batch ingest | Done M06 (#169 / #172–#174) |
 | Pluggable local vector Storage Layer (pgvector) | Planned M07 (#175) |
 | Advanced Intellect retrieval + EVALUATION ladder | Planned M08 (#183) |
 | Cloud deployment | Planned M90 (#73; was M06) |
@@ -153,7 +154,7 @@ Each workflow that downloads or ingests data is registered in the database, so t
 | M01–M03 | Foundation, downloads, Admin E2E | Complete |
 | **M04** | Local ops hardening: **C→D→A→B→E** (#144) | Done |
 | **M05** | Intellect + MIO ACL: **F→G** (#150) | Done |
-| **M06** | Split CFPB landing + complaint SoT batches (#169) | Planned |
+| **M06** | Split CFPB landing + complaint SoT batches (#169) | Done |
 | **M07** | Pluggable local vector Storage Layer (#175) | Planned |
 | **M08** | Advanced Intellect retrieval + evaluation (#183) | Planned |
 | **M90** | Cloud deployment (parked; was M06) (#73) | Planned |
