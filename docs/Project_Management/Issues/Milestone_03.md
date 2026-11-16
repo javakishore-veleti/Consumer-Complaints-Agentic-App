@@ -153,8 +153,8 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #118 | 7 | `/ccaa-commit-push 118` after every task (repeat) | Done | 2026-11-15 01:30 | 2026-11-15 01:30 |
 | #118 | 8 | `/verification-before-completion Story #118` | Done | 2026-11-15 01:30 | 2026-11-15 01:30 |
 | #118 | 9 | `/requesting-code-review Story #118` | Done | 2026-11-15 01:30 | 2026-11-15 01:30 |
-| #118 | 10 | `/ccaa-commit-push 118` | In progress | 2026-11-15 01:30 | - |
-| #118 | 11 | `/finishing-a-development-branch Story #118` | Planned | - | - |
+| #118 | 10 | `/ccaa-commit-push 118` | Done | 2026-11-15 01:30 | 2026-11-15 21:22 |
+| #118 | 11 | `/finishing-a-development-branch Story #118` | Done | 2026-11-15 21:22 | 2026-11-15 21:22 |
 | #118 | 12 | `/ccaa-story-complete 118` | Done | 2026-11-15 01:57 | 2026-11-15 01:57 |
 | #119 | 1 | `/ccaa-story-start 119` | Done | 2026-11-15 01:35 | 2026-11-15 01:35 |
 | #119 | 2 | `/brainstorming Story #119: MongoDB operational store via .env; DAO/factory seam (D45); same Admin UI → API → Airflow → callback path` | Done | 2026-11-15 01:38 | 2026-11-15 01:38 |
