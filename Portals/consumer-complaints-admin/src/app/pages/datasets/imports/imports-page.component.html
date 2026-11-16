@@ -52,7 +52,8 @@
       AppEndpoints
     </h2>
     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-      From→to catalog used by Imports. Env var and credentials names only — values are never shown.
+      AppEndpoints are from→to routes (category + location ids or env-var names). Dataset
+      locations hold a single path or env name. Neither shows secret values.
     </p>
 
     @if (appEndpointsError()) {

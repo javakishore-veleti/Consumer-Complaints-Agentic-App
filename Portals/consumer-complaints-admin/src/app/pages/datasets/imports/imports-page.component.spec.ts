@@ -96,7 +96,7 @@ describe('ImportsPageComponent', () => {
     expect(rows[0].nativeElement.textContent).toContain('source');
     expect(rows[0].nativeElement.textContent).toContain('loc:loc-http');
     expect(rows[0].nativeElement.textContent).toContain('loc:loc-local');
-    expect(panel.nativeElement.textContent).toContain('values are never shown');
+    expect(panel.nativeElement.textContent).toContain('Neither shows secret values');
     expect(panel.nativeElement.textContent).not.toMatch(/password|api[_-]?key/i);
   });
 

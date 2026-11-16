@@ -97,6 +97,31 @@ def _seed_min_admin(engine: sa.Engine) -> None:
                 "('loc-l', 'ds-1', 'local', NULL, 'LOCAL_DATA_PATH_CFPB')"
             )
         )
+        conn.execute(
+            text(
+                """
+                CREATE TABLE consumer_comp_admin_db.app_endpoints (
+                    id TEXT PRIMARY KEY,
+                    name TEXT UNIQUE,
+                    category TEXT,
+                    from_dataset_location_id TEXT,
+                    from_env_var_name TEXT,
+                    to_dataset_location_id TEXT,
+                    to_env_var_name TEXT,
+                    credentials_ref TEXT,
+                    enabled INTEGER
+                )
+                """
+            )
+        )
+        conn.execute(
+            text(
+                "INSERT INTO consumer_comp_admin_db.app_endpoints "
+                "(id, name, category, from_dataset_location_id, from_env_var_name, "
+                "to_dataset_location_id, to_env_var_name, credentials_ref, enabled) VALUES "
+                "('ep-1', 'cfpb_source_http_to_local', 'source', 'loc-h', NULL, 'loc-l', NULL, NULL, 1)"
+            )
+        )
 
 
 def test_db_reader_loads_config_and_locations():
@@ -108,3 +133,21 @@ def test_db_reader_loads_config_and_locations():
     assert cfg == {"dataset_code": "CFPB"}
     assert locs["http"]["path"].endswith("complaints.csv.zip")
     assert locs["local"]["local_env_var_name"] == "LOCAL_DATA_PATH_CFPB"
+
+
+def test_db_reader_resolves_app_endpoint(tmp_path: Path):
+    engine = sa.create_engine("sqlite://")
+    _seed_min_admin(engine)
+    landing = tmp_path / "land"
+    landing.mkdir()
+    with engine.connect() as conn:
+        resolved = db_reader.resolve_app_endpoint(
+            conn,
+            "cfpb_source_http_to_local",
+            getenv=lambda k, default=None: str(landing) if k == "LOCAL_DATA_PATH_CFPB" else default,
+            get_variable=lambda k: "",
+        )
+    assert resolved["from"]["kind"] == "path"
+    assert "complaints.csv.zip" in resolved["from"]["path"]
+    assert resolved["to"]["kind"] == "env"
+    assert resolved["to"]["value"] == str(landing)

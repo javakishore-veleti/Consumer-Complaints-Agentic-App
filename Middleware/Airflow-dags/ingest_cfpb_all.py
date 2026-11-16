@@ -15,6 +15,7 @@ from ccaa.db_reader import (
     load_dataset_locations,
     load_execution_config,
     make_engine,
+    resolve_app_endpoint,
     resolve_landing_dir,
 )
 from ccaa.mongo_ingest import (
@@ -51,24 +52,44 @@ def resolve_and_ingest(**context) -> dict:
     engine = make_engine(db_url)
     with engine.connect() as conn:
         cfg = load_execution_config(conn, execution_id)
-        code = cfg.get("dataset_code")
-        if not code:
-            raise ValueError("config_used.dataset_code is required")
-        locs = load_dataset_locations(conn, code)
+        ep_name = (cfg.get("app_endpoint_name") or "").strip()
+        if ep_name:
+            resolved = resolve_app_endpoint(
+                conn,
+                ep_name,
+                getenv=os.getenv,
+                get_variable=Variable.get,
+            )
+            frm = resolved["from"]
+            if frm.get("kind") == "env" and frm.get("value"):
+                landing = Path(frm["value"])
+            elif frm.get("kind") == "path" and frm.get("path"):
+                landing = Path(frm["path"])
+            else:
+                raise ValueError(f"app_endpoint {ep_name} from side is not a landing path")
+            to = resolved["to"]
+            if to.get("kind") == "env" and to.get("value"):
+                mongo_url = to["value"]
+            else:
+                raise ValueError(f"app_endpoint {ep_name} to side must be env (Mongo URI)")
+        else:
+            code = cfg.get("dataset_code")
+            if not code:
+                raise ValueError("config_used.dataset_code is required")
+            locs = load_dataset_locations(conn, code)
+            landing = resolve_landing_dir(
+                locs["local"]["local_env_var_name"],
+                getenv=os.getenv,
+                get_variable=Variable.get,
+            )
+            mongo_url = resolve_complaints_mongo_url(
+                getenv=os.getenv,
+                get_variable=Variable.get,
+            )
 
-    landing = resolve_landing_dir(
-        locs["local"]["local_env_var_name"],
-        getenv=os.getenv,
-        get_variable=Variable.get,
-    )
     filename = str(cfg.get("source_filename") or "complaints.csv.zip")
     source = landing / filename
     batch_size = int(cfg.get("batch_size") or DEFAULT_BATCH_SIZE)
-
-    mongo_url = resolve_complaints_mongo_url(
-        getenv=os.getenv,
-        get_variable=Variable.get,
-    )
     coll = open_complaints_collection(mongo_url)
     result = ingest_complaints_zip(source, coll, batch_size=batch_size)
     # Stash for notify_finished via XCom
