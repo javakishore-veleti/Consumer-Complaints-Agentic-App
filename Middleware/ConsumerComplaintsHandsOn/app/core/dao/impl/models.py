@@ -159,6 +159,26 @@ class MioWorkflowModel(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
+class MioAclModel(Base):
+    """Which audiences may start a MIO (D89). No foreign keys."""
+
+    __tablename__ = "mios_acl"
+    __table_args__ = (
+        UniqueConstraint("mio_id", "audience", name="uq_mios_acl_mio_audience"),
+        CheckConstraint(
+            "audience IN ('internal', 'partner', 'user')",
+            name="ck_mios_acl_audience",
+        ),
+        Index("ix_mios_acl_mio_id", "mio_id"),
+        {"schema": SCHEMA_ADMIN},
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    mio_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    audience: Mapped[str] = mapped_column(String(32), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
 class AppEndpointModel(Base):
     """From/to endpoint configs for Imports, ingest, index, and db (D85). No foreign keys."""
 

@@ -1,0 +1,18 @@
+{
+  "name": "consumer-complaints-intellect",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 4201 --strictPort",
+    "start": "vite --port 4201 --strictPort",
+    "build": "vite build",
+    "preview": "vite preview --port 4201 --strictPort",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "jsdom": "^26.1.0",
+    "vite": "^6.3.5",
+    "vitest": "^3.2.4"
+  }
+}

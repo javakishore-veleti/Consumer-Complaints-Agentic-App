@@ -586,3 +586,17 @@ def test_index_cfpb_all_workflow_is_seeded(data_dir):
         "CCA_VECTOR_STORE_PATH",
         1,
     )
+
+
+def test_mios_acl_seeded_for_all_and_3_months(data_dir):
+    with _admin_db(data_dir) as db:
+        rows = db.execute(
+            "select id, mio_id, audience from mios_acl order by mio_id, audience"
+        ).fetchall()
+        sql = _table_sql(db, "mios_acl")
+    assert "uq_mios_acl_mio_audience" in sql
+    assert "ck_mios_acl_audience" in sql
+    assert rows == [
+        ("814a15b9-246b-5f8f-baef-a3f75a946a72", ALL_MIO_ID, "internal"),
+        ("c57c33d4-f3c6-50a9-b614-5f095d4d7134", MIO_3_MONTHS_ID, "internal"),
+    ]

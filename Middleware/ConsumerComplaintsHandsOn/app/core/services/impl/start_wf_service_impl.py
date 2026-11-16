@@ -1,8 +1,10 @@
 """Look up the workflow, optional ingest + location checks, create the exec log (D68/D73)."""
 
+from app.core.common.app_types_constants import MioAudience
 from app.core.common.dtos.app_wf_dtos import AppWfCtx, AppWfReq
 from app.core.common.dtos.app_wf_exec_log_dtos import AppWfExecLogCtx, AppWfExecLogReq
 from app.core.common.dtos.dataset_location_dtos import DatasetLocationCtx, DatasetLocationReq
+from app.core.common.dtos.mio_acl_dtos import MioAclCtx, MioAclReq
 from app.core.common.dtos.mio_ingest_log_dtos import MioIngestLogCtx, MioIngestLogReq
 from app.core.common.dtos.mio_workflow_dtos import MioWorkflowCtx, MioWorkflowReq
 from app.core.common.dtos.start_wf_dtos import StartWfCtx
@@ -52,6 +54,19 @@ class StartWfServiceImpl(StartWfService):
         if mio_id is not None:
             mio_id = mio_id.strip()
             if not mio_id:
+                ctx.resp.code = INVALID_INPUT
+                return INVALID_INPUT
+            audience = (ctx.req.audience or "internal").strip() or "internal"
+            if audience not in MioAudience.values():
+                ctx.resp.code = INVALID_INPUT
+                return INVALID_INPUT
+            # D89: when a MIO is given, the caller's audience must be in mios_acl for that MIO.
+            acl_ctx = MioAclCtx(req=MioAclReq(mio_id=mio_id, audience=audience))
+            code = DaoObjectsFactory.get_mio_acl_dao().list(acl_ctx)
+            if code != SUCCESS:
+                ctx.resp.code = code
+                return code
+            if not acl_ctx.resp.records:
                 ctx.resp.code = INVALID_INPUT
                 return INVALID_INPUT
             # D84: when a MIO is given, the workflow must be in mios_workflows for that MIO.

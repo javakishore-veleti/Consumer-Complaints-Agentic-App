@@ -69,3 +69,11 @@ class AppEndpointCategory(AppTypeEnum):
     INDEX = "index"
     DB = "db"
 
+
+class MioAudience(AppTypeEnum):
+    """Who may start a MIO (D89). Local ACL audience; not an IdP claim."""
+
+    INTERNAL = "internal"
+    PARTNER = "partner"
+    USER = "user"
+

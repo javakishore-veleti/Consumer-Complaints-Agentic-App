@@ -28,7 +28,11 @@ export async function startWorkflow(http: HttpClient, ctx: StartWorkflowCtx): Pr
       ? { mio_id: ctx.req.mioId }
       : {};
   try {
-    const data = await firstValueFrom(http.post<StartWorkflowApiBody>(url, body));
+    const data = await firstValueFrom(
+      http.post<StartWorkflowApiBody>(url, body, {
+        headers: { 'X-CCA-Audience': 'internal' },
+      }),
+    );
     ctx.resp.executionId = data?.execution_id ?? '';
     ctx.resp.error = '';
     return SUCCESS;
