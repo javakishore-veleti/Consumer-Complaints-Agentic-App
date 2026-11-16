@@ -101,10 +101,11 @@ Each workflow that downloads or ingests data is registered in the database, so t
 - Admin Imports panel clarifies location vs AppEndpoint; secrets never shown (#162).
 - Cloud location types stub-only until local is hard (M06 later).
 
-### F8. Local vector indexing (E) [Done — M04 #149]
+### F8. Local vector indexing (E) [Done — M04 #149; pluggable Storage Layer M07 #175]
 - Index local Mongo complaints into a **local** filesystem vector store (`CCA_VECTOR_STORE_PATH`, JSONL + hash embeddings MVP, D88).
 - Airflow `index_cfpb_all` + AppEndpoint `cfpb_index_mongo_to_vectors`; Admin **Index** screen (`index_*`) after ingest completed (#163/#164).
-- Cloud vector DBs out of scope until local path is hard (M06).
+- **Pluggable Storage Layer (D92 / M07):** `open_vector_store` backends `jsonl` + `pgvector`; `index_cfpb_pgvector` + `cfpb_index_mongo_to_pgvector` → `CCA_PGVECTOR_URL`; local compose profile `pgvector` (#179–#182).
+- Cloud vector SaaS out of scope (M90). Retrieval ladder = M08.
 
 ### F9. Status tracking and history [Done for download; extends with ingest/index]
 - `app_workflows_exec_log` + `mios_ingest_log` (D50); Airflow reports via API callbacks only.
@@ -143,7 +144,7 @@ Each workflow that downloads or ingests data is registered in the database, so t
 | AppEndpoints / DB Ingest / locations harden / local vectors | Done M04 (#144) |
 | MIO ACL + Intellect | Done M05 (#150) |
 | Split CFPB landing + SoT batch ingest | Done M06 (#169 / #172–#174) |
-| Pluggable local vector Storage Layer (pgvector) | Planned M07 (#175) |
+| Pluggable local vector Storage Layer (pgvector) | Done M07 (#175 / #179–#182) |
 | Advanced Intellect retrieval + EVALUATION ladder | Planned M08 (#183) |
 | Cloud deployment | Planned M90 (#73; was M06) |
 
@@ -155,7 +156,7 @@ Each workflow that downloads or ingests data is registered in the database, so t
 | **M04** | Local ops hardening: **C→D→A→B→E** (#144) | Done |
 | **M05** | Intellect + MIO ACL: **F→G** (#150) | Done |
 | **M06** | Split CFPB landing + complaint SoT batches (#169) | Done |
-| **M07** | Pluggable local vector Storage Layer (#175) | Planned |
+| **M07** | Pluggable local vector Storage Layer (#175) | Done |
 | **M08** | Advanced Intellect retrieval + evaluation (#183) | Planned |
 | **M90** | Cloud deployment (parked; was M06) (#73) | Planned |
 

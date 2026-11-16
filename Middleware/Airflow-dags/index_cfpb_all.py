@@ -15,9 +15,10 @@ from ccaa.db_reader import load_execution_config, make_engine, resolve_app_endpo
 from ccaa.mongo_ingest import resolve_complaints_mongo_url
 from ccaa.status_callback import report_execution_status
 from ccaa.vector_index import (
-    JsonlVectorStore,
+    BACKEND_JSONL,
     index_complaint_docs,
     iter_mongo_complaints,
+    open_vector_store,
     resolve_vector_store_path,
 )
 
@@ -74,7 +75,7 @@ def resolve_and_index(**context) -> dict:
             )
 
     batch_size = int(cfg.get("batch_size") or 500)
-    store = JsonlVectorStore(store_path)
+    store = open_vector_store(backend=BACKEND_JSONL, path=store_path)
     result = index_complaint_docs(
         iter_mongo_complaints(mongo_url),
         store,
@@ -84,6 +85,7 @@ def resolve_and_index(**context) -> dict:
         "rows_loaded": result.rows_loaded,
         "batch_count": result.batch_count,
         "store": str(store_path),
+        "backend": BACKEND_JSONL,
     }
 
 

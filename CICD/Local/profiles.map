@@ -6,3 +6,4 @@
 sqlite=airflow
 postgres=airflow postgres
 mongodb=airflow mongodb
+pgvector=airflow pgvector

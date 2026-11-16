@@ -18,6 +18,7 @@ EXPECTED = {
     "sqlite": ["airflow"],
     "postgres": ["airflow", "postgres"],
     "mongodb": ["airflow", "mongodb"],
+    "pgvector": ["airflow", "pgvector"],
 }
 
 
@@ -43,7 +44,7 @@ def test_cca_profile_services_matches_map() -> None:
     script = f"""
 set -euo pipefail
 source "{DOCKER_PROFILES_SH}"
-for p in sqlite postgres mongodb; do
+for p in sqlite postgres mongodb pgvector; do
   echo "BEGIN:$p"
   cca_profile_services "$p"
   echo "END:$p"
@@ -71,7 +72,7 @@ done
     assert got == EXPECTED
 
 
-@pytest.mark.parametrize("profile", ["sqlite", "postgres", "mongodb"])
+@pytest.mark.parametrize("profile", ["sqlite", "postgres", "mongodb", "pgvector"])
 def test_status_script_prints_expected_for_profile(profile: str) -> None:
     result = subprocess.run(
         ["bash", str(STATUS_SH), "--profile", profile],
@@ -110,11 +111,15 @@ def test_package_json_has_profile_scripts_and_keeps_all() -> None:
         "local:containers:mongodb:start",
         "local:containers:mongodb:stop",
         "local:containers:mongodb:status",
+        "local:containers:pgvector:start",
+        "local:containers:pgvector:stop",
+        "local:containers:pgvector:status",
     ):
         assert name in text, name
     assert "docker-all-up.sh --profile sqlite" in text
     assert "docker-all-up.sh --profile postgres" in text
     assert "docker-all-up.sh --profile mongodb" in text
+    assert "docker-all-up.sh --profile pgvector" in text
 
 
 def test_operational_postgres_compose_exists() -> None:
@@ -123,3 +128,12 @@ def test_operational_postgres_compose_exists() -> None:
     body = compose.read_text(encoding="utf-8")
     assert "cca-operational-postgres" in body
     assert "postgres:16" in body
+
+
+def test_pgvector_compose_exists() -> None:
+    compose = LOCAL / "pgvector" / "docker-compose.yaml"
+    assert compose.is_file()
+    body = compose.read_text(encoding="utf-8")
+    assert "cca-pgvector" in body
+    assert "pgvector/pgvector:pg16" in body
+    assert "5433" in body

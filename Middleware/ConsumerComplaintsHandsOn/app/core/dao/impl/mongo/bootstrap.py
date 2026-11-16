@@ -44,6 +44,13 @@ APP_ENDPOINT_INDEX_ID = "af151640-ce3a-5995-a390-fa1ec5212aaf"
 # uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m06-0004/ep-cfpb-stage-split-local")
 APP_ENDPOINT_STAGE_SPLIT_ID = "763c400e-09e1-59a5-92ed-ed910df667ac"
 NOW_SPLIT = datetime(2026, 11, 16, tzinfo=timezone.utc)
+# uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m07-0007/index_cfpb_pgvector")
+INDEX_PG_WF_ID = "68a0fa8a-825c-53f1-864f-5db167a339a0"
+# uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m07-0008/mios-workflows-all-index-pgvector")
+MW_ALL_INDEX_PG_ID = "494ff42b-a7e7-5e90-8430-74b81a52dff1"
+# uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m07-0008/ep-cfpb-index-mongo-pgvector")
+APP_ENDPOINT_INDEX_PG_ID = "2e6bd178-2900-5ea2-80ed-507f486a2133"
+NOW_PGVECTOR = datetime(2026, 11, 16, tzinfo=timezone.utc)
 # uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m05-0004/acl-all-internal")
 ACL_ALL_ID = "814a15b9-246b-5f8f-baef-a3f75a946a72"
 # uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m05-0004/acl-3m-internal")
@@ -404,6 +411,56 @@ def seed_if_empty() -> None:
                 "enabled": True,
                 "created_at": NOW_ENDPOINTS,
                 "updated_at": NOW_ENDPOINTS,
+            }
+        )
+    )
+    _upsert(
+        MongoDocument(
+            {
+                "_collection": "app_workflows",
+                "id": INDEX_PG_WF_ID,
+                "workflow_name": "index_cfpb_pgvector",
+                "engine_type": "apache_airflow",
+                "engine_workflow_id": "index_cfpb_pgvector",
+                "config": {
+                    "dataset_code": "CFPB",
+                    "batch_size": 500,
+                    "vector_backend": "pgvector",
+                    "app_endpoint_name": "cfpb_index_mongo_to_pgvector",
+                },
+                "enabled": True,
+                "created_at": NOW_PGVECTOR,
+                "updated_at": NOW_PGVECTOR,
+            }
+        )
+    )
+    _upsert(
+        MongoDocument(
+            {
+                "_collection": "mios_workflows",
+                "id": MW_ALL_INDEX_PG_ID,
+                "mio_id": ALL_MIO_ID,
+                "workflow_id": INDEX_PG_WF_ID,
+                "created_at": NOW_PGVECTOR,
+            }
+        )
+    )
+    _upsert(
+        MongoDocument(
+            {
+                "_collection": "app_endpoints",
+                "id": APP_ENDPOINT_INDEX_PG_ID,
+                "name": "cfpb_index_mongo_to_pgvector",
+                "category": "index",
+                "from_dataset_location_id": None,
+                "from_env_var_name": "CCA_MONGO_COMPLAINTS_URL",
+                "to_dataset_location_id": None,
+                "to_env_var_name": "CCA_PGVECTOR_URL",
+                "credentials_ref": None,
+                "description": "Complaint Mongo → local pgvector (D92)",
+                "enabled": True,
+                "created_at": NOW_PGVECTOR,
+                "updated_at": NOW_PGVECTOR,
             }
         )
     )
