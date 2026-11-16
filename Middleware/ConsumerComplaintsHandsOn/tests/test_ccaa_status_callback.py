@@ -111,6 +111,40 @@ def test_report_execution_status_posts_started():
     assert captured["body"] == {"status": "started", "engine_run_id": "manual__2026-01-01"}
 
 
+def test_report_execution_status_includes_volume_fields():
+    captured = {}
+
+    def opener(req, timeout=None):
+        captured["body"] = json.loads(req.data.decode("utf-8"))
+
+        class Resp:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *a):
+                return False
+
+            def getcode(self):
+                return 200
+
+        return Resp()
+
+    sc.report_execution_status(
+        "exec-1",
+        "completed",
+        rows_loaded=100,
+        batch_count=2,
+        increment_marker="batch-2",
+        api_base_url="http://api",
+        callback_secret="s",
+        urlopen=opener,
+    )
+    assert captured["body"]["status"] == "completed"
+    assert captured["body"]["rows_loaded"] == 100
+    assert captured["body"]["batch_count"] == 2
+    assert captured["body"]["increment_marker"] == "batch-2"
+
+
 def test_report_treats_409_as_success():
     sc.report_execution_status(
         "exec-1",

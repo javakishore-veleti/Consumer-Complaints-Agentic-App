@@ -60,6 +60,9 @@ def report_execution_status(
     *,
     engine_run_id: str | None = None,
     message: str | None = None,
+    rows_loaded: int | None = None,
+    batch_count: int | None = None,
+    increment_marker: str | None = None,
     api_base_url: str | None = None,
     callback_secret: str | None = None,
     urlopen: Callable[..., Any] = urllib.request.urlopen,
@@ -89,6 +92,12 @@ def report_execution_status(
         body["engine_run_id"] = str(engine_run_id)[:128]
     if message:
         body["message"] = str(message)
+    if rows_loaded is not None:
+        body["rows_loaded"] = int(rows_loaded)
+    if batch_count is not None:
+        body["batch_count"] = int(batch_count)
+    if increment_marker is not None and str(increment_marker).strip():
+        body["increment_marker"] = str(increment_marker).strip()[:255]
 
     url = f"{base}/callbacks/workflow-executions/{execution_id}/status"
     data = json.dumps(body).encode("utf-8")

@@ -20,7 +20,7 @@ is done asynchronously by Apache Airflow.
 |---|---|---|
 | `consumer-complaints-admin` | Angular admin portal under `Portals/consumer-complaints-admin/`. Imports datasets, ingests them into the database, shows status; syncs system secrets to Airflow. | Imports [Done]; Sync secrets UI [Done] (#153); AppEndpoints thin UI [Done] (#157); DB Ingest [Planned] (M04) |
 | Middleware API | FastAPI service (`Middleware/ConsumerComplaintsHandsOn`). The only thing the portal talks to. | Core APIs [Done] (M02/M03); AppEndpoints list/read [Done] (#156); ingest/index APIs [Planned] (M04) |
-| Apache Airflow | Runs the download and ingest (and later index) jobs asynchronously. | Local Docker [Done]; download/filter DAGs [Done]; ingest/index DAGs [Planned] (M04) |
+| Apache Airflow | Runs the download and ingest (and later index) jobs asynchronously. | Local Docker [Done]; download/filter DAGs [Done]; ingest DAG [Done] (#158); index DAG [Planned] (M04) |
 | `consumer-complaints-Intellect` | Intelligence app over complaint Mongo + local vectors (RAG / agentic). | [Planned] M05 (#152) — after M04 vectors |
 
 ## 3. The data
@@ -78,7 +78,7 @@ Each workflow that downloads or ingests data is registered in the database, so t
 - **Inventory (names only):**
   | Role | Names | Source of truth |
   |---|---|---|
-  | Synced to Airflow Variables (D42) | `CCA_CALLBACK_SECRET`, `CCA_API_URL`, `CCA_DB_URL`, `LOCAL_DATA_PATH_CFPB` | `CICD/Local/airflow/Airflow_Variables_Upsert.txt` |
+  | Synced to Airflow Variables (D42) | `CCA_CALLBACK_SECRET`, `CCA_API_URL`, `CCA_DB_URL`, `CCA_MONGO_COMPLAINTS_URL`, `LOCAL_DATA_PATH_CFPB` | `CICD/Local/airflow/Airflow_Variables_Upsert.txt` |
   | API-only (not upserted) | `CCA_AIRFLOW_API_BASE_URL`, `CCA_AIRFLOW_API_USERNAME`, `CCA_AIRFLOW_API_PASSWORD`, `CCA_OPERATIONAL_STORE`, `CCA_DATA_DIR`, `CCA_MONGO_OPERATIONAL_URL` | `.env.example` comments |
 - Admin **Operations → Sync secrets** POSTs `POST /management/airflow/upsert-secrets` (#77 API, #153 UI). Outcomes only; values never rendered.
 - Local only until M06.
@@ -88,9 +88,9 @@ Each workflow that downloads or ingests data is registered in the database, so t
 - Schema + DAO + CFPB source seed: #155. List/read API #156; thin Admin UI on Imports #157.
 - Imports (then ingest/index) use AppEndpoints. Local/HTTP first; no cloud spend.
 
-### F6. DB Ingest: load complaints into MongoDB (A) [Planned — M04 #147]
-- Airflow ingest DAG writes **local Mongo** complaint docs in batches (upsert by Complaint ID).
-- **DB Ingest** Admin screen mirrors Imports; only after download completed for that MIO.
+### F6. DB Ingest: load complaints into MongoDB (A) [In progress — M04 #147]
+- Airflow ingest DAG `ingest_cfpb_all` writes **local Mongo** complaint docs in batches (upsert by Complaint ID) via `CCA_MONGO_COMPLAINTS_URL` (D86 / #158).
+- **DB Ingest** Admin screen mirrors Imports; only after download completed for that MIO (#160).
 - API never bulk-writes complaint documents.
 - Stories: #158 DAG+callbacks, #159 register/bind, #160 Admin screen.
 - Plain Python batches first; PySpark only if measured. **[Open]**
@@ -155,7 +155,7 @@ Each workflow that downloads or ingests data is registered in the database, so t
 ## 7. Open questions
 
 1. ~~AppEndpoints exact columns / categories~~ — closed by D85 / #155 (`source`\|`ingest`\|`index`\|`db`).
-2. Complaint Mongo connection string naming for DAGs (alongside ops store) — decide with #158.
+2. ~~Complaint Mongo connection string naming for DAGs~~ — closed by D86 (`CCA_MONGO_COMPLAINTS_URL`).
 3. Vector store choice for local MVP (pgvector vs dedicated container) — decide with #163.
 4. Does Intellect share the operational database? (still open)
 5. What does "Airflow" mean in the portal chrome (link vs screen)? (still open)
