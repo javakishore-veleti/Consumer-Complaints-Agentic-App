@@ -61,16 +61,6 @@ endpoints = sa.table(
 )
 
 
-def _set_workflow_config(conn, workflow_id: str, config: dict) -> None:
-    payload = json.dumps(config)
-    conn.execute(
-        sa.text(
-            f"UPDATE {SCHEMA}.app_workflows SET config = :cfg, updated_at = :ts WHERE id = :id"
-        ),
-        {"id": workflow_id, "cfg": payload, "ts": NOW},
-    )
-
-
 def upgrade() -> None:
     op.bulk_insert(
         endpoints,
@@ -92,12 +82,28 @@ def upgrade() -> None:
         ],
     )
     conn = op.get_bind()
-    _set_workflow_config(conn, DOWNLOAD_WF_ID, DOWNLOAD_CFG)
-    _set_workflow_config(conn, INGEST_WF_ID, INGEST_CFG)
+    for workflow_id, config in (
+        (DOWNLOAD_WF_ID, DOWNLOAD_CFG),
+        (INGEST_WF_ID, INGEST_CFG),
+    ):
+        conn.execute(
+            sa.text(
+                f"UPDATE {SCHEMA}.app_workflows SET config = :cfg, updated_at = :ts WHERE id = :id"
+            ),
+            {"id": workflow_id, "cfg": json.dumps(config), "ts": NOW},
+        )
 
 
 def downgrade() -> None:
     conn = op.get_bind()
-    _set_workflow_config(conn, DOWNLOAD_WF_ID, DOWNLOAD_CFG_DOWN)
-    _set_workflow_config(conn, INGEST_WF_ID, INGEST_CFG_DOWN)
+    for workflow_id, config in (
+        (DOWNLOAD_WF_ID, DOWNLOAD_CFG_DOWN),
+        (INGEST_WF_ID, INGEST_CFG_DOWN),
+    ):
+        conn.execute(
+            sa.text(
+                f"UPDATE {SCHEMA}.app_workflows SET config = :cfg, updated_at = :ts WHERE id = :id"
+            ),
+            {"id": workflow_id, "cfg": json.dumps(config), "ts": NOW},
+        )
     op.execute(sa.delete(endpoints).where(endpoints.c.id == INGEST_EP_ID))

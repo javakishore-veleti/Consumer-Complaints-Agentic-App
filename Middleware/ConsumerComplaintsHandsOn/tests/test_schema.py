@@ -10,11 +10,14 @@ from app.core.common.config import ALL_SCHEMAS, PROJECT_ROOT
 DOWNLOAD_CFPB_ALL_WORKFLOW_ID = "b4b8014f-d756-5bc8-a041-96899ac037ac"
 FILTER_CFPB_3_MONTHS_WORKFLOW_ID = "4d3f1ee0-0b02-51cb-8959-2499896cc20e"
 INGEST_CFPB_ALL_WORKFLOW_ID = "0064095f-9f8e-5f09-94cf-3b4fe28e2b33"
+INDEX_CFPB_ALL_WORKFLOW_ID = "120e90d3-f61d-5fd4-a8c4-2a1aba9e9ba6"
 ALL_MIO_ID = "01fa6351-cf12-520d-886d-9b8e30515451"
 MIO_3_MONTHS_ID = "a10fbfe0-ac03-5f3f-8d20-5132d470b03a"
 MIOS_WORKFLOWS_ALL_DOWNLOAD_ID = "c23808b9-4e57-5a5b-b301-78dec5ac839e"
 MIOS_WORKFLOWS_3M_FILTER_ID = "edd79fde-5736-5655-9d00-c52bfe172c1f"
 MIOS_WORKFLOWS_ALL_INGEST_ID = "251b44d2-9aea-5d9d-b1a0-0816e8db3f80"
+MIOS_WORKFLOWS_ALL_INDEX_ID = "ee28b7aa-b4cf-5611-bf07-080fb3b53864"
+APP_ENDPOINT_INDEX_ID = "af151640-ce3a-5995-a390-fa1ec5212aaf"
 
 
 def test_schema_names():
@@ -459,6 +462,7 @@ def test_mios_workflows_seed_binds_all_and_3_months_only(data_dir):
         ).fetchall()
     assert rows == [
         (MIOS_WORKFLOWS_ALL_INGEST_ID, ALL_MIO_ID, INGEST_CFPB_ALL_WORKFLOW_ID),
+        (MIOS_WORKFLOWS_ALL_INDEX_ID, ALL_MIO_ID, INDEX_CFPB_ALL_WORKFLOW_ID),
         (MIOS_WORKFLOWS_ALL_DOWNLOAD_ID, ALL_MIO_ID, DOWNLOAD_CFPB_ALL_WORKFLOW_ID),
         (MIOS_WORKFLOWS_3M_FILTER_ID, MIO_3_MONTHS_ID, FILTER_CFPB_3_MONTHS_WORKFLOW_ID),
     ]
@@ -501,7 +505,7 @@ def test_migration_0011_removes_mios_workflows_and_all_mio_on_the_way_down(data_
     with _admin_db(data_dir) as db:
         assert db.execute("select name from sqlite_master where name = 'mios_workflows'").fetchall() != []
         assert db.execute("select id from mios where name = 'Customer complaints all 2026'").fetchone()[0] == ALL_MIO_ID
-        assert db.execute("select count(*) from mios_workflows").fetchone()[0] == 3
+        assert db.execute("select count(*) from mios_workflows").fetchone()[0] == 4
 
 
 APP_ENDPOINT_SOURCE_ID = "ccbce57d-bd9f-56fe-a258-fa2deb9dd393"
@@ -546,4 +550,39 @@ def test_migration_0012_removes_app_endpoints_on_the_way_down(data_dir):
         assert db.execute("select name from sqlite_master where name = 'app_endpoints'").fetchall() == []
     command.upgrade(config, "head")
     with _admin_db(data_dir) as db:
-        assert db.execute("select count(*) from app_endpoints").fetchone()[0] == 2
+        assert db.execute("select count(*) from app_endpoints").fetchone()[0] == 3
+
+
+def test_index_cfpb_all_workflow_is_seeded(data_dir):
+    with _admin_db(data_dir) as db:
+        row = db.execute(
+            "select id, workflow_name, engine_type, engine_workflow_id, config, enabled"
+            " from app_workflows where workflow_name = 'index_cfpb_all'"
+        ).fetchone()
+        bind = db.execute(
+            "select id, mio_id, workflow_id from mios_workflows where id = ?",
+            (MIOS_WORKFLOWS_ALL_INDEX_ID,),
+        ).fetchone()
+        ep = db.execute(
+            "select id, name, category, from_env_var_name, to_env_var_name, enabled"
+            " from app_endpoints where name = 'cfpb_index_mongo_to_vectors'"
+        ).fetchone()
+    assert row is not None
+    assert row[0] == INDEX_CFPB_ALL_WORKFLOW_ID
+    assert row[1:4] == ("index_cfpb_all", "apache_airflow", "index_cfpb_all")
+    config = row[4] if isinstance(row[4], dict) else json.loads(row[4])
+    assert config == {
+        "dataset_code": "CFPB",
+        "batch_size": 500,
+        "app_endpoint_name": "cfpb_index_mongo_to_vectors",
+    }
+    assert row[5] in (1, True)
+    assert bind == (MIOS_WORKFLOWS_ALL_INDEX_ID, ALL_MIO_ID, INDEX_CFPB_ALL_WORKFLOW_ID)
+    assert ep == (
+        APP_ENDPOINT_INDEX_ID,
+        "cfpb_index_mongo_to_vectors",
+        "index",
+        "CCA_MONGO_COMPLAINTS_URL",
+        "CCA_VECTOR_STORE_PATH",
+        1,
+    )

@@ -2,7 +2,7 @@
 
 **Scope:** Local-only after M03. Product order **C → D → A → B → E**. No paid cloud resources. Cloud remains **M06**. Intellect/ACL are **M05**.
 
-**Status: in progress.** 1 epic, 5 features, 12 stories (Phase C done; Feature #146 AppEndpoints stories done; ingest next).
+**Status: done.** 1 epic, 5 features, 12 stories (C→D→A→B→E complete; next is M05).
 
 How to read this file:
 - `#144` is the GitHub issue number. The `M04-00NN` key is the sequence tag at the start of the issue title.
@@ -189,7 +189,32 @@ Every command has its own row with **Status** (`Planned`, `In progress` or `Done
 | #162 | 11 | `/ccaa-step 162.11` | Done | 2026-11-15 21:11 | 2026-11-15 21:11 |
 | #162 | 12 | `/ccaa-step 162.12` | Done | 2026-11-15 21:11 | 2026-11-15 21:11 |
 | Feature #148 | 1 | `/ccaa-feature-complete 148` | Done | 2026-11-15 21:11 | 2026-11-15 21:11 |
-*(Full per-story command tables for #163–#164 are added when each story is started via `/ccaa-story-start`.)*
+| #163 | 1 | `/ccaa-story-start 163` | Done | 2026-11-15 21:20 | 2026-11-15 21:20 |
+| #163 | 2 | `/brainstorming Story #163: D88 local JSONL vectors + index_cfpb_all` | Done | 2026-11-15 21:20 | 2026-11-16 12:04 |
+| #163 | 3 | `/using-git-worktrees Story #163: branch m04-0017-local-vector-index` | Done | 2026-11-15 21:20 | 2026-11-15 21:20 |
+| #163 | 4 | `/writing-plans Story #163` | Done | 2026-11-16 12:04 | 2026-11-16 12:04 |
+| #163 | 5 | `/test-driven-development Story #163` | Done | 2026-11-16 12:04 | 2026-11-16 12:04 |
+| #163 | 6 | `/subagent-driven-development Story #163` | Done | 2026-11-16 12:04 | 2026-11-16 12:04 |
+| #163 | 7 | `/ccaa-commit-push 163 after every task (repeat)` | Done | 2026-11-16 12:04 | 2026-11-16 12:04 |
+| #163 | 8 | `/verification-before-completion Story #163` | Done | 2026-11-16 12:04 | 2026-11-16 12:04 |
+| #163 | 9 | `/requesting-code-review Story #163` | Done | 2026-11-16 12:04 | 2026-11-16 12:04 |
+| #163 | 10 | `/ccaa-commit-push 163` | Done | 2026-11-16 12:04 | 2026-11-16 12:04 |
+| #163 | 11 | `/finishing-a-development-branch Story #163` | Done | 2026-11-16 12:04 | 2026-11-16 12:04 |
+| #163 | 12 | `/ccaa-story-complete 163` | Done | 2026-11-16 12:04 | 2026-11-16 12:04 |
+| #164 | 1 | `/ccaa-story-start 164` | Done | 2026-11-15 21:20 | 2026-11-15 21:20 |
+| #164 | 2 | `/brainstorming Story #164: seed index + Admin Index page` | Done | 2026-11-16 12:04 | 2026-11-16 12:04 |
+| #164 | 3 | `/using-git-worktrees Story #164` | Done | 2026-11-15 21:20 | 2026-11-15 21:20 |
+| #164 | 4 | `/writing-plans Story #164` | Done | 2026-11-16 12:04 | 2026-11-16 12:04 |
+| #164 | 5 | `/test-driven-development Story #164` | Done | 2026-11-16 12:04 | 2026-11-16 12:04 |
+| #164 | 6 | `/subagent-driven-development Story #164` | Done | 2026-11-16 12:04 | 2026-11-16 12:04 |
+| #164 | 7 | `/ccaa-commit-push 164 after every task (repeat)` | Done | 2026-11-16 12:04 | 2026-11-16 12:04 |
+| #164 | 8 | `/verification-before-completion Story #164` | Done | 2026-11-16 12:04 | 2026-11-16 12:04 |
+| #164 | 9 | `/requesting-code-review Story #164` | Done | 2026-11-16 12:04 | 2026-11-16 12:04 |
+| #164 | 10 | `/ccaa-commit-push 164` | Done | 2026-11-16 12:04 | 2026-11-16 12:04 |
+| #164 | 11 | `/finishing-a-development-branch Story #164` | Done | 2026-11-16 12:04 | 2026-11-16 12:04 |
+| #164 | 12 | `/ccaa-story-complete 164` | Done | 2026-11-16 12:04 | 2026-11-16 12:04 |
+| Feature #149 | 1 | `/ccaa-feature-complete 149` | Done | 2026-11-16 12:04 | 2026-11-16 12:04 |
+| Epic #144 | 1 | `/ccaa-epic-complete 144` | Done | 2026-11-16 12:04 | 2026-11-16 12:04 |
 
 
 

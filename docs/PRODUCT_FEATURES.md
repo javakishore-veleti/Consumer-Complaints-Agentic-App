@@ -73,12 +73,12 @@ Each workflow that downloads or ingests data is registered in the database, so t
 - Credentials never live in the repo.
 - The registry and the catalog (datasets, dataset locations, MIOs, and their ingest log) live in the admin schema `consumer_comp_admin_db` (D48, D49). The RAG layer is a later milestone (D53).
 
-### F4. System secrets sync (C) [In progress — M04 #145]
+### F4. System secrets sync (C) [Done — M04 #145]
 - Fixed system names live in git-ignored `.env` (never in git, never shown in Admin UI).
 - **Inventory (names only):**
   | Role | Names | Source of truth |
   |---|---|---|
-  | Synced to Airflow Variables (D42) | `CCA_CALLBACK_SECRET`, `CCA_API_URL`, `CCA_DB_URL`, `CCA_MONGO_COMPLAINTS_URL`, `LOCAL_DATA_PATH_CFPB` | `CICD/Local/airflow/Airflow_Variables_Upsert.txt` |
+  | Synced to Airflow Variables (D42) | `CCA_CALLBACK_SECRET`, `CCA_API_URL`, `CCA_DB_URL`, `CCA_MONGO_COMPLAINTS_URL`, `CCA_VECTOR_STORE_PATH`, `LOCAL_DATA_PATH_CFPB` | `CICD/Local/airflow/Airflow_Variables_Upsert.txt` |
   | API-only (not upserted) | `CCA_AIRFLOW_API_BASE_URL`, `CCA_AIRFLOW_API_USERNAME`, `CCA_AIRFLOW_API_PASSWORD`, `CCA_OPERATIONAL_STORE`, `CCA_DATA_DIR`, `CCA_MONGO_OPERATIONAL_URL` | `.env.example` comments |
 - Admin **Operations → Sync secrets** POSTs `POST /management/airflow/upsert-secrets` (#77 API, #153 UI). Outcomes only; values never rendered.
 - Local only until M06.
@@ -88,7 +88,7 @@ Each workflow that downloads or ingests data is registered in the database, so t
 - Schema + DAO + CFPB source seed: #155. List/read API #156; thin Admin UI on Imports #157.
 - Imports (then ingest/index) use AppEndpoints. Local/HTTP first; no cloud spend.
 
-### F6. DB Ingest: load complaints into MongoDB (A) [In progress — M04 #147]
+### F6. DB Ingest: load complaints into MongoDB (A) [Done — M04 #147]
 - Airflow ingest DAG `ingest_cfpb_all` writes **local Mongo** complaint docs in batches (upsert by Complaint ID) via `CCA_MONGO_COMPLAINTS_URL` (D86 / #158).
 - **DB Ingest** Admin screen mirrors Imports; only after download completed for that MIO (#160).
 - API never bulk-writes complaint documents.
@@ -100,10 +100,10 @@ Each workflow that downloads or ingests data is registered in the database, so t
 - Admin Imports panel clarifies location vs AppEndpoint; secrets never shown (#162).
 - Cloud location types stub-only until local is hard (M06 later).
 
-### F8. Local vector indexing (E) [Planned — M04 #149]
-- Index local Mongo complaints into a **local** vector store (Docker and/or pgvector).
-- Stories: #163 store+DAG, #164 register+Admin start.
-- Cloud vector DBs out of scope until local path is hard.
+### F8. Local vector indexing (E) [Done — M04 #149]
+- Index local Mongo complaints into a **local** filesystem vector store (`CCA_VECTOR_STORE_PATH`, JSONL + hash embeddings MVP, D88).
+- Airflow `index_cfpb_all` + AppEndpoint `cfpb_index_mongo_to_vectors`; Admin **Index** screen (`index_*`) after ingest completed (#163/#164).
+- Cloud vector DBs out of scope until local path is hard (M06).
 
 ### F9. Status tracking and history [Done for download; extends with ingest/index]
 - `app_workflows_exec_log` + `mios_ingest_log` (D50); Airflow reports via API callbacks only.
@@ -139,7 +139,7 @@ Each workflow that downloads or ingests data is registered in the database, so t
 |---|---|
 | M01 foundation / M02 downloads / M03 Admin E2E | Done |
 | Upsert secrets API (D42) + Admin Sync UI | Done (#77, #153); inventory docs #154 |
-| AppEndpoints / DB Ingest / locations harden / local vectors | Planned M04 (#144) |
+| AppEndpoints / DB Ingest / locations harden / local vectors | Done M04 (#144) |
 | MIO ACL + Intellect | Planned M05 (#150) |
 | Cloud deployment | Planned M06 (#73) |
 
@@ -148,7 +148,7 @@ Each workflow that downloads or ingests data is registered in the database, so t
 | Milestone | Focus | Status |
 |---|---|---|
 | M01–M03 | Foundation, downloads, Admin E2E | Complete |
-| **M04** | Local ops hardening: **C→D→A→B→E** (#144) | In progress |
+| **M04** | Local ops hardening: **C→D→A→B→E** (#144) | Done |
 | **M05** | Intellect + MIO ACL: **F→G** (#150) | Planned |
 | M06 | Cloud deployment | Planned (#73) |
 
@@ -156,6 +156,6 @@ Each workflow that downloads or ingests data is registered in the database, so t
 
 1. ~~AppEndpoints exact columns / categories~~ — closed by D85 / #155 (`source`\|`ingest`\|`index`\|`db`).
 2. ~~Complaint Mongo connection string naming for DAGs~~ — closed by D86 (`CCA_MONGO_COMPLAINTS_URL`).
-3. Vector store choice for local MVP (pgvector vs dedicated container) — decide with #163.
+3. ~~Vector store choice for local MVP~~ — closed by D88 (filesystem JSONL under `CCA_VECTOR_STORE_PATH`; hash embeddings for CI).
 4. Does Intellect share the operational database? (still open)
 5. What does "Airflow" mean in the portal chrome (link vs screen)? (still open)

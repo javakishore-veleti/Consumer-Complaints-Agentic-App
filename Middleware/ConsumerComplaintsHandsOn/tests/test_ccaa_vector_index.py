@@ -1,0 +1,88 @@
+"""Unit tests for Middleware/Airflow-dags/ccaa/vector_index.py (D88)."""
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pytest
+
+from tests.conftest import REPO_ROOT
+
+DAGS = REPO_ROOT / "Middleware" / "Airflow-dags"
+if str(DAGS) not in sys.path:
+    sys.path.insert(0, str(DAGS))
+
+from ccaa import vector_index as vi  # noqa: E402
+
+
+def test_resolve_vector_store_path_prefers_env(tmp_path: Path):
+    assert (
+        vi.resolve_vector_store_path(
+            getenv=lambda k, default=None: str(tmp_path) if k == "CCA_VECTOR_STORE_PATH" else default,
+            get_variable=lambda k: "/from/var",
+        )
+        == tmp_path
+    )
+
+
+def test_resolve_vector_store_path_requires_value():
+    with pytest.raises(ValueError, match="CCA_VECTOR_STORE_PATH"):
+        vi.resolve_vector_store_path(
+            getenv=lambda k, default=None: default,
+            get_variable=lambda k: (_ for _ in ()).throw(KeyError(k)),
+        )
+
+
+def test_hash_embedding_is_deterministic_and_fixed_dim():
+    a = vi.hash_embedding("hello", dim=16)
+    b = vi.hash_embedding("hello", dim=16)
+    c = vi.hash_embedding("other", dim=16)
+    assert a == b
+    assert len(a) == 16
+    assert a != c
+
+
+def test_index_complaint_docs_upserts_jsonl(tmp_path: Path):
+    store = vi.JsonlVectorStore(tmp_path)
+    result = vi.index_complaint_docs(
+        [
+            {
+                "Complaint ID": "c1",
+                "Product": "Credit",
+                "Issue": "Billing",
+                "Consumer complaint narrative": "overcharged",
+                "Company": "Acme",
+            },
+            {"Complaint ID": "c2", "Product": "Mortgage"},
+        ],
+        store,
+        batch_size=1,
+    )
+    assert result.rows_loaded == 2
+    assert result.batch_count == 2
+    lines = store.path.read_text(encoding="utf-8").strip().splitlines()
+    assert len(lines) == 2
+    row = json.loads(lines[0])
+    assert row["id"] in {"c1", "c2"}
+    assert "embedding" in row and len(row["embedding"]) == vi.DEFAULT_DIM
+
+    # upsert replaces same id
+    result2 = vi.index_complaint_docs(
+        [{"Complaint ID": "c1", "Product": "Updated"}],
+        store,
+        batch_size=10,
+    )
+    assert result2.rows_loaded == 1
+    lines2 = store.path.read_text(encoding="utf-8").strip().splitlines()
+    assert len(lines2) == 2
+    by_id = {json.loads(ln)["id"]: json.loads(ln) for ln in lines2}
+    assert "Updated" in by_id["c1"]["text"]
+
+
+def test_index_skips_docs_without_complaint_id(tmp_path: Path):
+    store = vi.JsonlVectorStore(tmp_path)
+    result = vi.index_complaint_docs([{"Product": "x"}], store)
+    assert result.rows_loaded == 0
+    assert not store.path.is_file() or store.path.read_text() == ""

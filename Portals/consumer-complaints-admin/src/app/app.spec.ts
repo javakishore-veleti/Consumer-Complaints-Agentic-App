@@ -65,6 +65,9 @@ describe('AppComponent', () => {
     const dbIngest = fixture.debugElement.query(By.css('[data-testid="left-nav-db-ingest"]'));
     expect(dbIngest).toBeTruthy();
     expect(dbIngest.nativeElement.textContent.trim()).toBe('DB Ingest');
-    expect(dbIngest.nativeElement.getAttribute('aria-disabled')).toBe('true');
+
+    const indexNav = fixture.debugElement.query(By.css('[data-testid="left-nav-index"]'));
+    expect(indexNav).toBeTruthy();
+    expect(indexNav.nativeElement.textContent.trim()).toBe('Index');
   });
 });

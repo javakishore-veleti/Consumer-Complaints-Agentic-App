@@ -1,0 +1,132 @@
+<div class="space-y-6" data-testid="index-page">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h1
+        id="index-heading"
+        class="text-title-md font-semibold text-gray-800 dark:text-white/90"
+      >
+        Index
+      </h1>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        Index Mongo complaints into the local vector store. Start only after ingest completed.
+      </p>
+    </div>
+    <button
+      type="button"
+      app-button
+      variant="outline"
+      data-testid="mio-refresh-status"
+      (click)="onRefresh()"
+    >
+      Refresh status
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div data-testid="mio-status-loading">
+      <app-alert variant="info" title="Loading" message="Loading MIO status…" />
+    </div>
+  }
+
+  @if (error()) {
+    <div data-testid="mio-status-error" role="alert">
+      <app-alert variant="error" title="Status error" [message]="error()" />
+    </div>
+  }
+
+  @if (actionError()) {
+    <div data-testid="mio-action-error" role="alert">
+      <app-alert variant="error" title="Action error" [message]="actionError()" />
+    </div>
+  }
+
+  <div
+    data-testid="index-accordion-shell"
+    class="space-y-4"
+    role="region"
+    aria-label="MIO index list"
+  >
+    @for (mio of entries(); track mio.id) {
+      <details
+        data-testid="mio-accordion"
+        class="group rounded-2xl border border-gray-200 bg-white open:shadow-theme-sm dark:border-gray-800 dark:bg-white/3"
+      >
+        <summary
+          class="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 md:px-6"
+        >
+          <span class="text-sm font-semibold text-gray-800 dark:text-white/90">{{
+            mio.name
+          }}</span>
+          <span
+            app-badge
+            variant="light"
+            size="sm"
+            [color]="statusColor(mio.latest_ingest ? mio.latest_ingest.status : null)"
+            className="mio-status"
+          >
+            @if (mio.latest_ingest; as ingest) {
+              {{ ingest.status }}
+            } @else {
+              No ingest yet
+            }
+          </span>
+        </summary>
+
+        <div class="space-y-4 border-t border-gray-100 px-5 py-4 md:px-6 dark:border-gray-800">
+          @if (mio.description) {
+            <p class="text-sm text-gray-500 dark:text-gray-400">{{ mio.description }}</p>
+          }
+
+          @if (mio.latest_ingest; as ingest) {
+            @if (ingest.message) {
+              <app-alert variant="warning" title="Ingest message" [message]="ingest.message" />
+            }
+
+            <dl class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <div class="rounded-xl bg-gray-50 px-3 py-2 dark:bg-white/3">
+                <dt class="text-xs text-gray-500 dark:text-gray-400">Requested</dt>
+                <dd class="mt-1 text-sm font-medium text-gray-800 dark:text-white/90">
+                  {{ ingest.requested_at }}
+                </dd>
+              </div>
+              @if (ingest.rows_loaded !== null && ingest.rows_loaded !== undefined) {
+                <div class="rounded-xl bg-gray-50 px-3 py-2 dark:bg-white/3">
+                  <dt class="text-xs text-gray-500 dark:text-gray-400">Rows loaded</dt>
+                  <dd class="mt-1 text-sm font-medium text-gray-800 dark:text-white/90">
+                    {{ ingest.rows_loaded }}
+                  </dd>
+                </div>
+              }
+            </dl>
+          }
+
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
+            <label class="flex flex-1 flex-col gap-1.5 text-sm font-medium text-gray-700 dark:text-gray-300">
+              Index workflow
+              <select
+                data-testid="mio-workflow-select"
+                class="h-11 w-full rounded-lg border border-gray-200 bg-transparent px-3 text-sm text-gray-800 shadow-theme-xs outline-hidden focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-800 dark:bg-white/3 dark:text-white/90 dark:focus:border-brand-500/40"
+                [value]="selectedWorkflowId(mio.id)"
+                (change)="onWorkflowChange(mio.id, $event)"
+              >
+                @for (wf of allowedWorkflows(mio); track wf.id) {
+                  <option [value]="wf.id">{{ wf.workflow_name }}</option>
+                }
+              </select>
+            </label>
+            <button
+              type="button"
+              app-button
+              variant="primary"
+              data-testid="mio-start-workflow"
+              [disabled]="isStartDisabled(mio)"
+              (click)="onStart(mio)"
+            >
+              Start index
+            </button>
+          </div>
+        </div>
+      </details>
+    }
+  </div>
+</div>

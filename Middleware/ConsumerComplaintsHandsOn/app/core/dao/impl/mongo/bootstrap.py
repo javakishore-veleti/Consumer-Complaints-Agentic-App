@@ -30,13 +30,20 @@ MW_ALL_DOWNLOAD_ID = "c23808b9-4e57-5a5b-b301-78dec5ac839e"
 MW_3M_FILTER_ID = "edd79fde-5736-5655-9d00-c52bfe172c1f"
 # uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m04-0013/mios-workflows-all-ingest")
 MW_ALL_INGEST_ID = "251b44d2-9aea-5d9d-b1a0-0816e8db3f80"
+# uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m04-0017/index_cfpb_all")
+INDEX_WF_ID = "120e90d3-f61d-5fd4-a8c4-2a1aba9e9ba6"
+# uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m04-0018/mios-workflows-all-index")
+MW_ALL_INDEX_ID = "ee28b7aa-b4cf-5611-bf07-080fb3b53864"
 MIO_3_MONTHS_ID = "a10fbfe0-ac03-5f3f-8d20-5132d470b03a"
 # uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m04-0009/ep-cfpb-source-http-local")
 APP_ENDPOINT_SOURCE_ID = "ccbce57d-bd9f-56fe-a258-fa2deb9dd393"
 # uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m04-0015/ep-cfpb-ingest-local-mongo")
 APP_ENDPOINT_INGEST_ID = "8ca22b0c-1c7c-5a25-be9d-d51c6063a3a5"
+# uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m04-0017/ep-cfpb-index-mongo-vectors")
+APP_ENDPOINT_INDEX_ID = "af151640-ce3a-5995-a390-fa1ec5212aaf"
 NOW_ENDPOINTS = datetime(2026, 11, 15, tzinfo=timezone.utc)
 NOW_INGEST = datetime(2026, 11, 15, tzinfo=timezone.utc)
+NOW_INDEX = datetime(2026, 11, 15, tzinfo=timezone.utc)
 
 COLLECTIONS = (
     "app_workflows",
@@ -312,6 +319,55 @@ def seed_if_empty() -> None:
                 "to_env_var_name": "CCA_MONGO_COMPLAINTS_URL",
                 "credentials_ref": None,
                 "description": "Local landing → complaint Mongo (D86/D87)",
+                "enabled": True,
+                "created_at": NOW_ENDPOINTS,
+                "updated_at": NOW_ENDPOINTS,
+            }
+        )
+    )
+    _upsert(
+        MongoDocument(
+            {
+                "_collection": "app_workflows",
+                "id": INDEX_WF_ID,
+                "workflow_name": "index_cfpb_all",
+                "engine_type": "apache_airflow",
+                "engine_workflow_id": "index_cfpb_all",
+                "config": {
+                    "dataset_code": "CFPB",
+                    "batch_size": 500,
+                    "app_endpoint_name": "cfpb_index_mongo_to_vectors",
+                },
+                "enabled": True,
+                "created_at": NOW_INDEX,
+                "updated_at": NOW_INDEX,
+            }
+        )
+    )
+    _upsert(
+        MongoDocument(
+            {
+                "_collection": "mios_workflows",
+                "id": MW_ALL_INDEX_ID,
+                "mio_id": ALL_MIO_ID,
+                "workflow_id": INDEX_WF_ID,
+                "created_at": NOW_INDEX,
+            }
+        )
+    )
+    _upsert(
+        MongoDocument(
+            {
+                "_collection": "app_endpoints",
+                "id": APP_ENDPOINT_INDEX_ID,
+                "name": "cfpb_index_mongo_to_vectors",
+                "category": "index",
+                "from_dataset_location_id": None,
+                "from_env_var_name": "CCA_MONGO_COMPLAINTS_URL",
+                "to_dataset_location_id": None,
+                "to_env_var_name": "CCA_VECTOR_STORE_PATH",
+                "credentials_ref": None,
+                "description": "Complaint Mongo → local vector store (D88)",
                 "enabled": True,
                 "created_at": NOW_ENDPOINTS,
                 "updated_at": NOW_ENDPOINTS,

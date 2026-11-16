@@ -7,7 +7,7 @@ from app.core.common.return_codes import SUCCESS
 from app.core.dao.objects_factory import DaoObjectsFactory
 
 URL = "/workflows"
-SEEDED = ["download_cfpb_all", "filter_cfpb_3_months", "ingest_cfpb_all"]
+SEEDED = ["download_cfpb_all", "filter_cfpb_3_months", "index_cfpb_all", "ingest_cfpb_all"]
 
 
 def test_seeded_registry_lists_download_cfpb_all(client):
