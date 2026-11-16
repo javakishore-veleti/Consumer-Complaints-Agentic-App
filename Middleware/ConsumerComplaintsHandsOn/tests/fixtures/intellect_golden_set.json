@@ -1,0 +1,46 @@
+{
+  "docs": [
+    {
+      "id": "c_credit_billing",
+      "text": "Credit card billing overcharge on monthly statement dispute"
+    },
+    {
+      "id": "c_mortgage_delay",
+      "text": "Mortgage loan servicing delay and escrow misapplication"
+    },
+    {
+      "id": "c_student_debt",
+      "text": "Student loan debt collection harassment and incorrect balance"
+    },
+    {
+      "id": "c_bank_fraud",
+      "text": "Checking account unauthorized transfers bank fraud claim"
+    },
+    {
+      "id": "c_auto_repo",
+      "text": "Auto loan wrongful repossession after payment posted"
+    }
+  ],
+  "queries": [
+    {
+      "query": "credit card billing overcharge",
+      "relevant_ids": ["c_credit_billing"]
+    },
+    {
+      "query": "mortgage escrow delay",
+      "relevant_ids": ["c_mortgage_delay"]
+    },
+    {
+      "query": "student loan collection harassment",
+      "relevant_ids": ["c_student_debt"]
+    },
+    {
+      "query": "bank fraud unauthorized transfer",
+      "relevant_ids": ["c_bank_fraud"]
+    },
+    {
+      "query": "auto loan repossession payment",
+      "relevant_ids": ["c_auto_repo"]
+    }
+  ]
+}

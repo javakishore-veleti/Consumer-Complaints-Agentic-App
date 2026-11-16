@@ -7,10 +7,13 @@ describe('runQuery', () => {
       ok: true,
       json: async () => ({ hits: [{ id: '1', text: 'billing', score: 0.9 }] }),
     }));
-    const data = await runQuery('billing dispute', { fetchImpl, apiBase: '/api' });
+    const data = await runQuery('billing dispute', { fetchImpl, apiBase: '/api', config: 'hybrid' });
     expect(fetchImpl).toHaveBeenCalledWith(
       '/api/intellect/query',
-      expect.objectContaining({ method: 'POST' }),
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ query: 'billing dispute', limit: 5, config: 'hybrid' }),
+      }),
     );
     expect(data.hits[0].id).toBe('1');
   });

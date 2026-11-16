@@ -23,11 +23,14 @@ class IntellectQueryApi(metaclass=SingletonMeta):
         )
 
     def query(self, body: IntellectQueryBody) -> IntellectQueryOut:
-        ctx = IntellectQueryFacadeCtx(req=IntellectQueryReq(query=body.query, limit=body.limit))
+        ctx = IntellectQueryFacadeCtx(
+            req=IntellectQueryReq(query=body.query, limit=body.limit, config=body.config)
+        )
         FacadesObjectsFactory.get_intellect_query_facade().query(ctx)
         if ctx.resp.code == SUCCESS:
             return IntellectQueryOut(
-                hits=[IntellectHitOut(id=h.id, text=h.text, score=h.score) for h in ctx.resp.hits]
+                hits=[IntellectHitOut(id=h.id, text=h.text, score=h.score) for h in ctx.resp.hits],
+                config=ctx.resp.config or body.config,
             )
         if ctx.resp.code == INVALID_INPUT:
             raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, ctx.resp.error or "invalid request")

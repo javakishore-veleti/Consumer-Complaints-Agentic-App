@@ -2,7 +2,7 @@
 
 **Scope:** After M07 Storage Layer is queryable. Diagram **RETRIEVAL LAYER** + right-side **EVALUATION** ladder from 5.25 / Qi1FcoRWEiw: baseline → +hybrid → +self-query → +decomposition → +reranker → everything. Local-first; paid LLM only if a story brainstorm explicitly approves.
 
-**Status: planned.** 1 epic, 3 features, 3 stories.
+**Status: done.** 1 epic, 3 features, 3 stories. 0 stories are left to build; 6 stories are already done (3 Phase 0 + 3).
 
 ## Contents
 
@@ -42,9 +42,19 @@ Epic #183  M08-0001  Advanced Intellect retrieval and evaluation
 
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
-| #187 | 1 | `/ccaa-story-start 187` | Planned | | |
+| #187 | 1 | `/ccaa-story-start 187` | Done | 2026-11-16 16:54 | 2026-11-16 16:54 |
+| #187 | 2 | `/brainstorming Story #187: D93 retrieval ladder` | Done | 2026-11-16 16:54 | 2026-11-16 16:58 |
+| #188 | 1 | `/ccaa-story-start 188` | Done | 2026-11-16 16:54 | 2026-11-16 16:54 |
+| #189 | 1 | `/ccaa-story-start 189` | Done | 2026-11-16 16:54 | 2026-11-16 16:54 |
+| #187/#188/#189 | 3–12 | worktree → plan → TDD → commit → PR → complete | Done | 2026-11-16 16:54 | 2026-11-16 17:05 |
+| Feature #184 | 1 | `/ccaa-feature-complete 184` | Done | 2026-11-16 17:05 | 2026-11-16 17:05 |
+| Feature #185 | 1 | `/ccaa-feature-complete 185` | Done | 2026-11-16 17:05 | 2026-11-16 17:05 |
+| Feature #186 | 1 | `/ccaa-feature-complete 186` | Done | 2026-11-16 17:05 | 2026-11-16 17:05 |
+| Epic #183 | 1 | `/ccaa-epic-complete 183` | Done | 2026-11-16 17:05 | 2026-11-16 17:05 |
 
 ## 4. Notes
 
-- Ship bias from 5.25: **+reranker**, not necessarily **everything**.
-- Cloud remains **M90**.
+- Spec: `docs/Superpowers/specs/M08-0005-retrieval-ladder-eval-design.md` (D93)
+- Ship bias: **`reranker`** (hybrid + lexical rerank), not necessarily `everything`
+- Golden set: `Middleware/ConsumerComplaintsHandsOn/tests/fixtures/intellect_golden_set.json`
+- Cloud remains **M90**

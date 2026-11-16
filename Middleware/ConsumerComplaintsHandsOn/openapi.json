@@ -247,6 +247,13 @@
       "IntellectQueryBody": {
         "additionalProperties": false,
         "properties": {
+          "config": {
+            "default": "baseline",
+            "maxLength": 32,
+            "minLength": 1,
+            "title": "Config",
+            "type": "string"
+          },
           "limit": {
             "default": 5,
             "maximum": 50.0,
@@ -267,6 +274,11 @@
       },
       "IntellectQueryOut": {
         "properties": {
+          "config": {
+            "default": "baseline",
+            "title": "Config",
+            "type": "string"
+          },
           "hits": {
             "items": {
               "$ref": "#/components/schemas/IntellectHitOut"

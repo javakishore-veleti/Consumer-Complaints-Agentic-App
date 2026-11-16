@@ -26,11 +26,31 @@ def test_query_returns_ranked_hits(client, tmp_path, monkeypatch):
     body = response.json()
     assert body["hits"]
     assert body["hits"][0]["id"] == "c1"
+    assert body["config"] == "baseline"
+
+
+def test_hybrid_config_query(client, tmp_path, monkeypatch):
+    store = _seed_store(tmp_path)
+    monkeypatch.setenv("CCA_VECTOR_STORE_PATH", str(store))
+    response = client.post(
+        "/intellect/query",
+        json={"query": "billing overcharge", "limit": 3, "config": "hybrid"},
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["config"] == "hybrid"
+    assert body["hits"][0]["id"] == "c1"
 
 
 def test_blank_query_is_422(client, tmp_path, monkeypatch):
     monkeypatch.setenv("CCA_VECTOR_STORE_PATH", str(tmp_path))
     response = client.post("/intellect/query", json={"query": "  "})
+    assert response.status_code == 422
+
+
+def test_unknown_config_is_422(client, tmp_path, monkeypatch):
+    monkeypatch.setenv("CCA_VECTOR_STORE_PATH", str(tmp_path))
+    response = client.post("/intellect/query", json={"query": "x", "config": "paid_llm"})
     assert response.status_code == 422
 
 
