@@ -52,4 +52,4 @@ Epic #150  M05-0001  Intellect and MIO ACL (local)
 
 - Product features: `docs/PRODUCT_FEATURES.md` F15–F16.
 - Decisions D89 / D90.
-- Next milestone: **M06** cloud (`Milestone_06` / epic #73).
+- Next product milestones: **M06** split SoT (`Milestone_06.md` / #169) → **M07** Storage Layer (#175) → **M08** retrieval/eval (#183). Cloud parked as **M90** (`Milestone_90.md` / #73).

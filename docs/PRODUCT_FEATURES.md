@@ -141,7 +141,10 @@ Each workflow that downloads or ingests data is registered in the database, so t
 | Upsert secrets API (D42) + Admin Sync UI | Done (#77, #153); inventory docs #154 |
 | AppEndpoints / DB Ingest / locations harden / local vectors | Done M04 (#144) |
 | MIO ACL + Intellect | Done M05 (#150) |
-| Cloud deployment | Planned M06 (#73) |
+| Split CFPB landing + SoT batch ingest | Planned M06 (#169) |
+| Pluggable local vector Storage Layer (pgvector) | Planned M07 (#175) |
+| Advanced Intellect retrieval + EVALUATION ladder | Planned M08 (#183) |
+| Cloud deployment | Planned M90 (#73; was M06) |
 
 ## 6. Milestones
 
@@ -150,7 +153,10 @@ Each workflow that downloads or ingests data is registered in the database, so t
 | M01–M03 | Foundation, downloads, Admin E2E | Complete |
 | **M04** | Local ops hardening: **C→D→A→B→E** (#144) | Done |
 | **M05** | Intellect + MIO ACL: **F→G** (#150) | Done |
-| M06 | Cloud deployment | Planned (#73) |
+| **M06** | Split CFPB landing + complaint SoT batches (#169) | Planned |
+| **M07** | Pluggable local vector Storage Layer (#175) | Planned |
+| **M08** | Advanced Intellect retrieval + evaluation (#183) | Planned |
+| **M90** | Cloud deployment (parked; was M06) (#73) | Planned |
 
 ## 7. Open questions
 
