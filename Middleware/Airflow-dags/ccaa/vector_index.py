@@ -1,4 +1,4 @@
-"""Local filesystem vector index for complaint docs (D88). No app.* imports."""
+"""Local vector index adapters for complaint docs (D88 / D92). No app.* imports."""
 
 from __future__ import annotations
 
@@ -13,6 +13,9 @@ from typing import Any, Callable, Iterable, Protocol
 DEFAULT_COLLECTION = "complaints"
 DEFAULT_DIM = 32
 COMPLAINT_ID_FIELD = "Complaint ID"
+DEFAULT_PG_TABLE = "complaint_vectors"
+BACKEND_JSONL = "jsonl"
+BACKEND_PGVECTOR = "pgvector"
 
 
 class SupportsVectorUpsert(Protocol):
@@ -48,10 +51,25 @@ def resolve_vector_store_path(
     return Path(value)
 
 
+def resolve_pgvector_url(
+    *,
+    getenv: Callable[..., str | None] = os.getenv,
+    get_variable: Callable[[str], str],
+) -> str:
+    value = _first_nonblank(getenv("CCA_PGVECTOR_URL"), None)
+    if value is None:
+        try:
+            value = _first_nonblank(get_variable("CCA_PGVECTOR_URL"))
+        except Exception:
+            value = None
+    if not value:
+        raise ValueError("CCA_PGVECTOR_URL is required (env or Airflow Variable)")
+    return value
+
+
 def hash_embedding(text: str, *, dim: int = DEFAULT_DIM) -> list[float]:
     """Deterministic pseudo-embedding for local MVP / CI (no ML model)."""
     digest = hashlib.sha256((text or "").encode("utf-8")).digest()
-    # Expand digest to dim floats in [-1, 1]
     out: list[float] = []
     i = 0
     while len(out) < dim:
@@ -60,6 +78,10 @@ def hash_embedding(text: str, *, dim: int = DEFAULT_DIM) -> list[float]:
         i += 1
         digest = hashlib.sha256(digest + bytes([i])).digest()
     return out[:dim]
+
+
+def _embedding_literal(values: list[float]) -> str:
+    return "[" + ",".join(f"{float(x):.8f}" for x in values) + "]"
 
 
 class JsonlVectorStore:
@@ -87,6 +109,86 @@ class JsonlVectorStore:
                 fh.write(json.dumps(row, ensure_ascii=False) + "\n")
         tmp.replace(self.path)
         return len(docs)
+
+
+class PgvectorStore:
+    """Postgres + pgvector upsert store (D92). Uses stdlib-friendly SQL literals."""
+
+    def __init__(
+        self,
+        dsn: str,
+        *,
+        table: str = DEFAULT_PG_TABLE,
+        dim: int = DEFAULT_DIM,
+        connect: Callable[[], Any] | None = None,
+    ) -> None:
+        if not (dsn or "").strip():
+            raise ValueError("dsn is required")
+        self.dsn = dsn.strip()
+        self.table = table
+        self.dim = dim
+        self._connect = connect
+        self.ensure_schema()
+
+    def _conn(self):
+        if self._connect is not None:
+            return self._connect()
+        import psycopg
+
+        return psycopg.connect(self.dsn)
+
+    def ensure_schema(self) -> None:
+        ddl_ext = "CREATE EXTENSION IF NOT EXISTS vector"
+        ddl_table = (
+            f"CREATE TABLE IF NOT EXISTS {self.table} ("
+            "id TEXT PRIMARY KEY, "
+            "text TEXT NOT NULL, "
+            f"embedding vector({self.dim})"
+            ")"
+        )
+        with self._conn() as conn:
+            conn.execute(ddl_ext)
+            conn.execute(ddl_table)
+            conn.commit()
+
+    def upsert(self, docs: list[dict[str, Any]]) -> int:
+        if not docs:
+            return 0
+        sql = (
+            f"INSERT INTO {self.table} (id, text, embedding) VALUES (%s, %s, %s::vector) "
+            "ON CONFLICT (id) DO UPDATE SET text = EXCLUDED.text, embedding = EXCLUDED.embedding"
+        )
+        with self._conn() as conn:
+            for doc in docs:
+                emb = doc.get("embedding") or []
+                if len(emb) != self.dim:
+                    raise ValueError(f"embedding dim must be {self.dim}, got {len(emb)}")
+                conn.execute(
+                    sql,
+                    (str(doc["id"]), str(doc.get("text") or ""), _embedding_literal(list(emb))),
+                )
+            conn.commit()
+        return len(docs)
+
+
+def open_vector_store(
+    *,
+    backend: str,
+    path: Path | None = None,
+    dsn: str | None = None,
+    connect: Callable[[], Any] | None = None,
+) -> SupportsVectorUpsert:
+    """Factory for index DAGs — backend agnostic to SoT (D92)."""
+    kind = (backend or "").strip().lower()
+    if kind == BACKEND_JSONL:
+        if path is None:
+            raise ValueError("path is required for jsonl backend")
+        return JsonlVectorStore(path)
+    if kind == BACKEND_PGVECTOR:
+        if not dsn:
+            raise ValueError("dsn is required for pgvector backend")
+        return PgvectorStore(dsn, connect=connect)
+    raise ValueError(f"unknown vector backend: {backend!r} (expected jsonl|pgvector)")
 
 
 def complaint_text(doc: dict[str, Any]) -> str:

@@ -18,6 +18,9 @@ MIOS_WORKFLOWS_3M_FILTER_ID = "edd79fde-5736-5655-9d00-c52bfe172c1f"
 MIOS_WORKFLOWS_ALL_INGEST_ID = "251b44d2-9aea-5d9d-b1a0-0816e8db3f80"
 MIOS_WORKFLOWS_ALL_INDEX_ID = "ee28b7aa-b4cf-5611-bf07-080fb3b53864"
 APP_ENDPOINT_INDEX_ID = "af151640-ce3a-5995-a390-fa1ec5212aaf"
+INDEX_CFPB_PGVECTOR_WORKFLOW_ID = "68a0fa8a-825c-53f1-864f-5db167a339a0"
+MIOS_WORKFLOWS_ALL_INDEX_PG_ID = "494ff42b-a7e7-5e90-8430-74b81a52dff1"
+APP_ENDPOINT_INDEX_PG_ID = "2e6bd178-2900-5ea2-80ed-507f486a2133"
 
 
 def test_schema_names():
@@ -466,6 +469,7 @@ def test_mios_workflows_seed_binds_all_and_3_months_only(data_dir):
     assert rows == [
         (MIOS_WORKFLOWS_ALL_INGEST_ID, ALL_MIO_ID, INGEST_CFPB_ALL_WORKFLOW_ID),
         (MIOS_WORKFLOWS_ALL_INDEX_ID, ALL_MIO_ID, INDEX_CFPB_ALL_WORKFLOW_ID),
+        (MIOS_WORKFLOWS_ALL_INDEX_PG_ID, ALL_MIO_ID, INDEX_CFPB_PGVECTOR_WORKFLOW_ID),
         (MIOS_WORKFLOWS_ALL_DOWNLOAD_ID, ALL_MIO_ID, DOWNLOAD_CFPB_ALL_WORKFLOW_ID),
         (MIOS_WORKFLOWS_3M_FILTER_ID, MIO_3_MONTHS_ID, FILTER_CFPB_3_MONTHS_WORKFLOW_ID),
     ]
@@ -508,7 +512,7 @@ def test_migration_0011_removes_mios_workflows_and_all_mio_on_the_way_down(data_
     with _admin_db(data_dir) as db:
         assert db.execute("select name from sqlite_master where name = 'mios_workflows'").fetchall() != []
         assert db.execute("select id from mios where name = 'Customer complaints all 2026'").fetchone()[0] == ALL_MIO_ID
-        assert db.execute("select count(*) from mios_workflows").fetchone()[0] == 4
+        assert db.execute("select count(*) from mios_workflows").fetchone()[0] == 5
 
 
 APP_ENDPOINT_SOURCE_ID = "ccbce57d-bd9f-56fe-a258-fa2deb9dd393"
@@ -553,7 +557,7 @@ def test_migration_0012_removes_app_endpoints_on_the_way_down(data_dir):
         assert db.execute("select name from sqlite_master where name = 'app_endpoints'").fetchall() == []
     command.upgrade(config, "head")
     with _admin_db(data_dir) as db:
-        assert db.execute("select count(*) from app_endpoints").fetchone()[0] == 4
+        assert db.execute("select count(*) from app_endpoints").fetchone()[0] == 5
 
 
 def test_index_cfpb_all_workflow_is_seeded(data_dir):
@@ -603,6 +607,42 @@ def test_app_endpoints_seed_cfpb_stage_split_to_local(data_dir):
         "source",
         "CCA_CFPB_SPLIT_SOURCE_PATH",
         "LOCAL_DATA_PATH_CFPB",
+        1,
+    )
+
+
+def test_index_cfpb_pgvector_workflow_and_endpoint_seeded(data_dir):
+    with _admin_db(data_dir) as db:
+        row = db.execute(
+            "select id, workflow_name, engine_type, engine_workflow_id, config, enabled"
+            " from app_workflows where workflow_name = 'index_cfpb_pgvector'"
+        ).fetchone()
+        bind = db.execute(
+            "select id, mio_id, workflow_id from mios_workflows where id = ?",
+            (MIOS_WORKFLOWS_ALL_INDEX_PG_ID,),
+        ).fetchone()
+        ep = db.execute(
+            "select id, name, category, from_env_var_name, to_env_var_name, enabled"
+            " from app_endpoints where name = 'cfpb_index_mongo_to_pgvector'"
+        ).fetchone()
+    assert row is not None
+    assert row[0] == INDEX_CFPB_PGVECTOR_WORKFLOW_ID
+    assert row[1:4] == ("index_cfpb_pgvector", "apache_airflow", "index_cfpb_pgvector")
+    config = row[4] if isinstance(row[4], dict) else json.loads(row[4])
+    assert config == {
+        "dataset_code": "CFPB",
+        "batch_size": 500,
+        "vector_backend": "pgvector",
+        "app_endpoint_name": "cfpb_index_mongo_to_pgvector",
+    }
+    assert row[5] in (1, True)
+    assert bind == (MIOS_WORKFLOWS_ALL_INDEX_PG_ID, ALL_MIO_ID, INDEX_CFPB_PGVECTOR_WORKFLOW_ID)
+    assert ep == (
+        APP_ENDPOINT_INDEX_PG_ID,
+        "cfpb_index_mongo_to_pgvector",
+        "index",
+        "CCA_MONGO_COMPLAINTS_URL",
+        "CCA_PGVECTOR_URL",
         1,
     )
 

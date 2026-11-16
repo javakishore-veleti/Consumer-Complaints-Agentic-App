@@ -2,7 +2,7 @@
 
 **Scope:** After M06 SoT path is usable. Diagram **STORAGE LAYER**: SoT → indexer → pluggable local vector backends. First real backend **pgvector** (5.25-aligned). Keep JSONL for CI. Plain Python batches first; PySpark-ready seam. Cloud vector SaaS = M90+.
 
-**Status: planned.** 1 epic, 3 features, 4 stories.
+**Status: done.** 1 epic, 3 features, 4 stories. 0 stories are left to build; 7 stories are already done (3 Phase 0 + 4).
 
 ## Contents
 
@@ -44,9 +44,19 @@ Epic #175  M07-0001  Pluggable local vector Storage Layer
 
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
-| #179 | 1 | `/ccaa-story-start 179` | Planned | | |
+| #179 | 1 | `/ccaa-story-start 179` | Done | 2026-11-16 15:00 | 2026-11-16 15:00 |
+| #179 | 2 | `/brainstorming Story #179: D92 pluggable Storage Layer` | Done | 2026-11-16 15:00 | 2026-11-16 15:05 |
+| #180 | 1 | `/ccaa-story-start 180` | Done | 2026-11-16 15:00 | 2026-11-16 15:00 |
+| #181 | 1 | `/ccaa-story-start 181` | Done | 2026-11-16 15:00 | 2026-11-16 15:00 |
+| #182 | 1 | `/ccaa-story-start 182` | Done | 2026-11-16 15:00 | 2026-11-16 15:00 |
+| #179/#180/#181/#182 | 3–12 | worktree → plan → TDD → commit → PR → complete | Done | 2026-11-16 15:00 | 2026-11-16 15:07 |
+| Feature #176 | 1 | `/ccaa-feature-complete 176` | Done | 2026-11-16 15:07 | 2026-11-16 15:07 |
+| Feature #177 | 1 | `/ccaa-feature-complete 177` | Done | 2026-11-16 15:07 | 2026-11-16 15:07 |
+| Feature #178 | 1 | `/ccaa-feature-complete 178` | Done | 2026-11-16 15:07 | 2026-11-16 15:07 |
+| Epic #175 | 1 | `/ccaa-epic-complete 175` | Done | 2026-11-16 15:07 | 2026-11-16 15:07 |
 
 ## 4. Notes
 
-- Refs: D53 `mios_rags`, D88 JSONL MVP, ScratchPad `5.25_advanced_rag_pipeline.ipynb` STORAGE LAYER.
-- Retrieval ladder is **M08**, not this milestone.
+- Spec: `docs/Superpowers/specs/M07-0005-pluggable-vector-storage-design.md` (D92)
+- Env: `CCA_PGVECTOR_URL`; npm `local:containers:pgvector:*`; AppEndpoint `cfpb_index_mongo_to_pgvector`
+- Next: **M08** retrieval ladder. Cloud remains **M90**.

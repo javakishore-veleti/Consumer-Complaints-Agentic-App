@@ -2,7 +2,7 @@
 # Start local Docker services.
 # Usage:
 #   CICD/Local/docker-all-up.sh                         # every service (unchanged)
-#   CICD/Local/docker-all-up.sh --profile sqlite|postgres|mongodb
+#   CICD/Local/docker-all-up.sh --profile sqlite|postgres|mongodb|pgvector
 #   CICD/Local/docker-all-up.sh [service ...]           # named services only
 set -euo pipefail
 

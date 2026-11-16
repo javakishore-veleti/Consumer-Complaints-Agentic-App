@@ -8,7 +8,13 @@ from app.core.dao.objects_factory import DaoObjectsFactory
 from app.core.facades.objects_factory import FacadesObjectsFactory
 from app.core.services.objects_factory import ServicesObjectsFactory
 
-SEEDED = ["download_cfpb_all", "filter_cfpb_3_months", "index_cfpb_all", "ingest_cfpb_all"]
+SEEDED = [
+    "download_cfpb_all",
+    "filter_cfpb_3_months",
+    "index_cfpb_all",
+    "index_cfpb_pgvector",
+    "ingest_cfpb_all",
+]
 
 
 def _list() -> WfListCtx:
