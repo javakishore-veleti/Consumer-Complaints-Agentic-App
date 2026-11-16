@@ -16,6 +16,9 @@ COMPLAINT_ID_FIELD = "Complaint ID"
 DEFAULT_PG_TABLE = "complaint_vectors"
 BACKEND_JSONL = "jsonl"
 BACKEND_PGVECTOR = "pgvector"
+BACKEND_CHROMA = "chroma"
+BACKEND_REDIS = "redis"
+DEFAULT_REDIS_INDEX = "complaint_vectors"
 
 
 class SupportsVectorUpsert(Protocol):
@@ -51,20 +54,45 @@ def resolve_vector_store_path(
     return Path(value)
 
 
+def _resolve_named_url(
+    name: str,
+    *,
+    getenv: Callable[..., str | None] = os.getenv,
+    get_variable: Callable[[str], str],
+) -> str:
+    value = _first_nonblank(getenv(name), None)
+    if value is None:
+        try:
+            value = _first_nonblank(get_variable(name))
+        except Exception:
+            value = None
+    if not value:
+        raise ValueError(f"{name} is required (env or Airflow Variable)")
+    return value
+
+
 def resolve_pgvector_url(
     *,
     getenv: Callable[..., str | None] = os.getenv,
     get_variable: Callable[[str], str],
 ) -> str:
-    value = _first_nonblank(getenv("CCA_PGVECTOR_URL"), None)
-    if value is None:
-        try:
-            value = _first_nonblank(get_variable("CCA_PGVECTOR_URL"))
-        except Exception:
-            value = None
-    if not value:
-        raise ValueError("CCA_PGVECTOR_URL is required (env or Airflow Variable)")
-    return value
+    return _resolve_named_url("CCA_PGVECTOR_URL", getenv=getenv, get_variable=get_variable)
+
+
+def resolve_chroma_url(
+    *,
+    getenv: Callable[..., str | None] = os.getenv,
+    get_variable: Callable[[str], str],
+) -> str:
+    return _resolve_named_url("CCA_CHROMA_URL", getenv=getenv, get_variable=get_variable)
+
+
+def resolve_redis_url(
+    *,
+    getenv: Callable[..., str | None] = os.getenv,
+    get_variable: Callable[[str], str],
+) -> str:
+    return _resolve_named_url("CCA_REDIS_URL", getenv=getenv, get_variable=get_variable)
 
 
 def hash_embedding(text: str, *, dim: int = DEFAULT_DIM) -> list[float]:
@@ -171,14 +199,162 @@ class PgvectorStore:
         return len(docs)
 
 
+class ChromaStore:
+    """HTTP Chroma upsert store (D94). Uses injectable client for tests."""
+
+    def __init__(
+        self,
+        base_url: str,
+        *,
+        collection: str = DEFAULT_COLLECTION,
+        client: Any | None = None,
+    ) -> None:
+        if not (base_url or "").strip():
+            raise ValueError("base_url is required")
+        self.base_url = base_url.rstrip("/")
+        self.collection = collection
+        self._client = client
+        self.ensure_schema()
+
+    def _http(self):
+        if self._client is not None:
+            return self._client
+        import urllib.error
+        import urllib.request
+
+        class _UrllibClient:
+            def __init__(self, root: str) -> None:
+                self.root = root
+
+            def ensure_collection(self, name: str) -> None:
+                req = urllib.request.Request(
+                    f"{self.root}/api/v1/collections",
+                    data=json.dumps({"name": name, "get_or_create": True}).encode("utf-8"),
+                    headers={"Content-Type": "application/json"},
+                    method="POST",
+                )
+                try:
+                    urllib.request.urlopen(req, timeout=30).read()
+                except urllib.error.HTTPError as exc:
+                    if exc.code not in (409, 200):
+                        raise
+
+            def upsert(self, name: str, ids: list[str], embeddings: list[list[float]], documents: list[str]) -> None:
+                body = {"ids": ids, "embeddings": embeddings, "documents": documents}
+                req = urllib.request.Request(
+                    f"{self.root}/api/v1/collections/{name}/upsert",
+                    data=json.dumps(body).encode("utf-8"),
+                    headers={"Content-Type": "application/json"},
+                    method="POST",
+                )
+                urllib.request.urlopen(req, timeout=60).read()
+
+        return _UrllibClient(self.base_url)
+
+    def ensure_schema(self) -> None:
+        self._http().ensure_collection(self.collection)
+
+    def upsert(self, docs: list[dict[str, Any]]) -> int:
+        if not docs:
+            return 0
+        ids = [str(d["id"]) for d in docs]
+        embeddings = [list(d.get("embedding") or []) for d in docs]
+        documents = [str(d.get("text") or "") for d in docs]
+        self._http().upsert(self.collection, ids, embeddings, documents)
+        return len(docs)
+
+
+class RedisVectorStore:
+    """Redis Stack vector+doc store (D94). Injectable client for tests."""
+
+    def __init__(
+        self,
+        url: str,
+        *,
+        index: str = DEFAULT_REDIS_INDEX,
+        dim: int = DEFAULT_DIM,
+        client: Any | None = None,
+    ) -> None:
+        if not (url or "").strip():
+            raise ValueError("url is required")
+        self.url = url.strip()
+        self.index = index
+        self.dim = dim
+        self._client = client
+        self.ensure_schema()
+
+    def _redis(self):
+        if self._client is not None:
+            return self._client
+        import redis
+
+        return redis.from_url(self.url, decode_responses=True)
+
+    def ensure_schema(self) -> None:
+        r = self._redis()
+        if hasattr(r, "ensure_index"):
+            r.ensure_index(self.index, self.dim)
+            return
+        # Best-effort FT.CREATE; ignore "index already exists"
+        try:
+            r.execute_command(
+                "FT.CREATE",
+                self.index,
+                "ON",
+                "HASH",
+                "PREFIX",
+                "1",
+                f"{self.index}:",
+                "SCHEMA",
+                "text",
+                "TEXT",
+                "embedding",
+                "VECTOR",
+                "FLAT",
+                "6",
+                "TYPE",
+                "FLOAT32",
+                "DIM",
+                str(self.dim),
+                "DISTANCE_METRIC",
+                "COSINE",
+            )
+        except Exception as exc:  # noqa: BLE001 — redis raises ResponseError variants
+            if "Index already exists" not in str(exc) and "exists" not in str(exc).lower():
+                # Hash-only fallback still usable for upsert/cache
+                pass
+
+    def upsert(self, docs: list[dict[str, Any]]) -> int:
+        if not docs:
+            return 0
+        r = self._redis()
+        for doc in docs:
+            key = f"{self.index}:{doc['id']}"
+            emb = doc.get("embedding") or []
+            if hasattr(r, "hset_doc"):
+                r.hset_doc(key, str(doc.get("text") or ""), list(emb))
+            else:
+                # Store embedding as comma-separated floats for MVP portability
+                r.hset(
+                    key,
+                    mapping={
+                        "text": str(doc.get("text") or ""),
+                        "embedding": ",".join(f"{float(x):.8f}" for x in emb),
+                        "id": str(doc["id"]),
+                    },
+                )
+        return len(docs)
+
+
 def open_vector_store(
     *,
     backend: str,
     path: Path | None = None,
     dsn: str | None = None,
     connect: Callable[[], Any] | None = None,
+    client: Any | None = None,
 ) -> SupportsVectorUpsert:
-    """Factory for index DAGs — backend agnostic to SoT (D92)."""
+    """Factory for index DAGs — backend agnostic to SoT (D92 / D94)."""
     kind = (backend or "").strip().lower()
     if kind == BACKEND_JSONL:
         if path is None:
@@ -188,7 +364,17 @@ def open_vector_store(
         if not dsn:
             raise ValueError("dsn is required for pgvector backend")
         return PgvectorStore(dsn, connect=connect)
-    raise ValueError(f"unknown vector backend: {backend!r} (expected jsonl|pgvector)")
+    if kind == BACKEND_CHROMA:
+        if not dsn:
+            raise ValueError("dsn (CCA_CHROMA_URL) is required for chroma backend")
+        return ChromaStore(dsn, client=client)
+    if kind == BACKEND_REDIS:
+        if not dsn:
+            raise ValueError("dsn (CCA_REDIS_URL) is required for redis backend")
+        return RedisVectorStore(dsn, client=client)
+    raise ValueError(
+        f"unknown vector backend: {backend!r} (expected jsonl|pgvector|chroma|redis)"
+    )
 
 
 def complaint_text(doc: dict[str, Any]) -> str:

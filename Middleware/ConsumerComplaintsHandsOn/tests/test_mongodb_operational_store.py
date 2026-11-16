@@ -56,6 +56,8 @@ def test_seeded_workflows_and_mios(mongo_db):
     assert "ingest_cfpb_all" in names
     assert "index_cfpb_all" in names
     assert "index_cfpb_pgvector" in names
+    assert "index_cfpb_chroma" in names
+    assert "index_cfpb_redis" in names
     mio = MioCtx(req=MioReq(name="Customer complaints all 2026"))
     assert DaoObjectsFactory.get_mio_dao().get(mio) == SUCCESS
 

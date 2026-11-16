@@ -104,8 +104,7 @@ Each workflow that downloads or ingests data is registered in the database, so t
 ### F8. Local vector indexing (E) [Done — M04 #149; pluggable Storage Layer M07 #175]
 - Index local Mongo complaints into a **local** filesystem vector store (`CCA_VECTOR_STORE_PATH`, JSONL + hash embeddings MVP, D88).
 - Airflow `index_cfpb_all` + AppEndpoint `cfpb_index_mongo_to_vectors`; Admin **Index** screen (`index_*`) after ingest completed (#163/#164).
-- **Pluggable Storage Layer (D92 / M07):** `open_vector_store` backends `jsonl` + `pgvector`; `index_cfpb_pgvector` + `cfpb_index_mongo_to_pgvector` → `CCA_PGVECTOR_URL`; local compose profile `pgvector` (#179–#182).
-- **M09 (planned):** consolidate pgvector onto ops Postgres; add **Chroma** (separate container) + **Redis Stack** (separate container: vector + cache); distinct AppEndpoints `_chroma` / `_redis` (#195 / #200–#205).
+- **Pluggable Storage Layer (D92 / M07, extended D94 / M09):** `open_vector_store` backends `jsonl`|`pgvector`|`chroma`|`redis`; pgvector on ops Postgres; Chroma + Redis Stack as separate containers; distinct AppEndpoints `_pgvector` / `_chroma` / `_redis` (#179–#182, #200–#205).
 - Cloud vector SaaS out of scope (M90). Retrieval ladder = M08.
 
 ### F9. Status tracking and history [Done for download; extends with ingest/index]
@@ -148,7 +147,7 @@ Each workflow that downloads or ingests data is registered in the database, so t
 | Split CFPB landing + SoT batch ingest | Done M06 (#169 / #172–#174) |
 | Pluggable local vector Storage Layer (pgvector) | Done M07 (#175 / #179–#182) |
 | Advanced Intellect retrieval + EVALUATION ladder | Done M08 (#183 / #187–#189) |
-| Extra local vector backends (Chroma, Redis) + pgvector consolidate | Planned M09 (#195) |
+| Extra local vector backends (Chroma, Redis) + pgvector consolidate | Done M09 (#195 / #200–#205) |
 | Cloud deployment | Planned M90 (#73; was M06) |
 
 ## 6. Milestones
@@ -161,7 +160,7 @@ Each workflow that downloads or ingests data is registered in the database, so t
 | **M06** | Split CFPB landing + complaint SoT batches (#169) | Done |
 | **M07** | Pluggable local vector Storage Layer (#175) | Done |
 | **M08** | Advanced Intellect retrieval + evaluation (#183) | Done |
-| **M09** | Chroma + Redis Stack (separate containers) + consolidate pgvector (#195) | Planned |
+| **M09** | Chroma + Redis Stack (separate containers) + consolidate pgvector (#195) | Done |
 | **M90** | Cloud deployment (parked; was M06) (#73) | Planned |
 
 ## 7. Open questions

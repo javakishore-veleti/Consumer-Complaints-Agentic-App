@@ -2,7 +2,7 @@
 
 **Scope:** After M08. (1) **Consolidate pgvector** onto the existing local ops Postgres — retire separate `cca-pgvector`. (2) Add **Chroma** as its **own** opt-in container + index path. (3) Add **Redis Stack** as its **own** opt-in container (vector search + cache in that one Redis) + index path. (4) Seed **distinct** AppEndpoints/workflows per backend. JSONL stays CI default. Cloud SaaS = M90.
 
-**Status: planned.** 1 epic, 4 features, 6 stories.
+**Status: Done.** 1 epic, 4 features, 6 stories.
 
 ## Contents
 
@@ -51,10 +51,19 @@ Epic #195  M09-0001  Extra local vector backends + consolidate pgvector
 
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
-| #200 | 1 | `/ccaa-story-start 200` | Planned | | |
+| #200 | 1 | `/ccaa-story-start 200` | Done | 2026-04-06 | 2026-04-06 |
+| #200 | 2 | brainstorming | Done | 2026-04-06 | 2026-04-06 |
+| #200 | 3 | using-git-worktrees | Done | 2026-04-06 | 2026-04-06 |
+| #200 | 4 | writing-plans | Done | 2026-04-06 | 2026-04-06 |
+| #200 | 5 | TDD + implement (shared M09) | Done | 2026-04-06 | 2026-04-06 |
+| #201 | 1–5 | Chroma container + config | Done | 2026-04-06 | 2026-04-06 |
+| #202 | 1–5 | Chroma adapter + DAG | Done | 2026-04-06 | 2026-04-06 |
+| #203 | 1–5 | Redis Stack container + config | Done | 2026-04-06 | 2026-04-06 |
+| #204 | 1–5 | Redis adapter + DAG | Done | 2026-04-06 | 2026-04-06 |
+| #205 | 1–5 | Seed endpoints/workflows (0019) | Done | 2026-04-06 | 2026-04-06 |
 
 ## 4. Notes
 
 - Containers: **postgres** (ops + pgvector) · **chroma** (own) · **redis** (own Stack: vector + cache). All opt-in profiles except when you need that backend.
 - Distinct endpoints: `cfpb_index_mongo_to_pgvector` / `_chroma` / `_redis` (+ existing JSONL `_vectors`).
-- Next start: `/ccaa-story-start 200`. Cloud remains **M90**.
+- Decision **D94**. Cloud remains **M90**.
