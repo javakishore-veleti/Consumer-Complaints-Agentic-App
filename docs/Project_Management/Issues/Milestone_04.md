@@ -111,7 +111,24 @@ Every command has its own row with **Status** (`Planned`, `In progress` or `Done
 | #154 | 12 | `/ccaa-story-complete 154` | Done | 2026-11-15 13:56 | 2026-11-15 13:56 |
 | Epic #144 | 1 | `/ccaa-epic-complete 144` | Planned | - | - |
 
-*(Full per-story command tables for #154–#164 are added when each story is started via `/ccaa-story-start`.)*
+| #155 | 1 | `/ccaa-story-start 155` | Done | 2026-11-15 14:08 | 2026-11-15 14:08 |
+| #155 | 12 | `/ccaa-story-complete 155` | Done | 2026-11-15 14:13 | 2026-11-15 14:13 |
+| #156 | 1 | `/ccaa-story-start 156` | Done | 2026-11-15 14:14 | 2026-11-15 14:14 |
+| #156 | 12 | `/ccaa-story-complete 156` | Done | 2026-11-15 14:17 | 2026-11-15 14:17 |
+| #157 | 1 | `/ccaa-story-start 157` | Done | 2026-11-15 14:17 | 2026-11-15 14:17 |
+| #157 | 2 | `/brainstorming Story #157: Admin AppEndpoints thin UI on Imports; GET /app-endpoints; never show secret values` | Done | 2026-11-15 19:43 | 2026-11-15 19:44 |
+| #157 | 3 | `/using-git-worktrees Story #157: branch m04-0011-admin-app-endpoints-ui` | Done | 2026-11-15 19:43 | 2026-11-15 19:43 |
+| #157 | 4 | `/writing-plans Story #157` | Done | 2026-11-15 19:44 | 2026-11-15 19:44 |
+| #157 | 5 | `/test-driven-development Story #157` | Done | 2026-11-15 19:44 | 2026-11-15 19:45 |
+| #157 | 6 | `/subagent-driven-development Story #157` | Done | 2026-11-15 19:45 | 2026-11-15 19:45 |
+| #157 | 7 | `/ccaa-commit-push 157` after every task (repeat) | Done | 2026-11-15 19:45 | 2026-11-15 19:46 |
+| #157 | 8 | `/verification-before-completion Story #157` | Done | 2026-11-15 19:45 | 2026-11-15 19:45 |
+| #157 | 9 | `/requesting-code-review Story #157` | Done | 2026-11-15 19:45 | 2026-11-15 19:45 |
+| #157 | 10 | `/ccaa-commit-push 157` | In progress | 2026-11-15 19:46 | - |
+| #157 | 11 | `/finishing-a-development-branch Story #157` | Planned | - | - |
+| #157 | 12 | `/ccaa-story-complete 157` | Planned | - | - |
+
+*(Full per-story command tables for #158–#164 are added when each story is started via `/ccaa-story-start`.)*
 
 ## 4. Notes
 

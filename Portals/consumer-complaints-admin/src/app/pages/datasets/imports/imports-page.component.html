@@ -40,6 +40,66 @@
     </div>
   }
 
+  <section
+    data-testid="app-endpoints-panel"
+    class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/3 md:p-6"
+    aria-labelledby="app-endpoints-heading"
+  >
+    <h2
+      id="app-endpoints-heading"
+      class="text-sm font-semibold text-gray-800 dark:text-white/90"
+    >
+      AppEndpoints
+    </h2>
+    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+      From→to catalog used by Imports. Env var and credentials names only — values are never shown.
+    </p>
+
+    @if (appEndpointsError()) {
+      <div class="mt-4" data-testid="app-endpoints-error" role="alert">
+        <app-alert variant="error" title="AppEndpoints error" [message]="appEndpointsError()" />
+      </div>
+    } @else if (appEndpoints().length === 0) {
+      <p class="mt-4 text-sm text-gray-500 dark:text-gray-400" data-testid="app-endpoints-empty">
+        No enabled AppEndpoints.
+      </p>
+    } @else {
+      <div class="mt-4 overflow-x-auto">
+        <table class="min-w-full text-left text-sm" data-testid="app-endpoints-table">
+          <thead>
+            <tr class="border-b border-gray-100 text-xs text-gray-500 dark:border-gray-800 dark:text-gray-400">
+              <th class="px-2 py-2 font-medium">Name</th>
+              <th class="px-2 py-2 font-medium">Category</th>
+              <th class="px-2 py-2 font-medium">From</th>
+              <th class="px-2 py-2 font-medium">To</th>
+              <th class="px-2 py-2 font-medium">Credentials</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (ep of appEndpoints(); track ep.id) {
+              <tr
+                data-testid="app-endpoints-row"
+                class="border-b border-gray-50 text-gray-800 dark:border-gray-800/60 dark:text-white/90"
+              >
+                <td class="px-2 py-2 font-medium">{{ ep.name }}</td>
+                <td class="px-2 py-2">{{ ep.category }}</td>
+                <td class="px-2 py-2 font-mono text-xs">
+                  {{
+                    endpointSideLabel(ep.from_dataset_location_id, ep.from_env_var_name)
+                  }}
+                </td>
+                <td class="px-2 py-2 font-mono text-xs">
+                  {{ endpointSideLabel(ep.to_dataset_location_id, ep.to_env_var_name) }}
+                </td>
+                <td class="px-2 py-2 font-mono text-xs">{{ ep.credentials_ref || '—' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
   <div
     data-testid="imports-accordion-shell"
     class="space-y-4"

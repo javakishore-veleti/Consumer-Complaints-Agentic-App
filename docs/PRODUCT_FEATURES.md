@@ -18,8 +18,8 @@ is done asynchronously by Apache Airflow.
 
 | App | What it is | Status |
 |---|---|---|
-| `consumer-complaints-admin` | Angular admin portal under `Portals/consumer-complaints-admin/`. Imports datasets, ingests them into the database, shows status; syncs system secrets to Airflow. | Imports [Done]; Sync secrets UI [Done] (#153); DB Ingest / AppEndpoints [Planned] (M04) |
-| Middleware API | FastAPI service (`Middleware/ConsumerComplaintsHandsOn`). The only thing the portal talks to. | Core APIs [Done] (M02/M03); AppEndpoints + ingest/index APIs [Planned] (M04) |
+| `consumer-complaints-admin` | Angular admin portal under `Portals/consumer-complaints-admin/`. Imports datasets, ingests them into the database, shows status; syncs system secrets to Airflow. | Imports [Done]; Sync secrets UI [Done] (#153); AppEndpoints thin UI [Done] (#157); DB Ingest [Planned] (M04) |
+| Middleware API | FastAPI service (`Middleware/ConsumerComplaintsHandsOn`). The only thing the portal talks to. | Core APIs [Done] (M02/M03); AppEndpoints list/read [Done] (#156); ingest/index APIs [Planned] (M04) |
 | Apache Airflow | Runs the download and ingest (and later index) jobs asynchronously. | Local Docker [Done]; download/filter DAGs [Done]; ingest/index DAGs [Planned] (M04) |
 | `consumer-complaints-Intellect` | Intelligence app over complaint Mongo + local vectors (RAG / agentic). | [Planned] M05 (#152) — after M04 vectors |
 
@@ -83,9 +83,9 @@ Each workflow that downloads or ingests data is registered in the database, so t
 - Admin **Operations → Sync secrets** POSTs `POST /management/airflow/upsert-secrets` (#77 API, #153 UI). Outcomes only; values never rendered.
 - Local only until M06.
 
-### F5. AppEndpoints (D) [In progress — M04 #146]
+### F5. AppEndpoints (D) [Done — M04 #146]
 - Categorized endpoints (source / ingest / index / db) with from/to refs to locations and env-var *names* (D85).
-- Schema + DAO + CFPB source seed: #155. List/read API #156; thin Admin UI #157.
+- Schema + DAO + CFPB source seed: #155. List/read API #156; thin Admin UI on Imports #157.
 - Imports (then ingest/index) use AppEndpoints. Local/HTTP first; no cloud spend.
 
 ### F6. DB Ingest: load complaints into MongoDB (A) [Planned — M04 #147]
