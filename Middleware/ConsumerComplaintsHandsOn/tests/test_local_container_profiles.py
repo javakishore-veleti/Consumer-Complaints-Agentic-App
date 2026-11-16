@@ -18,7 +18,9 @@ EXPECTED = {
     "sqlite": ["airflow"],
     "postgres": ["airflow", "postgres"],
     "mongodb": ["airflow", "mongodb"],
-    "pgvector": ["airflow", "pgvector"],
+    "pgvector": ["airflow", "postgres"],
+    "chroma": ["airflow", "chroma"],
+    "redis": ["airflow", "redis"],
 }
 
 
@@ -44,7 +46,7 @@ def test_cca_profile_services_matches_map() -> None:
     script = f"""
 set -euo pipefail
 source "{DOCKER_PROFILES_SH}"
-for p in sqlite postgres mongodb pgvector; do
+for p in sqlite postgres mongodb pgvector chroma redis; do
   echo "BEGIN:$p"
   cca_profile_services "$p"
   echo "END:$p"
@@ -72,7 +74,7 @@ done
     assert got == EXPECTED
 
 
-@pytest.mark.parametrize("profile", ["sqlite", "postgres", "mongodb", "pgvector"])
+@pytest.mark.parametrize("profile", ["sqlite", "postgres", "mongodb", "pgvector", "chroma", "redis"])
 def test_status_script_prints_expected_for_profile(profile: str) -> None:
     result = subprocess.run(
         ["bash", str(STATUS_SH), "--profile", profile],
@@ -114,26 +116,41 @@ def test_package_json_has_profile_scripts_and_keeps_all() -> None:
         "local:containers:pgvector:start",
         "local:containers:pgvector:stop",
         "local:containers:pgvector:status",
+        "local:containers:chroma:start",
+        "local:containers:chroma:stop",
+        "local:containers:chroma:status",
+        "local:containers:redis:start",
+        "local:containers:redis:stop",
+        "local:containers:redis:status",
     ):
         assert name in text, name
     assert "docker-all-up.sh --profile sqlite" in text
     assert "docker-all-up.sh --profile postgres" in text
     assert "docker-all-up.sh --profile mongodb" in text
     assert "docker-all-up.sh --profile pgvector" in text
+    assert "docker-all-up.sh --profile chroma" in text
+    assert "docker-all-up.sh --profile redis" in text
 
 
-def test_operational_postgres_compose_exists() -> None:
+def test_operational_postgres_compose_hosts_pgvector() -> None:
     compose = LOCAL / "postgres" / "docker-compose.yaml"
     assert compose.is_file()
     body = compose.read_text(encoding="utf-8")
     assert "cca-operational-postgres" in body
-    assert "postgres:16" in body
-
-
-def test_pgvector_compose_exists() -> None:
-    compose = LOCAL / "pgvector" / "docker-compose.yaml"
-    assert compose.is_file()
-    body = compose.read_text(encoding="utf-8")
-    assert "cca-pgvector" in body
     assert "pgvector/pgvector:pg16" in body
-    assert "5433" in body
+
+
+def test_pgvector_compose_retired() -> None:
+    assert not (LOCAL / "pgvector" / "docker-compose.yaml").is_file()
+    readme = LOCAL / "pgvector" / "README.md"
+    assert readme.is_file()
+    assert "Retired" in readme.read_text(encoding="utf-8")
+
+
+def test_chroma_and_redis_compose_exist() -> None:
+    chroma = (LOCAL / "chroma" / "docker-compose.yaml").read_text(encoding="utf-8")
+    redis = (LOCAL / "redis" / "docker-compose.yaml").read_text(encoding="utf-8")
+    assert "cca-chroma" in chroma
+    assert "chromadb/chroma" in chroma
+    assert "cca-redis-stack" in redis
+    assert "redis/redis-stack" in redis

@@ -111,7 +111,7 @@ def test_open_vector_store_jsonl_and_pgvector(tmp_path: Path):
     fake = _FakePgConn()
     pg = vi.open_vector_store(
         backend="pgvector",
-        dsn="postgresql://postgres:postgres@127.0.0.1:5433/cca_vectors",
+        dsn="postgresql://postgres:postgres@127.0.0.1:5432/cca",
         connect=lambda: fake,
     )
     assert isinstance(pg, vi.PgvectorStore)
@@ -119,7 +119,74 @@ def test_open_vector_store_jsonl_and_pgvector(tmp_path: Path):
     assert any("CREATE EXTENSION" in s[0] for s in fake.statements)
     assert any("CREATE TABLE" in s[0] for s in fake.statements)
     with pytest.raises(ValueError, match="unknown vector backend"):
-        vi.open_vector_store(backend="chroma", path=tmp_path)
+        vi.open_vector_store(backend="pinecone", path=tmp_path)
+
+
+class _FakeChromaClient:
+    def __init__(self) -> None:
+        self.collections: list[str] = []
+        self.upserts: list[tuple] = []
+
+    def ensure_collection(self, name: str) -> None:
+        self.collections.append(name)
+
+    def upsert(self, name: str, ids: list[str], embeddings: list[list[float]], documents: list[str]) -> None:
+        self.upserts.append((name, ids, embeddings, documents))
+
+
+class _FakeRedisClient:
+    def __init__(self) -> None:
+        self.indexes: list[tuple] = []
+        self.docs: list[tuple] = []
+
+    def ensure_index(self, index: str, dim: int) -> None:
+        self.indexes.append((index, dim))
+
+    def hset_doc(self, key: str, text: str, embedding: list[float]) -> None:
+        self.docs.append((key, text, embedding))
+
+
+def test_open_vector_store_chroma_and_redis():
+    chroma_client = _FakeChromaClient()
+    chroma = vi.open_vector_store(
+        backend="chroma",
+        dsn="http://127.0.0.1:8000",
+        client=chroma_client,
+    )
+    assert isinstance(chroma, vi.ChromaStore)
+    assert chroma_client.collections == [vi.DEFAULT_COLLECTION]
+    emb = vi.hash_embedding("hi")
+    assert chroma.upsert([{"id": "c1", "text": "hi", "embedding": emb}]) == 1
+    assert chroma_client.upserts[0][0] == vi.DEFAULT_COLLECTION
+    assert chroma_client.upserts[0][1] == ["c1"]
+
+    redis_client = _FakeRedisClient()
+    redis_store = vi.open_vector_store(
+        backend="redis",
+        dsn="redis://127.0.0.1:6379",
+        client=redis_client,
+    )
+    assert isinstance(redis_store, vi.RedisVectorStore)
+    assert redis_client.indexes == [(vi.DEFAULT_REDIS_INDEX, vi.DEFAULT_DIM)]
+    assert redis_store.upsert([{"id": "c2", "text": "bye", "embedding": emb}]) == 1
+    assert redis_client.docs[0][0] == f"{vi.DEFAULT_REDIS_INDEX}:c2"
+
+
+def test_resolve_chroma_and_redis_url_prefer_env():
+    assert (
+        vi.resolve_chroma_url(
+            getenv=lambda k, default=None: "http://env-chroma" if k == "CCA_CHROMA_URL" else default,
+            get_variable=lambda k: "http://var",
+        )
+        == "http://env-chroma"
+    )
+    assert (
+        vi.resolve_redis_url(
+            getenv=lambda k, default=None: "redis://env" if k == "CCA_REDIS_URL" else default,
+            get_variable=lambda k: "redis://var",
+        )
+        == "redis://env"
+    )
 
 
 def test_pgvector_store_upsert_uses_conflict(tmp_path: Path):

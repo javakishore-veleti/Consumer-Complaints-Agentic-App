@@ -51,6 +51,19 @@ MW_ALL_INDEX_PG_ID = "494ff42b-a7e7-5e90-8430-74b81a52dff1"
 # uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m07-0008/ep-cfpb-index-mongo-pgvector")
 APP_ENDPOINT_INDEX_PG_ID = "2e6bd178-2900-5ea2-80ed-507f486a2133"
 NOW_PGVECTOR = datetime(2026, 11, 16, tzinfo=timezone.utc)
+# uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m09-0008/index_cfpb_chroma")
+INDEX_CHROMA_WF_ID = "87100dc6-f634-5bde-8539-d7175ca194ac"
+# uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m09-0010/index_cfpb_redis")
+INDEX_REDIS_WF_ID = "474e4e9a-5743-54c2-99f6-5ec860aa8c38"
+# uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m09-0011/mios-workflows-all-index-chroma")
+MW_ALL_INDEX_CHROMA_ID = "2a43462f-e29d-506c-9422-1a39dfdc16eb"
+# uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m09-0011/mios-workflows-all-index-redis")
+MW_ALL_INDEX_REDIS_ID = "cc9d2cc5-088a-5d57-8227-4c2d2ef1cbc9"
+# uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m09-0011/ep-cfpb-index-mongo-chroma")
+APP_ENDPOINT_INDEX_CHROMA_ID = "1046ad4a-b4fd-509b-9bc3-9e8501ef86c0"
+# uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m09-0011/ep-cfpb-index-mongo-redis")
+APP_ENDPOINT_INDEX_REDIS_ID = "bc449f1d-4055-5514-8794-c2ca504ebd99"
+NOW_M09 = datetime(2026, 11, 16, tzinfo=timezone.utc)
 # uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m05-0004/acl-all-internal")
 ACL_ALL_ID = "814a15b9-246b-5f8f-baef-a3f75a946a72"
 # uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m05-0004/acl-3m-internal")
@@ -464,6 +477,76 @@ def seed_if_empty() -> None:
             }
         )
     )
+    for wf_id, name, backend, ep_id, ep_name, env_to, mw_id in (
+        (
+            INDEX_CHROMA_WF_ID,
+            "index_cfpb_chroma",
+            "chroma",
+            APP_ENDPOINT_INDEX_CHROMA_ID,
+            "cfpb_index_mongo_to_chroma",
+            "CCA_CHROMA_URL",
+            MW_ALL_INDEX_CHROMA_ID,
+        ),
+        (
+            INDEX_REDIS_WF_ID,
+            "index_cfpb_redis",
+            "redis",
+            APP_ENDPOINT_INDEX_REDIS_ID,
+            "cfpb_index_mongo_to_redis",
+            "CCA_REDIS_URL",
+            MW_ALL_INDEX_REDIS_ID,
+        ),
+    ):
+        _upsert(
+            MongoDocument(
+                {
+                    "_collection": "app_workflows",
+                    "id": wf_id,
+                    "workflow_name": name,
+                    "engine_type": "apache_airflow",
+                    "engine_workflow_id": name,
+                    "config": {
+                        "dataset_code": "CFPB",
+                        "batch_size": 500,
+                        "vector_backend": backend,
+                        "app_endpoint_name": ep_name,
+                    },
+                    "enabled": True,
+                    "created_at": NOW_M09,
+                    "updated_at": NOW_M09,
+                }
+            )
+        )
+        _upsert(
+            MongoDocument(
+                {
+                    "_collection": "mios_workflows",
+                    "id": mw_id,
+                    "mio_id": ALL_MIO_ID,
+                    "workflow_id": wf_id,
+                    "created_at": NOW_M09,
+                }
+            )
+        )
+        _upsert(
+            MongoDocument(
+                {
+                    "_collection": "app_endpoints",
+                    "id": ep_id,
+                    "name": ep_name,
+                    "category": "index",
+                    "from_dataset_location_id": None,
+                    "from_env_var_name": "CCA_MONGO_COMPLAINTS_URL",
+                    "to_dataset_location_id": None,
+                    "to_env_var_name": env_to,
+                    "credentials_ref": None,
+                    "description": f"Complaint Mongo → local {backend} (D94)",
+                    "enabled": True,
+                    "created_at": NOW_M09,
+                    "updated_at": NOW_M09,
+                }
+            )
+        )
     _upsert(
         MongoDocument(
             {

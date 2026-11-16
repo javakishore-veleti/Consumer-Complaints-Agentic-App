@@ -1,18 +1,19 @@
-# Operational / admin Postgres for CCA (D77 / D78) — not Airflow's metadata DB.
+# Operational / admin Postgres for CCA (D77 / D78) — also hosts pgvector (D94 / M09).
 # Opt-in via: npm run local:containers:postgres:start
 #   (or: bash CICD/Local/docker-all-up.sh --profile postgres)
 #
 # Then set Middleware .env:
 #   CCA_OPERATIONAL_STORE=postgres
 #   CCA_DB_URL=postgresql+psycopg://postgres:postgres@127.0.0.1:5432/cca
+#   CCA_PGVECTOR_URL=postgresql://postgres:postgres@127.0.0.1:5432/cca
 #
+# Image includes the `vector` extension (CREATE EXTENSION vector).
 # Connect: postgresql://postgres:postgres@127.0.0.1:5432/cca
-# Override with POSTGRES_USER / POSTGRES_PASSWORD / POSTGRES_DB / CCA_POSTGRES_PORT.
 name: cca-postgres
 
 services:
   postgres:
-    image: postgres:16
+    image: pgvector/pgvector:pg16
     container_name: cca-operational-postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}

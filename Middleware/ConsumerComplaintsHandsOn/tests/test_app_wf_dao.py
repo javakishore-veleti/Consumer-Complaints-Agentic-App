@@ -110,7 +110,9 @@ def test_list_is_ordered_by_name_and_filters(data_dir):
         "download_cfpb_all",
         "filter_cfpb_3_months",
         "index_cfpb_all",
+        "index_cfpb_chroma",
         "index_cfpb_pgvector",
+        "index_cfpb_redis",
         "ingest_cfpb_all",
     ]
 
@@ -121,7 +123,9 @@ def test_list_is_ordered_by_name_and_filters(data_dir):
         "download_cfpb_all",
         "filter_cfpb_3_months",
         "index_cfpb_all",
+        "index_cfpb_chroma",
         "index_cfpb_pgvector",
+        "index_cfpb_redis",
         "ingest_cfpb_all",
     ]
     disabled = _ctx(enabled=False)
@@ -232,7 +236,9 @@ def test_a_duplicate_name_that_slips_past_the_pre_check_is_a_conflict(data_dir, 
         "download_cfpb_all",
         "filter_cfpb_3_months",
         "index_cfpb_all",
+        "index_cfpb_chroma",
         "index_cfpb_pgvector",
+        "index_cfpb_redis",
         "ingest_cfpb_all",
         "other",
         "taken",

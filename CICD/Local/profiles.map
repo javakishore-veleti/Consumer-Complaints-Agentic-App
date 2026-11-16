@@ -1,9 +1,12 @@
-# Lite local container profiles (D78 / story #120).
+# Lite local container profiles (D78 / story #120). Extended D94 / M09.
 # Format: profile=service1 service2 ...
 # Services are CICD/Local/<service>/ directories with docker-compose.y*ml.
 # API and Admin UI are host npm processes — not listed here.
 # Airflow compose still includes Airflow's own metadata Postgres; that is not the CCA operational store.
+# pgvector profile aliases to postgres (ops DB hosts vector extension — D94).
 sqlite=airflow
 postgres=airflow postgres
 mongodb=airflow mongodb
-pgvector=airflow pgvector
+pgvector=airflow postgres
+chroma=airflow chroma
+redis=airflow redis

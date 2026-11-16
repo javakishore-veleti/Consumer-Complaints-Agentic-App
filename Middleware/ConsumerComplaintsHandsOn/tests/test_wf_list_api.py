@@ -11,7 +11,9 @@ SEEDED = [
     "download_cfpb_all",
     "filter_cfpb_3_months",
     "index_cfpb_all",
+    "index_cfpb_chroma",
     "index_cfpb_pgvector",
+    "index_cfpb_redis",
     "ingest_cfpb_all",
 ]
 
