@@ -4,6 +4,7 @@ import { NotFoundComponent } from './pages/other-page/not-found/not-found.compon
 import { HomeComponent } from './pages/home/home.component';
 import { ImportsPageComponent } from './pages/datasets/imports/imports-page.component';
 import { DbIngestPageComponent } from './pages/datasets/db-ingest/db-ingest-page.component';
+import { IndexPageComponent } from './pages/datasets/index/index-page.component';
 import { SyncSecretsPageComponent } from './pages/operations/sync-secrets-page.component';
 
 export const routes: Routes = [
@@ -30,6 +31,11 @@ export const routes: Routes = [
             path: 'db-ingest',
             component: DbIngestPageComponent,
             title: 'DB Ingest | Consumer Complaints Admin',
+          },
+          {
+            path: 'index',
+            component: IndexPageComponent,
+            title: 'Index | Consumer Complaints Admin',
           },
         ],
       },
