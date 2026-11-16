@@ -29,6 +29,7 @@ class StartWfApi(metaclass=SingletonMeta):
                 workflow_id=req.workflow_id,
                 mio_id=req.body.mio_id,
                 dataset_location_id=req.body.dataset_location_id,
+                audience=(req.audience or "internal").strip() or "internal",
             )
         )
         FacadesObjectsFactory.get_start_wf_facade().start(ctx)

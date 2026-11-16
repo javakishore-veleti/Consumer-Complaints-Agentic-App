@@ -7,6 +7,7 @@ import pytest
 
 from app.core.common.dtos.app_wf_dtos import AppWfCtx, AppWfReq
 from app.core.common.dtos.app_wf_exec_log_dtos import AppWfExecLogCtx, AppWfExecLogReq
+from app.core.common.dtos.mio_acl_dtos import MioAclCtx, MioAclReq
 from app.core.common.dtos.mio_dtos import MioCtx, MioReq
 from app.core.common.dtos.mio_ingest_log_dtos import MioIngestLogCtx, MioIngestLogReq
 from app.core.common.dtos.mio_workflow_dtos import MioWorkflowCtx, MioWorkflowReq
@@ -51,10 +52,13 @@ def _workflow(name="t_start", enabled=True, engine_type="apache_airflow") -> str
     return ctx.resp.records[0].id
 
 
-def _mio(name="t_mio_start") -> str:
+def _mio(name="t_mio_start", *, audience: str = "internal") -> str:
     ctx = MioCtx(req=MioReq(name=name, description="d"))
     assert DaoObjectsFactory.get_mio_dao().create(ctx) == SUCCESS
-    return ctx.resp.records[0].id
+    mio_id = ctx.resp.records[0].id
+    acl = MioAclCtx(req=MioAclReq(mio_id=mio_id, audience=audience))
+    assert DaoObjectsFactory.get_mio_acl_dao().create(acl) == SUCCESS
+    return mio_id
 
 
 def _bind(mio_id: str, workflow_id: str) -> None:
@@ -98,6 +102,13 @@ def test_unbound_workflow_for_mio_is_invalid(data_dir):
 def test_mio_with_no_allowed_workflows_is_invalid(data_dir):
     wf_id, mio_id = _workflow("t_empty_mio_wf"), _mio("t_mio_empty")
     ctx = StartWfCtx(req=StartWfReq(workflow_id=wf_id, mio_id=mio_id))
+    assert ServicesObjectsFactory.get_start_wf_service().start(ctx) == INVALID_INPUT
+
+
+def test_mio_start_denied_without_matching_audience(data_dir):
+    wf_id, mio_id = _workflow("t_acl_deny"), _mio("t_mio_acl_deny", audience="internal")
+    _bind(mio_id, wf_id)
+    ctx = StartWfCtx(req=StartWfReq(workflow_id=wf_id, mio_id=mio_id, audience="partner"))
     assert ServicesObjectsFactory.get_start_wf_service().start(ctx) == INVALID_INPUT
 
 

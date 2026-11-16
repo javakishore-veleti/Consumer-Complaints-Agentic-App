@@ -4,6 +4,7 @@ from app.core.common.app_types_constants import (
     DatasetLocationType,
     EngineType,
     ExecStatus,
+    MioAudience,
 )
 
 
@@ -59,3 +60,9 @@ def test_app_endpoint_category_values():
     assert AppEndpointCategory.values() == ["source", "ingest", "index", "db"]
     assert AppEndpointCategory.SOURCE == "source"
     assert issubclass(AppEndpointCategory, AppTypeEnum)
+
+
+def test_mio_audience_values():
+    assert MioAudience.values() == ["internal", "partner", "user"]
+    assert MioAudience.INTERNAL == "internal"
+    assert issubclass(MioAudience, AppTypeEnum)

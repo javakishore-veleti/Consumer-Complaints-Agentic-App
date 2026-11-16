@@ -221,6 +221,66 @@
         "title": "HTTPValidationError",
         "type": "object"
       },
+      "IntellectHitOut": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "score": {
+            "title": "Score",
+            "type": "number"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "text",
+          "score"
+        ],
+        "title": "IntellectHitOut",
+        "type": "object"
+      },
+      "IntellectQueryBody": {
+        "additionalProperties": false,
+        "properties": {
+          "limit": {
+            "default": 5,
+            "maximum": 50.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "query": {
+            "title": "Query",
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "title": "IntellectQueryBody",
+        "type": "object"
+      },
+      "IntellectQueryOut": {
+        "properties": {
+          "hits": {
+            "items": {
+              "$ref": "#/components/schemas/IntellectHitOut"
+            },
+            "title": "Hits",
+            "type": "array"
+          }
+        },
+        "required": [
+          "hits"
+        ],
+        "title": "IntellectQueryOut",
+        "type": "object"
+      },
       "MioIngestLogOut": {
         "properties": {
           "batch_count": {
@@ -938,6 +998,47 @@
         ]
       }
     },
+    "/intellect/query": {
+      "post": {
+        "operationId": "query_intellect_query_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntellectQueryBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntellectQueryOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Query",
+        "tags": [
+          "intellect"
+        ]
+      }
+    },
     "/management/airflow/upsert-secrets": {
       "post": {
         "operationId": "upsert_secrets_management_airflow_upsert_secrets_post",
@@ -1047,6 +1148,16 @@
             "required": true,
             "schema": {
               "title": "Workflow Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "audience",
+            "required": false,
+            "schema": {
+              "default": "internal",
+              "title": "Audience",
               "type": "string"
             }
           }

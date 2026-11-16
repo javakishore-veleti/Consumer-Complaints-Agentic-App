@@ -8,6 +8,7 @@ class StartWfReq:
     workflow_id: str | None = None
     mio_id: str | None = None
     dataset_location_id: str | None = None
+    audience: str = "internal"
 
 
 @dataclass

@@ -41,9 +41,14 @@ APP_ENDPOINT_SOURCE_ID = "ccbce57d-bd9f-56fe-a258-fa2deb9dd393"
 APP_ENDPOINT_INGEST_ID = "8ca22b0c-1c7c-5a25-be9d-d51c6063a3a5"
 # uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m04-0017/ep-cfpb-index-mongo-vectors")
 APP_ENDPOINT_INDEX_ID = "af151640-ce3a-5995-a390-fa1ec5212aaf"
+# uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m05-0004/acl-all-internal")
+ACL_ALL_ID = "814a15b9-246b-5f8f-baef-a3f75a946a72"
+# uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m05-0004/acl-3m-internal")
+ACL_3M_ID = "c57c33d4-f3c6-50a9-b614-5f095d4d7134"
 NOW_ENDPOINTS = datetime(2026, 11, 15, tzinfo=timezone.utc)
 NOW_INGEST = datetime(2026, 11, 15, tzinfo=timezone.utc)
 NOW_INDEX = datetime(2026, 11, 15, tzinfo=timezone.utc)
+NOW_ACL = datetime(2026, 11, 16, tzinfo=timezone.utc)
 
 COLLECTIONS = (
     "app_workflows",
@@ -54,6 +59,7 @@ COLLECTIONS = (
     "mios",
     "mios_datasets",
     "mios_workflows",
+    "mios_acl",
     "mios_ingest_log",
 )
 
@@ -80,6 +86,8 @@ def ensure_indexes() -> None:
     db["mios_workflows"].create_index([("mio_id", 1), ("workflow_id", 1)], unique=True)
     db["mios_workflows"].create_index("mio_id")
     db["mios_workflows"].create_index("workflow_id")
+    db["mios_acl"].create_index([("mio_id", 1), ("audience", 1)], unique=True)
+    db["mios_acl"].create_index("mio_id")
     db["app_endpoints"].create_index("name", unique=True)
     db["app_endpoints"].create_index("category")
     db["app_workflows_exec_log"].create_index([("workflow_id", 1), ("status", 1)])
@@ -371,6 +379,28 @@ def seed_if_empty() -> None:
                 "enabled": True,
                 "created_at": NOW_ENDPOINTS,
                 "updated_at": NOW_ENDPOINTS,
+            }
+        )
+    )
+    _upsert(
+        MongoDocument(
+            {
+                "_collection": "mios_acl",
+                "id": ACL_ALL_ID,
+                "mio_id": ALL_MIO_ID,
+                "audience": "internal",
+                "created_at": NOW_ACL,
+            }
+        )
+    )
+    _upsert(
+        MongoDocument(
+            {
+                "_collection": "mios_acl",
+                "id": ACL_3M_ID,
+                "mio_id": MIO_3_MONTHS_ID,
+                "audience": "internal",
+                "created_at": NOW_ACL,
             }
         )
     )

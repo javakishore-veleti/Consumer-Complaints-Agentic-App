@@ -2,7 +2,7 @@
 
 **Scope:** After M04 (C–E) is Done. Product order **F → G**. Local-only; no paid cloud/LLM until explicitly approved.
 
-**Status: planned.** 1 epic, 2 features, 2 stories (0 done). Depends on M04 vectors (#149).
+**Status: done.** 1 epic, 2 features, 2 stories (all done).
 
 ## Contents
 
@@ -37,17 +37,19 @@ Epic #150  M05-0001  Intellect and MIO ACL (local)
 
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
-| #165 | 1 | `/ccaa-story-start 165` | Planned | - | - |
-| #165 | 12 | `/ccaa-story-complete 165` | Planned | - | - |
-| Feature #151 | 1 | `/ccaa-feature-complete 151` | Planned | - | - |
-| #166 | 1 | `/ccaa-story-start 166` | Planned | - | - |
-| #166 | 12 | `/ccaa-story-complete 166` | Planned | - | - |
-| Feature #152 | 1 | `/ccaa-feature-complete 152` | Planned | - | - |
-| Epic #150 | 1 | `/ccaa-epic-complete 150` | Planned | - | - |
-
-*(Expand full command rows when each story starts.)*
+| #165 | 1 | `/ccaa-story-start 165` | Done | 2026-11-16 12:43 | 2026-11-16 12:43 |
+| #165 | 2 | `/brainstorming Story #165: D89 mios_acl + X-CCA-Audience` | Done | 2026-11-16 12:43 | 2026-11-16 13:10 |
+| #165 | 3 | `/using-git-worktrees Story #165: branch m05-0004-mio-acl` | Done | 2026-11-16 12:43 | 2026-11-16 12:43 |
+| #165 | 4–12 | plan → TDD → commit → finish → complete | Done | 2026-11-16 13:10 | 2026-11-16 13:10 |
+| Feature #151 | 1 | `/ccaa-feature-complete 151` | Done | 2026-11-16 13:10 | 2026-11-16 13:10 |
+| #166 | 1 | `/ccaa-story-start 166` | Done | 2026-11-16 12:43 | 2026-11-16 12:43 |
+| #166 | 2 | `/brainstorming Story #166: D90 intellect query + portal` | Done | 2026-11-16 12:43 | 2026-11-16 13:10 |
+| #166 | 3–12 | plan → TDD → commit → finish → complete | Done | 2026-11-16 13:10 | 2026-11-16 13:10 |
+| Feature #152 | 1 | `/ccaa-feature-complete 152` | Done | 2026-11-16 13:10 | 2026-11-16 13:10 |
+| Epic #150 | 1 | `/ccaa-epic-complete 150` | Done | 2026-11-16 13:10 | 2026-11-16 13:10 |
 
 ## 4. Notes
 
 - Product features: `docs/PRODUCT_FEATURES.md` F15–F16.
-- Do not start until M04 epic #144 is Done (especially vectors #149).
+- Decisions D89 / D90.
+- Next milestone: **M06** cloud (`Milestone_06` / epic #73).

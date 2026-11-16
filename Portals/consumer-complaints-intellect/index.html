@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Consumer Complaints Intellect</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <main class="shell" data-testid="intellect-page">
+      <header>
+        <p class="brand">Consumer Complaints Intellect</p>
+        <h1>Ask the local index</h1>
+        <p class="lede">Queries the local vector store only — no cloud LLM.</p>
+      </header>
+      <form id="query-form" data-testid="intellect-query-form">
+        <label>
+          Question
+          <textarea id="query-input" data-testid="intellect-query-input" rows="3" required></textarea>
+        </label>
+        <button type="submit" data-testid="intellect-query-submit">Search</button>
+      </form>
+      <p id="status" data-testid="intellect-status" hidden></p>
+      <ul id="results" data-testid="intellect-results"></ul>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

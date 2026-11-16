@@ -8,6 +8,7 @@ from fastapi import Depends, FastAPI
 
 from app.api.routers.airflow_upsert_secrets_api import AirflowUpsertSecretsApi
 from app.api.routers.app_endpoint_api import AppEndpointApi
+from app.api.routers.intellect_query_api import IntellectQueryApi
 from app.api.routers.mio_status_api import MioStatusApi
 from app.api.routers.start_wf_api import StartWfApi
 from app.api.routers.wf_exec_callback_api import WfExecCallbackApi
@@ -35,6 +36,7 @@ class ApiObjectsFactory:
             start_wf_api = StartWfApi()
             upsert_api = AirflowUpsertSecretsApi()
             app_ep_api = AppEndpointApi()
+            intellect_api = IntellectQueryApi()
             bean_registry.register(CallbackSecretAuth, auth)
             bean_registry.register(WfExecCallbackApi, wf_api)
             bean_registry.register(MioStatusApi, mio_api)
@@ -42,6 +44,7 @@ class ApiObjectsFactory:
             bean_registry.register(StartWfApi, start_wf_api)
             bean_registry.register(AirflowUpsertSecretsApi, upsert_api)
             bean_registry.register(AppEndpointApi, app_ep_api)
+            bean_registry.register(IntellectQueryApi, intellect_api)
 
             app = FastAPI(
                 title="Consumer Complaints Hands-On API",
@@ -49,12 +52,13 @@ class ApiObjectsFactory:
                 description="Middleware API for the Consumer Complaints platform.",
             )
             # Portal endpoints stay open (no callback secret): the browser cannot keep a shared secret
-            # (D59, D61, D66, D68; upsert-secrets for Admin Sync — M04 #153 / D42; app-endpoints #156).
+            # (D59, D61, D66, D68; upsert-secrets for Admin Sync — M04 #153 / D42; app-endpoints #156; intellect #166).
             app.include_router(mio_api.router)
             app.include_router(wf_list_api.router)
             app.include_router(start_wf_api.router)
             app.include_router(upsert_api.router)
             app.include_router(app_ep_api.router)
+            app.include_router(intellect_api.router)
             # Every router an engine calls is protected as a whole by the callback secret (D59).
             app.include_router(wf_api.router, dependencies=[Depends(auth)])
 
@@ -105,3 +109,8 @@ class ApiObjectsFactory:
     def get_app_endpoint_api() -> AppEndpointApi:
         ApiObjectsFactory.init()
         return bean_registry.get_one(AppEndpointApi)  # type: ignore[return-value]
+
+    @staticmethod
+    def get_intellect_query_api() -> IntellectQueryApi:
+        ApiObjectsFactory.init()
+        return bean_registry.get_one(IntellectQueryApi)  # type: ignore[return-value]

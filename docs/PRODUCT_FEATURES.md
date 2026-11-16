@@ -21,7 +21,7 @@ is done asynchronously by Apache Airflow.
 | `consumer-complaints-admin` | Angular admin portal under `Portals/consumer-complaints-admin/`. Imports datasets, ingests them into the database, shows status; syncs system secrets to Airflow. | Imports [Done]; Sync secrets UI [Done] (#153); AppEndpoints thin UI [Done] (#157); DB Ingest [Planned] (M04) |
 | Middleware API | FastAPI service (`Middleware/ConsumerComplaintsHandsOn`). The only thing the portal talks to. | Core APIs [Done] (M02/M03); AppEndpoints list/read [Done] (#156); ingest/index APIs [Planned] (M04) |
 | Apache Airflow | Runs the download and ingest (and later index) jobs asynchronously. | Local Docker [Done]; download/filter DAGs [Done]; ingest DAG [Done] (#158); index DAG [Planned] (M04) |
-| `consumer-complaints-Intellect` | Intelligence app over complaint Mongo + local vectors (RAG / agentic). | [Planned] M05 (#152) — after M04 vectors |
+| `consumer-complaints-Intellect` | Intelligence app over local vectors (query MVP). | [Done] M05 (#152 / #166) |
 
 ## 3. The data
 
@@ -126,12 +126,12 @@ Each workflow that downloads or ingests data is registered in the database, so t
 ### F14. Developer experience [Done]
 - Profiled local containers + portals npm scripts; `uv` for Middleware; Node 22+ for Admin.
 
-### F15. MIO ACL (F) [Planned — M05 #151]
-- Who may start which MIO (internal / partner / user). Enforce on start-workflow. After users foundation. Story #165.
+### F15. MIO ACL (F) [Done — M05 #151]
+- Who may start which MIO (`internal` / `partner` / `user`) via `mios_acl` (D89). Enforce on start-workflow with `X-CCA-Audience`. Story #165.
 
-### F16. Intelligence app (G) [Planned — M05 #152]
-- `consumer-complaints-Intellect`: query local Mongo + local vectors. Not Admin Imports. Story #166.
-- Early RAG draft on `backups/Cursor_Initial_Impl` is reference only.
+### F16. Intelligence app (G) [Done — M05 #152]
+- `consumer-complaints-intellect`: query local vector store (`POST /intellect/query`, D90). Not Admin Imports. Story #166.
+- Early RAG draft on `backups/Cursor_Initial_Impl` is reference only; no paid LLM in MVP.
 
 ## 5. Delivery status
 
@@ -140,7 +140,7 @@ Each workflow that downloads or ingests data is registered in the database, so t
 | M01 foundation / M02 downloads / M03 Admin E2E | Done |
 | Upsert secrets API (D42) + Admin Sync UI | Done (#77, #153); inventory docs #154 |
 | AppEndpoints / DB Ingest / locations harden / local vectors | Done M04 (#144) |
-| MIO ACL + Intellect | Planned M05 (#150) |
+| MIO ACL + Intellect | Done M05 (#150) |
 | Cloud deployment | Planned M06 (#73) |
 
 ## 6. Milestones
@@ -149,7 +149,7 @@ Each workflow that downloads or ingests data is registered in the database, so t
 |---|---|---|
 | M01–M03 | Foundation, downloads, Admin E2E | Complete |
 | **M04** | Local ops hardening: **C→D→A→B→E** (#144) | Done |
-| **M05** | Intellect + MIO ACL: **F→G** (#150) | Planned |
+| **M05** | Intellect + MIO ACL: **F→G** (#150) | Done |
 | M06 | Cloud deployment | Planned (#73) |
 
 ## 7. Open questions
@@ -157,5 +157,5 @@ Each workflow that downloads or ingests data is registered in the database, so t
 1. ~~AppEndpoints exact columns / categories~~ — closed by D85 / #155 (`source`\|`ingest`\|`index`\|`db`).
 2. ~~Complaint Mongo connection string naming for DAGs~~ — closed by D86 (`CCA_MONGO_COMPLAINTS_URL`).
 3. ~~Vector store choice for local MVP~~ — closed by D88 (filesystem JSONL under `CCA_VECTOR_STORE_PATH`; hash embeddings for CI).
-4. Does Intellect share the operational database? (still open)
+4. ~~Does Intellect share the operational database?~~ — closed by D90 (no; filesystem vectors only for MVP).
 5. What does "Airflow" mean in the portal chrome (link vs screen)? (still open)
