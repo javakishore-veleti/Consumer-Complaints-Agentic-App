@@ -6,6 +6,7 @@ class IntellectQueryBody(BaseModel):
 
     query: str
     limit: int = Field(default=5, ge=1, le=50)
+    config: str = Field(default="baseline", min_length=1, max_length=32)
 
 
 class IntellectHitOut(BaseModel):
@@ -16,3 +17,4 @@ class IntellectHitOut(BaseModel):
 
 class IntellectQueryOut(BaseModel):
     hits: list[IntellectHitOut]
+    config: str = "baseline"

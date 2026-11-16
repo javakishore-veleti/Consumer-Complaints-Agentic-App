@@ -14,11 +14,13 @@ class IntellectHit:
 class IntellectQueryReq:
     query: str | None = None
     limit: int = 5
+    config: str = "baseline"
 
 
 @dataclass
 class IntellectQueryResp:
     hits: list[IntellectHit] = field(default_factory=list)
+    config: str = "baseline"
     code: int = 0
     error: str = ""
 

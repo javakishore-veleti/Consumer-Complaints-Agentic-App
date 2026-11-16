@@ -133,6 +133,7 @@ Each workflow that downloads or ingests data is registered in the database, so t
 
 ### F16. Intelligence app (G) [Done — M05 #152]
 - `consumer-complaints-intellect`: query local vector store (`POST /intellect/query`, D90). Not Admin Imports. Story #166.
+- **Retrieval ladder (D93 / M08):** optional `config` (`baseline`…`everything`); hybrid BM25+RRF; local stubs for self-query/decompose; lexical rerank; golden EVALUATION scorecard (ship bias: `reranker`). Stories #187–#189.
 - Early RAG draft on `backups/Cursor_Initial_Impl` is reference only; no paid LLM in MVP.
 
 ## 5. Delivery status
@@ -145,7 +146,7 @@ Each workflow that downloads or ingests data is registered in the database, so t
 | MIO ACL + Intellect | Done M05 (#150) |
 | Split CFPB landing + SoT batch ingest | Done M06 (#169 / #172–#174) |
 | Pluggable local vector Storage Layer (pgvector) | Done M07 (#175 / #179–#182) |
-| Advanced Intellect retrieval + EVALUATION ladder | Planned M08 (#183) |
+| Advanced Intellect retrieval + EVALUATION ladder | Done M08 (#183 / #187–#189) |
 | Cloud deployment | Planned M90 (#73; was M06) |
 
 ## 6. Milestones
@@ -157,7 +158,7 @@ Each workflow that downloads or ingests data is registered in the database, so t
 | **M05** | Intellect + MIO ACL: **F→G** (#150) | Done |
 | **M06** | Split CFPB landing + complaint SoT batches (#169) | Done |
 | **M07** | Pluggable local vector Storage Layer (#175) | Done |
-| **M08** | Advanced Intellect retrieval + evaluation (#183) | Planned |
+| **M08** | Advanced Intellect retrieval + evaluation (#183) | Done |
 | **M90** | Cloud deployment (parked; was M06) (#73) | Planned |
 
 ## 7. Open questions

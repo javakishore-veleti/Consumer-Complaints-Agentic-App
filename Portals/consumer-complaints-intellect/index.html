@@ -18,6 +18,17 @@
           Question
           <textarea id="query-input" data-testid="intellect-query-input" rows="3" required></textarea>
         </label>
+        <label>
+          Retrieval config
+          <select id="config-input" data-testid="intellect-config-input">
+            <option value="baseline" selected>baseline</option>
+            <option value="hybrid">hybrid</option>
+            <option value="self_query">self_query</option>
+            <option value="decompose">decompose</option>
+            <option value="reranker">reranker (recommended)</option>
+            <option value="everything">everything</option>
+          </select>
+        </label>
         <button type="submit" data-testid="intellect-query-submit">Search</button>
       </form>
       <p id="status" data-testid="intellect-status" hidden></p>
