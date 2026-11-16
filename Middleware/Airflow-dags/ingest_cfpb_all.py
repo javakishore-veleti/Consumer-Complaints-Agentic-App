@@ -1,4 +1,4 @@
-"""Ingest landed CFPB complaints zip into local Mongo. D20 / D67 / D86."""
+"""Ingest landed CFPB complaint zip part(s) into local Mongo. D20 / D67 / D86 / D91."""
 
 from __future__ import annotations
 
@@ -20,10 +20,12 @@ from ccaa.db_reader import (
 )
 from ccaa.mongo_ingest import (
     DEFAULT_BATCH_SIZE,
+    ingest_complaints_parts,
     ingest_complaints_zip,
     open_complaints_collection,
     resolve_complaints_mongo_url,
 )
+from ccaa.split_parts import DEFAULT_PART_GLOB, list_part_files
 from ccaa.status_callback import report_execution_status
 
 
@@ -87,16 +89,36 @@ def resolve_and_ingest(**context) -> dict:
                 get_variable=Variable.get,
             )
 
-    filename = str(cfg.get("source_filename") or "complaints.csv.zip")
-    source = landing / filename
     batch_size = int(cfg.get("batch_size") or DEFAULT_BATCH_SIZE)
+    filenames = cfg.get("source_filenames") if isinstance(cfg.get("source_filenames"), list) else None
+    glob_pat = cfg.get("source_filename_glob")
+    single = cfg.get("source_filename")
+
+    # Prefer split list/glob (D91). Legacy: only source_filename → single monolith zip.
+    if filenames or glob_pat or not single:
+        parts = list_part_files(
+            landing,
+            source_filenames=filenames,
+            source_filename_glob=str(glob_pat) if glob_pat else DEFAULT_PART_GLOB,
+            source_filename=None,
+        )
+        coll = open_complaints_collection(mongo_url)
+        result = ingest_complaints_parts(parts, coll, batch_size=batch_size)
+        return {
+            "rows_loaded": result.rows_loaded,
+            "batch_count": result.batch_count,
+            "part_count": len(parts),
+            "sources": [str(p) for p in parts],
+        }
+
+    source = landing / str(single)
     coll = open_complaints_collection(mongo_url)
     result = ingest_complaints_zip(source, coll, batch_size=batch_size)
-    # Stash for notify_finished via XCom
     return {
         "rows_loaded": result.rows_loaded,
         "batch_count": result.batch_count,
-        "source": str(source),
+        "part_count": 1,
+        "sources": [str(source)],
     }
 
 
@@ -114,6 +136,8 @@ def notify_finished(**context) -> None:
                 volume["rows_loaded"] = int(pulled["rows_loaded"])
             if "batch_count" in pulled:
                 volume["batch_count"] = int(pulled["batch_count"])
+            if "part_count" in pulled:
+                volume["increment_marker"] = f"parts={int(pulled['part_count'])}"[:255]
     if ok:
         report_execution_status(
             execution_id,

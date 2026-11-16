@@ -92,3 +92,16 @@ def test_resolve_complaints_mongo_url_prefers_env():
         )
         == "mongodb://env/db"
     )
+
+
+def test_ingest_complaints_parts_sums_batches(tmp_path: Path):
+    z1 = tmp_path / "complaints_part_001.csv.zip"
+    z2 = tmp_path / "complaints_part_002.csv.zip"
+    _write_zip(z1, [{"Complaint ID": "a1", "Product": "Credit"}])
+    _write_zip(z2, [{"Complaint ID": "a2", "Product": "Mortgage"}])
+    coll = _FakeColl()
+    result = mi.ingest_complaints_parts([z1, z2], coll, batch_size=10)
+    assert result.rows_loaded == 2
+    assert result.batch_count == 2
+    assert len(coll.indexes) == 1
+    assert len(coll.ops) == 2

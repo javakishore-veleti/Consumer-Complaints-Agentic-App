@@ -8,7 +8,7 @@ import os
 import zipfile
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Protocol
+from typing import Any, Callable, Iterable, Protocol
 
 
 COMPLAINT_ID_FIELD = "Complaint ID"
@@ -137,3 +137,28 @@ def ingest_complaints_zip(
             flush()
 
     return IngestResult(rows_loaded=rows_loaded, batch_count=batch_count)
+
+
+def ingest_complaints_parts(
+    sources: Iterable[Path],
+    collection: SupportsBulkWrite,
+    *,
+    batch_size: int = DEFAULT_BATCH_SIZE,
+    ensure_index: bool = True,
+) -> IngestResult:
+    """Ingest multiple zip parts; first part may create the unique index."""
+    paths = [Path(p) for p in sources]
+    if not paths:
+        raise ValueError("sources must not be empty")
+    rows = 0
+    batches = 0
+    for i, path in enumerate(paths):
+        result = ingest_complaints_zip(
+            path,
+            collection,
+            batch_size=batch_size,
+            ensure_index=(ensure_index and i == 0),
+        )
+        rows += result.rows_loaded
+        batches += result.batch_count
+    return IngestResult(rows_loaded=rows, batch_count=batches)

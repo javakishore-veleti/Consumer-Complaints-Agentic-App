@@ -41,6 +41,9 @@ APP_ENDPOINT_SOURCE_ID = "ccbce57d-bd9f-56fe-a258-fa2deb9dd393"
 APP_ENDPOINT_INGEST_ID = "8ca22b0c-1c7c-5a25-be9d-d51c6063a3a5"
 # uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m04-0017/ep-cfpb-index-mongo-vectors")
 APP_ENDPOINT_INDEX_ID = "af151640-ce3a-5995-a390-fa1ec5212aaf"
+# uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m06-0004/ep-cfpb-stage-split-local")
+APP_ENDPOINT_STAGE_SPLIT_ID = "763c400e-09e1-59a5-92ed-ed910df667ac"
+NOW_SPLIT = datetime(2026, 11, 16, tzinfo=timezone.utc)
 # uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m05-0004/acl-all-internal")
 ACL_ALL_ID = "814a15b9-246b-5f8f-baef-a3f75a946a72"
 # uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m05-0004/acl-3m-internal")
@@ -213,11 +216,14 @@ def seed_if_empty() -> None:
                 "engine_workflow_id": "download_cfpb_all",
                 "config": {
                     "dataset_code": "CFPB",
-                    "app_endpoint_name": "cfpb_source_http_to_local",
+                    "source_mode": "split",
+                    "source_filename_glob": "complaints_part_*.csv.zip",
+                    "stage_from_env": "CCA_CFPB_SPLIT_SOURCE_PATH",
+                    "app_endpoint_name": "cfpb_stage_split_to_local",
                 },
                 "enabled": True,
                 "created_at": NOW_CATALOG,
-                "updated_at": NOW_CATALOG,
+                "updated_at": NOW_SPLIT,
             }
         )
     )
@@ -274,13 +280,13 @@ def seed_if_empty() -> None:
                 "engine_workflow_id": "ingest_cfpb_all",
                 "config": {
                     "dataset_code": "CFPB",
-                    "source_filename": "complaints.csv.zip",
+                    "source_filename_glob": "complaints_part_*.csv.zip",
                     "batch_size": 500,
                     "app_endpoint_name": "cfpb_ingest_local_to_mongo",
                 },
                 "enabled": True,
                 "created_at": NOW_INGEST,
-                "updated_at": NOW_INGEST,
+                "updated_at": NOW_SPLIT,
             }
         )
     )
@@ -311,6 +317,25 @@ def seed_if_empty() -> None:
                 "enabled": True,
                 "created_at": NOW_ENDPOINTS,
                 "updated_at": NOW_ENDPOINTS,
+            }
+        )
+    )
+    _upsert(
+        MongoDocument(
+            {
+                "_collection": "app_endpoints",
+                "id": APP_ENDPOINT_STAGE_SPLIT_ID,
+                "name": "cfpb_stage_split_to_local",
+                "category": "source",
+                "from_dataset_location_id": None,
+                "from_env_var_name": "CCA_CFPB_SPLIT_SOURCE_PATH",
+                "to_dataset_location_id": None,
+                "to_env_var_name": "LOCAL_DATA_PATH_CFPB",
+                "credentials_ref": None,
+                "description": "Stage CFPB split parts into local landing (D91)",
+                "enabled": True,
+                "created_at": NOW_SPLIT,
+                "updated_at": NOW_SPLIT,
             }
         )
     )
