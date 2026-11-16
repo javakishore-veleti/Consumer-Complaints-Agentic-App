@@ -57,4 +57,4 @@ Epic #183  M08-0001  Advanced Intellect retrieval and evaluation
 - Spec: `docs/Superpowers/specs/M08-0005-retrieval-ladder-eval-design.md` (D93)
 - Ship bias: **`reranker`** (hybrid + lexical rerank), not necessarily `everything`
 - Golden set: `Middleware/ConsumerComplaintsHandsOn/tests/fixtures/intellect_golden_set.json`
-- Cloud remains **M90**
+- Next product: **M09** (`Milestone_09.md` / #195) — Chroma + Redis Stack containers + pgvector consolidate. Cloud remains **M90**.
