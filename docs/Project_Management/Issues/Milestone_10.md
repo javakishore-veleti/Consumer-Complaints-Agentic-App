@@ -23,6 +23,7 @@
 | 13 | #220 | M10-0013 | Story | Runbook: Airflow Variables check URL + redacted screenshot |
 | 14 | #221 | M10-0014 | Story | Local Airflow: DAGs unpaused by default |
 | 15 | #222 | M10-0015 | Story | Runbook: drop GitHub issue jargon for operators |
+| 16 | #223 | M10-0016 | Story | Runbook 3m: reframe full download as filter prerequisite only |
 
 ## 2. Superpowers workflow
 
@@ -50,6 +51,7 @@
 | #220 | 1–4 | Variables URL + redacted screenshot in runbook §0.4 | Done | 2026-11-16 20:48 |
 | #221 | 1–4 | `DAGS_ARE_PAUSED_AT_CREATION=false` + runbook §0.5 | Done | 2026-11-16 20:48 |
 | #222 | 1–4 | runbook plain language + npm stop/start (no `#221` / raw docker) | Done | 2026-11-17 09:22 |
+| #223 | 1–4 | §1 = prerequisite source zip; Imports accordion path (no MIO nav) | Done | 2026-11-17 09:28 |
 
 ## 3. Notes
 

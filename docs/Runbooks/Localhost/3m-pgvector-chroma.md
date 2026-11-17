@@ -89,23 +89,26 @@ Then re-run **Sync secrets** (§0.4) before starting workflows.
 
 ---
 
-## 1. Consumer Complaint Datasets — land the full export
+## 1. Prerequisite — land the source zip the 3-month filter needs
 
-**Objective:** Download the full Consumer Complaint Datasets package locally (required before preparing **Customer complaints 3 months 2026**).
+**Objective:** Put `complaints.csv.zip` on disk under `LOCAL_DATA_PATH_CFPB`. The **3-month** workflow does not download CFPB itself; it **filters** that zip into a 3-month file. This runbook’s goal is still **3 months → Mongo → indexes** — this step is only the input.
 
-Admin → **DataSets → Imports** → MIO **Customer complaints all 2026**
+**Where in Admin (there is no separate “MIO” left-nav):** open **DataSets → Imports**. The managed information objects are the **accordion rows** on that page (for example **Customer complaints all 2026**, **Customer complaints 3 months 2026**).
 
-1. Start workflow **`download_cfpb_all`**
-2. Click **Refresh** until status is **`completed`**
+Expand **Customer complaints all 2026** (that is where the download workflow is attached today):
+
+1. Choose workflow **`download_cfpb_all`** and start it
+2. Click **Refresh status** until that row shows **`completed`**
 3. Airflow: DAG `download_cfpb_all` last run = success
+4. Confirm the landing file exists: `LOCAL_DATA_PATH_CFPB` / `complaints.csv.zip` (or the `source_filename` your download config uses)
 
 ---
 
 ## 2. Consumer Complaint Datasets — Customer complaints 3 months 2026
 
-**Objective:** Prepare the Managed Information Object **Customer complaints 3 months 2026** from the full export (same name you see in Admin).
+**Objective:** Build the **3-month** file from that source zip (same row name you see under Imports).
 
-Admin → **DataSets → Imports** → MIO **Customer complaints 3 months 2026**
+On **DataSets → Imports**, expand **Customer complaints 3 months 2026**:
 
 1. Start workflow **`filter_cfpb_3_months`**
 2. Wait until **`completed`**
@@ -125,7 +128,7 @@ Admin → **DataSets → Imports** → MIO **Customer complaints 3 months 2026**
 
 Seeded `ingest_cfpb_all` looks for `complaints_part_*.csv.zip`. For **Customer complaints 3 months 2026**, point ingest at the filter output once:
 
-Admin → MIO **Customer complaints all 2026** → workflow **`ingest_cfpb_all`**  
+**DataSets → Imports** → expand **Customer complaints all 2026** → workflow **`ingest_cfpb_all`**  
 (or via API: set that workflow’s config to)
 
 ```json
@@ -161,7 +164,7 @@ Postgres here is the **operational DB** with the **pgvector** extension. The wor
 | How does the DAG use it? | Reads complaint docs from Mongo → builds text → `hash_embedding(text)` → upserts into Postgres via `open_vector_store(backend="pgvector")`. |
 | Why this way? | CI/laptop friendly (D88/D92/D94): no GPU, no API keys. Cloud embedding models stay **M90**. |
 
-Admin → MIO **Customer complaints all 2026**
+**DataSets → Imports** → expand **Customer complaints all 2026** (index workflows are attached there today):
 
 1. Start workflow **`index_cfpb_pgvector`**
 2. Wait until **`completed`**
@@ -188,7 +191,7 @@ Chroma is an opt-in **document + embedding** store. Same complaint texts as step
 **Embeddings — what / where / how**  
 **Same as step 4:** `hash_embedding` in `Middleware/Airflow-dags/ccaa/vector_index.py` (dim 32). The Chroma DAG calls `open_vector_store(backend="chroma")` and upserts those vectors — it does **not** call OpenAI/HuggingFace/etc.
 
-Admin → MIO **Customer complaints all 2026**
+**DataSets → Imports** → expand **Customer complaints all 2026**:
 
 1. Start workflow **`index_cfpb_chroma`**
 2. Wait until **`completed`**
@@ -204,8 +207,8 @@ Chroma HTTP: http://127.0.0.1:8100
 
 | # | Functional outcome | How you know |
 |---|---|---|
-| 1 | Full Consumer Complaint Datasets export is on **localhost** (your workstation disk) | Admin MIO **Customer complaints all 2026** last run for land/download is **`completed`** |
-| 2 | **Customer complaints 3 months 2026** dataset exists as a derived file | Admin MIO **Customer complaints 3 months 2026** prepare step is **`completed`**; `complaints_3_months.csv.zip` under `LOCAL_DATA_PATH_CFPB` |
+| 1 | Source zip for the 3-month filter is on **localhost** | Imports row **Customer complaints all 2026** download is **`completed`**; `complaints.csv.zip` under `LOCAL_DATA_PATH_CFPB` |
+| 2 | **Customer complaints 3 months 2026** file exists | Imports row **Customer complaints 3 months 2026** filter is **`completed`**; `complaints_3_months.csv.zip` under `LOCAL_DATA_PATH_CFPB` |
 | 3 | Those complaints are **published as documents** in the complaint store | Ingest step **`completed`**; Mongo has complaint docs (index steps have something to read) |
 | 4 | Complaints are **searchable in Postgres vector store** | `index_cfpb_pgvector` **`completed`**; `complaint_vectors` row count &gt; 0 |
 | 5 | Complaints are **searchable in Chroma** | `index_cfpb_chroma` **`completed`**; Chroma reachable on `:8100` |
@@ -215,7 +218,7 @@ Chroma HTTP: http://127.0.0.1:8100
 
 | Functional outcome | Workflow / DAG |
 |---|---|
-| Land full export | `download_cfpb_all` |
+| Prerequisite: land source zip for filter | `download_cfpb_all` |
 | Customer complaints 3 months 2026 | `filter_cfpb_3_months` |
 | Publish to complaint store (Mongo) | `ingest_cfpb_all` (3m filename) |
 | Postgres vector store | `index_cfpb_pgvector` |
