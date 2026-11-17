@@ -42,7 +42,8 @@
 | #219 | 1 | `/ccaa-story-start 219` | Done | 2026-11-16 20:41 |
 | #219 | 2 | design spec (D96 / `# optional` → `skipped`) | Done | 2026-11-16 20:41 |
 | #219 | 3 | TDD + implement optional upsert + runbook §0.4 | Done | 2026-11-16 20:41 |
-| #219 | 4 | `/ccaa-commit-push 219` | In progress | 2026-11-16 20:41 |
+| #219 | 4 | `/ccaa-commit-push 219` | Done | 2026-11-16 20:42 |
+| #219 | 5 | `/ccaa-story-complete 219` | Done | 2026-11-16 20:42 |
 
 ## 3. Notes
 
