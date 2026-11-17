@@ -41,6 +41,7 @@ Under `Middleware/ConsumerComplaintsHandsOn/`, confirm at least:
 |---|---|
 | `CCA_CALLBACK_SECRET` | `cca-local-dev-callback-secret` (**localhost only**) |
 | `CCA_API_URL` | `http://host.docker.internal:8000` |
+| `CCA_DB_URL` | Host API may use `…@127.0.0.1:5432/cca`; **Airflow Variable must use `host.docker.internal`** (see §0.4) |
 | `CCA_AIRFLOW_API_PASSWORD` | `airflow` |
 | `CCA_MONGO_COMPLAINTS_URL` | `mongodb://root:changeme-local@host.docker.internal:27017/consumer_comp_db?authSource=admin` |
 | `LOCAL_DATA_PATH_CFPB` | absolute path to `…/complains_datasets/imports` |
@@ -60,6 +61,9 @@ Set `CCA_CFPB_SPLIT_SOURCE_PATH` to your **folder of parts** (or to one `.zip`/`
 1. In Admin open **Operations**.
 2. Run **Sync secrets**.
 3. Confirm success.
+4. **Airflow `CCA_DB_URL` (required after every Sync):** open http://127.0.0.1:8080/variables and set `CCA_DB_URL` to use **`host.docker.internal`**, not `127.0.0.1`, e.g.  
+   `postgresql+psycopg://postgres:postgres@host.docker.internal:5432/cca`  
+   Sync copies Middleware’s host `.env` (`127.0.0.1`), which is correct for the API on your Mac but **wrong inside Airflow Docker** (workers see the container loopback → Postgres `Connection refused` on filter/ingest/index). Middleware may keep `127.0.0.1`; only the **Airflow Variable** must be rewritten.
 
 ![Airflow Variables after Sync secrets](assets/airflow-variables-after-sync.png)
 
@@ -162,8 +166,9 @@ Chroma HTTP: http://127.0.0.1:8100
 
 | Symptom | Fix |
 |---|---|
-| Admin `:4200` refused | `npm run local:portals:all:start` |
+| Admin `:4200` refused | `npm run local:portals:all:start` (if `127.0.0.1:4200` fails but `localhost:4200` works, `ng serve` is IPv6-only — use localhost or restart with `--host 127.0.0.1`) |
 | Callbacks 401 | Sync secrets; matching `CCA_CALLBACK_SECRET` |
+| Filter/ingest fails: Postgres `Connection refused` to `127.0.0.1:5432` | After Sync, set Airflow Variable `CCA_DB_URL` to `…@host.docker.internal:5432/cca` (§0.4 step 4); re-run the DAG |
 | Filter finds no inputs | Point `CCA_CFPB_SPLIT_SOURCE_PATH` at a folder with `.csv`/`.zip` (or one file); Sync; retry step 1 |
 | Index empty | Ingest incomplete; or Mongo / pgvector / Chroma URLs not synced |
 
