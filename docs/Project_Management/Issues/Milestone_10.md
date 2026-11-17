@@ -28,6 +28,7 @@
 | 18 | #225 | M10-0018 | Story | Runbook 0.1: stop containers before start |
 | 19 | #226 | M10-0019 | Story | Fix middleware-ci: unpaused DAG test + upsert parse signature |
 | 20 | #227 | M10-0020 | Story | Runbook 0.1: copy-paste safe commands (no shell comments) |
+| 21 | #228 | M10-0021 | Story | Default CCA_CFPB_SPLIT_SOURCE_PATH to Downloads/temp/complaints_split |
 
 ## 2. Superpowers workflow
 
@@ -60,6 +61,7 @@
 | #225 | 1–4 | §0.1 stop then start (npm scripts) | Done | 2026-11-17 09:33 |
 | #226 | 1–4 | CI: compose-only unpaused assert; D37 upsert parse inline | Done | 2026-11-17 09:37 |
 | #227 | 1–4 | §0.1 npm lines without trailing # / parentheses | Done | 2026-11-17 09:40 |
+| #228 | 1–4 | default split path Downloads/temp/complaints_split + mount + re-Sync docs | Done | 2026-11-17 09:44 |
 
 ## 3. Notes
 

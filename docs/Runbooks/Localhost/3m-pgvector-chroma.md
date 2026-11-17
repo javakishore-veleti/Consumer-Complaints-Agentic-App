@@ -41,15 +41,15 @@ npm run local:portals:all:start
 
 **Objective:** Middleware and (after Sync secrets) Airflow share the same localhost config, including the **folder of part zips**.
 
-1. Put (or keep) your part files somewhere under the CCA datasets tree so Airflow can see them, for example:
+1. Keep your part files in the default source folder (or another folder you choose):
 
 ```text
-$HOME/runtime_data/apps/datasets/CCA/complains_datasets/split/complaints_part_001.csv.zip
-$HOME/runtime_data/apps/datasets/CCA/complains_datasets/split/complaints_part_002.csv.zip
+$HOME/Downloads/temp/complaints_split/complaints_part_001.csv.zip
+$HOME/Downloads/temp/complaints_split/complaints_part_002.csv.zip
 …
 ```
 
-(Airflow bind-mounts the whole `complains_datasets` tree — not only `imports`.)
+Stage copies those files into the **landing** dir `LOCAL_DATA_PATH_CFPB` (`…/complains_datasets/imports/`). Airflow bind-mounts both the landing tree and the default Downloads split folder.
 
 2. Confirm `.env` under `Middleware/ConsumerComplaintsHandsOn/` includes:
 
@@ -60,11 +60,11 @@ $HOME/runtime_data/apps/datasets/CCA/complains_datasets/split/complaints_part_00
 | `CCA_AIRFLOW_API_PASSWORD` | `airflow` |
 | `CCA_MONGO_COMPLAINTS_URL` | `mongodb://root:changeme-local@host.docker.internal:27017/consumer_comp_db?authSource=admin` |
 | `LOCAL_DATA_PATH_CFPB` | absolute path to `…/complains_datasets/imports` |
-| `CCA_CFPB_SPLIT_SOURCE_PATH` | absolute path to your **split folder** (the directory that contains `complaints_part_*.csv.zip`) |
+| `CCA_CFPB_SPLIT_SOURCE_PATH` | default: absolute `$HOME/Downloads/temp/complaints_split` (override in `.env` if your parts live elsewhere) |
 | `CCA_PGVECTOR_URL` | `postgresql://postgres:postgres@host.docker.internal:5432/cca` |
 | `CCA_CHROMA_URL` | `http://host.docker.internal:8100` *(Airflow workers)* |
 
-3. Restart Middleware after editing `.env` (you start it; this runbook does not).
+3. To **change** the split folder (or any other upserted value): edit Middleware `.env`, restart Middleware, then run **Operations → Sync secrets** again so Airflow Variables match. Admin Sync does not edit the path itself — it copies whatever Middleware currently has in the environment.
 
 ### 0.3 Open the UIs
 
@@ -76,7 +76,7 @@ $HOME/runtime_data/apps/datasets/CCA/complains_datasets/split/complaints_part_00
 
 ### 0.4 In Admin: Operations → Sync secrets
 
-**Objective:** Copy Middleware `.env` values (including `CCA_CFPB_SPLIT_SOURCE_PATH` and landing/index URLs) into **Airflow Variables** so DAGs can stage parts and reach stores. Without this step, stage/ingest/index fail or callbacks return **401**.
+**Objective:** Copy Middleware `.env` values (including `CCA_CFPB_SPLIT_SOURCE_PATH` and landing/index URLs) into **Airflow Variables** so DAGs can stage parts and reach stores. Without this step, stage/ingest/index fail or callbacks return **401**. Re-run Sync whenever you change those `.env` values.
 
 1. In Admin open **Operations**.
 2. Run **Sync secrets**.
