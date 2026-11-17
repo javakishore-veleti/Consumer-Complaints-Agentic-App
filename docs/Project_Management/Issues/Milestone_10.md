@@ -9,6 +9,7 @@
 | # | Issue | Key | Type | Title |
 |---|---|---|---|---|
 | 1 | #208 | M10-0001 | Story | Chroma host port default must not collide with Middleware :8000 |
+| 2 | #209 | M10-0002 | Story | Bootstrap local Middleware .env for live smoke |
 
 ## Notes
 
