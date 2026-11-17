@@ -53,23 +53,29 @@ Confirm `.env` exists under `Middleware/ConsumerComplaintsHandsOn/` with at leas
 1. In Admin open **Operations**.
 2. Run **Sync secrets** (upsert listed names into Airflow).
 3. Confirm success in the UI (no error toast / success message).
-4. Optional check in Airflow → **Admin → Variables**: `CCA_CALLBACK_SECRET`, `CCA_API_URL`, `LOCAL_DATA_PATH_CFPB`, `CCA_PGVECTOR_URL`, `CCA_CHROMA_URL` are present.
+4. Confirm in Airflow **Variables**: open http://127.0.0.1:8080/variables — you should see the synced names (callback secret masked; values never shown in Admin Sync). Example after a successful Sync:
+
+![Airflow Variables after Sync secrets](assets/airflow-variables-after-sync.png)
+
+Expect at least: `CCA_CALLBACK_SECRET`, `CCA_API_URL`, `LOCAL_DATA_PATH_CFPB`, `CCA_PGVECTOR_URL`, `CCA_CHROMA_URL`. For **Airflow workers**, `CCA_CHROMA_URL` / `CCA_REDIS_URL` must use `host.docker.internal` (not `127.0.0.1`) — match §0.2, then Sync again if needed.
 
 **If Sync fails with HTTP 422:** the JSON `results` list shows each name’s `outcome`. `missing` = a **required** `.env` value is empty (fix and restart Middleware). `skipped` = optional name unset (OK on localhost SQLite / unused split path — M10-0012 / #219). Restart the API after pulling that fix, then Sync again.
 
 Re-run this step whenever you change `.env` or recreate Airflow containers.
 
-### 0.5 Unpause required DAGs
+### 0.5 Confirm DAGs are enabled
 
-**Objective:** Allow Admin “Start workflow” to trigger each DAG.
+**Objective:** Admin “Start workflow” can trigger each DAG (local Airflow creates them **unpaused** — M10-0014 / #221).
 
-In Airflow, unpause if paused:
+On a **fresh** local Airflow stack, these should already be enabled at http://127.0.0.1:8080/dags :
 
 - `download_cfpb_all`
 - `filter_cfpb_3_months`
 - `ingest_cfpb_all`
 - `index_cfpb_pgvector`
 - `index_cfpb_chroma`
+
+If toggles are still **paused** (existing metadata from before #221), unpause them once in the UI, or recreate Airflow (`docker compose down` in `CICD/Local/airflow`, then bring containers up again).
 
 ---
 

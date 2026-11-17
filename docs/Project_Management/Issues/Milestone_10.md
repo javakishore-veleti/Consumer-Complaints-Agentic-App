@@ -20,6 +20,8 @@
 | 10 | #217 | M10-0010 | Story | Runbook: functional Definition of Done checklist |
 | 11 | #218 | M10-0011 | Story | Runbook: say localhost not “this machine” (GitHub-readable) |
 | 12 | #219 | M10-0012 | Story | Sync secrets: optional unset upsert names must not 422 |
+| 13 | #220 | M10-0013 | Story | Runbook: Airflow Variables check URL + redacted screenshot |
+| 14 | #221 | M10-0014 | Story | Local Airflow: DAGs unpaused by default |
 
 ## 2. Superpowers workflow
 
@@ -44,6 +46,8 @@
 | #219 | 3 | TDD + implement optional upsert + runbook §0.4 | Done | 2026-11-16 20:41 |
 | #219 | 4 | `/ccaa-commit-push 219` | Done | 2026-11-16 20:42 |
 | #219 | 5 | `/ccaa-story-complete 219` | Done | 2026-11-16 20:42 |
+| #220 | 1–4 | Variables URL + redacted screenshot in runbook §0.4 | Done | 2026-11-16 20:48 |
+| #221 | 1–4 | `DAGS_ARE_PAUSED_AT_CREATION=false` + runbook §0.5 | Done | 2026-11-16 20:48 |
 
 ## 3. Notes
 
@@ -52,3 +56,5 @@
 - CFPB imports: `$HOME/runtime_data/apps/datasets/CCA/complains_datasets/imports` (D95 / #212).
 - Local embeddings: `hash_embedding` in `Middleware/Airflow-dags/ccaa/vector_index.py` (dim 32; no neural model).
 - Sync secrets (D96 / #219): `# optional` in upsert list → empty env is `skipped` (not 422); `CCA_DB_URL` + `CCA_CFPB_SPLIT_SOURCE_PATH` optional on localhost.
+- Runbook §0.4 (#220): check http://127.0.0.1:8080/variables + redacted screenshot asset.
+- Local Airflow (#221): `DAGS_ARE_PAUSED_AT_CREATION=false` — DAGs enabled on fresh stack.
