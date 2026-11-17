@@ -210,3 +210,110 @@ def test_report_rejects_blank_secret_before_http():
             urlopen=opener,
         )
     assert called is False
+
+
+class _TI:
+    def __init__(self, task_id, state):
+        self.task_id = task_id
+        self.state = state
+
+
+class _DagRunAirflow3:
+    """Airflow 3-shaped DagRun: get_task_instances only (no get_task_instance)."""
+
+    def __init__(self, tis):
+        self._tis = list(tis)
+
+    def get_task_instances(self, state=None):
+        return list(self._tis)
+
+
+class _DagRunAirflow2:
+    def __init__(self, by_id):
+        self._by_id = dict(by_id)
+
+    def get_task_instance(self, task_id):
+        return self._by_id.get(task_id)
+
+
+def test_task_instance_for_airflow3_get_task_instances():
+    work = _TI("filter_csv", "success")
+    other = _TI("notify_finished", "running")
+    ctx = {"dag_run": _DagRunAirflow3([work, other])}
+    found = sc.task_instance_for(ctx, "filter_csv")
+    assert found is work
+    assert sc.upstream_succeeded(ctx, "filter_csv") is True
+    assert sc.upstream_succeeded(ctx, "missing") is False
+
+
+def test_task_instance_for_airflow2_get_task_instance():
+    work = _TI("download", "failed")
+    ctx = {"dag_run": _DagRunAirflow2({"download": work})}
+    assert sc.task_instance_for(ctx, "download") is work
+    assert sc.upstream_succeeded(ctx, "download") is False
+
+
+def test_task_instance_for_missing_dag_run_returns_none():
+    assert sc.task_instance_for({}, "x") is None
+    assert sc.upstream_succeeded({}, "x") is False
+
+
+def test_notify_execution_finished_reports_completed_on_success():
+    calls = []
+
+    def fake_report(execution_id, status, **kwargs):
+        calls.append((execution_id, status, kwargs))
+
+    work = _TI("filter_csv", "success")
+    ctx = {
+        "dag_run": _DagRunAirflow3([work]),
+        "run_id": "manual__1",
+        "params": {"execution_id": "exec-ok"},
+    }
+    sc.notify_execution_finished(
+        ctx,
+        "filter_csv",
+        report=fake_report,
+        completed_kwargs={"batch_count": 3},
+    )
+    assert len(calls) == 1
+    assert calls[0][0] == "exec-ok"
+    assert calls[0][1] == "completed"
+    assert calls[0][2].get("batch_count") == 3
+    assert calls[0][2].get("engine_run_id") == "manual__1"
+
+
+def test_notify_execution_finished_reports_failed_without_get_task_instance():
+    """Regression: must not AttributeError on Airflow 3 DagRun."""
+    calls = []
+
+    def fake_report(execution_id, status, **kwargs):
+        calls.append((execution_id, status, kwargs))
+
+    work = _TI("filter_csv", "failed")
+    ctx = {
+        "dag_run": _DagRunAirflow3([work]),
+        "run_id": "manual__2",
+        "dag_run_conf": {"execution_id": "exec-fail"},
+    }
+    # Also put conf on dag_run like real Airflow
+    ctx["dag_run"].conf = {"execution_id": "exec-fail"}
+    sc.notify_execution_finished(ctx, "filter_csv", report=fake_report)
+    assert len(calls) == 1
+    assert calls[0][1] == "failed"
+    assert "filter_csv" in (calls[0][2].get("message") or "")
+
+
+def test_notify_execution_finished_failed_when_upstream_missing():
+    calls = []
+
+    def fake_report(execution_id, status, **kwargs):
+        calls.append((execution_id, status, kwargs))
+
+    ctx = {
+        "dag_run": _DagRunAirflow3([]),
+        "params": {"execution_id": "exec-miss"},
+        "run_id": "r",
+    }
+    sc.notify_execution_finished(ctx, "filter_csv", report=fake_report)
+    assert calls[0][1] == "failed"

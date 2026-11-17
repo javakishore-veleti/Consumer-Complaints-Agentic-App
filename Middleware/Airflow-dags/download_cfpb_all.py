@@ -37,6 +37,7 @@ from ccaa.split_parts import (
     stage_parts_from_urls,
 )
 from ccaa.status_callback import (
+    notify_execution_finished,
     report_execution_status,
     report_import_run_create,
     report_import_run_update,
@@ -224,30 +225,16 @@ def resolve_and_download(**context) -> dict:
 
 
 def notify_finished(**context) -> None:
-    execution_id = _execution_id(context)
-    dag_run = context["dag_run"]
-    upstream = dag_run.get_task_instance("resolve_and_download")
-    ok = upstream is not None and str(upstream.state) == "success"
     ti = context.get("ti")
     volume: dict = {}
     if ti is not None:
         pulled = ti.xcom_pull(task_ids="resolve_and_download") or {}
         if isinstance(pulled, dict) and "part_count" in pulled:
             volume["batch_count"] = int(pulled["part_count"])
-    if ok:
-        report_execution_status(
-            execution_id,
-            "completed",
-            engine_run_id=_engine_run_id(context),
-            **volume,
-        )
-        return
-    state = getattr(upstream, "state", None) if upstream else None
-    report_execution_status(
-        execution_id,
-        "failed",
-        engine_run_id=_engine_run_id(context),
-        message=f"resolve_and_download did not succeed (state={state})",
+    notify_execution_finished(
+        context,
+        "resolve_and_download",
+        completed_kwargs=volume or None,
     )
 
 

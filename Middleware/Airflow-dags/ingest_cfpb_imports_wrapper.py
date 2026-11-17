@@ -11,6 +11,7 @@ from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from airflow.utils.trigger_rule import TriggerRule
 
 from ccaa.status_callback import (
+    notify_execution_finished,
     report_execution_status,
     report_import_run_update,
 )
@@ -122,24 +123,7 @@ def run_children(**context) -> dict:
 
 
 def notify_finished(**context) -> None:
-    execution_id = _execution_id(context)
-    dag_run = context["dag_run"]
-    upstream = dag_run.get_task_instance("run_children")
-    ok = upstream is not None and str(upstream.state) == "success"
-    if ok:
-        report_execution_status(
-            execution_id,
-            "completed",
-            engine_run_id=_engine_run_id(context),
-        )
-        return
-    state = getattr(upstream, "state", None) if upstream else None
-    report_execution_status(
-        execution_id,
-        "failed",
-        engine_run_id=_engine_run_id(context),
-        message=f"run_children did not succeed (state={state})",
-    )
+    notify_execution_finished(context, "run_children")
 
 
 with DAG(

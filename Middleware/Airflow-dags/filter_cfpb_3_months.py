@@ -27,7 +27,7 @@ from ccaa.filter_by_date import (
     filtered_output_name,
     list_filter_inputs,
 )
-from ccaa.status_callback import report_execution_status
+from ccaa.status_callback import notify_execution_finished, report_execution_status
 
 
 def _execution_id(context) -> str:
@@ -120,24 +120,7 @@ def resolve_and_filter(**context) -> str:
 
 
 def notify_finished(**context) -> None:
-    execution_id = _execution_id(context)
-    dag_run = context["dag_run"]
-    upstream = dag_run.get_task_instance("resolve_and_filter")
-    ok = upstream is not None and str(upstream.state) == "success"
-    if ok:
-        report_execution_status(
-            execution_id,
-            "completed",
-            engine_run_id=_engine_run_id(context),
-        )
-        return
-    state = getattr(upstream, "state", None) if upstream else None
-    report_execution_status(
-        execution_id,
-        "failed",
-        engine_run_id=_engine_run_id(context),
-        message=f"resolve_and_filter did not succeed (state={state})",
-    )
+    notify_execution_finished(context, "resolve_and_filter")
 
 
 with DAG(

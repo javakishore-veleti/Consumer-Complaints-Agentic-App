@@ -171,6 +171,120 @@ def _callback_request(
         raise CallbackHttpError(f"callback HTTP {e.code}", status_code=e.code) from e
 
 
+def task_instance_for(context: dict[str, Any], task_id: str) -> Any | None:
+    """Resolve a task instance from DAG context (Airflow 2 + 3).
+
+    Airflow 3 removed ``DagRun.get_task_instance``. Prefer
+    ``get_task_instances()`` and fall back to ``get_task_instance`` when present.
+    """
+    if not task_id or not str(task_id).strip():
+        return None
+    wanted = str(task_id).strip()
+    dag_run = context.get("dag_run")
+    if dag_run is None:
+        return None
+
+    get_tis = getattr(dag_run, "get_task_instances", None)
+    if callable(get_tis):
+        try:
+            tis = get_tis() or []
+        except TypeError:
+            # Some signatures require keyword-only args; retry empty.
+            try:
+                tis = get_tis(state=None) or []
+            except Exception:
+                tis = []
+        except Exception:
+            tis = []
+        for ti in tis:
+            if getattr(ti, "task_id", None) == wanted:
+                return ti
+
+    get_ti = getattr(dag_run, "get_task_instance", None)
+    if callable(get_ti):
+        try:
+            return get_ti(wanted)
+        except Exception:
+            return None
+    return None
+
+
+def upstream_succeeded(context: dict[str, Any], task_id: str) -> bool:
+    """True when the named upstream task instance state is ``success``."""
+    ti = task_instance_for(context, task_id)
+    if ti is None:
+        return False
+    return str(getattr(ti, "state", "") or "") == "success"
+
+
+def _execution_id_from_context(context: dict[str, Any]) -> str | None:
+    conf: dict[str, Any] = {}
+    dag_run = context.get("dag_run")
+    if dag_run is not None:
+        raw = getattr(dag_run, "conf", None) or {}
+        if isinstance(raw, dict):
+            conf.update(raw)
+    params = context.get("params") or {}
+    if isinstance(params, dict):
+        conf.update(params)
+    dag_run_conf = context.get("dag_run_conf") or {}
+    if isinstance(dag_run_conf, dict):
+        conf.update(dag_run_conf)
+    value = conf.get("execution_id")
+    if value is None:
+        return None
+    text = str(value).strip()
+    return text or None
+
+
+def _engine_run_id_from_context(context: dict[str, Any]) -> str | None:
+    run_id = context.get("run_id")
+    if run_id is not None and str(run_id).strip():
+        return str(run_id).strip()
+    dag_run = context.get("dag_run")
+    if dag_run is not None:
+        rid = getattr(dag_run, "run_id", None)
+        if rid is not None and str(rid).strip():
+            return str(rid).strip()
+    return None
+
+
+def notify_execution_finished(
+    context: dict[str, Any],
+    work_task_id: str,
+    *,
+    execution_id: str | None = None,
+    engine_run_id: str | None = None,
+    completed_kwargs: dict[str, Any] | None = None,
+    report: Callable[..., Any] = report_execution_status,
+) -> None:
+    """Report completed/failed for a DAG run without Airflow-2-only APIs.
+
+    Always attempts a callback when ``execution_id`` is present. Uses
+    :func:`task_instance_for` so finalize never raises ``AttributeError`` on
+    Airflow 3 ``DagRun`` objects that lack ``get_task_instance``.
+    """
+    exec_id = execution_id if execution_id is not None else _execution_id_from_context(context)
+    if not exec_id:
+        return
+    eng = engine_run_id if engine_run_id is not None else _engine_run_id_from_context(context)
+    upstream = task_instance_for(context, work_task_id)
+    ok = upstream is not None and str(getattr(upstream, "state", "") or "") == "success"
+    if ok:
+        payload: dict[str, Any] = {}
+        if completed_kwargs:
+            payload.update(completed_kwargs)
+        report(exec_id, "completed", engine_run_id=eng, **payload)
+        return
+    state = getattr(upstream, "state", None) if upstream is not None else None
+    report(
+        exec_id,
+        "failed",
+        engine_run_id=eng,
+        message=f"{work_task_id} did not succeed (state={state})",
+    )
+
+
 def report_import_run_create(
     payload: dict[str, Any],
     **kwargs: Any,
