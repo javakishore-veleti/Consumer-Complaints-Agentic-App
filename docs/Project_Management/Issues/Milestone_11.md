@@ -2,7 +2,7 @@
 
 **Scope:** UTC timestamped import landing folders, import registry, selective Mongo ingest UI, wrapper + core Airflow DAGs. Local path first; location abstraction for later S3/etc.
 
-**Status: in progress.** Spec: `docs/Superpowers/specs/2026-11-17-import-runs-selective-mongo-ingest-design.md`. Plan: `docs/superpowers/plans/2026-11-17-import-runs-selective-mongo-ingest-plan.md`.
+**Status: done.** Spec: `docs/Superpowers/specs/2026-11-17-import-runs-selective-mongo-ingest-design.md`. Plan: `docs/superpowers/plans/2026-11-17-import-runs-selective-mongo-ingest-plan.md`.
 
 ## 1. Build order
 
@@ -22,9 +22,9 @@
 | #229 | — | written spec + plan | Done | 2026-11-17 10:00 | 2026-11-17 10:15 |
 | #230 | 1–12 | registry + DAO | Done | 2026-11-17 10:15 | 2026-11-17 10:19 |
 | #231 | 1–12 | stage run folders + callbacks | Done | 2026-11-17 10:19 | 2026-11-17 10:25 |
-| #232 | 1–12 | Admin ingest selection UI + start conf | In progress | 2026-11-17 10:25 | - |
-| #233 | 1–12 | wrapper + core DAGs + seed | In progress | 2026-11-17 10:25 | - |
-| #234 | 1–12 | runbook update | In progress | 2026-11-17 10:25 | - |
+| #232 | 1–12 | Admin ingest selection UI + start conf | Done | 2026-11-17 10:25 | 2026-11-17 10:30 |
+| #233 | 1–12 | wrapper + core DAGs + seed | Done | 2026-11-17 10:25 | 2026-11-17 10:30 |
+| #234 | 1–12 | runbook update | Done | 2026-11-17 10:25 | 2026-11-17 10:30 |
 
 ## 3. Notes
 
