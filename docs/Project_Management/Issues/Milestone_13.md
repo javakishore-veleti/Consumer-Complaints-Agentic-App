@@ -2,7 +2,7 @@
 
 **Scope:** After Sync secrets, Airflow `CCA_DB_URL` must use `host.docker.internal` (not `127.0.0.1`) so DAGs can reach ops Postgres from containers; document in the 3m localhost runbook.
 
-**Status: planned.** Stories left to build: 1. Stories already done: 0.
+**Status: in progress.** Stories left to build: 1. Stories already done: 0.
 
 ## 1. Build order
 
@@ -14,8 +14,8 @@
 
 | Issue | Step | Command | Status | Completed |
 |---|---|---|---|---|
-| #240 | 1 | `/ccaa-story-start 240` | Planned | - |
-| #240 | 2 | brainstorming / design (if needed) | Planned | - |
+| #240 | 1 | `/ccaa-story-start 240` | Done | 2026-11-17 16:08 |
+| #240 | 2 | brainstorming / design (if needed) | In progress | 2026-11-17 16:08 |
 | #240 | 3 | `/using-git-worktrees` | Planned | - |
 | #240 | 4 | Update `docs/Runbooks/Localhost/3m-pgvector-chroma.md` | Planned | - |
 | #240 | 5 | `/ccaa-commit-push` | Planned | - |
