@@ -9,6 +9,7 @@ from app.core.dao.objects_factory import DaoObjectsFactory
 DOWNLOAD_WF = "download_cfpb_all"
 FILTER_WF = "filter_cfpb_3_months"
 INGEST_WF = "ingest_cfpb_all"
+INGEST_WRAPPER_WF = "ingest_cfpb_imports_wrapper"
 INDEX_WF = "index_cfpb_all"
 INDEX_PG_WF = "index_cfpb_pgvector"
 INDEX_CHROMA_WF = "index_cfpb_chroma"
@@ -116,6 +117,14 @@ def test_seeded_all_and_3_months_bindings_are_readable(data_dir):
     assert dao.list(all_links) == SUCCESS
     assert dao.list(three_links) == SUCCESS
     assert sorted(r.workflow_id for r in all_links.resp.records) == sorted(
-        [_wf(DOWNLOAD_WF), _wf(INGEST_WF), _wf(INDEX_WF), _wf(INDEX_PG_WF), _wf(INDEX_CHROMA_WF), _wf(INDEX_REDIS_WF)]
+        [
+            _wf(DOWNLOAD_WF),
+            _wf(INGEST_WF),
+            _wf(INGEST_WRAPPER_WF),
+            _wf(INDEX_WF),
+            _wf(INDEX_PG_WF),
+            _wf(INDEX_CHROMA_WF),
+            _wf(INDEX_REDIS_WF),
+        ]
     )
     assert [r.workflow_id for r in three_links.resp.records] == [_wf(FILTER_WF)]

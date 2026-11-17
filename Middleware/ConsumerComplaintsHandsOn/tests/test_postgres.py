@@ -119,6 +119,7 @@ def test_app_wf_dao_works_on_postgres(postgres):
         "index_cfpb_pgvector",
         "index_cfpb_redis",
         "ingest_cfpb_all",
+        "ingest_cfpb_imports_wrapper",
     ]
     assert dao.update(AppWfCtx(req=AppWfReq(id=row.id, enabled=False))) == SUCCESS
     disabled = AppWfCtx(req=AppWfReq(enabled=False))
@@ -219,7 +220,7 @@ def test_catalog_works_on_postgres(postgres):
         bindings = c.execute(text(f"select count(*) from {SCHEMA_ADMIN}.mios_workflows")).scalar()
         endpoints = c.execute(text(f"select count(*) from {SCHEMA_ADMIN}.app_endpoints")).scalar()
     assert seeded == 5  # four month MIOs + All (0011 / D84)
-    assert bindings == 7
+    assert bindings == 8  # + ingest_cfpb_imports_wrapper (0021 / M11)
     assert endpoints == 7  # + chroma + redis (0019)
 
     datasets = DaoObjectsFactory.get_dataset_dao()
@@ -447,6 +448,7 @@ def test_wf_list_service_works_on_postgres(postgres):
         "index_cfpb_pgvector",
         "index_cfpb_redis",
         "ingest_cfpb_all",
+        "ingest_cfpb_imports_wrapper",
         "t_pg_list",
     ]
     assert all(not hasattr(e, "config") for e in ctx.resp.entries)

@@ -16,6 +16,7 @@ SEEDED = [
     "index_cfpb_pgvector",
     "index_cfpb_redis",
     "ingest_cfpb_all",
+    "ingest_cfpb_imports_wrapper",
 ]
 
 

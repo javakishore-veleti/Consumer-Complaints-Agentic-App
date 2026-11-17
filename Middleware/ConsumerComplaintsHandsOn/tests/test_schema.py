@@ -10,12 +10,14 @@ from app.core.common.config import ALL_SCHEMAS, PROJECT_ROOT
 DOWNLOAD_CFPB_ALL_WORKFLOW_ID = "b4b8014f-d756-5bc8-a041-96899ac037ac"
 FILTER_CFPB_3_MONTHS_WORKFLOW_ID = "4d3f1ee0-0b02-51cb-8959-2499896cc20e"
 INGEST_CFPB_ALL_WORKFLOW_ID = "0064095f-9f8e-5f09-94cf-3b4fe28e2b33"
+INGEST_CFPB_IMPORTS_WRAPPER_WORKFLOW_ID = "e64365bd-98f4-52a4-a3bc-e26455915c6b"
 INDEX_CFPB_ALL_WORKFLOW_ID = "120e90d3-f61d-5fd4-a8c4-2a1aba9e9ba6"
 ALL_MIO_ID = "01fa6351-cf12-520d-886d-9b8e30515451"
 MIO_3_MONTHS_ID = "a10fbfe0-ac03-5f3f-8d20-5132d470b03a"
 MIOS_WORKFLOWS_ALL_DOWNLOAD_ID = "c23808b9-4e57-5a5b-b301-78dec5ac839e"
 MIOS_WORKFLOWS_3M_FILTER_ID = "edd79fde-5736-5655-9d00-c52bfe172c1f"
 MIOS_WORKFLOWS_ALL_INGEST_ID = "251b44d2-9aea-5d9d-b1a0-0816e8db3f80"
+MIOS_WORKFLOWS_ALL_INGEST_WRAPPER_ID = "3075d780-d9eb-5fe5-8b03-2cdcab384cc9"
 MIOS_WORKFLOWS_ALL_INDEX_ID = "ee28b7aa-b4cf-5611-bf07-080fb3b53864"
 APP_ENDPOINT_INDEX_ID = "af151640-ce3a-5995-a390-fa1ec5212aaf"
 INDEX_CFPB_PGVECTOR_WORKFLOW_ID = "68a0fa8a-825c-53f1-864f-5db167a339a0"
@@ -479,6 +481,7 @@ def test_mios_workflows_seed_binds_all_and_3_months_only(data_dir):
         (MIOS_WORKFLOWS_ALL_INDEX_PG_ID, ALL_MIO_ID, INDEX_CFPB_PGVECTOR_WORKFLOW_ID),
         (MIOS_WORKFLOWS_ALL_INDEX_CHROMA_ID, ALL_MIO_ID, INDEX_CFPB_CHROMA_WORKFLOW_ID),
         (MIOS_WORKFLOWS_ALL_DOWNLOAD_ID, ALL_MIO_ID, DOWNLOAD_CFPB_ALL_WORKFLOW_ID),
+        (MIOS_WORKFLOWS_ALL_INGEST_WRAPPER_ID, ALL_MIO_ID, INGEST_CFPB_IMPORTS_WRAPPER_WORKFLOW_ID),
         (MIOS_WORKFLOWS_3M_FILTER_ID, MIO_3_MONTHS_ID, FILTER_CFPB_3_MONTHS_WORKFLOW_ID),
     ]
     assert [r[0] for r in unbound] == [
@@ -520,7 +523,7 @@ def test_migration_0011_removes_mios_workflows_and_all_mio_on_the_way_down(data_
     with _admin_db(data_dir) as db:
         assert db.execute("select name from sqlite_master where name = 'mios_workflows'").fetchall() != []
         assert db.execute("select id from mios where name = 'Customer complaints all 2026'").fetchone()[0] == ALL_MIO_ID
-        assert db.execute("select count(*) from mios_workflows").fetchone()[0] == 7
+        assert db.execute("select count(*) from mios_workflows").fetchone()[0] == 8
 
 
 APP_ENDPOINT_SOURCE_ID = "ccbce57d-bd9f-56fe-a258-fa2deb9dd393"
