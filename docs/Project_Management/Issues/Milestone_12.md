@@ -2,7 +2,7 @@
 
 **Scope:** Finalize / `notify_finished` always reports `completed` or `failed` to Middleware on Airflow 3 so Admin is not stuck on `started`.
 
-**Status: in progress.** Stories left to build: 1. Stories already done: 0.
+**Status: Done.** Stories left to build: 0. Stories already done: 1.
 
 ## 1. Build order
 
@@ -19,10 +19,10 @@
 | #239 | 3 | `/using-git-worktrees` | Done | 2026-11-17 15:56 |
 | #239 | 4 | `/writing-plans` | Done | 2026-11-17 15:56 |
 | #239 | 5 | TDD + implement shared finalize + all DAGs | Done | 2026-11-17 15:57 |
-| #239 | 6 | `/ccaa-commit-push` after tasks | In progress | 2026-11-17 15:57 |
-| #239 | 7 | `/ccaa-story-complete 239` | Planned | - |
+| #239 | 6 | `/ccaa-commit-push` after tasks | Done | 2026-11-17 15:58 |
+| #239 | 7 | `/ccaa-story-complete 239` | Done | 2026-11-17 15:58 |
 
 ## 3. Notes
 
 - Root cause: `dag_run.get_task_instance(...)` missing on Airflow 3 → finalize crashes → Middleware never gets `failed`.
-- Fix: `task_instance_for` / `notify_execution_finished` via `get_task_instances()`; all CCAA DAGs wired.
+- Fix: `task_instance_for` / `notify_execution_finished` via `get_task_instances()`; all CCAA DAGs wired. Merged to `main` as `1142bde`.
