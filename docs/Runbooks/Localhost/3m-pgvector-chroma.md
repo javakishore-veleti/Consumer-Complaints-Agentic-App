@@ -1,8 +1,8 @@
-# Localhost runbook: 3-month CFPB → pgvector + Chroma
+# Localhost runbook: Consumer Complaint Datasets (3 months) → search indexes
 
-Goal: on **this machine only**, get a **3-month** CFPB zip, load it into Mongo, then index into **ops Postgres (pgvector)** and **Chroma**, with each step finishing in Airflow.
+**Goal:** on **this machine only**, land **Consumer Complaint Datasets** for a **3-month** window, load them into the complaint store, then build **Postgres (pgvector)** and **Chroma** search indexes — each Admin step finishes in Airflow as **`completed`**.
 
-Do these steps **in order**. Wait until each run shows **completed** before starting the next.
+Do these steps **in order**. Wait until each run shows **`completed`** before starting the next.
 
 ---
 
@@ -71,7 +71,9 @@ In Airflow, unpause if paused:
 
 ---
 
-## 1. Download All (needed before 3-month filter)
+## 1. Consumer Complaint Datasets — land the full export
+
+**Objective:** Download the full Consumer Complaint Datasets package locally (required before deriving the 3-month slice).
 
 Admin → **DataSets → Imports** → MIO **Customer complaints all 2026**
 
@@ -81,17 +83,21 @@ Admin → **DataSets → Imports** → MIO **Customer complaints all 2026**
 
 ---
 
-## 2. Build the 3-month zip
+## 2. Consumer Complaint Datasets — derive the 3-month slice
+
+**Objective:** Produce a **3-month** Consumer Complaint Datasets zip from the full export.
 
 Admin → same page → MIO **Customer complaints 3 months 2026**
 
 1. Start workflow **`filter_cfpb_3_months`**
 2. Wait until **`completed`**
-3. Result file (inside Airflow data path): `complaints_3_months.csv.zip`
+3. Result file (under `LOCAL_DATA_PATH_CFPB`): `complaints_3_months.csv.zip`
 
 ---
 
-## 3. Ingest the 3-month zip into Mongo
+## 3. Consumer Complaint Datasets — load 3 months into the complaint store
+
+**Objective:** Load the **3-month** Consumer Complaint Datasets into Mongo so indexing can run.
 
 Seeded `ingest_cfpb_all` looks for `complaints_part_*.csv.zip`. For **3 months**, point it at the filter output once:
 
@@ -115,7 +121,9 @@ Admin → MIO **Customer complaints all 2026** → workflow **`ingest_cfpb_all`*
 
 ---
 
-## 4. Index → pgvector
+## 4. Consumer Complaint Datasets — build Postgres (pgvector) search index
+
+**Objective:** Index the loaded complaints into **ops Postgres + pgvector** for local vector search.
 
 Admin → MIO **Customer complaints all 2026**
 
@@ -134,7 +142,9 @@ docker exec -it cca-operational-postgres \
 
 ---
 
-## 5. Index → Chroma
+## 5. Consumer Complaint Datasets — build Chroma search index
+
+**Objective:** Index the same loaded complaints into **local Chroma**.
 
 Admin → MIO **Customer complaints all 2026**
 
@@ -146,15 +156,15 @@ Chroma UI/API: http://127.0.0.1:8100
 
 ---
 
-## 6. Done checklist
+## 6. Consumer Complaint Datasets — done checklist
 
-| Step | Workflow / DAG | Where to confirm |
+| Functional step | Workflow / DAG | Where to confirm |
 |---|---|---|
-| Download All | `download_cfpb_all` | Admin All MIO + Airflow |
-| 3-month zip | `filter_cfpb_3_months` | Admin 3 months MIO + Airflow |
-| Mongo load | `ingest_cfpb_all` (3m filename) | Admin All MIO + Airflow |
-| pgvector | `index_cfpb_pgvector` | Admin All MIO + Airflow + Postgres |
-| Chroma | `index_cfpb_chroma` | Admin All MIO + Airflow + `:8100` |
+| Land full export | `download_cfpb_all` | Admin All MIO + Airflow |
+| Derive 3-month slice | `filter_cfpb_3_months` | Admin 3 months MIO + Airflow |
+| Load into complaint store | `ingest_cfpb_all` (3m filename) | Admin All MIO + Airflow |
+| Postgres (pgvector) index | `index_cfpb_pgvector` | Admin All MIO + Airflow + Postgres |
+| Chroma index | `index_cfpb_chroma` | Admin All MIO + Airflow + `:8100` |
 
 Every Admin status must be the API string **`completed`** (not invented in the UI).
 

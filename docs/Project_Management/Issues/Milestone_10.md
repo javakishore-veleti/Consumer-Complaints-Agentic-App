@@ -14,6 +14,7 @@
 | 4 | #211 | M10-0004 | Story | Document fixed localhost CCA_CALLBACK_SECRET |
 | 5 | #212 | M10-0005 | Story | Fix localhost LOCAL_DATA_PATH_CFPB + mount into Airflow |
 | 6 | #213 | M10-0006 | Story | Runbook: elevate Sync secrets to titled step with objective |
+| 7 | #214 | M10-0007 | Story | Runbook: functional headings for operator steps |
 
 ## 2. Superpowers workflow
 
@@ -31,6 +32,7 @@
 | #212 | 3 | TDD (compose mount test) + implement | Done | 2026-11-16 |
 | #212 | 4 | `/ccaa-commit-push 212` | Done | 2026-11-16 |
 | #213 | 1–4 | runbook Sync secrets subsection + objective | Done | 2026-11-16 |
+| #214 | 1–4 | functional Consumer Complaint Datasets headings | Done | 2026-11-16 |
 
 ## 3. Notes
 
