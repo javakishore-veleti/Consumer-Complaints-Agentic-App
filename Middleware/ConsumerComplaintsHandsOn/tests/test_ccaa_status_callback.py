@@ -317,3 +317,55 @@ def test_notify_execution_finished_failed_when_upstream_missing():
     }
     sc.notify_execution_finished(ctx, "filter_csv", report=fake_report)
     assert calls[0][1] == "failed"
+
+
+class _CurrentTI:
+    def __init__(self, xcom_by_task):
+        self._xcom_by_task = dict(xcom_by_task)
+
+    def xcom_pull(self, task_ids=None, key="return_value", default=None):
+        return self._xcom_by_task.get(task_ids, default)
+
+
+def test_upstream_succeeded_xcom_fallback_when_state_none():
+    """Airflow 3: TI present with state=None but work XCom return exists → success."""
+    work = _TI("resolve_and_filter", None)
+    ctx = {
+        "dag_run": _DagRunAirflow3([work]),
+        "ti": _CurrentTI({"resolve_and_filter": "part1:10"}),
+    }
+    assert sc.upstream_succeeded(ctx, "resolve_and_filter") is True
+
+
+def test_notify_finished_completed_via_xcom_when_state_none():
+    calls = []
+
+    def fake_report(execution_id, status, **kwargs):
+        calls.append((execution_id, status, kwargs))
+
+    work = _TI("resolve_and_filter", None)
+    ctx = {
+        "dag_run": _DagRunAirflow3([work]),
+        "ti": _CurrentTI({"resolve_and_filter": "a.zip:1"}),
+        "params": {"execution_id": "exec-xcom"},
+        "run_id": "manual__x",
+    }
+    sc.notify_execution_finished(ctx, "resolve_and_filter", report=fake_report)
+    assert calls[0][1] == "completed"
+
+
+def test_notify_finished_failed_when_state_none_and_no_xcom():
+    calls = []
+
+    def fake_report(execution_id, status, **kwargs):
+        calls.append((execution_id, status, kwargs))
+
+    work = _TI("resolve_and_filter", None)
+    ctx = {
+        "dag_run": _DagRunAirflow3([work]),
+        "ti": _CurrentTI({}),
+        "params": {"execution_id": "exec-noxcom"},
+        "run_id": "r",
+    }
+    sc.notify_execution_finished(ctx, "resolve_and_filter", report=fake_report)
+    assert calls[0][1] == "failed"

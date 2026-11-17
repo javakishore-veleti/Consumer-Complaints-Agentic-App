@@ -209,12 +209,39 @@ def task_instance_for(context: dict[str, Any], task_id: str) -> Any | None:
     return None
 
 
-def upstream_succeeded(context: dict[str, Any], task_id: str) -> bool:
-    """True when the named upstream task instance state is ``success``."""
-    ti = task_instance_for(context, task_id)
-    if ti is None:
+def _state_is_success(state: Any) -> bool:
+    if state is None:
         return False
-    return str(getattr(ti, "state", "") or "") == "success"
+    text = str(getattr(state, "value", state) or "").strip().lower()
+    return text in {"success", "taskinstancestate.success"}
+
+
+def _xcom_indicates_success(context: dict[str, Any], task_id: str) -> bool:
+    """Airflow 3 worker fallback: successful PythonOperators push a return XCom.
+
+    Our CCAA work tasks always return a non-None value on success. Failed tasks
+    do not push return_value, so ``xcom_pull`` is ``None``.
+    """
+    current = context.get("ti")
+    if current is None or not hasattr(current, "xcom_pull"):
+        return False
+    try:
+        value = current.xcom_pull(task_ids=task_id)
+    except Exception:
+        return False
+    return value is not None
+
+
+def upstream_succeeded(context: dict[str, Any], task_id: str) -> bool:
+    """True when the named upstream task succeeded (TI state or XCom fallback)."""
+    ti = task_instance_for(context, task_id)
+    if ti is not None:
+        state = getattr(ti, "state", None)
+        if state is not None:
+            return _state_is_success(state)
+        # TI row present but state unloaded (common in Airflow 3 task SDK).
+        return _xcom_indicates_success(context, task_id)
+    return _xcom_indicates_success(context, task_id)
 
 
 def _execution_id_from_context(context: dict[str, Any]) -> str | None:
@@ -268,14 +295,14 @@ def notify_execution_finished(
     if not exec_id:
         return
     eng = engine_run_id if engine_run_id is not None else _engine_run_id_from_context(context)
-    upstream = task_instance_for(context, work_task_id)
-    ok = upstream is not None and str(getattr(upstream, "state", "") or "") == "success"
+    ok = upstream_succeeded(context, work_task_id)
     if ok:
         payload: dict[str, Any] = {}
         if completed_kwargs:
             payload.update(completed_kwargs)
         report(exec_id, "completed", engine_run_id=eng, **payload)
         return
+    upstream = task_instance_for(context, work_task_id)
     state = getattr(upstream, "state", None) if upstream is not None else None
     report(
         exec_id,

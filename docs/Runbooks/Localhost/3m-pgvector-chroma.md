@@ -78,7 +78,7 @@ http://127.0.0.1:8080/dags — these should be on:
 
 ## 1. Build the 3-month dataset
 
-**Objective:** Filter your CFPB input by `Date received` (last 3 months). Airflow accepts **either a folder or a single file**.
+**Objective:** Filter your CFPB input by `Date received` (last 3 months). Airflow accepts **either a folder or a single file** and processes inputs **sequentially** (one file at a time; watch Airflow task logs for `[n/m]` progress).
 
 **Input (from `CCA_CFPB_SPLIT_SOURCE_PATH` after Sync):**
 

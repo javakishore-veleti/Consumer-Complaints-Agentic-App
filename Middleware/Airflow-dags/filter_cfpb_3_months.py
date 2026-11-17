@@ -1,11 +1,12 @@
 """Derive the CFPB 3-month dataset by Date received (D51 / D63 / D67 / D70 / M10-0023).
 
 Input may be a single .zip/.csv file or a folder of them. Airflow checks which and
-filters each matching file.
+filters each matching file **sequentially** (one file at a time, not parallel).
 """
 
 from __future__ import annotations
 
+import logging
 import os
 from datetime import date, datetime, timezone
 from pathlib import Path
@@ -24,6 +25,8 @@ from ccaa.filter_by_date import (
     list_filter_inputs,
 )
 from ccaa.status_callback import notify_execution_finished, report_execution_status
+
+log = logging.getLogger(__name__)
 
 
 def _execution_id(context) -> str:
@@ -95,24 +98,74 @@ def resolve_and_filter(**context) -> str:
     inputs = list_filter_inputs(source_path)
     as_of = _as_of_date(context, cfg)
     expected = cfg.get("expected_row_count")
+    total = len(inputs)
+
+    log.info(
+        "filter_cfpb_3_months start execution_id=%s dataset_code=%s "
+        "mode=sequential file_count=%s months=%s as_of=%s date_column=%s "
+        "input_path=%s landing=%s",
+        execution_id,
+        code,
+        total,
+        months,
+        as_of.isoformat(),
+        date_column,
+        source_path,
+        landing,
+    )
+    for i, src in enumerate(inputs, start=1):
+        log.info("filter input [%s/%s] %s", i, total, src)
 
     kept_total = 0
     outputs: list[str] = []
-    for src in inputs:
+    for i, src in enumerate(inputs, start=1):
         dest = landing / filtered_output_name(src)
-        result = filter_path_by_date_received(
+        log.info(
+            "filter progress [%s/%s] BEGIN input=%s output=%s",
+            i,
+            total,
             src,
             dest,
-            months=months,
-            as_of=as_of,
-            date_column=date_column,
         )
+        try:
+            result = filter_path_by_date_received(
+                src,
+                dest,
+                months=months,
+                as_of=as_of,
+                date_column=date_column,
+            )
+        except Exception:
+            log.exception(
+                "filter progress [%s/%s] FAILED input=%s intended_output=%s",
+                i,
+                total,
+                src,
+                dest,
+            )
+            raise
         kept_total += result.rows_kept
         outputs.append(f"{result.dest}:{result.rows_kept}")
+        log.info(
+            "filter progress [%s/%s] DONE input=%s output=%s rows_kept=%s",
+            i,
+            total,
+            src,
+            result.dest,
+            result.rows_kept,
+        )
 
     if expected is not None:
         assert_expected_row_count(kept_total, int(expected))
-    return ";".join(outputs)
+    summary = ";".join(outputs)
+    log.info(
+        "filter_cfpb_3_months complete execution_id=%s files=%s rows_kept_total=%s landing=%s",
+        execution_id,
+        total,
+        kept_total,
+        landing,
+    )
+    return summary
 
 
 def notify_finished(**context) -> None:
