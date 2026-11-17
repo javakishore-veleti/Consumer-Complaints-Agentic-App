@@ -152,5 +152,7 @@ def test_chroma_and_redis_compose_exist() -> None:
     redis = (LOCAL / "redis" / "docker-compose.yaml").read_text(encoding="utf-8")
     assert "cca-chroma" in chroma
     assert "chromadb/chroma" in chroma
+    # Host 8100 by default — Middleware API owns :8000 (M10-0001 / #208)
+    assert "CCA_CHROMA_PORT:-8100" in chroma
     assert "cca-redis-stack" in redis
     assert "redis/redis-stack" in redis

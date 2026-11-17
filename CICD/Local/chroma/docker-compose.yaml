@@ -1,8 +1,9 @@
 # Local Chroma for CCAA Storage Layer (D94 / M09). Separate container from Redis/Postgres.
 # Opt-in: npm run local:containers:chroma:start
 #
+# Host port defaults to 8100 so it does not collide with Middleware API :8000 (M10-0001 / #208).
 # Then set:
-#   CCA_CHROMA_URL=http://127.0.0.1:8000
+#   CCA_CHROMA_URL=http://127.0.0.1:8100
 name: cca-chroma
 
 services:
@@ -10,7 +11,7 @@ services:
     image: chromadb/chroma:0.5.23
     container_name: cca-chroma
     ports:
-      - "127.0.0.1:${CCA_CHROMA_PORT:-8000}:8000"
+      - "127.0.0.1:${CCA_CHROMA_PORT:-8100}:8000"
     volumes:
       - cca-chroma-data:/chroma/chroma
     environment:
