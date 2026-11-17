@@ -1,6 +1,6 @@
 # Localhost runbook: Consumer Complaint Datasets (3 months) → search indexes
 
-**Goal:** on **this machine only**, land **Consumer Complaint Datasets** for a **3-month** window, load them into the complaint store, then build **Postgres (pgvector)** and **Chroma** search indexes — each Admin step finishes in Airflow as **`completed`**.
+**Goal (localhost only):** On your **local developer workstation** (not GitHub, not cloud), land **Consumer Complaint Datasets** for a **3-month** window, load them into the complaint store, then build **Postgres (pgvector)** and **Chroma** search indexes — each Admin step finishes in Airflow as **`completed`**.
 
 Do these steps **in order**. Wait until each run shows **`completed`** before starting the next.
 
@@ -186,7 +186,7 @@ Chroma HTTP: http://127.0.0.1:8100
 
 | # | Functional outcome | How you know |
 |---|---|---|
-| 1 | Full Consumer Complaint Datasets export is on this machine | Admin MIO **Customer complaints all 2026** last run for land/download is **`completed`** |
+| 1 | Full Consumer Complaint Datasets export is on **localhost** (your workstation disk) | Admin MIO **Customer complaints all 2026** last run for land/download is **`completed`** |
 | 2 | **Customer complaints 3 months 2026** dataset exists as a derived file | Admin MIO **Customer complaints 3 months 2026** prepare step is **`completed`**; `complaints_3_months.csv.zip` under `LOCAL_DATA_PATH_CFPB` |
 | 3 | Those complaints are **published as documents** in the complaint store | Ingest step **`completed`**; Mongo has complaint docs (index steps have something to read) |
 | 4 | Complaints are **searchable in Postgres vector store** | `index_cfpb_pgvector` **`completed`**; `complaint_vectors` row count &gt; 0 |

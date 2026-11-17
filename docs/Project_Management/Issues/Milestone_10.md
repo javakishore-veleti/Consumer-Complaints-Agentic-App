@@ -18,6 +18,7 @@
 | 8 | #215 | M10-0008 | Story | Runbook: functional ingest heading + why Mongo |
 | 9 | #216 | M10-0009 | Story | Runbook: functional index headings + local embedding how-to |
 | 10 | #217 | M10-0010 | Story | Runbook: functional Definition of Done checklist |
+| 11 | #218 | M10-0011 | Story | Runbook: say localhost not “this machine” (GitHub-readable) |
 
 ## 2. Superpowers workflow
 
@@ -36,6 +37,7 @@
 | #215 | 1–4 | ingest why Mongo / what happens | Done | 2026-11-16 |
 | #216 | 1–4 | index headings + `hash_embedding` how/where | Done | 2026-11-16 |
 | #217 | 1–4 | functional Definition of Done | Done | 2026-11-16 |
+| #218 | 1–4 | localhost wording (not “this machine”) | Done | 2026-11-16 |
 
 ## 3. Notes
 
