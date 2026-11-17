@@ -26,6 +26,7 @@
 | 16 | #223 | M10-0016 | Story | Runbook 3m: reframe full download as filter prerequisite only |
 | 17 | #224 | M10-0017 | Story | Runbook 3m: stage split folder, not monolith zip + filter |
 | 18 | #225 | M10-0018 | Story | Runbook 0.1: stop containers before start |
+| 19 | #226 | M10-0019 | Story | Fix middleware-ci: unpaused DAG test + upsert parse signature |
 
 ## 2. Superpowers workflow
 
@@ -56,6 +57,7 @@
 | #223 | 1–4 | §1 = prerequisite source zip; Imports accordion path (no MIO nav) | Done | 2026-11-17 09:28 |
 | #224 | 1–4 | split-folder stage path + widen Airflow datasets mount | Done | 2026-11-17 09:31 |
 | #225 | 1–4 | §0.1 stop then start (npm scripts) | Done | 2026-11-17 09:33 |
+| #226 | 1–4 | CI: compose-only unpaused assert; D37 upsert parse inline | Done | 2026-11-17 09:37 |
 
 ## 3. Notes
 

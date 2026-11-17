@@ -47,14 +47,14 @@ def test_compose_mounts_localhost_cfpb_imports_path():
 
 
 def test_compose_creates_dags_unpaused_by_default():
-    """M10-0014 / #221: local DX — Admin can start workflows without a manual unpause."""
+    """M10-0014 / #221: local DX — Admin can start workflows without a manual unpause.
+
+    Assert compose env only: `airflow.cfg` under CICD/Local/airflow/config is gitignored and
+    absent on CI; AIRFLOW__* env overrides cfg at runtime.
+    """
     text = COMPOSE.read_text(encoding="utf-8")
     assert "AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION" in text
     assert any(
         "AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION" in line and "false" in line.lower()
         for line in text.splitlines()
     )
-    cfg = (REPO_ROOT / "CICD" / "Local" / "airflow" / "config" / "airflow.cfg").read_text(
-        encoding="utf-8"
-    )
-    assert "dags_are_paused_at_creation = False" in cfg

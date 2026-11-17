@@ -20,29 +20,25 @@ logger = logging.getLogger(__name__)
 _OPTIONAL_MARKER = "# optional"
 
 
-def _parse_upsert_names(text: str) -> list[tuple[str, bool]]:
-    """Return (name, required) pairs. Names after `# optional` are not required."""
-    optional = False
-    out: list[tuple[str, bool]] = []
-    for line in text.splitlines():
-        raw = line.strip()
-        if not raw:
-            continue
-        if raw.lower().startswith(_OPTIONAL_MARKER):
-            optional = True
-            continue
-        if raw.startswith("#"):
-            continue
-        out.append((raw, not optional))
-    return out
-
-
 class AirflowUpsertSecretsServiceImpl(AirflowUpsertSecretsService):
     def upsert(self, ctx: AirflowUpsertSecretsCtx) -> int:
         ctx.resp.results = []
         path = get_settings().airflow_variables_upsert_path
         try:
-            entries = _parse_upsert_names(path.read_text(encoding="utf-8"))
+            # Parse list file here (D37: no helper with bare str/Path). Names after `# optional`
+            # are not required (M10-0012 / #219).
+            optional = False
+            entries: list[tuple[str, bool]] = []
+            for line in path.read_text(encoding="utf-8").splitlines():
+                raw = line.strip()
+                if not raw:
+                    continue
+                if raw.lower().startswith(_OPTIONAL_MARKER):
+                    optional = True
+                    continue
+                if raw.startswith("#"):
+                    continue
+                entries.append((raw, not optional))
         except OSError:
             logger.warning("airflow variables upsert failed: list file unreadable")
             ctx.resp.code = FAILURE
