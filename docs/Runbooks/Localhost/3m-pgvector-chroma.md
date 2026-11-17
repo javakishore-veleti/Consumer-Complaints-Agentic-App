@@ -73,7 +73,7 @@ In Airflow, unpause if paused:
 
 ## 1. Consumer Complaint Datasets — land the full export
 
-**Objective:** Download the full Consumer Complaint Datasets package locally (required before deriving the 3-month slice).
+**Objective:** Download the full Consumer Complaint Datasets package locally (required before preparing **Customer complaints 3 months 2026**).
 
 Admin → **DataSets → Imports** → MIO **Customer complaints all 2026**
 
@@ -83,23 +83,23 @@ Admin → **DataSets → Imports** → MIO **Customer complaints all 2026**
 
 ---
 
-## 2. Consumer Complaint Datasets — derive the 3-month slice
+## 2. Consumer Complaint Datasets — Customer complaints 3 months 2026
 
-**Objective:** Produce a **3-month** Consumer Complaint Datasets zip from the full export.
+**Objective:** Prepare the Managed Information Object **Customer complaints 3 months 2026** from the full export (same name you see in Admin).
 
-Admin → same page → MIO **Customer complaints 3 months 2026**
+Admin → **DataSets → Imports** → MIO **Customer complaints 3 months 2026**
 
 1. Start workflow **`filter_cfpb_3_months`**
 2. Wait until **`completed`**
-3. Result file (under `LOCAL_DATA_PATH_CFPB`): `complaints_3_months.csv.zip`
+3. Landing file (under `LOCAL_DATA_PATH_CFPB`): `complaints_3_months.csv.zip`
 
 ---
 
-## 3. Consumer Complaint Datasets — load 3 months into the complaint store
+## 3. Consumer Complaint Datasets — load Customer complaints 3 months 2026 into the complaint store
 
-**Objective:** Load the **3-month** Consumer Complaint Datasets into Mongo so indexing can run.
+**Objective:** Load **Customer complaints 3 months 2026** into Mongo so search indexes can be built.
 
-Seeded `ingest_cfpb_all` looks for `complaints_part_*.csv.zip`. For **3 months**, point it at the filter output once:
+Seeded `ingest_cfpb_all` looks for `complaints_part_*.csv.zip`. For this MIO’s file, point ingest at the filter output once:
 
 Admin → MIO **Customer complaints all 2026** → workflow **`ingest_cfpb_all`**  
 (or via API: set that workflow’s config to)
@@ -161,8 +161,8 @@ Chroma UI/API: http://127.0.0.1:8100
 | Functional step | Workflow / DAG | Where to confirm |
 |---|---|---|
 | Land full export | `download_cfpb_all` | Admin All MIO + Airflow |
-| Derive 3-month slice | `filter_cfpb_3_months` | Admin 3 months MIO + Airflow |
-| Load into complaint store | `ingest_cfpb_all` (3m filename) | Admin All MIO + Airflow |
+| Customer complaints 3 months 2026 | `filter_cfpb_3_months` | Admin 3 months MIO + Airflow |
+| Load Customer complaints 3 months 2026 | `ingest_cfpb_all` (3m filename) | Admin All MIO + Airflow |
 | Postgres (pgvector) index | `index_cfpb_pgvector` | Admin All MIO + Airflow + Postgres |
 | Chroma index | `index_cfpb_chroma` | Admin All MIO + Airflow + `:8100` |
 
