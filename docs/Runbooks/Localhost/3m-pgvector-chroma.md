@@ -26,7 +26,7 @@ Confirm `.env` exists under `Middleware/ConsumerComplaintsHandsOn/` with at leas
 | `CCA_API_URL` | `http://host.docker.internal:8000` |
 | `CCA_AIRFLOW_API_PASSWORD` | `airflow` |
 | `CCA_MONGO_COMPLAINTS_URL` | `mongodb://root:changeme-local@host.docker.internal:27017/consumer_comp_db?authSource=admin` |
-| `LOCAL_DATA_PATH_CFPB` | e.g. `/opt/airflow/logs/cfpb` |
+| `LOCAL_DATA_PATH_CFPB` | `$HOME/runtime_data/apps/datasets/CCA/complains_datasets/imports` (absolute path in `.env`) |
 | `CCA_PGVECTOR_URL` | `postgresql://postgres:postgres@host.docker.internal:5432/cca` |
 | `CCA_CHROMA_URL` | `http://host.docker.internal:8100` *(Airflow workers)* |
 

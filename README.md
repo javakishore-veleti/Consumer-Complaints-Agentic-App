@@ -117,7 +117,7 @@ Defaults from `CICD/Local/*/docker-compose.yaml` and portal/API scripts. **Local
 | `CCA_API_URL` | `http://host.docker.internal:8000` | Base URL workers use to reach Middleware (Docker Desktop) |
 | `CCA_AIRFLOW_API_PASSWORD` | `airflow` | Matches Airflow WWW user (with username `airflow`) |
 | `CCA_VECTOR_STORE_PATH` | e.g. absolute path under Airflow data | JSONL vector index (`index_cfpb_all`) |
-| `LOCAL_DATA_PATH_CFPB` | e.g. `/opt/airflow/data/cfpb` | Where CFPB zips land inside the Airflow worker |
+| `LOCAL_DATA_PATH_CFPB` | `$HOME/runtime_data/apps/datasets/CCA/complains_datasets/imports` | Where CFPB zips land (localhost). Use absolute `$HOME/...` in `.env`; Airflow compose bind-mounts the same path (#212) |
 | `CCA_CFPB_SPLIT_SOURCE_PATH` | machine-local path to `complaints_part_*.csv.zip` | Optional split-parts staging (D91) |
 
 After containers + `.env`: `npm run local:api:migrate` (SQLite/Postgres), sync Airflow Variables from Admin **Operations → Sync secrets**, then open Admin Imports.

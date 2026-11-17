@@ -30,3 +30,12 @@ def test_compose_sets_short_local_dag_processor_refresh_interval():
         and "10" in line
         for line in text.splitlines()
     )
+
+
+def test_compose_mounts_localhost_cfpb_imports_path():
+    """M10-0005 / #212: host CCA imports dir bind-mounted for LOCAL_DATA_PATH_CFPB."""
+    text = COMPOSE.read_text(encoding="utf-8")
+    marker = "runtime_data/apps/datasets/CCA/complains_datasets/imports"
+    assert marker in text
+    # Same host path on both sides of the bind (workers see LOCAL_DATA_PATH_CFPB).
+    assert any(marker in line and line.lstrip().startswith("-") and ":" in line for line in text.splitlines())
