@@ -1,22 +1,28 @@
 ---
-description: Hard gate — no product coding without an open GitHub story on a GitHub Milestone; no vibe coding
+description: Hard gate — no product coding without an open GitHub story on a GitHub Milestone; no vibe coding; no exceptions
 alwaysApply: true
 ---
 
 # No coding without a GitHub issue (hard gate)
 
+**STRICT. NO EXCEPTIONS.** Not for “quick fixes”, “the user approved the idea”, “docs-adjacent product tweaks”, “I’ll open the issue myself and start”, “keep the WIP”, or “Superpowers is overkill”.
+
 ## Before any product code change
 
-STOP and do not edit application code (`Middleware/`, `Portals/`, `CICD/` runtime, DAGs, schemas, tests for features) unless **all** of these are true:
+STOP and do not edit application code (`Middleware/`, `Portals/`, `CICD/` runtime, Airflow DAGs under `Middleware/Airflow-dags/`, schemas, migrations, feature tests) unless **all** of these are true:
 
 1. There is an **open** GitHub issue whose title contains `[Story]`.
 2. That issue is assigned to a **real GitHub Milestone** (`gh issue view N --json milestone` → `milestone` is not null). Markdown `docs/Project_Management/Issues/Milestone_*.md` alone is **not** enough.
-3. The user named that issue (e.g. `/ccaa-story-start N`, “story #N”, or an in-progress story already started in this chat).
-4. Work follows the **Superpowers** row for that story in the matching Milestone markdown (brainstorm → worktree → plan → TDD → …). Do **not** vibe-code or mark Superpowers steps Done without running them.
+3. The **user** named that issue to start work (e.g. `/ccaa-story-start N`, “story #N”, or an in-progress story already started via that skill in this chat). **Agent-created issues do not authorize coding.** Creating or editing a story issue is board work only until the user runs story-start.
+4. `/ccaa-story-start N` (or equivalent skill steps) has **completed** for that issue in this chat.
+5. Work follows the **Superpowers** row for that story in the matching Milestone markdown (brainstorm → worktree → plan → TDD → …). Do **not** vibe-code or mark Superpowers steps Done without running them.
+6. Product edits happen in the story **worktree/branch**, not by skipping Superpowers on `main`.
 
 ## Fail closed
 
-If any check fails: **do not code**. Say what is missing (no issue / closed / no Milestone / wrong type / Superpowers step not done). Fix the board first.
+If any check fails: **do not code**. Say what is missing (no issue / closed / no Milestone / wrong type / user did not story-start / Superpowers step not done). Fix the board first.
+
+If product files were already edited in violation of this gate: **stop immediately**, report the violation, and **do not continue**. Offer to discard the WIP (`git checkout -- …` / delete untracked product files) unless the user explicitly chooses to story-start the matching issue and then continue under Superpowers.
 
 ## Allowed without a story issue
 
@@ -24,8 +30,11 @@ If any check fails: **do not code**. Say what is missing (no issue / closed / no
 - Creating/editing GitHub issues and `docs/Project_Management/` / `docs/PRODUCT_FEATURES.md` board docs
 - Creating/editing `.cursor/rules/` and `.cursor/skills/` process gates
 - Answering questions with no repo edits
+- Local operator help that does **not** edit product code (e.g. Sync secrets guidance, reading logs). Do **not** change DAGs, Middleware, Portals, or migrations under this bullet.
 
-## Never
+## Never (invalid excuses)
 
-- Implement on `main` by skipping Superpowers because the user said “go ahead”
-- Treat labels or epic keys as a substitute for a GitHub Milestone assignment
+- Implement on `main` by skipping Superpowers because the user said “go ahead” / “approved” / “don’t make it complex”
+- Create a `[Story]` issue and then edit product code in the same turn without `/ccaa-story-start N`
+- Treat labels, epic keys, closed milestones, or “related to M11” as a substitute for an **open** story + Milestone + story-start
+- “Just this once” / “hotfix” / “runbook already said X so change the DAG”

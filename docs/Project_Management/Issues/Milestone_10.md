@@ -29,6 +29,8 @@
 | 19 | #226 | M10-0019 | Story | Fix middleware-ci: unpaused DAG test + upsert parse signature |
 | 20 | #227 | M10-0020 | Story | Runbook 0.1: copy-paste safe commands (no shell comments) |
 | 21 | #228 | M10-0021 | Story | Default CCA_CFPB_SPLIT_SOURCE_PATH to Downloads/temp/complaints_split |
+| 22 | #237 | M10-0022 | Story | Rewrite 3m runbook around Customer complaints 3 months 2026 |
+| 23 | #238 | M10-0023 | Story | filter_cfpb_3_months: folder or single file input |
 
 ## 2. Superpowers workflow
 
@@ -62,6 +64,14 @@
 | #226 | 1–4 | CI: compose-only unpaused assert; D37 upsert parse inline | Done | 2026-11-17 09:37 |
 | #227 | 1–4 | §0.1 npm lines without trailing # / parentheses | Done | 2026-11-17 09:40 |
 | #228 | 1–4 | default split path Downloads/temp/complaints_split + mount + re-Sync docs | Done | 2026-11-17 09:44 |
+| #237 | 1–4 | 3m runbook centered on Customer complaints 3 months 2026 | Done | 2026-11-17 13:20 |
+| #238 | 1 | `/ccaa-story-start 238` | Done | 2026-11-17 14:41 |
+| #238 | 2 | brainstorming / design (folder or file) | In progress | 2026-11-17 14:41 |
+| #238 | 3 | `/using-git-worktrees` | Planned | - |
+| #238 | 4 | `/writing-plans` | Planned | - |
+| #238 | 5 | TDD + implement filter folder-or-file | Planned | - |
+| #238 | 6 | `/ccaa-commit-push` after tasks | Planned | - |
+| #238 | 7 | `/ccaa-story-complete 238` | Planned | - |
 
 ## 3. Notes
 
