@@ -66,8 +66,8 @@
 | #228 | 1–4 | default split path Downloads/temp/complaints_split + mount + re-Sync docs | Done | 2026-11-17 09:44 |
 | #237 | 1–4 | 3m runbook centered on Customer complaints 3 months 2026 | Done | 2026-11-17 13:20 |
 | #238 | 1 | `/ccaa-story-start 238` | Done | 2026-11-17 14:41 |
-| #238 | 2 | brainstorming / design (folder or file) | In progress | 2026-11-17 14:41 |
-| #238 | 3 | `/using-git-worktrees` | Planned | - |
+| #238 | 2 | brainstorming / design (folder or file) | Done | 2026-11-17 14:44 |
+| #238 | 3 | `/using-git-worktrees` | In progress | 2026-11-17 14:44 |
 | #238 | 4 | `/writing-plans` | Planned | - |
 | #238 | 5 | TDD + implement filter folder-or-file | Planned | - |
 | #238 | 6 | `/ccaa-commit-push` after tasks | Planned | - |
