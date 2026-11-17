@@ -24,6 +24,7 @@
 | 14 | #221 | M10-0014 | Story | Local Airflow: DAGs unpaused by default |
 | 15 | #222 | M10-0015 | Story | Runbook: drop GitHub issue jargon for operators |
 | 16 | #223 | M10-0016 | Story | Runbook 3m: reframe full download as filter prerequisite only |
+| 17 | #224 | M10-0017 | Story | Runbook 3m: stage split folder, not monolith zip + filter |
 
 ## 2. Superpowers workflow
 
@@ -52,6 +53,7 @@
 | #221 | 1–4 | `DAGS_ARE_PAUSED_AT_CREATION=false` + runbook §0.5 | Done | 2026-11-16 20:48 |
 | #222 | 1–4 | runbook plain language + npm stop/start (no `#221` / raw docker) | Done | 2026-11-17 09:22 |
 | #223 | 1–4 | §1 = prerequisite source zip; Imports accordion path (no MIO nav) | Done | 2026-11-17 09:28 |
+| #224 | 1–4 | split-folder stage path + widen Airflow datasets mount | Done | 2026-11-17 09:31 |
 
 ## 3. Notes
 
@@ -62,3 +64,4 @@
 - Sync secrets (D96 / #219): `# optional` in upsert list → empty env is `skipped` (not 422); `CCA_DB_URL` + `CCA_CFPB_SPLIT_SOURCE_PATH` optional on localhost.
 - Runbook §0.4 (#220): check http://127.0.0.1:8080/variables + redacted screenshot asset.
 - Local Airflow (#221): `DAGS_ARE_PAUSED_AT_CREATION=false` — DAGs enabled on fresh stack.
+- 3m runbook (#224): primary path is split-folder stage via `CCA_CFPB_SPLIT_SOURCE_PATH` (not monolith + filter); Airflow mounts whole `complains_datasets` tree.

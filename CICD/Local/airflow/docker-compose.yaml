@@ -47,8 +47,9 @@ x-airflow-common:
     - ./logs:/opt/airflow/logs
     - ./config:/opt/airflow/config
     - ./plugins:/opt/airflow/plugins
-    # M10-0005 / #212: LOCAL_DATA_PATH_CFPB host landing (same path inside the worker).
-    - ${HOME}/runtime_data/apps/datasets/CCA/complains_datasets/imports:${HOME}/runtime_data/apps/datasets/CCA/complains_datasets/imports
+    # M10-0005 / #212 + M10-0017 / #224: whole CCA complains_datasets tree (imports landing +
+    # split source folder for CCA_CFPB_SPLIT_SOURCE_PATH) — same paths inside the worker.
+    - ${HOME}/runtime_data/apps/datasets/CCA/complains_datasets:${HOME}/runtime_data/apps/datasets/CCA/complains_datasets
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
