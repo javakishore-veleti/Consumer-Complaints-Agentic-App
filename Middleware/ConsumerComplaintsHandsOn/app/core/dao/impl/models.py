@@ -233,3 +233,31 @@ class MioIngestLogModel(Base):
     batch_count: Mapped[int | None] = mapped_column(Integer)
     # An opaque marker of how far an incremental ingest got. No code reads inside it.
     increment_marker: Mapped[str | None] = mapped_column(String(255))
+
+
+class DatasetImportRunModel(Base):
+    """M11 import registry: one row per staged landing run folder."""
+
+    __tablename__ = "dataset_import_runs"
+    __table_args__ = (
+        Index("ix_dataset_import_runs_status", "status"),
+        Index("ix_dataset_import_runs_run_folder", "run_folder_name", unique=True),
+        {"schema": SCHEMA_ADMIN},
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    run_folder_name: Mapped[str] = mapped_column(String(32), nullable=False)
+    location_kind: Mapped[str] = mapped_column(String(32), nullable=False)
+    location_ref: Mapped[str] = mapped_column(Text, nullable=False)
+    source_snapshot_start: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    source_snapshot_end: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    workflow_started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    workflow_completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    ingested_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    mio_id: Mapped[str | None] = mapped_column(String(36))
+    execution_id: Mapped[str | None] = mapped_column(String(36))
+    part_count: Mapped[int | None] = mapped_column(Integer)
+    message: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)

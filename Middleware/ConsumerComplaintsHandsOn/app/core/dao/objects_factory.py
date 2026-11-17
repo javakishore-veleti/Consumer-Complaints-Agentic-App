@@ -11,11 +11,12 @@ from app.core.dao.app_endpoint_dao import AppEndpointDao
 from app.core.dao.app_wf_dao import AppWfDao
 from app.core.dao.app_wf_exec_log_dao import AppWfExecLogDao
 from app.core.dao.dataset_dao import DatasetDao
+from app.core.dao.dataset_import_run_dao import DatasetImportRunDao
 from app.core.dao.dataset_location_dao import DatasetLocationDao
+from app.core.dao.mio_acl_dao import MioAclDao
 from app.core.dao.mio_dao import MioDao
 from app.core.dao.mio_dataset_dao import MioDatasetDao
 from app.core.dao.mio_ingest_log_dao import MioIngestLogDao
-from app.core.dao.mio_acl_dao import MioAclDao
 from app.core.dao.mio_workflow_dao import MioWorkflowDao
 from app.core.dao.transaction_dao import TransactionDao
 
@@ -24,6 +25,7 @@ _DAO_INTERFACES = (
     AppWfExecLogDao,
     AppEndpointDao,
     DatasetDao,
+    DatasetImportRunDao,
     DatasetLocationDao,
     MioDao,
     MioDatasetDao,
@@ -50,22 +52,40 @@ class DaoObjectsFactory:
             # D75/D79: DaoObjectsFactory chooses the impl from Settings.operational_store.
             store = get_settings().operational_store
             if store == "mongodb":
-                from app.core.dao.impl.mongo.mongo_app_endpoint_dao import MongoAppEndpointDao
+                from app.core.dao.impl.mongo.mongo_app_endpoint_dao import (
+                    MongoAppEndpointDao,
+                )
                 from app.core.dao.impl.mongo.mongo_app_wf_dao import MongoAppWfDao
-                from app.core.dao.impl.mongo.mongo_app_wf_exec_log_dao import MongoAppWfExecLogDao
+                from app.core.dao.impl.mongo.mongo_app_wf_exec_log_dao import (
+                    MongoAppWfExecLogDao,
+                )
                 from app.core.dao.impl.mongo.mongo_dataset_dao import MongoDatasetDao
-                from app.core.dao.impl.mongo.mongo_dataset_location_dao import MongoDatasetLocationDao
-                from app.core.dao.impl.mongo.mongo_mio_dao import MongoMioDao
-                from app.core.dao.impl.mongo.mongo_mio_dataset_dao import MongoMioDatasetDao
-                from app.core.dao.impl.mongo.mongo_mio_ingest_log_dao import MongoMioIngestLogDao
+                from app.core.dao.impl.mongo.mongo_dataset_import_run_dao import (
+                    MongoDatasetImportRunDao,
+                )
+                from app.core.dao.impl.mongo.mongo_dataset_location_dao import (
+                    MongoDatasetLocationDao,
+                )
                 from app.core.dao.impl.mongo.mongo_mio_acl_dao import MongoMioAclDao
-                from app.core.dao.impl.mongo.mongo_mio_workflow_dao import MongoMioWorkflowDao
-                from app.core.dao.impl.mongo.mongo_transaction_dao import MongoTransactionDao
+                from app.core.dao.impl.mongo.mongo_mio_dao import MongoMioDao
+                from app.core.dao.impl.mongo.mongo_mio_dataset_dao import (
+                    MongoMioDatasetDao,
+                )
+                from app.core.dao.impl.mongo.mongo_mio_ingest_log_dao import (
+                    MongoMioIngestLogDao,
+                )
+                from app.core.dao.impl.mongo.mongo_mio_workflow_dao import (
+                    MongoMioWorkflowDao,
+                )
+                from app.core.dao.impl.mongo.mongo_transaction_dao import (
+                    MongoTransactionDao,
+                )
 
                 bean_registry.register(AppWfDao, MongoAppWfDao())
                 bean_registry.register(AppWfExecLogDao, MongoAppWfExecLogDao())
                 bean_registry.register(AppEndpointDao, MongoAppEndpointDao())
                 bean_registry.register(DatasetDao, MongoDatasetDao())
+                bean_registry.register(DatasetImportRunDao, MongoDatasetImportRunDao())
                 bean_registry.register(DatasetLocationDao, MongoDatasetLocationDao())
                 bean_registry.register(MioDao, MongoMioDao())
                 bean_registry.register(MioDatasetDao, MongoMioDatasetDao())
@@ -74,28 +94,42 @@ class DaoObjectsFactory:
                 bean_registry.register(MioAclDao, MongoMioAclDao())
                 bean_registry.register(TransactionDao, MongoTransactionDao())
             else:
-                from app.core.dao.impl.sqlalchemy_app_endpoint_dao import SqlAlchemyAppEndpointDao
+                from app.core.dao.impl.sqlalchemy_app_endpoint_dao import (
+                    SqlAlchemyAppEndpointDao,
+                )
                 from app.core.dao.impl.sqlalchemy_app_wf_dao import SqlAlchemyAppWfDao
                 from app.core.dao.impl.sqlalchemy_app_wf_exec_log_dao import (
                     SqlAlchemyAppWfExecLogDao,
                 )
-                from app.core.dao.impl.sqlalchemy_dataset_dao import SqlAlchemyDatasetDao
+                from app.core.dao.impl.sqlalchemy_dataset_dao import (
+                    SqlAlchemyDatasetDao,
+                )
+                from app.core.dao.impl.sqlalchemy_dataset_import_run_dao import (
+                    SqlAlchemyDatasetImportRunDao,
+                )
                 from app.core.dao.impl.sqlalchemy_dataset_location_dao import (
                     SqlAlchemyDatasetLocationDao,
                 )
+                from app.core.dao.impl.sqlalchemy_mio_acl_dao import SqlAlchemyMioAclDao
                 from app.core.dao.impl.sqlalchemy_mio_dao import SqlAlchemyMioDao
-                from app.core.dao.impl.sqlalchemy_mio_dataset_dao import SqlAlchemyMioDatasetDao
+                from app.core.dao.impl.sqlalchemy_mio_dataset_dao import (
+                    SqlAlchemyMioDatasetDao,
+                )
                 from app.core.dao.impl.sqlalchemy_mio_ingest_log_dao import (
                     SqlAlchemyMioIngestLogDao,
                 )
-                from app.core.dao.impl.sqlalchemy_mio_acl_dao import SqlAlchemyMioAclDao
-                from app.core.dao.impl.sqlalchemy_mio_workflow_dao import SqlAlchemyMioWorkflowDao
-                from app.core.dao.impl.sqlalchemy_transaction_dao import SqlAlchemyTransactionDao
+                from app.core.dao.impl.sqlalchemy_mio_workflow_dao import (
+                    SqlAlchemyMioWorkflowDao,
+                )
+                from app.core.dao.impl.sqlalchemy_transaction_dao import (
+                    SqlAlchemyTransactionDao,
+                )
 
                 bean_registry.register(AppWfDao, SqlAlchemyAppWfDao())
                 bean_registry.register(AppWfExecLogDao, SqlAlchemyAppWfExecLogDao())
                 bean_registry.register(AppEndpointDao, SqlAlchemyAppEndpointDao())
                 bean_registry.register(DatasetDao, SqlAlchemyDatasetDao())
+                bean_registry.register(DatasetImportRunDao, SqlAlchemyDatasetImportRunDao())
                 bean_registry.register(DatasetLocationDao, SqlAlchemyDatasetLocationDao())
                 bean_registry.register(MioDao, SqlAlchemyMioDao())
                 bean_registry.register(MioDatasetDao, SqlAlchemyMioDatasetDao())
@@ -132,6 +166,11 @@ class DaoObjectsFactory:
     def get_dataset_location_dao() -> DatasetLocationDao:
         DaoObjectsFactory.init()
         return bean_registry.get_one(DatasetLocationDao)  # type: ignore[return-value]
+
+    @staticmethod
+    def get_dataset_import_run_dao() -> DatasetImportRunDao:
+        DaoObjectsFactory.init()
+        return bean_registry.get_one(DatasetImportRunDao)  # type: ignore[return-value]
 
     @staticmethod
     def get_app_endpoint_dao() -> AppEndpointDao:

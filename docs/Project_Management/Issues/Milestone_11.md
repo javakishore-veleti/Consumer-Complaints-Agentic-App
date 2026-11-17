@@ -2,7 +2,7 @@
 
 **Scope:** UTC timestamped import landing folders, import registry, selective Mongo ingest UI, wrapper + core Airflow DAGs. Local path first; location abstraction for later S3/etc.
 
-**Status: planned.** Spec: `docs/Superpowers/specs/2026-11-17-import-runs-selective-mongo-ingest-design.md`
+**Status: in progress.** Spec: `docs/Superpowers/specs/2026-11-17-import-runs-selective-mongo-ingest-design.md`. Plan: `docs/superpowers/plans/2026-11-17-import-runs-selective-mongo-ingest-plan.md`.
 
 ## 1. Build order
 
@@ -17,14 +17,16 @@
 
 ## 2. Superpowers workflow
 
-| Issue | Step | Command | Status | Completed |
-|---|---|---|---|---|
-| #229 | — | written spec pending user review | Planned | — |
-| #230 | 1 | `/ccaa-story-start 230` | Planned | — |
-| #231 | 1 | `/ccaa-story-start 231` | Planned | — |
-| #232 | 1 | `/ccaa-story-start 232` | Planned | — |
-| #233 | 1 | `/ccaa-story-start 233` | Planned | — |
-| #234 | 1 | `/ccaa-story-start 234` | Planned | — |
+| Issue | Step | Command | Status | Started | Completed |
+|---|---|---|---|---|---|
+| #229 | — | written spec + plan | Done | 2026-11-17 10:00 | 2026-11-17 10:15 |
+| #230 | 1 | `/ccaa-story-start 230` | Done | 2026-11-17 10:15 | 2026-11-17 10:16 |
+| #230 | 2–11 | registry migration + DAO + tests | Done | 2026-11-17 10:16 | 2026-11-17 10:20 |
+| #230 | 12 | `/ccaa-story-complete 230` | In progress | 2026-11-17 10:20 | - |
+| #231 | 1 | `/ccaa-story-start 231` | Planned | - | - |
+| #232 | 1 | `/ccaa-story-start 232` | Planned | - | - |
+| #233 | 1 | `/ccaa-story-start 233` | Planned | - | - |
+| #234 | 1 | `/ccaa-story-start 234` | Planned | - | - |
 
 ## 3. Notes
 
