@@ -14,6 +14,7 @@
 | 4 | #232 | M11-0004 | Story | Admin: list imports, ingest checkboxes, sequential/parallel |
 | 5 | #233 | M11-0005 | Story | Wrapper + core Mongo ingest DAGs and registry callbacks |
 | 6 | #234 | M11-0006 | Story | Runbook: timestamped imports + selective Mongo ingest |
+| 7 | #235 | M11-0007 | Story | Fix middleware-ci: ctx-only signatures + openapi |
 
 ## 2. Superpowers workflow
 
@@ -25,6 +26,7 @@
 | #232 | 1–12 | Admin ingest selection UI + start conf | Done | 2026-11-17 10:25 | 2026-11-17 10:30 |
 | #233 | 1–12 | wrapper + core DAGs + seed | Done | 2026-11-17 10:25 | 2026-11-17 10:30 |
 | #234 | 1–12 | runbook update | Done | 2026-11-17 10:25 | 2026-11-17 10:30 |
+| #235 | 1–12 | CI fix ctx-only + openapi | Done | 2026-11-17 11:00 | 2026-11-17 11:02 |
 
 ## 3. Notes
 

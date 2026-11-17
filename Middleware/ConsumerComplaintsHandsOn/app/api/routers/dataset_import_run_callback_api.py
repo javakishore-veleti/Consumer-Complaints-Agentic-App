@@ -10,29 +10,10 @@ from app.api.models.dataset_import_run_models import (
     DatasetImportRunOut,
     DatasetImportRunUpdateReq,
 )
-from app.core.common.dtos.dataset_import_run_dtos import (
-    DatasetImportRunCtx,
-    DatasetImportRunReq,
-)
+from app.core.common.dtos.dataset_import_run_dtos import DatasetImportRunCtx, DatasetImportRunReq
 from app.core.common.return_codes import CONFLICT, INVALID_INPUT, NOT_FOUND, SUCCESS
 from app.core.common.singleton import SingletonMeta
 from app.core.facades.objects_factory import FacadesObjectsFactory
-
-
-def _out(record) -> DatasetImportRunOut:
-    return DatasetImportRunOut.model_validate(record, from_attributes=True)
-
-
-def _check(code: int) -> None:
-    if code == SUCCESS:
-        return
-    if code == NOT_FOUND:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "import run not found")
-    if code == CONFLICT:
-        raise HTTPException(status.HTTP_409_CONFLICT, "import run conflict")
-    if code == INVALID_INPUT:
-        raise HTTPException(422, "invalid request")
-    raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "request failed")
 
 
 class DatasetImportRunCallbackApi(metaclass=SingletonMeta):
@@ -71,9 +52,9 @@ class DatasetImportRunCallbackApi(metaclass=SingletonMeta):
                 message=body.message,
             )
         )
-        code = FacadesObjectsFactory.get_dataset_import_run_facade().create(ctx)
-        _check(code)
-        return _out(ctx.resp.records[0])
+        ctx.resp.code = FacadesObjectsFactory.get_dataset_import_run_facade().create(ctx)
+        self._check(ctx)
+        return DatasetImportRunOut.model_validate(ctx.resp.records[0], from_attributes=True)
 
     def update(self, req: Annotated[DatasetImportRunUpdateReq, Depends()]) -> DatasetImportRunOut:
         body = req.body
@@ -88,9 +69,22 @@ class DatasetImportRunCallbackApi(metaclass=SingletonMeta):
                 execution_id=body.execution_id,
             )
         )
-        code = FacadesObjectsFactory.get_dataset_import_run_facade().update(ctx)
-        _check(code)
-        return _out(ctx.resp.records[0])
+        ctx.resp.code = FacadesObjectsFactory.get_dataset_import_run_facade().update(ctx)
+        self._check(ctx)
+        return DatasetImportRunOut.model_validate(ctx.resp.records[0], from_attributes=True)
+
+    @staticmethod
+    def _check(ctx: DatasetImportRunCtx) -> None:
+        code = ctx.resp.code
+        if code == SUCCESS:
+            return
+        if code == NOT_FOUND:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "import run not found")
+        if code == CONFLICT:
+            raise HTTPException(status.HTTP_409_CONFLICT, "import run conflict")
+        if code == INVALID_INPUT:
+            raise HTTPException(422, "invalid request")
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "request failed")
 
 
 class DatasetImportRunApi(metaclass=SingletonMeta):
@@ -116,6 +110,12 @@ class DatasetImportRunApi(metaclass=SingletonMeta):
                 offset=req.offset,
             )
         )
-        code = FacadesObjectsFactory.get_dataset_import_run_facade().list(ctx)
-        _check(code)
-        return [_out(r) for r in ctx.resp.records]
+        ctx.resp.code = FacadesObjectsFactory.get_dataset_import_run_facade().list(ctx)
+        self._check(ctx)
+        return [
+            DatasetImportRunOut.model_validate(r, from_attributes=True) for r in ctx.resp.records
+        ]
+
+    @staticmethod
+    def _check(ctx: DatasetImportRunCtx) -> None:
+        DatasetImportRunCallbackApi._check(ctx)

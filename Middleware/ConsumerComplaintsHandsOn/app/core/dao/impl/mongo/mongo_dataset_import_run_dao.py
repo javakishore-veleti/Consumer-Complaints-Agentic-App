@@ -49,32 +49,37 @@ def _now() -> datetime:
     return datetime.now(UTC)
 
 
-def _aware(value: datetime | None) -> datetime | None:
-    if value is None:
-        return None
-    if value.tzinfo is None:
-        return value.replace(tzinfo=UTC)
-    return value
-
-
 def _to_record(doc: MongoDocument) -> DatasetImportRunRecord:
+    times = {
+        "source_snapshot_start": doc["source_snapshot_start"],
+        "source_snapshot_end": doc["source_snapshot_end"],
+        "workflow_started_at": doc["workflow_started_at"],
+        "workflow_completed_at": doc.get("workflow_completed_at"),
+        "ingested_at": doc.get("ingested_at"),
+        "created_at": doc["created_at"],
+        "updated_at": doc["updated_at"],
+    }
+    for name, value in list(times.items()):
+        times[name] = (
+            value.replace(tzinfo=UTC) if value is not None and value.tzinfo is None else value
+        )
     return DatasetImportRunRecord(
         id=doc["id"],
         run_folder_name=doc["run_folder_name"],
         location_kind=doc["location_kind"],
         location_ref=doc["location_ref"],
-        source_snapshot_start=_aware(doc["source_snapshot_start"]),  # type: ignore[arg-type]
-        source_snapshot_end=_aware(doc["source_snapshot_end"]),  # type: ignore[arg-type]
+        source_snapshot_start=times["source_snapshot_start"],
+        source_snapshot_end=times["source_snapshot_end"],
         status=doc["status"],
-        workflow_started_at=_aware(doc["workflow_started_at"]),  # type: ignore[arg-type]
-        workflow_completed_at=_aware(doc.get("workflow_completed_at")),
-        ingested_at=_aware(doc.get("ingested_at")),
+        workflow_started_at=times["workflow_started_at"],
+        workflow_completed_at=times["workflow_completed_at"],
+        ingested_at=times["ingested_at"],
         mio_id=doc.get("mio_id"),
         execution_id=doc.get("execution_id"),
         part_count=doc.get("part_count"),
         message=doc.get("message"),
-        created_at=_aware(doc["created_at"]),  # type: ignore[arg-type]
-        updated_at=_aware(doc["updated_at"]),  # type: ignore[arg-type]
+        created_at=times["created_at"],
+        updated_at=times["updated_at"],
     )
 
 

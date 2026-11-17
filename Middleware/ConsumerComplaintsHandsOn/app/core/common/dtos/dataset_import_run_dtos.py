@@ -61,6 +61,7 @@ class DatasetImportRunReq:
 @dataclass
 class DatasetImportRunResp:
     records: list[DatasetImportRunRecord] = field(default_factory=list)
+    code: int = 0
 
 
 @dataclass

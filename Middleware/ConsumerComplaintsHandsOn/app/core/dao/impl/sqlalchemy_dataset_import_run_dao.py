@@ -47,32 +47,40 @@ def _now() -> datetime:
     return datetime.now(UTC)
 
 
-def _aware(value: datetime | None) -> datetime | None:
-    if value is None:
-        return None
-    if value.tzinfo is None:
-        return value.replace(tzinfo=UTC)
-    return value
-
-
 def _to_record(row: DatasetImportRunModel) -> DatasetImportRunRecord:
+    times = {
+        name: getattr(row, name)
+        for name in (
+            "source_snapshot_start",
+            "source_snapshot_end",
+            "workflow_started_at",
+            "workflow_completed_at",
+            "ingested_at",
+            "created_at",
+            "updated_at",
+        )
+    }
+    for name, value in list(times.items()):
+        times[name] = (
+            value.replace(tzinfo=UTC) if value is not None and value.tzinfo is None else value
+        )
     return DatasetImportRunRecord(
         id=row.id,
         run_folder_name=row.run_folder_name,
         location_kind=row.location_kind,
         location_ref=row.location_ref,
-        source_snapshot_start=_aware(row.source_snapshot_start),  # type: ignore[arg-type]
-        source_snapshot_end=_aware(row.source_snapshot_end),  # type: ignore[arg-type]
+        source_snapshot_start=times["source_snapshot_start"],
+        source_snapshot_end=times["source_snapshot_end"],
         status=row.status,
-        workflow_started_at=_aware(row.workflow_started_at),  # type: ignore[arg-type]
-        workflow_completed_at=_aware(row.workflow_completed_at),
-        ingested_at=_aware(row.ingested_at),
+        workflow_started_at=times["workflow_started_at"],
+        workflow_completed_at=times["workflow_completed_at"],
+        ingested_at=times["ingested_at"],
         mio_id=row.mio_id,
         execution_id=row.execution_id,
         part_count=row.part_count,
         message=row.message,
-        created_at=_aware(row.created_at),  # type: ignore[arg-type]
-        updated_at=_aware(row.updated_at),  # type: ignore[arg-type]
+        created_at=times["created_at"],
+        updated_at=times["updated_at"],
     )
 
 
