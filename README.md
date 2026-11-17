@@ -78,6 +78,8 @@ npm run local:portals:all:start
 
 Then open http://localhost:4200/datasets/imports.
 
+**Localhost 3-month → pgvector + Chroma (step-by-step):** [`docs/Runbooks/Localhost/3m-pgvector-chroma.md`](docs/Runbooks/Localhost/3m-pgvector-chroma.md) (#210).
+
 E2E happy path (UI → API → Airflow → callback → UI, SQLite first): see `docs/local-admin-e2e-happy-path.md`. CI smoke: `npm run local:e2e:happy-path:smoke`. Live API probe: `npm run local:e2e:happy-path:probe`. DoD matrix (SQLite / Postgres / MongoDB): `docs/local-admin-e2e-dod-matrix.md` · `npm run local:e2e:dod-matrix:smoke`.
 
 ### Local URLs, usernames, and passwords
