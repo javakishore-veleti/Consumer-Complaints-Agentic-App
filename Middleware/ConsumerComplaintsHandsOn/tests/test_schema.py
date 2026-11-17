@@ -409,6 +409,7 @@ def test_filter_cfpb_3_months_workflow_is_seeded(data_dir):
     assert config == {
         "dataset_code": "CFPB",
         "months": 3,
+        "source_path_env": "CCA_CFPB_SPLIT_SOURCE_PATH",
         "source_filename": "complaints.csv.zip",
         "output_filename": "complaints_3_months.csv.zip",
         "date_column": "Date received",

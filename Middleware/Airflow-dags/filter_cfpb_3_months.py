@@ -1,4 +1,8 @@
-"""Derive the CFPB 3-month dataset from the All zip by Date received. D51 / D63 / D67 / D70."""
+"""Derive the CFPB 3-month dataset by Date received (D51 / D63 / D67 / D70 / M10-0023).
+
+Input may be a single .zip/.csv file or a folder of them. Airflow checks which and
+filters each matching file.
+"""
 
 from __future__ import annotations
 
@@ -17,7 +21,12 @@ from ccaa.db_reader import (
     make_engine,
     resolve_landing_dir,
 )
-from ccaa.filter_by_date import assert_expected_row_count, filter_zip_by_date_received
+from ccaa.filter_by_date import (
+    assert_expected_row_count,
+    filter_path_by_date_received,
+    filtered_output_name,
+    list_filter_inputs,
+)
 from ccaa.status_callback import report_execution_status
 
 
@@ -42,6 +51,26 @@ def _as_of_date(context, cfg: dict) -> date:
     return datetime.now(timezone.utc).date()
 
 
+def _resolve_source_path(cfg: dict, landing: Path) -> Path:
+    """Prefer explicit source_path, then CCA_CFPB_SPLIT_SOURCE_PATH, then landing file."""
+    raw = cfg.get("source_path")
+    if raw:
+        return Path(str(raw)).expanduser()
+    env_name = str(cfg.get("source_path_env") or "CCA_CFPB_SPLIT_SOURCE_PATH").strip()
+    from_env = ""
+    if env_name:
+        from_env = (os.getenv(env_name) or "").strip()
+        if not from_env:
+            try:
+                from_env = str(Variable.get(env_name) or "").strip()
+            except Exception:
+                from_env = ""
+    if from_env:
+        return Path(from_env).expanduser()
+    source_name = str(cfg.get("source_filename") or "complaints.csv.zip")
+    return landing / source_name
+
+
 def resolve_and_filter(**context) -> str:
     execution_id = _execution_id(context)
     report_execution_status(
@@ -58,8 +87,6 @@ def resolve_and_filter(**context) -> str:
         if not code:
             raise ValueError("config_used.dataset_code is required")
         months = int(cfg.get("months", 3))
-        source_name = str(cfg.get("source_filename") or "complaints.csv.zip")
-        output_name = str(cfg.get("output_filename") or "complaints_3_months.csv.zip")
         date_column = str(cfg.get("date_column") or "Date received")
         locs = load_dataset_locations(conn, code)
 
@@ -68,19 +95,28 @@ def resolve_and_filter(**context) -> str:
         getenv=os.getenv,
         get_variable=Variable.get,
     )
-    source = landing / source_name
-    dest = landing / output_name
-    result = filter_zip_by_date_received(
-        source,
-        dest,
-        months=months,
-        as_of=_as_of_date(context, cfg),
-        date_column=date_column,
-    )
+    source_path = _resolve_source_path(cfg, landing)
+    inputs = list_filter_inputs(source_path)
+    as_of = _as_of_date(context, cfg)
     expected = cfg.get("expected_row_count")
+
+    kept_total = 0
+    outputs: list[str] = []
+    for src in inputs:
+        dest = landing / filtered_output_name(src)
+        result = filter_path_by_date_received(
+            src,
+            dest,
+            months=months,
+            as_of=as_of,
+            date_column=date_column,
+        )
+        kept_total += result.rows_kept
+        outputs.append(f"{result.dest}:{result.rows_kept}")
+
     if expected is not None:
-        assert_expected_row_count(result.rows_kept, int(expected))
-    return f"{result.dest}:{result.rows_kept}"
+        assert_expected_row_count(kept_total, int(expected))
+    return ";".join(outputs)
 
 
 def notify_finished(**context) -> None:

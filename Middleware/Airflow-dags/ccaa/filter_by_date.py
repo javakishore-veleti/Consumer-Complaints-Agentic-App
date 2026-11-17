@@ -126,3 +126,76 @@ def assert_expected_row_count(rows_kept: int, expected_row_count: int) -> None:
         raise ValueError(
             f"rows_kept={rows_kept} does not match expected_row_count={expected_row_count}"
         )
+
+
+def _is_filter_input(path: Path) -> bool:
+    name = path.name.lower()
+    return name.endswith(".csv") or name.endswith(".zip")
+
+
+def list_filter_inputs(path: Path) -> list[Path]:
+    """Return input files: one file, or every *.csv / *.zip in a directory (non-recursive)."""
+    if path.is_file():
+        if not _is_filter_input(path):
+            raise ValueError(f"unsupported filter input file: {path}")
+        return [path]
+    if path.is_dir():
+        found = sorted(p for p in path.iterdir() if p.is_file() and _is_filter_input(p))
+        if not found:
+            raise FileNotFoundError(f"no .csv or .zip files in folder: {path}")
+        return found
+    raise FileNotFoundError(f"filter input path not found: {path}")
+
+
+def filtered_output_name(source: Path) -> str:
+    """Map an input basename to a zipped filtered output name under landing."""
+    name = source.name
+    lower = name.lower()
+    if lower.endswith(".csv.zip"):
+        stem = name[: -len(".csv.zip")]
+        return f"{stem}_3_months.csv.zip"
+    if lower.endswith(".zip"):
+        stem = name[: -len(".zip")]
+        return f"{stem}_3_months.csv.zip"
+    if lower.endswith(".csv"):
+        stem = name[: -len(".csv")]
+        return f"{stem}_3_months.csv.zip"
+    return f"{name}_3_months.csv.zip"
+
+
+def filter_path_by_date_received(
+    source: Path,
+    dest_zip: Path,
+    *,
+    months: int,
+    as_of: date,
+    date_column: str = "Date received",
+) -> FilterByDateResult:
+    """Filter a .zip (CSV inside) or a plain .csv into dest_zip."""
+    if source.is_file() and source.name.lower().endswith(".csv") and not source.name.lower().endswith(
+        ".csv.zip"
+    ):
+        # Plain CSV: wrap as a one-member zip then reuse zip filter.
+        tmp_zip = dest_zip.parent / f".{source.stem}.src.zip"
+        if tmp_zip.exists():
+            tmp_zip.unlink()
+        try:
+            with zipfile.ZipFile(tmp_zip, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+                zf.write(source, arcname=source.name)
+            return filter_zip_by_date_received(
+                tmp_zip,
+                dest_zip,
+                months=months,
+                as_of=as_of,
+                date_column=date_column,
+            )
+        finally:
+            if tmp_zip.exists():
+                tmp_zip.unlink()
+    return filter_zip_by_date_received(
+        source,
+        dest_zip,
+        months=months,
+        as_of=as_of,
+        date_column=date_column,
+    )

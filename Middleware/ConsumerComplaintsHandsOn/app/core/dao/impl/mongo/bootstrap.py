@@ -267,6 +267,7 @@ def seed_if_empty() -> None:
                 "config": {
                     "dataset_code": "CFPB",
                     "months": 3,
+                    "source_path_env": "CCA_CFPB_SPLIT_SOURCE_PATH",
                     "source_filename": "complaints.csv.zip",
                     "output_filename": "complaints_3_months.csv.zip",
                     "date_column": "Date received",

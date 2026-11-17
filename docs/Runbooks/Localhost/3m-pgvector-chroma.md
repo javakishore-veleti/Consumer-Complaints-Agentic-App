@@ -47,7 +47,7 @@ Under `Middleware/ConsumerComplaintsHandsOn/`, confirm at least:
 | `CCA_PGVECTOR_URL` | `postgresql://postgres:postgres@host.docker.internal:5432/cca` |
 | `CCA_CHROMA_URL` | `http://host.docker.internal:8100` |
 
-Filter reads `complaints.csv.zip` from `LOCAL_DATA_PATH_CFPB` and writes `complaints_3_months.csv.zip` there. That All zip must already be on disk before step 1 (from a prior download/stage).
+Set `CCA_CFPB_SPLIT_SOURCE_PATH` to your **folder of parts** (or to one `.zip`/`.csv` file). Sync secrets so Airflow sees it. Filtered outputs land under `LOCAL_DATA_PATH_CFPB`.
 
 ### 0.3 Open the UIs
 
@@ -76,7 +76,12 @@ http://127.0.0.1:8080/dags — these should be on:
 
 ## 1. Build the 3-month dataset
 
-**Objective:** From the All zip on disk, create `complaints_3_months.csv.zip` (last 3 months by `Date received`).
+**Objective:** Filter your CFPB input by `Date received` (last 3 months). Airflow accepts **either a folder or a single file**.
+
+**Input (from `CCA_CFPB_SPLIT_SOURCE_PATH` after Sync):**
+
+- **Folder** → every `*.csv` / `*.zip` in that folder (non-recursive), e.g. your `complaints_part_*.csv.zip` split folder  
+- **Single file** → that one `.csv` or `.zip`
 
 **Where in Admin:** **DataSets → Imports**. Expand **Customer complaints 3 months 2026**.
 
@@ -86,7 +91,7 @@ http://127.0.0.1:8080/dags — these should be on:
 2. Click **Start workflow**
 3. Click **Refresh status** until the row shows **`completed`**
 4. Airflow: DAG `filter_cfpb_3_months` = success
-5. Confirm `complaints_3_months.csv.zip` under `LOCAL_DATA_PATH_CFPB`
+5. Confirm filtered `*_3_months.csv.zip` files under `LOCAL_DATA_PATH_CFPB`
 
 ---
 
@@ -159,7 +164,7 @@ Chroma HTTP: http://127.0.0.1:8100
 |---|---|
 | Admin `:4200` refused | `npm run local:portals:all:start` |
 | Callbacks 401 | Sync secrets; matching `CCA_CALLBACK_SECRET` |
-| Filter finds no All zip | Put `complaints.csv.zip` under `LOCAL_DATA_PATH_CFPB`, then retry step 1 |
+| Filter finds no inputs | Point `CCA_CFPB_SPLIT_SOURCE_PATH` at a folder with `.csv`/`.zip` (or one file); Sync; retry step 1 |
 | Index empty | Ingest incomplete; or Mongo / pgvector / Chroma URLs not synced |
 
 Related: root README local credentials · path `docs/Runbooks/Localhost/3m-pgvector-chroma.md`
