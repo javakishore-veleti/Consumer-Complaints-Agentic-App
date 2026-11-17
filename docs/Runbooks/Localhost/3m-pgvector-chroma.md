@@ -22,7 +22,7 @@ Confirm `.env` exists under `Middleware/ConsumerComplaintsHandsOn/` with at leas
 
 | Key | Value |
 |---|---|
-| `CCA_CALLBACK_SECRET` | your secret |
+| `CCA_CALLBACK_SECRET` | `cca-local-dev-callback-secret` (**localhost only** — never cloud) |
 | `CCA_API_URL` | `http://host.docker.internal:8000` |
 | `CCA_AIRFLOW_API_PASSWORD` | `airflow` |
 | `CCA_MONGO_COMPLAINTS_URL` | `mongodb://root:changeme-local@host.docker.internal:27017/consumer_comp_db?authSource=admin` |

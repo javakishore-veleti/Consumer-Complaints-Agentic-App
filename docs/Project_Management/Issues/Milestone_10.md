@@ -11,6 +11,7 @@
 | 1 | #208 | M10-0001 | Story | Chroma host port default must not collide with Middleware :8000 |
 | 2 | #209 | M10-0002 | Story | Bootstrap local Middleware .env for live smoke |
 | 3 | #210 | M10-0003 | Story | Localhost runbook: 3-month CFPB → pgvector + Chroma |
+| 4 | #211 | M10-0004 | Story | Document fixed localhost CCA_CALLBACK_SECRET |
 
 ## 2. Superpowers workflow
 
@@ -22,6 +23,7 @@
 | #210 | 2 | writing-plans (runbook outline) | Done | 2026-11-16 |
 | #210 | 3 | implement `docs/Runbooks/Localhost/3m-pgvector-chroma.md` | Done | 2026-11-16 |
 | #210 | 4 | `/ccaa-commit-push 210` | Done | 2026-11-16 |
+| #211 | 1–4 | fixed local callback secret docs + .env.example | Done | 2026-11-16 |
 
 ## 3. Notes
 

@@ -113,7 +113,7 @@ Defaults from `CICD/Local/*/docker-compose.yaml` and portal/API scripts. **Local
 
 | Variable | Example local value | Purpose |
 |---|---|---|
-| `CCA_CALLBACK_SECRET` | `openssl rand -hex 32` | Shared secret; Airflow callbacks send `X-Callback-Secret` (401 without it) |
+| `CCA_CALLBACK_SECRET` | `cca-local-dev-callback-secret` | Shared secret; Airflow callbacks send `X-Callback-Secret` (401 without it). **Localhost fixed value only — never reuse in cloud/M90** (#211) |
 | `CCA_API_URL` | `http://host.docker.internal:8000` | Base URL workers use to reach Middleware (Docker Desktop) |
 | `CCA_AIRFLOW_API_PASSWORD` | `airflow` | Matches Airflow WWW user (with username `airflow`) |
 | `CCA_VECTOR_STORE_PATH` | e.g. absolute path under Airflow data | JSONL vector index (`index_cfpb_all`) |
