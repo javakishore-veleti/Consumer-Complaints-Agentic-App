@@ -1,10 +1,12 @@
 from dataclasses import dataclass, field
+from typing import Any
 
 
 @dataclass
 class AirflowDagRunTriggerReq:
     dag_id: str
     execution_id: str
+    conf: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -22,6 +24,7 @@ class AirflowDagRunTriggerCtx:
 @dataclass
 class AirflowStartDagReq:
     execution_id: str | None = None
+    dag_conf: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass

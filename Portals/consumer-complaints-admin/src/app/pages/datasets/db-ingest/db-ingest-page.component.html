@@ -8,7 +8,7 @@
         DB Ingest
       </h1>
       <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-        Load downloaded complaints into local Mongo. Start only after download completed.
+        Select landed import runs, choose sequential or parallel, then start Mongo ingest.
       </p>
     </div>
     <button
@@ -39,6 +39,76 @@
       <app-alert variant="error" title="Action error" [message]="actionError()" />
     </div>
   }
+
+  <section
+    data-testid="import-runs-panel"
+    class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/3"
+    aria-label="Import runs"
+  >
+    <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <h2 class="text-sm font-semibold text-gray-800 dark:text-white/90">Import runs</h2>
+        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          Already ingested runs cannot be selected again.
+        </p>
+      </div>
+      <label class="flex flex-col gap-1.5 text-sm font-medium text-gray-700 dark:text-gray-300">
+        Ingest mode
+        <select
+          data-testid="ingest-mode-select"
+          class="h-11 min-w-48 rounded-lg border border-gray-200 bg-transparent px-3 text-sm text-gray-800 shadow-theme-xs outline-hidden focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-800 dark:bg-white/3 dark:text-white/90"
+          [value]="ingestMode()"
+          (change)="onModeChange($event)"
+        >
+          <option value="sequential">Sequential (default)</option>
+          <option value="parallel">Parallel</option>
+        </select>
+      </label>
+    </div>
+
+    @if (importRuns().length === 0) {
+      <p class="text-sm text-gray-500 dark:text-gray-400" data-testid="import-runs-empty">
+        No import runs yet. Stage parts first from Imports.
+      </p>
+    } @else {
+      <ul class="space-y-2" data-testid="import-runs-list">
+        @for (run of importRuns(); track run.id) {
+          <li
+            class="flex items-center gap-3 rounded-xl border border-gray-100 px-3 py-2 dark:border-gray-800"
+            data-testid="import-run-row"
+          >
+            <input
+              type="checkbox"
+              data-testid="import-run-checkbox"
+              class="h-4 w-4 rounded border-gray-300"
+              [checked]="isImportChecked(run.id)"
+              [disabled]="!isEligible(run)"
+              (change)="onToggleImport(run.id, $event)"
+            />
+            <div class="min-w-0 flex-1">
+              <div class="truncate text-sm font-medium text-gray-800 dark:text-white/90">
+                {{ run.run_folder_name }}
+              </div>
+              <div class="truncate text-xs text-gray-500 dark:text-gray-400">
+                {{ run.location_ref }}
+                @if (run.part_count !== null && run.part_count !== undefined) {
+                  · {{ run.part_count }} parts
+                }
+              </div>
+            </div>
+            <span
+              app-badge
+              variant="light"
+              size="sm"
+              [color]="statusColor(run.status)"
+            >
+              {{ run.status }}
+            </span>
+          </li>
+        }
+      </ul>
+    }
+  </section>
 
   <div
     data-testid="db-ingest-accordion-shell"

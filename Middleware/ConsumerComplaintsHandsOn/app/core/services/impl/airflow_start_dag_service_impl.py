@@ -31,8 +31,10 @@ class AirflowStartDagServiceImpl(AirflowStartDagService):
         if not dag_id:
             ctx.resp.code = INVALID_INPUT
             return INVALID_INPUT
+        conf = dict(ctx.req.dag_conf or {})
+        conf["execution_id"] = execution_id
         trigger = AirflowDagRunTriggerCtx(
-            req=AirflowDagRunTriggerReq(dag_id=dag_id, execution_id=execution_id)
+            req=AirflowDagRunTriggerReq(dag_id=dag_id, execution_id=execution_id, conf=conf)
         )
         code = self._client.trigger(trigger)
         if code != SUCCESS or not trigger.resp.dag_run_id:

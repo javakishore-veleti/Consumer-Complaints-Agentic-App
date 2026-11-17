@@ -13,6 +13,10 @@ class StartWfBody(BaseModel):
 
     mio_id: str | None = None
     dataset_location_id: str | None = None
+    import_ids: list[str] | None = None
+    mode: str | None = None
+    source_snapshot_start: str | None = None
+    source_snapshot_end: str | None = None
 
 
 class StartWfReq(BaseModel):

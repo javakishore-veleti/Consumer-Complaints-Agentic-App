@@ -3,7 +3,15 @@
 from app.core.common.app_types_constants import MioAudience
 from app.core.common.dtos.app_wf_dtos import AppWfCtx, AppWfReq
 from app.core.common.dtos.app_wf_exec_log_dtos import AppWfExecLogCtx, AppWfExecLogReq
-from app.core.common.dtos.dataset_location_dtos import DatasetLocationCtx, DatasetLocationReq
+from app.core.common.dtos.dataset_import_run_dtos import (
+    ELIGIBLE_FOR_INGEST,
+    DatasetImportRunCtx,
+    DatasetImportRunReq,
+)
+from app.core.common.dtos.dataset_location_dtos import (
+    DatasetLocationCtx,
+    DatasetLocationReq,
+)
 from app.core.common.dtos.mio_acl_dtos import MioAclCtx, MioAclReq
 from app.core.common.dtos.mio_ingest_log_dtos import MioIngestLogCtx, MioIngestLogReq
 from app.core.common.dtos.mio_workflow_dtos import MioWorkflowCtx, MioWorkflowReq
@@ -12,6 +20,8 @@ from app.core.common.return_codes import INVALID_INPUT, NOT_FOUND, SUCCESS
 from app.core.dao.objects_factory import DaoObjectsFactory
 from app.core.services.objects_factory import ServicesObjectsFactory
 from app.core.services.start_wf_service import StartWfService
+
+_INGEST_MODES = frozenset({"sequential", "parallel"})
 
 
 class StartWfServiceImpl(StartWfService):
@@ -89,6 +99,49 @@ class StartWfServiceImpl(StartWfService):
                 return code
             ingest_id = ingest_ctx.resp.records[0].id
 
+        dag_conf: dict = {}
+        if ctx.req.source_snapshot_start:
+            dag_conf["source_snapshot_start"] = str(ctx.req.source_snapshot_start).strip()
+        if ctx.req.source_snapshot_end:
+            dag_conf["source_snapshot_end"] = str(ctx.req.source_snapshot_end).strip()
+
+        raw_ids = ctx.req.import_ids
+        if raw_ids is not None:
+            ids = [str(i).strip() for i in raw_ids if str(i).strip()]
+            if not ids or len(ids) != len(set(ids)):
+                ctx.resp.code = INVALID_INPUT
+                return INVALID_INPUT
+            mode = (ctx.req.mode or "sequential").strip().lower() or "sequential"
+            if mode not in _INGEST_MODES:
+                ctx.resp.code = INVALID_INPUT
+                return INVALID_INPUT
+            listed = DatasetImportRunCtx(req=DatasetImportRunReq(ids=ids))
+            code = DaoObjectsFactory.get_dataset_import_run_dao().list(listed)
+            if code != SUCCESS:
+                ctx.resp.code = code
+                return code
+            by_id = {r.id: r for r in listed.resp.records}
+            if len(by_id) != len(ids):
+                ctx.resp.code = INVALID_INPUT
+                return INVALID_INPUT
+            imports = []
+            for import_id in ids:
+                row = by_id[import_id]
+                if row.status not in ELIGIBLE_FOR_INGEST:
+                    ctx.resp.code = INVALID_INPUT
+                    return INVALID_INPUT
+                imports.append(
+                    {
+                        "id": row.id,
+                        "location_kind": row.location_kind,
+                        "location_ref": row.location_ref,
+                        "run_folder_name": row.run_folder_name,
+                    }
+                )
+            dag_conf["import_ids"] = ids
+            dag_conf["imports"] = imports
+            dag_conf["mode"] = mode
+
         exec_ctx = AppWfExecLogCtx(
             req=AppWfExecLogReq(workflow_id=workflow_id, mios_ingest_log_id=ingest_id)
         )
@@ -98,5 +151,6 @@ class StartWfServiceImpl(StartWfService):
             return code
         ctx.resp.execution_id = exec_ctx.resp.records[0].id
         ctx.resp.engine_type = workflow.engine_type
+        ctx.resp.dag_conf = dag_conf
         ctx.resp.code = SUCCESS
         return SUCCESS

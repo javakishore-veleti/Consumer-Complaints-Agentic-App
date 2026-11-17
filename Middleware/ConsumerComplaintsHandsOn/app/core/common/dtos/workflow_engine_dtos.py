@@ -1,11 +1,13 @@
 """Ctx, Req and Resp for starting a run in a workflow engine (DESIGN.md D73)."""
 
 from dataclasses import dataclass, field
+from typing import Any
 
 
 @dataclass
 class WorkflowEngineReq:
     execution_id: str | None = None
+    dag_conf: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass

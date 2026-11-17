@@ -30,6 +30,10 @@ class StartWfApi(metaclass=SingletonMeta):
                 mio_id=req.body.mio_id,
                 dataset_location_id=req.body.dataset_location_id,
                 audience=(req.audience or "internal").strip() or "internal",
+                import_ids=req.body.import_ids,
+                mode=req.body.mode,
+                source_snapshot_start=req.body.source_snapshot_start,
+                source_snapshot_end=req.body.source_snapshot_end,
             )
         )
         FacadesObjectsFactory.get_start_wf_facade().start(ctx)

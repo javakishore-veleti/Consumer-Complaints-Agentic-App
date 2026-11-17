@@ -13,7 +13,12 @@ class ApacheAirflowWorkflowEngineImpl(WorkflowEngine):
         return EngineType.APACHE_AIRFLOW.value
 
     def start(self, ctx: WorkflowEngineCtx) -> int:
-        af_ctx = AirflowStartDagCtx(req=AirflowStartDagReq(execution_id=ctx.req.execution_id))
+        af_ctx = AirflowStartDagCtx(
+            req=AirflowStartDagReq(
+                execution_id=ctx.req.execution_id,
+                dag_conf=dict(ctx.req.dag_conf or {}),
+            )
+        )
         code = ServicesObjectsFactory.get_airflow_start_dag_service().start(af_ctx)
         ctx.resp.engine_run_id = af_ctx.resp.engine_run_id
         ctx.resp.code = code

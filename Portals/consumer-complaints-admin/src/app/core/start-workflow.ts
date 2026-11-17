@@ -7,6 +7,10 @@ import { FAILURE, INVALID_INPUT, SUCCESS } from './return-codes';
 export interface StartWorkflowReq {
   workflowId: string;
   mioId?: string;
+  importIds?: string[];
+  mode?: 'sequential' | 'parallel';
+  sourceSnapshotStart?: string;
+  sourceSnapshotEnd?: string;
 }
 export interface StartWorkflowResp {
   executionId: string;
@@ -23,10 +27,22 @@ interface StartWorkflowApiBody {
 
 export async function startWorkflow(http: HttpClient, ctx: StartWorkflowCtx): Promise<number> {
   const url = `${environment.apiBaseUrl}/workflows/${encodeURIComponent(ctx.req.workflowId)}/start`;
-  const body =
-    ctx.req.mioId !== undefined && ctx.req.mioId !== null && ctx.req.mioId !== ''
-      ? { mio_id: ctx.req.mioId }
-      : {};
+  const body: Record<string, unknown> = {};
+  if (ctx.req.mioId !== undefined && ctx.req.mioId !== null && ctx.req.mioId !== '') {
+    body['mio_id'] = ctx.req.mioId;
+  }
+  if (ctx.req.importIds && ctx.req.importIds.length) {
+    body['import_ids'] = ctx.req.importIds;
+  }
+  if (ctx.req.mode) {
+    body['mode'] = ctx.req.mode;
+  }
+  if (ctx.req.sourceSnapshotStart) {
+    body['source_snapshot_start'] = ctx.req.sourceSnapshotStart;
+  }
+  if (ctx.req.sourceSnapshotEnd) {
+    body['source_snapshot_end'] = ctx.req.sourceSnapshotEnd;
+  }
   try {
     const data = await firstValueFrom(
       http.post<StartWorkflowApiBody>(url, body, {

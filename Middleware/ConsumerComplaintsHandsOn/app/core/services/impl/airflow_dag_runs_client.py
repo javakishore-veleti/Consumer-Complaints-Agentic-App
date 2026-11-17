@@ -49,12 +49,14 @@ class AirflowDagRunsClient:
                     ctx.resp.code = FAILURE
                     return FAILURE
                 headers = {"Authorization": f"Bearer {token}"}
+                conf = dict(ctx.req.conf or {})
+                conf["execution_id"] = ctx.req.execution_id
                 created = http.post(
                     f"/api/v2/dags/{ctx.req.dag_id}/dagRuns",
                     headers=headers,
                     json={
                         "logical_date": None,
-                        "conf": {"execution_id": ctx.req.execution_id},
+                        "conf": conf,
                     },
                 )
                 if created.status_code not in (200, 201):

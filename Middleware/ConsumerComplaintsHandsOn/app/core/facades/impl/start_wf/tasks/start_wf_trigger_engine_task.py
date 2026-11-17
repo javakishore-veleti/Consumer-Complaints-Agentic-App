@@ -21,7 +21,12 @@ class StartWfTriggerEngineTask(StartWfFacadeTask):
         if engine is None:
             ctx.resp.code = INVALID_INPUT
             return INVALID_INPUT
-        eng_ctx = WorkflowEngineCtx(req=WorkflowEngineReq(execution_id=execution_id))
+        eng_ctx = WorkflowEngineCtx(
+            req=WorkflowEngineReq(
+                execution_id=execution_id,
+                dag_conf=dict(ctx.resp.dag_conf or {}),
+            )
+        )
         code = engine.start(eng_ctx)
         ctx.resp.code = code
         return code
