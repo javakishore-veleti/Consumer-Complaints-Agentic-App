@@ -59,15 +59,15 @@ Confirm `.env` exists under `Middleware/ConsumerComplaintsHandsOn/` with at leas
 
 Expect at least: `CCA_CALLBACK_SECRET`, `CCA_API_URL`, `LOCAL_DATA_PATH_CFPB`, `CCA_PGVECTOR_URL`, `CCA_CHROMA_URL`. For **Airflow workers**, `CCA_CHROMA_URL` / `CCA_REDIS_URL` must use `host.docker.internal` (not `127.0.0.1`) — match §0.2, then Sync again if needed.
 
-**If Sync fails with HTTP 422:** the JSON `results` list shows each name’s `outcome`. `missing` = a **required** `.env` value is empty (fix and restart Middleware). `skipped` = optional name unset (OK on localhost SQLite / unused split path — M10-0012 / #219). Restart the API after pulling that fix, then Sync again.
+**If Sync fails with HTTP 422:** the JSON `results` list shows each name’s `outcome`. `missing` = a **required** `.env` value is empty (fix and restart Middleware). `skipped` = optional name unset (OK on localhost SQLite when you are not using a split staging path). Fix `.env`, restart Middleware, then Sync again.
 
-Re-run this step whenever you change `.env` or recreate Airflow containers.
+Re-run this step whenever you change `.env` or stop/start the local containers with the `npm run local:containers:*` scripts.
 
 ### 0.5 Confirm DAGs are enabled
 
-**Objective:** Admin “Start workflow” can trigger each DAG (local Airflow creates them **unpaused** — M10-0014 / #221).
+**Objective:** Admin “Start workflow” can trigger each DAG. On a **new** local Airflow install, DAGs are created **enabled** (not paused).
 
-On a **fresh** local Airflow stack, these should already be enabled at http://127.0.0.1:8080/dags :
+Check http://127.0.0.1:8080/dags — these should already be on:
 
 - `download_cfpb_all`
 - `filter_cfpb_3_months`
@@ -75,7 +75,17 @@ On a **fresh** local Airflow stack, these should already be enabled at http://12
 - `index_cfpb_pgvector`
 - `index_cfpb_chroma`
 
-If toggles are still **paused** (existing metadata from before #221), unpause them once in the UI, or recreate Airflow (`docker compose down` in `CICD/Local/airflow`, then bring containers up again).
+If a toggle is still **paused**, Airflow is remembering an older local database. Either turn the toggle on once in the UI, or wipe and restart the local containers with npm (from the repo root):
+
+```bash
+npm run local:containers:postgres:stop    # stops Airflow + ops Postgres (removes volumes by default)
+npm run local:containers:postgres:start
+# if you also use Mongo / Chroma for this smoke path, start them again:
+npm run local:containers:mongodb:start
+npm run local:containers:chroma:start
+```
+
+Then re-run **Sync secrets** (§0.4) before starting workflows.
 
 ---
 

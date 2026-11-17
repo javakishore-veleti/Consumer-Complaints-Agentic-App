@@ -22,6 +22,7 @@
 | 12 | #219 | M10-0012 | Story | Sync secrets: optional unset upsert names must not 422 |
 | 13 | #220 | M10-0013 | Story | Runbook: Airflow Variables check URL + redacted screenshot |
 | 14 | #221 | M10-0014 | Story | Local Airflow: DAGs unpaused by default |
+| 15 | #222 | M10-0015 | Story | Runbook: drop GitHub issue jargon for operators |
 
 ## 2. Superpowers workflow
 
@@ -48,6 +49,7 @@
 | #219 | 5 | `/ccaa-story-complete 219` | Done | 2026-11-16 20:42 |
 | #220 | 1–4 | Variables URL + redacted screenshot in runbook §0.4 | Done | 2026-11-16 20:48 |
 | #221 | 1–4 | `DAGS_ARE_PAUSED_AT_CREATION=false` + runbook §0.5 | Done | 2026-11-16 20:48 |
+| #222 | 1–4 | runbook plain language + npm stop/start (no `#221` / raw docker) | Done | 2026-11-17 09:22 |
 
 ## 3. Notes
 
