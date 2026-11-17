@@ -1,11 +1,12 @@
-"""Download or stage CFPB complaints into local landing. D51 / D63 / D67 / D91."""
+"""Download or stage CFPB complaints into local landing. D51 / D63 / D67 / D91 / M11."""
 
 from __future__ import annotations
 
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
+from uuid import uuid4
 
 from airflow import DAG
 from airflow.models import Variable
@@ -20,6 +21,14 @@ from ccaa.db_reader import (
     resolve_landing_dir,
 )
 from ccaa.download import download_url_to_path
+from ccaa.import_runs import (
+    LOCATION_LOCAL_PATH,
+    build_import_metadata,
+    dataset_dir,
+    prepare_run_folder,
+    resolve_snapshot_window,
+    write_import_metadata,
+)
 from ccaa.split_parts import (
     DEFAULT_PART_GLOB,
     DEFAULT_STAGE_FROM_ENV,
@@ -27,7 +36,11 @@ from ccaa.split_parts import (
     stage_parts_from_dir,
     stage_parts_from_urls,
 )
-from ccaa.status_callback import report_execution_status
+from ccaa.status_callback import (
+    report_execution_status,
+    report_import_run_create,
+    report_import_run_update,
+)
 
 
 def _execution_id(context) -> str:
@@ -41,6 +54,10 @@ def _execution_id(context) -> str:
 def _engine_run_id(context) -> str | None:
     run_id = context.get("run_id")
     return str(run_id)[:128] if run_id else None
+
+
+def _conf(context) -> dict:
+    return (context.get("dag_run").conf or {}) if context.get("dag_run") else {}
 
 
 def resolve_and_download(**context) -> dict:
@@ -105,28 +122,90 @@ def resolve_and_download(**context) -> dict:
     )
 
     if use_split:
-        if isinstance(urls, list) and urls:
-            staged = stage_parts_from_urls(urls, landing, download=download_url_to_path)
-        else:
-            if stage_from_path is not None:
-                source_dir = stage_from_path
-                if not source_dir.is_dir():
-                    raise FileNotFoundError(f"stage source is not a directory: {source_dir}")
+        conf = _conf(context)
+        started = datetime.now(timezone.utc)
+        snap_start, snap_end = resolve_snapshot_window(
+            started,
+            source_snapshot_start=conf.get("source_snapshot_start"),
+            source_snapshot_end=conf.get("source_snapshot_end"),
+        )
+        run_folder = prepare_run_folder(landing, started)
+        dest_dir = dataset_dir(run_folder)
+        import_id = str(uuid4())
+        location_ref = str(run_folder.resolve())
+        meta = build_import_metadata(
+            import_id=import_id,
+            workflow_started_at=started,
+            source_snapshot_start=snap_start,
+            source_snapshot_end=snap_end,
+            location_ref=location_ref,
+            location_kind=LOCATION_LOCAL_PATH,
+            part_glob=part_glob,
+            part_count=0,
+        )
+        write_import_metadata(run_folder, meta)
+        report_import_run_create(
+            {
+                "id": import_id,
+                "run_folder_name": run_folder.name,
+                "location_kind": LOCATION_LOCAL_PATH,
+                "location_ref": location_ref,
+                "source_snapshot_start": meta["source_snapshot_start"],
+                "source_snapshot_end": meta["source_snapshot_end"],
+                "workflow_started_at": meta["workflow_started_at"],
+                "status": "staging",
+                "execution_id": execution_id,
+                "part_count": 0,
+            }
+        )
+
+        try:
+            if isinstance(urls, list) and urls:
+                staged = stage_parts_from_urls(urls, dest_dir, download=download_url_to_path)
             else:
-                source_dir = resolve_named_dir(
-                    stage_env or DEFAULT_STAGE_FROM_ENV,
-                    getenv=os.getenv,
-                    get_variable=Variable.get,
+                if stage_from_path is not None:
+                    source_dir = stage_from_path
+                    if not source_dir.is_dir():
+                        raise FileNotFoundError(f"stage source is not a directory: {source_dir}")
+                else:
+                    source_dir = resolve_named_dir(
+                        stage_env or DEFAULT_STAGE_FROM_ENV,
+                        getenv=os.getenv,
+                        get_variable=Variable.get,
+                    )
+                staged = stage_parts_from_dir(
+                    source_dir,
+                    dest_dir,
+                    source_filenames=filenames,
+                    source_filename_glob=part_glob,
                 )
-            staged = stage_parts_from_dir(
-                source_dir,
-                landing,
-                source_filenames=filenames,
-                source_filename_glob=part_glob,
+            completed = datetime.now(timezone.utc)
+            meta["part_count"] = len(staged)
+            meta["workflow_completed_at"] = completed.strftime("%Y-%m-%dT%H:%M:%SZ")
+            write_import_metadata(run_folder, meta)
+            report_import_run_update(
+                import_id,
+                {
+                    "status": "landed",
+                    "workflow_completed_at": meta["workflow_completed_at"],
+                    "part_count": len(staged),
+                },
             )
+        except Exception as exc:
+            report_import_run_update(
+                import_id,
+                {
+                    "status": "failed",
+                    "message": str(exc)[:2000],
+                },
+            )
+            raise
+
         return {
             "mode": "split",
             "landing": str(landing),
+            "run_folder": str(run_folder),
+            "import_id": import_id,
             "parts": [str(p) for p in staged],
             "part_count": len(staged),
         }

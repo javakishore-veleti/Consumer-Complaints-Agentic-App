@@ -119,3 +119,77 @@ def report_execution_status(
         if e.code == 409:
             return
         raise CallbackHttpError(f"callback HTTP {e.code}", status_code=e.code) from e
+
+
+def _callback_request(
+    path: str,
+    body: dict[str, Any],
+    *,
+    method: str = "POST",
+    api_base_url: str | None = None,
+    callback_secret: str | None = None,
+    urlopen: Callable[..., Any] = urllib.request.urlopen,
+    getenv: Callable[..., str | None] = os.getenv,
+    get_variable: Callable[[str], str] | None = None,
+) -> dict[str, Any]:
+    if get_variable is None:
+        def get_variable(name: str) -> str:  # type: ignore[misc]
+            from airflow.models import Variable
+
+            return Variable.get(name)
+
+    base = (api_base_url or resolve_api_base_url(getenv=getenv, get_variable=get_variable)).rstrip("/")
+    secret = callback_secret if callback_secret is not None else resolve_callback_secret(
+        getenv=getenv, get_variable=get_variable
+    )
+    if not str(secret).strip():
+        raise ValueError("CCA_CALLBACK_SECRET is required (env or Airflow Variable)")
+
+    url = f"{base}{path}"
+    data = json.dumps(body).encode("utf-8")
+    req = urllib.request.Request(
+        url,
+        data=data,
+        method=method,
+        headers={
+            "Content-Type": "application/json",
+            "X-Callback-Secret": str(secret).strip(),
+        },
+    )
+    try:
+        with urlopen(req, timeout=30) as resp:
+            code = getattr(resp, "getcode", lambda: 200)()
+            raw = resp.read() if hasattr(resp, "read") else b"{}"
+            if code is not None and int(code) >= 400 and int(code) != 409:
+                raise CallbackHttpError(f"callback HTTP {code}", status_code=int(code))
+            if not raw:
+                return {}
+            return json.loads(raw.decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        if e.code == 409:
+            return {}
+        raise CallbackHttpError(f"callback HTTP {e.code}", status_code=e.code) from e
+
+
+def report_import_run_create(
+    payload: dict[str, Any],
+    **kwargs: Any,
+) -> dict[str, Any]:
+    """POST /callbacks/dataset-import-runs — register a staging/landed import run."""
+    return _callback_request("/callbacks/dataset-import-runs", payload, method="POST", **kwargs)
+
+
+def report_import_run_update(
+    import_id: str,
+    payload: dict[str, Any],
+    **kwargs: Any,
+) -> dict[str, Any]:
+    """PATCH /callbacks/dataset-import-runs/{id} — finalize status / part_count."""
+    if not import_id or not str(import_id).strip():
+        raise ValueError("import_id is required")
+    return _callback_request(
+        f"/callbacks/dataset-import-runs/{str(import_id).strip()}",
+        payload,
+        method="PATCH",
+        **kwargs,
+    )

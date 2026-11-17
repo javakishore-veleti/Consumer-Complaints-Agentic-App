@@ -9,6 +9,7 @@ from app.core.common.bean_registry import bean_registry
 from app.core.services.airflow_start_dag_service import AirflowStartDagService
 from app.core.services.airflow_upsert_secrets_service import AirflowUpsertSecretsService
 from app.core.services.app_endpoint_list_service import AppEndpointListService
+from app.core.services.dataset_import_run_service import DatasetImportRunService
 from app.core.services.intellect_query_service import IntellectQueryService
 from app.core.services.mio_status_service import MioStatusService
 from app.core.services.start_wf_service import StartWfService
@@ -37,14 +38,21 @@ class ServicesObjectsFactory:
             from app.core.services.impl.apache_airflow_workflow_engine_impl import (
                 ApacheAirflowWorkflowEngineImpl,
             )
-            from app.core.services.impl.mio_status_service_impl import MioStatusServiceImpl
-            from app.core.services.impl.wf_exec_status_service_impl import WfExecStatusServiceImpl
-            from app.core.services.impl.start_wf_service_impl import StartWfServiceImpl
             from app.core.services.impl.app_endpoint_list_service_impl import (
                 AppEndpointListServiceImpl,
             )
+            from app.core.services.impl.dataset_import_run_service_impl import (
+                DatasetImportRunServiceImpl,
+            )
             from app.core.services.impl.intellect_query_service_impl import (
                 IntellectQueryServiceImpl,
+            )
+            from app.core.services.impl.mio_status_service_impl import (
+                MioStatusServiceImpl,
+            )
+            from app.core.services.impl.start_wf_service_impl import StartWfServiceImpl
+            from app.core.services.impl.wf_exec_status_service_impl import (
+                WfExecStatusServiceImpl,
             )
             from app.core.services.impl.wf_list_service_impl import WfListServiceImpl
 
@@ -57,6 +65,7 @@ class ServicesObjectsFactory:
             bean_registry.register(WorkflowEngine, ApacheAirflowWorkflowEngineImpl())
             bean_registry.register(StartWfService, StartWfServiceImpl())
             bean_registry.register(IntellectQueryService, IntellectQueryServiceImpl())
+            bean_registry.register(DatasetImportRunService, DatasetImportRunServiceImpl())
             ServicesObjectsFactory._initialized = True
 
     @staticmethod
@@ -98,6 +107,11 @@ class ServicesObjectsFactory:
     def get_intellect_query_service() -> IntellectQueryService:
         ServicesObjectsFactory.init()
         return bean_registry.get_one(IntellectQueryService)  # type: ignore[return-value]
+
+    @staticmethod
+    def get_dataset_import_run_service() -> DatasetImportRunService:
+        ServicesObjectsFactory.init()
+        return bean_registry.get_one(DatasetImportRunService)  # type: ignore[return-value]
 
     @staticmethod
     def get_workflow_engines() -> list[WorkflowEngine]:

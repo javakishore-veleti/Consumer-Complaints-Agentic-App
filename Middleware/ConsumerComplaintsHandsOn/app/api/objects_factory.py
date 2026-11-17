@@ -8,6 +8,10 @@ from fastapi import Depends, FastAPI
 
 from app.api.routers.airflow_upsert_secrets_api import AirflowUpsertSecretsApi
 from app.api.routers.app_endpoint_api import AppEndpointApi
+from app.api.routers.dataset_import_run_callback_api import (
+    DatasetImportRunApi,
+    DatasetImportRunCallbackApi,
+)
 from app.api.routers.intellect_query_api import IntellectQueryApi
 from app.api.routers.mio_status_api import MioStatusApi
 from app.api.routers.start_wf_api import StartWfApi
@@ -31,6 +35,8 @@ class ApiObjectsFactory:
                 return
             auth = CallbackSecretAuth()
             wf_api = WfExecCallbackApi()
+            import_run_cb_api = DatasetImportRunCallbackApi()
+            import_run_api = DatasetImportRunApi()
             mio_api = MioStatusApi()
             wf_list_api = WfListApi()
             start_wf_api = StartWfApi()
@@ -39,6 +45,8 @@ class ApiObjectsFactory:
             intellect_api = IntellectQueryApi()
             bean_registry.register(CallbackSecretAuth, auth)
             bean_registry.register(WfExecCallbackApi, wf_api)
+            bean_registry.register(DatasetImportRunCallbackApi, import_run_cb_api)
+            bean_registry.register(DatasetImportRunApi, import_run_api)
             bean_registry.register(MioStatusApi, mio_api)
             bean_registry.register(WfListApi, wf_list_api)
             bean_registry.register(StartWfApi, start_wf_api)
@@ -59,8 +67,10 @@ class ApiObjectsFactory:
             app.include_router(upsert_api.router)
             app.include_router(app_ep_api.router)
             app.include_router(intellect_api.router)
+            app.include_router(import_run_api.router)
             # Every router an engine calls is protected as a whole by the callback secret (D59).
             app.include_router(wf_api.router, dependencies=[Depends(auth)])
+            app.include_router(import_run_cb_api.router, dependencies=[Depends(auth)])
 
             @app.get("/health", tags=["health"])
             def health() -> dict[str, str]:

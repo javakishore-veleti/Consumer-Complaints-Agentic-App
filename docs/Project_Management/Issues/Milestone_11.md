@@ -22,8 +22,10 @@
 | #229 | — | written spec + plan | Done | 2026-11-17 10:00 | 2026-11-17 10:15 |
 | #230 | 1 | `/ccaa-story-start 230` | Done | 2026-11-17 10:15 | 2026-11-17 10:16 |
 | #230 | 2–11 | registry migration + DAO + tests | Done | 2026-11-17 10:16 | 2026-11-17 10:20 |
-| #230 | 12 | `/ccaa-story-complete 230` | In progress | 2026-11-17 10:20 | - |
-| #231 | 1 | `/ccaa-story-start 231` | Planned | - | - |
+| #230 | 12 | `/ccaa-story-complete 230` | Done | 2026-11-17 10:20 | 2026-11-17 10:19 |
+| #231 | 1 | `/ccaa-story-start 231` | Done | 2026-11-17 10:19 | 2026-11-17 10:19 |
+| #231 | 2–11 | stage run folder + registry callbacks | Done | 2026-11-17 10:19 | 2026-11-17 10:25 |
+| #231 | 12 | `/ccaa-story-complete 231` | In progress | 2026-11-17 10:25 | - |
 | #232 | 1 | `/ccaa-story-start 232` | Planned | - | - |
 | #233 | 1 | `/ccaa-story-start 233` | Planned | - | - |
 | #234 | 1 | `/ccaa-story-start 234` | Planned | - | - |

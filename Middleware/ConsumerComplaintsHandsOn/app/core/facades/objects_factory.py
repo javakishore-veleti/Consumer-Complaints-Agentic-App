@@ -9,6 +9,7 @@ from app.core.common.bean_registry import bean_registry
 from app.core.facades.airflow_start_dag_facade import AirflowStartDagFacade
 from app.core.facades.airflow_upsert_secrets_facade import AirflowUpsertSecretsFacade
 from app.core.facades.app_endpoint_list_facade import AppEndpointListFacade
+from app.core.facades.dataset_import_run_facade import DatasetImportRunFacade
 from app.core.facades.intellect_query_facade import IntellectQueryFacade
 from app.core.facades.mio_status_facade import MioStatusFacade
 from app.core.facades.start_wf_facade import StartWfFacade
@@ -33,16 +34,25 @@ class FacadesObjectsFactory:
             from app.core.facades.impl.airflow_upsert_secrets_facade_impl import (
                 AirflowUpsertSecretsFacadeImpl,
             )
-            from app.core.facades.impl.mio_status_facade_impl import MioStatusFacadeImpl
-            from app.core.facades.impl.wf_exec_status_facade_impl import WfExecStatusFacadeImpl
-            from app.core.facades.impl.start_wf.start_wf_facade_impl import StartWfFacadeImpl
             from app.core.facades.impl.app_ep.app_endpoint_list_facade_impl import (
                 AppEndpointListFacadeImpl,
+            )
+            from app.core.facades.impl.dataset_import_run_facade_impl import (
+                DatasetImportRunFacadeImpl,
             )
             from app.core.facades.impl.intellect.intellect_query_facade_impl import (
                 IntellectQueryFacadeImpl,
             )
-            from app.core.facades.impl.wf_list.wf_list_facade_impl import WfListFacadeImpl
+            from app.core.facades.impl.mio_status_facade_impl import MioStatusFacadeImpl
+            from app.core.facades.impl.start_wf.start_wf_facade_impl import (
+                StartWfFacadeImpl,
+            )
+            from app.core.facades.impl.wf_exec_status_facade_impl import (
+                WfExecStatusFacadeImpl,
+            )
+            from app.core.facades.impl.wf_list.wf_list_facade_impl import (
+                WfListFacadeImpl,
+            )
 
             bean_registry.register(MioStatusFacade, MioStatusFacadeImpl())
             bean_registry.register(WfExecStatusFacade, WfExecStatusFacadeImpl())
@@ -52,6 +62,7 @@ class FacadesObjectsFactory:
             bean_registry.register(AirflowStartDagFacade, AirflowStartDagFacadeImpl())
             bean_registry.register(StartWfFacade, StartWfFacadeImpl())
             bean_registry.register(IntellectQueryFacade, IntellectQueryFacadeImpl())
+            bean_registry.register(DatasetImportRunFacade, DatasetImportRunFacadeImpl())
             FacadesObjectsFactory._initialized = True
 
     @staticmethod
@@ -93,3 +104,8 @@ class FacadesObjectsFactory:
     def get_intellect_query_facade() -> IntellectQueryFacade:
         FacadesObjectsFactory.init()
         return bean_registry.get_one(IntellectQueryFacade)  # type: ignore[return-value]
+
+    @staticmethod
+    def get_dataset_import_run_facade() -> DatasetImportRunFacade:
+        FacadesObjectsFactory.init()
+        return bean_registry.get_one(DatasetImportRunFacade)  # type: ignore[return-value]

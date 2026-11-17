@@ -95,7 +95,7 @@ class SqlAlchemyDatasetImportRunDao(DatasetImportRunDao):
         try:
             with unit_of_work(ctx) as session:
                 row = DatasetImportRunModel(
-                    id=str(uuid4()),
+                    id=(req.id.strip() if req.id and req.id.strip() else str(uuid4())),
                     run_folder_name=req.run_folder_name.strip(),
                     location_kind=req.location_kind.strip(),
                     location_ref=req.location_ref.strip(),
