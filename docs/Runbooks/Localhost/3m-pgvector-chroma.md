@@ -49,7 +49,7 @@ $HOME/Downloads/temp/complaints_split/complaints_part_002.csv.zip
 …
 ```
 
-Stage copies those files into the **landing** dir `LOCAL_DATA_PATH_CFPB` (`…/complains_datasets/imports/`). Airflow bind-mounts both the landing tree and the default Downloads split folder.
+Stage copies those files into a **UTC timestamped run folder** under `LOCAL_DATA_PATH_CFPB` (`…/complains_datasets/imports/<UTC>/dataset/`). Airflow bind-mounts both the landing tree and the default Downloads split folder.
 
 2. Confirm `.env` under `Middleware/ConsumerComplaintsHandsOn/` includes:
 
@@ -115,38 +115,46 @@ Then Sync secrets again (§0.4).
 
 ---
 
-## 1. Stage every part from your folder into the landing directory
+## 1. Stage every part from your folder into a timestamped import run
 
-**Objective:** Copy all `complaints_part_*.csv.zip` from `CCA_CFPB_SPLIT_SOURCE_PATH` into `LOCAL_DATA_PATH_CFPB`. You are **not** downloading the CFPB monolith from the internet in this runbook.
+**Objective:** Copy all `complaints_part_*.csv.zip` from `CCA_CFPB_SPLIT_SOURCE_PATH` into a **UTC run folder** under `LOCAL_DATA_PATH_CFPB` (not a flat overwrite). You are **not** downloading the CFPB monolith from the internet in this runbook.
 
-**Where in Admin:** **DataSets → Imports** (no separate “MIO” left-nav). Expand the accordion row **Customer complaints all 2026** (that is where the stage/download workflow is attached today).
+**Landing layout after a successful stage:**
+
+```text
+LOCAL_DATA_PATH_CFPB/
+  2026-11-14-15-18-00/          # UTC workflow start
+    _metadata/import.json
+    dataset/complaints_part_*.csv.zip
+```
+
+**Where in Admin:** **DataSets → Imports**. Expand **Customer complaints all 2026**.
 
 1. Choose workflow **`download_cfpb_all`** and start it  
    (seeded as `source_mode=split` → AppEndpoint `cfpb_stage_split_to_local`)
 2. Click **Refresh status** until the row shows **`completed`**
 3. Airflow: DAG `download_cfpb_all` last run = success
-4. Confirm parts landed under `LOCAL_DATA_PATH_CFPB` (for example `complaints_part_001.csv.zip`, …)
+4. Confirm a new `YYYY-MM-DD-HH-MM-SS/dataset/` folder under `LOCAL_DATA_PATH_CFPB` with your parts
 
 ---
 
-## 2. Publish parts to the complaint store (MongoDB)
+## 2. Publish selected import runs to the complaint store (MongoDB)
 
-**Objective:** Read the landed part zips and write complaint documents into Mongo so index workflows have something to search.
+**Objective:** Choose one or more **landed** import runs and load their part zips into Mongo so index workflows have something to search.
 
 **Why MongoDB**
 
 - After step 1 you only have **files on disk**. Intellect / index DAGs do not read those zips directly.
-- **Ingest** loads each part into the **complaint MongoDB** (`CCA_MONGO_COMPLAINTS_URL` / `consumer_comp_db`).
+- **Ingest** loads each selected run’s `dataset/` parts into the **complaint MongoDB** (`CCA_MONGO_COMPLAINTS_URL` / `consumer_comp_db`).
 - Steps 3–4 (**pgvector** / **Chroma**) **read from Mongo**.
 
-Seeded `ingest_cfpb_all` already loops `complaints_part_*.csv.zip` under the landing path.
+**Where in Admin:** **DataSets → DB Ingest**
 
-**DataSets → Imports** → expand **Customer complaints all 2026** → start **`ingest_cfpb_all`**  
-(or use **DB Ingest** if that page is where you prefer to start ingest workflows).
-
-1. Start **`ingest_cfpb_all`**
-2. Wait until **`completed`**
-3. Airflow: DAG `ingest_cfpb_all` = success
+1. In **Import runs**, check one or more rows with status **`landed`** (or **`failed`** to retry). Already **`ingested`** rows stay disabled.
+2. Choose **Sequential (default)** or **Parallel**
+3. Expand **Customer complaints all 2026**, prefer workflow **`ingest_cfpb_imports_wrapper`**, click **Start ingest**
+4. Wait until the MIO ingest status shows **`completed`**
+5. Airflow: DAG `ingest_cfpb_imports_wrapper` = success (it triggers `ingest_cfpb_all` once per selected import)
 
 ---
 
@@ -189,8 +197,8 @@ Chroma HTTP: http://127.0.0.1:8100
 
 | # | Functional outcome | How you know |
 |---|---|---|
-| 1 | Your split folder was staged into landing | `download_cfpb_all` **`completed`**; `complaints_part_*.csv.zip` under `LOCAL_DATA_PATH_CFPB` |
-| 2 | Complaints are documents in Mongo | `ingest_cfpb_all` **`completed`** |
+| 1 | Your split folder was staged into a UTC run folder | `download_cfpb_all` **`completed`**; `…/YYYY-MM-DD-HH-MM-SS/dataset/complaints_part_*.csv.zip` |
+| 2 | Selected import(s) are documents in Mongo | `ingest_cfpb_imports_wrapper` **`completed`**; DB Ingest shows those runs as **`ingested`** |
 | 3 | Searchable in Postgres vector store | `index_cfpb_pgvector` **`completed`**; `complaint_vectors` count &gt; 0 |
 | 4 | Searchable in Chroma | `index_cfpb_chroma` **`completed`**; Chroma on `:8100` |
 | 5 | Admin shows real pipeline status | Status strings are API **`completed`** |
@@ -199,8 +207,8 @@ Chroma HTTP: http://127.0.0.1:8100
 
 | Functional outcome | Workflow / DAG |
 |---|---|
-| Stage all parts from folder | `download_cfpb_all` (`source_mode=split`) |
-| Publish to Mongo | `ingest_cfpb_all` (part glob) |
+| Stage all parts into UTC run folder | `download_cfpb_all` (`source_mode=split`) |
+| Publish selected imports to Mongo | `ingest_cfpb_imports_wrapper` → `ingest_cfpb_all` per import |
 | Postgres vector store | `index_cfpb_pgvector` |
 | Chroma vector store | `index_cfpb_chroma` |
 
