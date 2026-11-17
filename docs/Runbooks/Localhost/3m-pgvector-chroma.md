@@ -95,11 +95,17 @@ Admin → **DataSets → Imports** → MIO **Customer complaints 3 months 2026**
 
 ---
 
-## 3. Consumer Complaint Datasets — load Customer complaints 3 months 2026 into the complaint store
+## 3. Consumer Complaint Datasets — publish Customer complaints 3 months 2026 to the complaint store (MongoDB)
 
-**Objective:** Load **Customer complaints 3 months 2026** into Mongo so search indexes can be built.
+**Objective:** Turn the on-disk **Customer complaints 3 months 2026** file into **complaint documents** the product can search and index.
 
-Seeded `ingest_cfpb_all` looks for `complaints_part_*.csv.zip`. For this MIO’s file, point ingest at the filter output once:
+**Why MongoDB / what ingest does**
+
+- After steps 1–2 you only have **zip files on disk** under `LOCAL_DATA_PATH_CFPB`. Those files are not queryable by Intellect or the index workflows.
+- **Ingest** reads that zip, writes each complaint as a document into the **complaint MongoDB** (`CCA_MONGO_COMPLAINTS_URL` / `consumer_comp_db`). That database is the **source of truth for complaint text** (separate from the Admin/operational store).
+- Steps 4–5 (**pgvector** / **Chroma**) **read from Mongo**, not from the zip. Skip or fail ingest → empty indexes.
+
+Seeded `ingest_cfpb_all` looks for `complaints_part_*.csv.zip`. For **Customer complaints 3 months 2026**, point ingest at the filter output once:
 
 Admin → MIO **Customer complaints all 2026** → workflow **`ingest_cfpb_all`**  
 (or via API: set that workflow’s config to)
@@ -121,13 +127,25 @@ Admin → MIO **Customer complaints all 2026** → workflow **`ingest_cfpb_all`*
 
 ---
 
-## 4. Consumer Complaint Datasets — build Postgres (pgvector) search index
+## 4. Consumer Complaint Datasets — make complaints searchable in Postgres (vector store)
 
-**Objective:** Index the loaded complaints into **ops Postgres + pgvector** for local vector search.
+**Objective:** Copy complaint text from Mongo into the **ops Postgres vector store** so you can run local similarity search against **Customer complaints 3 months 2026** (and whatever else was ingested).
+
+**What this is (not “Index → pgvector” as a product name)**  
+Postgres here is the **operational DB** with the **pgvector** extension. The workflow stores each complaint id + text + embedding in a vector table (`complaint_vectors` by default).
+
+**Embeddings — what / where / how (localhost MVP)**
+
+| Question | Answer |
+|---|---|
+| What model? | **No neural / paid embedding model.** Localhost uses deterministic **`hash_embedding`** (SHA-256–based pseudo-vectors), dimension **32**. |
+| Where is the code? | `Middleware/Airflow-dags/ccaa/vector_index.py` — `hash_embedding()`, called from `index_complaint_docs()`. |
+| How does the DAG use it? | Reads complaint docs from Mongo → builds text → `hash_embedding(text)` → upserts into Postgres via `open_vector_store(backend="pgvector")`. |
+| Why this way? | CI/laptop friendly (D88/D92/D94): no GPU, no API keys. Cloud embedding models stay **M90**. |
 
 Admin → MIO **Customer complaints all 2026**
 
-1. Start **`index_cfpb_pgvector`**
+1. Start workflow **`index_cfpb_pgvector`**
 2. Wait until **`completed`**
 3. Airflow: DAG `index_cfpb_pgvector` = success
 
@@ -138,35 +156,52 @@ docker exec -it cca-operational-postgres \
   psql -U postgres -d cca -c "SELECT count(*) FROM complaint_vectors;"
 ```
 
-(Table name may match your store default; if empty, check Airflow task logs.)
+(If empty, check Airflow task logs / Sync secrets for `CCA_PGVECTOR_URL` + Mongo URL.)
 
 ---
 
-## 5. Consumer Complaint Datasets — build Chroma search index
+## 5. Consumer Complaint Datasets — make complaints searchable in Chroma (vector store)
 
-**Objective:** Index the same loaded complaints into **local Chroma**.
+**Objective:** Copy the **same** Mongo complaint corpus into **local Chroma** so you have a second localhost vector store (separate container on `:8100`).
+
+**What this is (not “Index → Chroma” as a product name)**  
+Chroma is an opt-in **document + embedding** store. Same complaint texts as step 4; different backend.
+
+**Embeddings — what / where / how**  
+**Same as step 4:** `hash_embedding` in `Middleware/Airflow-dags/ccaa/vector_index.py` (dim 32). The Chroma DAG calls `open_vector_store(backend="chroma")` and upserts those vectors — it does **not** call OpenAI/HuggingFace/etc.
 
 Admin → MIO **Customer complaints all 2026**
 
-1. Start **`index_cfpb_chroma`**
+1. Start workflow **`index_cfpb_chroma`**
 2. Wait until **`completed`**
 3. Airflow: DAG `index_cfpb_chroma` = success
 
-Chroma UI/API: http://127.0.0.1:8100  
+Chroma HTTP: http://127.0.0.1:8100  
 
 ---
 
-## 6. Consumer Complaint Datasets — done checklist
+## 6. Definition of Done (functional)
 
-| Functional step | Workflow / DAG | Where to confirm |
+**You are done when all of the following are true** (operator view — not “DAGs ran” alone):
+
+| # | Functional outcome | How you know |
 |---|---|---|
-| Land full export | `download_cfpb_all` | Admin All MIO + Airflow |
-| Customer complaints 3 months 2026 | `filter_cfpb_3_months` | Admin 3 months MIO + Airflow |
-| Load Customer complaints 3 months 2026 | `ingest_cfpb_all` (3m filename) | Admin All MIO + Airflow |
-| Postgres (pgvector) index | `index_cfpb_pgvector` | Admin All MIO + Airflow + Postgres |
-| Chroma index | `index_cfpb_chroma` | Admin All MIO + Airflow + `:8100` |
+| 1 | Full Consumer Complaint Datasets export is on this machine | Admin MIO **Customer complaints all 2026** last run for land/download is **`completed`** |
+| 2 | **Customer complaints 3 months 2026** dataset exists as a derived file | Admin MIO **Customer complaints 3 months 2026** prepare step is **`completed`**; `complaints_3_months.csv.zip` under `LOCAL_DATA_PATH_CFPB` |
+| 3 | Those complaints are **published as documents** in the complaint store | Ingest step **`completed`**; Mongo has complaint docs (index steps have something to read) |
+| 4 | Complaints are **searchable in Postgres vector store** | `index_cfpb_pgvector` **`completed`**; `complaint_vectors` row count &gt; 0 |
+| 5 | Complaints are **searchable in Chroma** | `index_cfpb_chroma` **`completed`**; Chroma reachable on `:8100` |
+| 6 | Admin shows real pipeline status | Every status string is API **`completed`** (never invented in the UI) |
 
-Every Admin status must be the API string **`completed`** (not invented in the UI).
+**Workflow / DAG reference** (technical ids behind the functional steps above):
+
+| Functional outcome | Workflow / DAG |
+|---|---|
+| Land full export | `download_cfpb_all` |
+| Customer complaints 3 months 2026 | `filter_cfpb_3_months` |
+| Publish to complaint store (Mongo) | `ingest_cfpb_all` (3m filename) |
+| Postgres vector store | `index_cfpb_pgvector` |
+| Chroma vector store | `index_cfpb_chroma` |
 
 ---
 
