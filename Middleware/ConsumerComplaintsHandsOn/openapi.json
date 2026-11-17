@@ -208,6 +208,48 @@
         "title": "AppWfExecLogOut",
         "type": "object"
       },
+      "DagContextOut": {
+        "properties": {
+          "app_endpoint": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "App Endpoint"
+          },
+          "config_used": {
+            "additionalProperties": true,
+            "title": "Config Used",
+            "type": "object"
+          },
+          "dataset_locations": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataset Locations"
+          },
+          "execution_id": {
+            "title": "Execution Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "execution_id"
+        ],
+        "title": "DagContextOut",
+        "type": "object"
+      },
       "DatasetImportRunCreateBody": {
         "additionalProperties": false,
         "properties": {
@@ -1382,6 +1424,65 @@
           }
         },
         "summary": "Update",
+        "tags": [
+          "callbacks"
+        ]
+      }
+    },
+    "/callbacks/workflow-executions/{execution_id}/dag-context": {
+      "get": {
+        "operationId": "get_dag_context_callbacks_workflow_executions__execution_id__dag_context_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "execution_id",
+            "required": true,
+            "schema": {
+              "minLength": 1,
+              "title": "Execution Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "app_endpoint",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "App Endpoint"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DagContextOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Dag Context",
         "tags": [
           "callbacks"
         ]

@@ -8,6 +8,7 @@ from fastapi import Depends, FastAPI
 
 from app.api.routers.airflow_upsert_secrets_api import AirflowUpsertSecretsApi
 from app.api.routers.app_endpoint_api import AppEndpointApi
+from app.api.routers.dag_context_api import DagContextApi
 from app.api.routers.dataset_import_run_callback_api import (
     DatasetImportRunApi,
     DatasetImportRunCallbackApi,
@@ -43,6 +44,7 @@ class ApiObjectsFactory:
             upsert_api = AirflowUpsertSecretsApi()
             app_ep_api = AppEndpointApi()
             intellect_api = IntellectQueryApi()
+            dag_ctx_api = DagContextApi()
             bean_registry.register(CallbackSecretAuth, auth)
             bean_registry.register(WfExecCallbackApi, wf_api)
             bean_registry.register(DatasetImportRunCallbackApi, import_run_cb_api)
@@ -53,6 +55,7 @@ class ApiObjectsFactory:
             bean_registry.register(AirflowUpsertSecretsApi, upsert_api)
             bean_registry.register(AppEndpointApi, app_ep_api)
             bean_registry.register(IntellectQueryApi, intellect_api)
+            bean_registry.register(DagContextApi, dag_ctx_api)
 
             app = FastAPI(
                 title="Consumer Complaints Hands-On API",
@@ -70,6 +73,7 @@ class ApiObjectsFactory:
             app.include_router(import_run_api.router)
             # Every router an engine calls is protected as a whole by the callback secret (D59).
             app.include_router(wf_api.router, dependencies=[Depends(auth)])
+            app.include_router(dag_ctx_api.router, dependencies=[Depends(auth)])
             app.include_router(import_run_cb_api.router, dependencies=[Depends(auth)])
 
             @app.get("/health", tags=["health"])

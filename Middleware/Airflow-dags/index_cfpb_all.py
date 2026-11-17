@@ -11,7 +11,7 @@ from airflow.models import Variable
 from airflow.operators.python import PythonOperator
 from airflow.utils.trigger_rule import TriggerRule
 
-from ccaa.db_reader import load_execution_config, make_engine, resolve_app_endpoint
+from ccaa.dag_context import fetch_dag_context, materialize_app_endpoint
 from ccaa.mongo_ingest import resolve_complaints_mongo_url
 from ccaa.status_callback import notify_execution_finished, report_execution_status
 from ccaa.vector_index import (
@@ -44,20 +44,20 @@ def resolve_and_index(**context) -> dict:
         engine_run_id=_engine_run_id(context),
     )
 
-    db_url = Variable.get("CCA_DB_URL")
-    engine = make_engine(db_url)
-    with engine.connect() as conn:
-        cfg = load_execution_config(conn, execution_id)
-        ep_name = (cfg.get("app_endpoint_name") or "").strip()
-        if ep_name:
-            resolved = resolve_app_endpoint(
-                conn,
-                ep_name,
-                getenv=os.getenv,
-                get_variable=Variable.get,
-            )
-            frm = resolved["from"]
-            to = resolved["to"]
+    ctx = fetch_dag_context(execution_id)
+    cfg = ctx.get("config_used") or {}
+    ep_name = (cfg.get("app_endpoint_name") or "").strip()
+    if ep_name:
+        raw_ep = ctx.get("app_endpoint")
+        if not raw_ep:
+            raw_ep = fetch_dag_context(execution_id, app_endpoint=ep_name).get("app_endpoint")
+        if not raw_ep:
+            raise ValueError(f"app_endpoint not found: {ep_name}")
+        resolved = materialize_app_endpoint(
+            raw_ep, getenv=os.getenv, get_variable=Variable.get
+        )
+        frm = resolved["from"]
+        to = resolved["to"]
             if frm.get("kind") != "env" or not frm.get("value"):
                 raise ValueError(f"app_endpoint {ep_name} from must be Mongo env URI")
             if to.get("kind") != "env" or not to.get("value"):

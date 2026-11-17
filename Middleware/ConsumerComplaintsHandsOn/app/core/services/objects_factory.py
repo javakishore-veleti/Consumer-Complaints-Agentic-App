@@ -9,6 +9,7 @@ from app.core.common.bean_registry import bean_registry
 from app.core.services.airflow_start_dag_service import AirflowStartDagService
 from app.core.services.airflow_upsert_secrets_service import AirflowUpsertSecretsService
 from app.core.services.app_endpoint_list_service import AppEndpointListService
+from app.core.services.dag_context_service import DagContextService
 from app.core.services.dataset_import_run_service import DatasetImportRunService
 from app.core.services.intellect_query_service import IntellectQueryService
 from app.core.services.mio_status_service import MioStatusService
@@ -41,6 +42,9 @@ class ServicesObjectsFactory:
             from app.core.services.impl.app_endpoint_list_service_impl import (
                 AppEndpointListServiceImpl,
             )
+            from app.core.services.impl.dag_context_service_impl import (
+                DagContextServiceImpl,
+            )
             from app.core.services.impl.dataset_import_run_service_impl import (
                 DatasetImportRunServiceImpl,
             )
@@ -66,6 +70,7 @@ class ServicesObjectsFactory:
             bean_registry.register(StartWfService, StartWfServiceImpl())
             bean_registry.register(IntellectQueryService, IntellectQueryServiceImpl())
             bean_registry.register(DatasetImportRunService, DatasetImportRunServiceImpl())
+            bean_registry.register(DagContextService, DagContextServiceImpl())
             ServicesObjectsFactory._initialized = True
 
     @staticmethod
@@ -117,3 +122,8 @@ class ServicesObjectsFactory:
     def get_workflow_engines() -> list[WorkflowEngine]:
         ServicesObjectsFactory.init()
         return bean_registry.get_all(WorkflowEngine)  # type: ignore[return-value]
+
+    @staticmethod
+    def get_dag_context_service() -> DagContextService:
+        ServicesObjectsFactory.init()
+        return bean_registry.get_one(DagContextService)  # type: ignore[return-value]

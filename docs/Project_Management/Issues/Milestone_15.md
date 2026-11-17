@@ -2,7 +2,7 @@
 
 **Scope:** DAGs fetch ops config via Middleware API; no direct Postgres for catalog/exec config (bulk data paths may still use stores).
 
-**Status: in progress.** Stories left to build: 1. Stories already done: 0.
+**Status: Done.** Stories left to build: 0. Stories already done: 1.
 
 ## 1. Build order
 
@@ -14,12 +14,13 @@
 
 | Issue | Step | Command | Status | Completed |
 |---|---|---|---|---|
-| #242 | 1 | `/ccaa-story-start 242` | Done | 2026-11-17 16:13 |
-| #242 | 2 | design + worktree + TDD | In progress | 2026-11-17 16:13 |
-| #242 | 3 | API + DAG helper + wire all config-reading DAGs | Planned | - |
-| #242 | 4 | \`/ccaa-commit-push\` | Planned | - |
-| #242 | 5 | \`/ccaa-story-complete 242\` | Planned | - |
+| #242 | 1 | `/ccaa-story-start 242` | Done | 2026-11-17 16:12 |
+| #242 | 2 | design + worktree + TDD | Done | 2026-11-17 16:19 |
+| #242 | 3 | API + DAG helper + wire all config-reading DAGs | Done | 2026-11-17 16:19 |
+| #242 | 4 | `/ccaa-commit-push` | Done | 2026-11-17 16:19 |
+| #242 | 5 | `/ccaa-story-complete 242` | In progress | 2026-11-17 16:19 |
 
 ## 3. Notes
 
-- M14 Sync rewrite (#241) closed as superseded by this approach.
+- `GET /callbacks/workflow-executions/{id}/dag-context` (callback secret).
+- Filter/download/ingest/index_* no longer use `CCA_DB_URL` / `make_engine` for ops config.

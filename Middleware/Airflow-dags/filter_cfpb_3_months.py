@@ -15,12 +15,8 @@ from airflow.models import Variable
 from airflow.operators.python import PythonOperator
 from airflow.utils.trigger_rule import TriggerRule
 
-from ccaa.db_reader import (
-    load_dataset_locations,
-    load_execution_config,
-    make_engine,
-    resolve_landing_dir,
-)
+from ccaa.dag_context import fetch_dag_context
+from ccaa.db_reader import resolve_landing_dir
 from ccaa.filter_by_date import (
     assert_expected_row_count,
     filter_path_by_date_received,
@@ -79,16 +75,16 @@ def resolve_and_filter(**context) -> str:
         engine_run_id=_engine_run_id(context),
     )
 
-    db_url = Variable.get("CCA_DB_URL")
-    engine = make_engine(db_url)
-    with engine.connect() as conn:
-        cfg = load_execution_config(conn, execution_id)
-        code = cfg.get("dataset_code")
-        if not code:
-            raise ValueError("config_used.dataset_code is required")
-        months = int(cfg.get("months", 3))
-        date_column = str(cfg.get("date_column") or "Date received")
-        locs = load_dataset_locations(conn, code)
+    ctx = fetch_dag_context(execution_id)
+    cfg = ctx.get("config_used") or {}
+    code = cfg.get("dataset_code")
+    if not code:
+        raise ValueError("config_used.dataset_code is required")
+    months = int(cfg.get("months", 3))
+    date_column = str(cfg.get("date_column") or "Date received")
+    locs = ctx.get("dataset_locations") or {}
+    if "local" not in locs or not locs["local"].get("local_env_var_name"):
+        raise ValueError("dataset missing local landing location")
 
     landing = resolve_landing_dir(
         locs["local"]["local_env_var_name"],

@@ -13,13 +13,8 @@ from airflow.models import Variable
 from airflow.operators.python import PythonOperator
 from airflow.utils.trigger_rule import TriggerRule
 
-from ccaa.db_reader import (
-    load_dataset_locations,
-    load_execution_config,
-    make_engine,
-    resolve_app_endpoint,
-    resolve_landing_dir,
-)
+from ccaa.dag_context import fetch_dag_context, materialize_app_endpoint
+from ccaa.db_reader import resolve_landing_dir
 from ccaa.download import download_url_to_path
 from ccaa.import_runs import (
     LOCATION_LOCAL_PATH,
@@ -69,44 +64,46 @@ def resolve_and_download(**context) -> dict:
         engine_run_id=_engine_run_id(context),
     )
 
-    db_url = Variable.get("CCA_DB_URL")
-    engine = make_engine(db_url)
-    with engine.connect() as conn:
-        cfg = load_execution_config(conn, execution_id)
-        ep_name = (cfg.get("app_endpoint_name") or "").strip()
-        stage_from_path: Path | None = None
-        http_url: str | None = None
-        if ep_name:
-            resolved = resolve_app_endpoint(
-                conn,
-                ep_name,
-                getenv=os.getenv,
-                get_variable=Variable.get,
-            )
-            frm = resolved["from"]
-            to = resolved["to"]
-            if to.get("kind") == "env" and to.get("value"):
-                landing = Path(to["value"])
-            elif to.get("kind") == "path" and to.get("path"):
-                landing = Path(to["path"])
-            else:
-                raise ValueError(f"app_endpoint {ep_name} to side is not a landing path")
-            if frm.get("kind") == "env" and frm.get("value"):
-                # Stage endpoint: from = source dir, to = landing
-                stage_from_path = Path(frm["value"])
-            else:
-                http_url = frm.get("path") or frm.get("value")
+    ctx = fetch_dag_context(execution_id)
+    cfg = ctx.get("config_used") or {}
+    ep_name = (cfg.get("app_endpoint_name") or "").strip()
+    stage_from_path: Path | None = None
+    http_url: str | None = None
+    if ep_name:
+        raw_ep = ctx.get("app_endpoint") or fetch_dag_context(
+            execution_id, app_endpoint=ep_name
+        ).get("app_endpoint")
+        if not raw_ep:
+            raise ValueError(f"app_endpoint not found: {ep_name}")
+        resolved = materialize_app_endpoint(
+            raw_ep, getenv=os.getenv, get_variable=Variable.get
+        )
+        frm = resolved["from"]
+        to = resolved["to"]
+        if to.get("kind") == "env" and to.get("value"):
+            landing = Path(to["value"])
+        elif to.get("kind") == "path" and to.get("path"):
+            landing = Path(to["path"])
         else:
-            code = cfg.get("dataset_code")
-            if not code:
-                raise ValueError("config_used.dataset_code is required")
-            locs = load_dataset_locations(conn, code)
-            landing = resolve_landing_dir(
-                locs["local"]["local_env_var_name"],
-                getenv=os.getenv,
-                get_variable=Variable.get,
-            )
-            http_url = locs.get("http", {}).get("path")
+            raise ValueError(f"app_endpoint {ep_name} to side is not a landing path")
+        if frm.get("kind") == "env" and frm.get("value"):
+            # Stage endpoint: from = source dir, to = landing
+            stage_from_path = Path(frm["value"])
+        else:
+            http_url = frm.get("path") or frm.get("value")
+    else:
+        code = cfg.get("dataset_code")
+        if not code:
+            raise ValueError("config_used.dataset_code is required")
+        locs = ctx.get("dataset_locations") or {}
+        if "local" not in locs or not locs["local"].get("local_env_var_name"):
+            raise ValueError("dataset missing local landing location")
+        landing = resolve_landing_dir(
+            locs["local"]["local_env_var_name"],
+            getenv=os.getenv,
+            get_variable=Variable.get,
+        )
+        http_url = locs.get("http", {}).get("path")
 
     mode = str(cfg.get("source_mode") or "").strip().lower()
     urls = cfg.get("source_urls")

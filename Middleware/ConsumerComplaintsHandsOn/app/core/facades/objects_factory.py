@@ -9,6 +9,7 @@ from app.core.common.bean_registry import bean_registry
 from app.core.facades.airflow_start_dag_facade import AirflowStartDagFacade
 from app.core.facades.airflow_upsert_secrets_facade import AirflowUpsertSecretsFacade
 from app.core.facades.app_endpoint_list_facade import AppEndpointListFacade
+from app.core.facades.dag_context_facade import DagContextFacade
 from app.core.facades.dataset_import_run_facade import DatasetImportRunFacade
 from app.core.facades.intellect_query_facade import IntellectQueryFacade
 from app.core.facades.mio_status_facade import MioStatusFacade
@@ -37,6 +38,9 @@ class FacadesObjectsFactory:
             from app.core.facades.impl.app_ep.app_endpoint_list_facade_impl import (
                 AppEndpointListFacadeImpl,
             )
+            from app.core.facades.impl.dag_context.dag_context_facade_impl import (
+                DagContextFacadeImpl,
+            )
             from app.core.facades.impl.dataset_import_run_facade_impl import (
                 DatasetImportRunFacadeImpl,
             )
@@ -63,6 +67,7 @@ class FacadesObjectsFactory:
             bean_registry.register(StartWfFacade, StartWfFacadeImpl())
             bean_registry.register(IntellectQueryFacade, IntellectQueryFacadeImpl())
             bean_registry.register(DatasetImportRunFacade, DatasetImportRunFacadeImpl())
+            bean_registry.register(DagContextFacade, DagContextFacadeImpl())
             FacadesObjectsFactory._initialized = True
 
     @staticmethod
@@ -109,3 +114,8 @@ class FacadesObjectsFactory:
     def get_dataset_import_run_facade() -> DatasetImportRunFacade:
         FacadesObjectsFactory.init()
         return bean_registry.get_one(DatasetImportRunFacade)  # type: ignore[return-value]
+
+    @staticmethod
+    def get_dag_context_facade() -> DagContextFacade:
+        FacadesObjectsFactory.init()
+        return bean_registry.get_one(DagContextFacade)  # type: ignore[return-value]
