@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from app.core.dao.impl.mongo.client import get_mongo_db
 from app.core.dao.impl.mongo.docs import MongoDocument
 
-NOW_CATALOG = datetime(2026, 11, 14, tzinfo=timezone.utc)
-NOW_FILTER = datetime(2026, 11, 15, tzinfo=timezone.utc)
+NOW_CATALOG = datetime(2026, 11, 14, tzinfo=UTC)
+NOW_FILTER = datetime(2026, 11, 15, tzinfo=UTC)
 HTTP_URL = "https://files.consumerfinance.gov/ccdb/complaints.csv.zip"
 
 DATASET_ID = "5187ad0c-d8ed-56ac-829d-e49313c16dbf"
@@ -30,6 +30,11 @@ MW_ALL_DOWNLOAD_ID = "c23808b9-4e57-5a5b-b301-78dec5ac839e"
 MW_3M_FILTER_ID = "edd79fde-5736-5655-9d00-c52bfe172c1f"
 # uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m04-0013/mios-workflows-all-ingest")
 MW_ALL_INGEST_ID = "251b44d2-9aea-5d9d-b1a0-0816e8db3f80"
+# uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m11/ingest_cfpb_imports_wrapper")
+INGEST_WRAPPER_WF_ID = "e64365bd-98f4-52a4-a3bc-e26455915c6b"
+# uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m11/mios-workflows-all-ingest-wrapper")
+MW_ALL_INGEST_WRAPPER_ID = "3075d780-d9eb-5fe5-8b03-2cdcab384cc9"
+NOW_M11 = datetime(2026, 11, 17, tzinfo=UTC)
 # uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m04-0017/index_cfpb_all")
 INDEX_WF_ID = "120e90d3-f61d-5fd4-a8c4-2a1aba9e9ba6"
 # uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m04-0018/mios-workflows-all-index")
@@ -43,14 +48,14 @@ APP_ENDPOINT_INGEST_ID = "8ca22b0c-1c7c-5a25-be9d-d51c6063a3a5"
 APP_ENDPOINT_INDEX_ID = "af151640-ce3a-5995-a390-fa1ec5212aaf"
 # uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m06-0004/ep-cfpb-stage-split-local")
 APP_ENDPOINT_STAGE_SPLIT_ID = "763c400e-09e1-59a5-92ed-ed910df667ac"
-NOW_SPLIT = datetime(2026, 11, 16, tzinfo=timezone.utc)
+NOW_SPLIT = datetime(2026, 11, 16, tzinfo=UTC)
 # uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m07-0007/index_cfpb_pgvector")
 INDEX_PG_WF_ID = "68a0fa8a-825c-53f1-864f-5db167a339a0"
 # uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m07-0008/mios-workflows-all-index-pgvector")
 MW_ALL_INDEX_PG_ID = "494ff42b-a7e7-5e90-8430-74b81a52dff1"
 # uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m07-0008/ep-cfpb-index-mongo-pgvector")
 APP_ENDPOINT_INDEX_PG_ID = "2e6bd178-2900-5ea2-80ed-507f486a2133"
-NOW_PGVECTOR = datetime(2026, 11, 16, tzinfo=timezone.utc)
+NOW_PGVECTOR = datetime(2026, 11, 16, tzinfo=UTC)
 # uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m09-0008/index_cfpb_chroma")
 INDEX_CHROMA_WF_ID = "87100dc6-f634-5bde-8539-d7175ca194ac"
 # uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m09-0010/index_cfpb_redis")
@@ -63,15 +68,15 @@ MW_ALL_INDEX_REDIS_ID = "cc9d2cc5-088a-5d57-8227-4c2d2ef1cbc9"
 APP_ENDPOINT_INDEX_CHROMA_ID = "1046ad4a-b4fd-509b-9bc3-9e8501ef86c0"
 # uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m09-0011/ep-cfpb-index-mongo-redis")
 APP_ENDPOINT_INDEX_REDIS_ID = "bc449f1d-4055-5514-8794-c2ca504ebd99"
-NOW_M09 = datetime(2026, 11, 16, tzinfo=timezone.utc)
+NOW_M09 = datetime(2026, 11, 16, tzinfo=UTC)
 # uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m05-0004/acl-all-internal")
 ACL_ALL_ID = "814a15b9-246b-5f8f-baef-a3f75a946a72"
 # uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m05-0004/acl-3m-internal")
 ACL_3M_ID = "c57c33d4-f3c6-50a9-b614-5f095d4d7134"
-NOW_ENDPOINTS = datetime(2026, 11, 15, tzinfo=timezone.utc)
-NOW_INGEST = datetime(2026, 11, 15, tzinfo=timezone.utc)
-NOW_INDEX = datetime(2026, 11, 15, tzinfo=timezone.utc)
-NOW_ACL = datetime(2026, 11, 16, tzinfo=timezone.utc)
+NOW_ENDPOINTS = datetime(2026, 11, 15, tzinfo=UTC)
+NOW_INGEST = datetime(2026, 11, 15, tzinfo=UTC)
+NOW_INDEX = datetime(2026, 11, 15, tzinfo=UTC)
+NOW_ACL = datetime(2026, 11, 16, tzinfo=UTC)
 
 COLLECTIONS = (
     "app_workflows",
@@ -322,6 +327,36 @@ def seed_if_empty() -> None:
                 "mio_id": ALL_MIO_ID,
                 "workflow_id": INGEST_WF_ID,
                 "created_at": NOW_INGEST,
+            }
+        )
+    )
+    _upsert(
+        MongoDocument(
+            {
+                "_collection": "app_workflows",
+                "id": INGEST_WRAPPER_WF_ID,
+                "workflow_name": "ingest_cfpb_imports_wrapper",
+                "engine_type": "apache_airflow",
+                "engine_workflow_id": "ingest_cfpb_imports_wrapper",
+                "config": {
+                    "dataset_code": "CFPB",
+                    "source_filename_glob": "complaints_part_*.csv.zip",
+                    "batch_size": 500,
+                },
+                "enabled": True,
+                "created_at": NOW_M11,
+                "updated_at": NOW_M11,
+            }
+        )
+    )
+    _upsert(
+        MongoDocument(
+            {
+                "_collection": "mios_workflows",
+                "id": MW_ALL_INGEST_WRAPPER_ID,
+                "mio_id": ALL_MIO_ID,
+                "workflow_id": INGEST_WRAPPER_WF_ID,
+                "created_at": NOW_M11,
             }
         )
     )

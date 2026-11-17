@@ -13,6 +13,5 @@ class StartWfCallServiceTask(StartWfFacadeTask):
         ctx.resp.execution_id = ctx.start_ctx.resp.execution_id
         ctx.resp.engine_type = ctx.start_ctx.resp.engine_type
         ctx.resp.dag_conf = dict(ctx.start_ctx.resp.dag_conf or {})
-        ctx.resp.engine_type = ctx.start_ctx.resp.engine_type
         ctx.resp.code = code
         return code
