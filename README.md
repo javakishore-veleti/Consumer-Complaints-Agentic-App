@@ -88,28 +88,28 @@ Defaults from `CICD/Local/*/docker-compose.yaml` and portal/API scripts. **Local
 
 | Service | URL | Username | Password | Notes |
 |---|---|---|---|---|
-| Middleware API | http://127.0.0.1:8000 | — | — | `npm run local:handson:middlware:all:start`; OpenAPI at `/docs` |
-| Admin portal | http://127.0.0.1:4200 | — | — | Proxies `/api` → API `:8000` |
-| Intellect portal | http://127.0.0.1:4201 | — | — | Proxies `/api` → API `:8000` |
+| Middleware API | <a href="http://127.0.0.1:8000" target="_blank" rel="noopener noreferrer">http://127.0.0.1:8000</a> | — | — | `npm run local:handson:middlware:all:start`; OpenAPI at <a href="http://127.0.0.1:8000/docs" target="_blank" rel="noopener noreferrer">/docs</a> |
+| Admin portal | <a href="http://127.0.0.1:4200" target="_blank" rel="noopener noreferrer">http://127.0.0.1:4200</a> | — | — | Proxies `/api` → API `:8000` |
+| Intellect portal | <a href="http://127.0.0.1:4201" target="_blank" rel="noopener noreferrer">http://127.0.0.1:4201</a> | — | — | Proxies `/api` → API `:8000` |
 | SQLite operational DB | `Middleware/ConsumerComplaintsHandsOn/.data/operational.sqlite` | — | — | Default when `CCA_OPERATIONAL_STORE` / `CCA_DB_URL` unset |
 
 #### Containers
 
 | Service | URL / connection | Username | Password | `.env` / notes |
 |---|---|---|---|---|
-| Airflow UI + API | http://127.0.0.1:8080 | `airflow` | `airflow` | `CCA_AIRFLOW_API_BASE_URL`, `CCA_AIRFLOW_API_USERNAME`, `CCA_AIRFLOW_API_PASSWORD` |
+| Airflow UI + API | <a href="http://127.0.0.1:8080" target="_blank" rel="noopener noreferrer">http://127.0.0.1:8080</a> | `airflow` | `airflow` | `CCA_AIRFLOW_API_BASE_URL`, `CCA_AIRFLOW_API_USERNAME`, `CCA_AIRFLOW_API_PASSWORD` |
 | Airflow metadata Postgres | (internal Docker only) | `airflow` | `airflow` | DB `airflow`; not the CCA operational store |
 | CCA ops Postgres (+ pgvector) | `postgresql://postgres:postgres@127.0.0.1:5432/cca` | `postgres` | `postgres` | DB `cca`. Set `CCA_OPERATIONAL_STORE=postgres`, `CCA_DB_URL=postgresql+psycopg://postgres:postgres@127.0.0.1:5432/cca`, `CCA_PGVECTOR_URL=postgresql://postgres:postgres@127.0.0.1:5432/cca` |
 | MongoDB | `mongodb://root:changeme-local@127.0.0.1:27017/?authSource=admin` | `root` | `changeme-local` | Complaints: `CCA_MONGO_COMPLAINTS_URL=…/consumer_comp_db?authSource=admin`. Ops profile: `CCA_OPERATIONAL_STORE=mongodb`, `CCA_MONGO_OPERATIONAL_URL=…/cca_operational?authSource=admin` |
-| Chroma | http://127.0.0.1:8000 (compose default) | — | — | `CCA_CHROMA_URL`. **Conflicts with Middleware `:8000`** — prefer `CCA_CHROMA_PORT=8100` and `CCA_CHROMA_URL=http://127.0.0.1:8100` |
-| Redis Stack | `redis://127.0.0.1:6379/0` | — | — | `CCA_REDIS_URL`. RedisInsight UI: http://127.0.0.1:8001 |
+| Chroma | <a href="http://127.0.0.1:8000" target="_blank" rel="noopener noreferrer">http://127.0.0.1:8000</a> (compose default) | — | — | `CCA_CHROMA_URL`. **Conflicts with Middleware `:8000`** — prefer `CCA_CHROMA_PORT=8100` and <a href="http://127.0.0.1:8100" target="_blank" rel="noopener noreferrer">http://127.0.0.1:8100</a> |
+| Redis Stack | `redis://127.0.0.1:6379/0` | — | — | `CCA_REDIS_URL`. RedisInsight UI: <a href="http://127.0.0.1:8001" target="_blank" rel="noopener noreferrer">http://127.0.0.1:8001</a> |
 
 #### Required Middleware `.env` for live Airflow callbacks
 
 | Variable | Example local value | Purpose |
 |---|---|---|
 | `CCA_CALLBACK_SECRET` | `openssl rand -hex 32` | Shared secret; Airflow callbacks send `X-Callback-Secret` (401 without it) |
-| `CCA_API_URL` | `http://host.docker.internal:8000` | Base URL workers use to reach Middleware (Docker Desktop) |
+| `CCA_API_URL` | <a href="http://host.docker.internal:8000" target="_blank" rel="noopener noreferrer">http://host.docker.internal:8000</a> | Base URL workers use to reach Middleware (Docker Desktop) |
 | `CCA_AIRFLOW_API_PASSWORD` | `airflow` | Matches Airflow WWW user (with username `airflow`) |
 | `CCA_VECTOR_STORE_PATH` | e.g. absolute path under Airflow data | JSONL vector index (`index_cfpb_all`) |
 | `LOCAL_DATA_PATH_CFPB` | e.g. `/opt/airflow/data/cfpb` | Where CFPB zips land inside the Airflow worker |
