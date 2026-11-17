@@ -25,6 +25,7 @@
 | 15 | #222 | M10-0015 | Story | Runbook: drop GitHub issue jargon for operators |
 | 16 | #223 | M10-0016 | Story | Runbook 3m: reframe full download as filter prerequisite only |
 | 17 | #224 | M10-0017 | Story | Runbook 3m: stage split folder, not monolith zip + filter |
+| 18 | #225 | M10-0018 | Story | Runbook 0.1: stop containers before start |
 
 ## 2. Superpowers workflow
 
@@ -54,6 +55,7 @@
 | #222 | 1–4 | runbook plain language + npm stop/start (no `#221` / raw docker) | Done | 2026-11-17 09:22 |
 | #223 | 1–4 | §1 = prerequisite source zip; Imports accordion path (no MIO nav) | Done | 2026-11-17 09:28 |
 | #224 | 1–4 | split-folder stage path + widen Airflow datasets mount | Done | 2026-11-17 09:31 |
+| #225 | 1–4 | §0.1 stop then start (npm scripts) | Done | 2026-11-17 09:33 |
 
 ## 3. Notes
 

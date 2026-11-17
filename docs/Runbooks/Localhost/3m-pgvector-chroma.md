@@ -10,18 +10,27 @@ Do these steps **in order**. Wait until each run shows **`completed`** before st
 
 ## 0. One-time setup
 
-### 0.1 Start containers, API, and Admin
+### 0.1 Stop then start containers, API, and Admin
 
-**Objective:** Bring up the localhost stack so Admin, API, and Airflow can talk to each other.
+**Objective:** Bring up a clean localhost stack so Admin, API, and Airflow can talk to each other. Stop first (safe if nothing is running), then start.
 
 ```bash
 # From repo root (Node 22+)
-npm run local:containers:postgres:start   # Airflow + ops Postgres/pgvector
-npm run local:containers:mongodb:start    # complaint Mongo (if not already up)
-npm run local:containers:chroma:start     # Chroma on :8100
+
+# Stop (ignore errors if a service was not running)
+npm run local:portals:all:stop
+npm run local:handson:middlware:all:stop
+npm run local:containers:chroma:stop
+npm run local:containers:mongodb:stop
+npm run local:containers:postgres:stop   # Airflow + ops Postgres/pgvector
+
+# Start
+npm run local:containers:postgres:start  # Airflow + ops Postgres/pgvector
+npm run local:containers:mongodb:start   # complaint Mongo
+npm run local:containers:chroma:start    # Chroma on :8100
 npm run local:api:migrate
 npm run local:handson:middlware:all:start # API :8000
-npm run local:portals:all:start           # Admin :4200 (your terminal)
+npm run local:portals:all:start          # Admin :4200 (your terminal)
 ```
 
 ### 0.2 Confirm `.env` and your split folder
