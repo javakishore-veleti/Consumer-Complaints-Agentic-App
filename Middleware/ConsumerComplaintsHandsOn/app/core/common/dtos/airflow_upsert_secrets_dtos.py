@@ -7,12 +7,13 @@ from app.core.common.return_codes import SUCCESS
 OUTCOME_CREATED = "created"
 OUTCOME_UPDATED = "updated"
 OUTCOME_MISSING = "missing"
+OUTCOME_SKIPPED = "skipped"  # optional name unset (M10-0012 / #219)
 
 
 @dataclass
 class UpsertSecretResult:
     name: str
-    outcome: str  # created | updated | missing
+    outcome: str  # created | updated | missing | skipped
 
 
 @dataclass

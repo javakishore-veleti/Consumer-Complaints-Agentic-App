@@ -2,14 +2,19 @@
 # Values never appear here. Prefer names containing secret or password so Airflow masks them.
 # Keep in sync with docs/PRODUCT_FEATURES.md F4 and Middleware .env.example [upsert] tags (M04 #154).
 # Not listed here (API-only): CCA_AIRFLOW_API_*, CCA_OPERATIONAL_STORE, CCA_DATA_DIR, CCA_MONGO_OPERATIONAL_URL.
+#
+# Required names (empty env → outcome missing → HTTP 422).
+# After "# optional": empty env → outcome skipped (Sync still succeeds) — M10-0012 / #219.
 
 CCA_CALLBACK_SECRET
 CCA_API_URL
-CCA_DB_URL
 CCA_MONGO_COMPLAINTS_URL
 CCA_VECTOR_STORE_PATH
 LOCAL_DATA_PATH_CFPB
-CCA_CFPB_SPLIT_SOURCE_PATH
 CCA_PGVECTOR_URL
 CCA_CHROMA_URL
 CCA_REDIS_URL
+
+# optional — unset is OK on localhost SQLite / when split staging is unused
+CCA_DB_URL
+CCA_CFPB_SPLIT_SOURCE_PATH

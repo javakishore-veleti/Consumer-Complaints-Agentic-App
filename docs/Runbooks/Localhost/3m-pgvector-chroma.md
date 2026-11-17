@@ -55,6 +55,8 @@ Confirm `.env` exists under `Middleware/ConsumerComplaintsHandsOn/` with at leas
 3. Confirm success in the UI (no error toast / success message).
 4. Optional check in Airflow → **Admin → Variables**: `CCA_CALLBACK_SECRET`, `CCA_API_URL`, `LOCAL_DATA_PATH_CFPB`, `CCA_PGVECTOR_URL`, `CCA_CHROMA_URL` are present.
 
+**If Sync fails with HTTP 422:** the JSON `results` list shows each name’s `outcome`. `missing` = a **required** `.env` value is empty (fix and restart Middleware). `skipped` = optional name unset (OK on localhost SQLite / unused split path — M10-0012 / #219). Restart the API after pulling that fix, then Sync again.
+
 Re-run this step whenever you change `.env` or recreate Airflow containers.
 
 ### 0.5 Unpause required DAGs

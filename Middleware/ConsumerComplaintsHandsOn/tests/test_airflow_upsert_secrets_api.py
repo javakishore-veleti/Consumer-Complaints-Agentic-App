@@ -112,6 +112,52 @@ def test_missing_env_name_is_422_with_missing_outcome(client, names_file, monkey
     assert "value" not in {k for r in body["results"] for k in r}
 
 
+def test_optional_empty_env_is_200_with_skipped(client, tmp_path, monkeypatch):
+    """M10-0012 / #219: optional unset names skip; Sync succeeds."""
+    path = tmp_path / "Airflow_Variables_Upsert.txt"
+    path.write_text(
+        "CCA_CALLBACK_SECRET\n# optional\nCCA_DB_URL\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("CCA_AIRFLOW_API_BASE_URL", "http://airflow.test")
+    monkeypatch.setenv("CCA_AIRFLOW_API_USERNAME", "airflow")
+    monkeypatch.setenv("CCA_AIRFLOW_API_PASSWORD", "airflow")
+    monkeypatch.setenv("CCA_CALLBACK_SECRET", SECRET_VALUE)
+    monkeypatch.delenv("CCA_DB_URL", raising=False)
+
+    from app.core.common import config
+
+    real = config.get_settings
+
+    def fake_get_settings():
+        base = real()
+        return config.Settings(
+            db_url=base.db_url,
+            data_dir=base.data_dir,
+            callback_secret=base.callback_secret,
+            airflow_api_base_url=base.airflow_api_base_url,
+            airflow_api_username=base.airflow_api_username,
+            airflow_api_password=base.airflow_api_password,
+            airflow_variables_upsert_path=path,
+        )
+
+    monkeypatch.setattr(config, "get_settings", fake_get_settings)
+    from app.core.services.impl import airflow_upsert_secrets_service_impl as impl_mod
+
+    monkeypatch.setattr(impl_mod, "get_settings", fake_get_settings)
+    monkeypatch.setattr(impl_mod, "AirflowVariablesClient", _fake_client(OUTCOME_UPDATED))
+
+    response = client.post(URL)
+    assert response.status_code == 200
+    assert response.json() == {
+        "results": [
+            {"name": "CCA_CALLBACK_SECRET", "outcome": "updated"},
+            {"name": "CCA_DB_URL", "outcome": "skipped"},
+        ]
+    }
+    assert SECRET_VALUE not in response.text
+
+
 def test_client_failure_without_missing_is_502(client, names_file, monkeypatch):
     monkeypatch.setenv("CCA_CALLBACK_SECRET", SECRET_VALUE)
     monkeypatch.setenv("CCA_DB_URL", DB_URL_VALUE)

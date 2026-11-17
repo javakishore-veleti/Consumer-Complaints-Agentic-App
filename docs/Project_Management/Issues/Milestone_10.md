@@ -19,6 +19,7 @@
 | 9 | #216 | M10-0009 | Story | Runbook: functional index headings + local embedding how-to |
 | 10 | #217 | M10-0010 | Story | Runbook: functional Definition of Done checklist |
 | 11 | #218 | M10-0011 | Story | Runbook: say localhost not “this machine” (GitHub-readable) |
+| 12 | #219 | M10-0012 | Story | Sync secrets: optional unset upsert names must not 422 |
 
 ## 2. Superpowers workflow
 
@@ -38,6 +39,10 @@
 | #216 | 1–4 | index headings + `hash_embedding` how/where | Done | 2026-11-16 |
 | #217 | 1–4 | functional Definition of Done | Done | 2026-11-16 |
 | #218 | 1–4 | localhost wording (not “this machine”) | Done | 2026-11-16 |
+| #219 | 1 | `/ccaa-story-start 219` | Done | 2026-11-16 20:41 |
+| #219 | 2 | design spec (D96 / `# optional` → `skipped`) | Done | 2026-11-16 20:41 |
+| #219 | 3 | TDD + implement optional upsert + runbook §0.4 | Done | 2026-11-16 20:41 |
+| #219 | 4 | `/ccaa-commit-push 219` | In progress | 2026-11-16 20:41 |
 
 ## 3. Notes
 
@@ -45,3 +50,4 @@
 - Runbook: `docs/Runbooks/Localhost/3m-pgvector-chroma.md`.
 - CFPB imports: `$HOME/runtime_data/apps/datasets/CCA/complains_datasets/imports` (D95 / #212).
 - Local embeddings: `hash_embedding` in `Middleware/Airflow-dags/ccaa/vector_index.py` (dim 32; no neural model).
+- Sync secrets (D96 / #219): `# optional` in upsert list → empty env is `skipped` (not 422); `CCA_DB_URL` + `CCA_CFPB_SPLIT_SOURCE_PATH` optional on localhost.
