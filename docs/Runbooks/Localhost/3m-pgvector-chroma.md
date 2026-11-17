@@ -8,6 +8,10 @@ Do these steps **in order**. Wait until each run shows **completed** before star
 
 ## 0. One-time setup
 
+### 0.1 Start containers, API, and Admin
+
+**Objective:** Bring up the localhost stack so Admin, API, and Airflow can talk to each other.
+
 ```bash
 # From repo root (Node 22+)
 npm run local:containers:postgres:start   # Airflow + ops Postgres/pgvector
@@ -17,6 +21,10 @@ npm run local:api:migrate
 npm run local:handson:middlware:all:start # API :8000
 npm run local:portals:all:start           # Admin :4200 (your terminal)
 ```
+
+### 0.2 Confirm `.env`
+
+**Objective:** Middleware and (after Sync secrets) Airflow share the same localhost config.
 
 Confirm `.env` exists under `Middleware/ConsumerComplaintsHandsOn/` with at least:
 
@@ -30,15 +38,30 @@ Confirm `.env` exists under `Middleware/ConsumerComplaintsHandsOn/` with at leas
 | `CCA_PGVECTOR_URL` | `postgresql://postgres:postgres@host.docker.internal:5432/cca` |
 | `CCA_CHROMA_URL` | `http://host.docker.internal:8100` *(Airflow workers)* |
 
-Open:
+### 0.3 Open the UIs
+
+**Objective:** Have Admin, Airflow, and API docs ready in the browser.
 
 1. Admin → http://127.0.0.1:4200  
 2. Airflow → http://127.0.0.1:8080 (`airflow` / `airflow`)  
 3. API docs → http://127.0.0.1:8000/docs  
 
-In Admin: **Operations → Sync secrets**.
+### 0.4 In Admin: Operations → Sync secrets
 
-In Airflow: unpause these DAGs if paused:
+**Objective:** Copy Middleware `.env` values (callback secret, `LOCAL_DATA_PATH_CFPB`, Mongo/pgvector/Chroma URLs, etc.) into **Airflow Variables** so DAGs can reach the API and data stores. Without this step, downloads/ingest/index fail or callbacks return **401**.
+
+1. In Admin open **Operations**.
+2. Run **Sync secrets** (upsert listed names into Airflow).
+3. Confirm success in the UI (no error toast / success message).
+4. Optional check in Airflow → **Admin → Variables**: `CCA_CALLBACK_SECRET`, `CCA_API_URL`, `LOCAL_DATA_PATH_CFPB`, `CCA_PGVECTOR_URL`, `CCA_CHROMA_URL` are present.
+
+Re-run this step whenever you change `.env` or recreate Airflow containers.
+
+### 0.5 Unpause required DAGs
+
+**Objective:** Allow Admin “Start workflow” to trigger each DAG.
+
+In Airflow, unpause if paused:
 
 - `download_cfpb_all`
 - `filter_cfpb_3_months`
