@@ -2,7 +2,7 @@
 
 **Scope:** Docs only — append Systemic Risk Radar Alert feed + cluster velocity map UX to Complaints_Data_Classification_Indexing_Brainstorming.md. No product code.
 
-**Status:** Open. Stories left to build: 1. Stories already done: 0.
+**Status: Closed.** Stories left to build: 0. Stories already done: 1 (#306).
 
 ## 1. Build order
 
@@ -16,5 +16,5 @@
 |---|---|---|---|---|---|
 | #306 | 1 | story-start | Done | 2026-11-18 15:04 | 2026-11-18 15:04 |
 | #306 | 2 | worktree → implement | Done | 2026-11-18 15:04 | 2026-11-18 15:04 |
-| #306 | 3 | commit-push | In progress | 2026-11-18 15:04 | |
-| #306 | 4 | story-complete | Planned | | |
+| #306 | 3 | commit-push | Done | 2026-11-18 15:04 | 2026-11-18 15:04 |
+| #306 | 4 | story-complete | Done | 2026-11-18 15:04 | 2026-11-18 15:04 |
