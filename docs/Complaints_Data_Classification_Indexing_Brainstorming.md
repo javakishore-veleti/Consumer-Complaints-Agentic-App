@@ -37,6 +37,8 @@ Architecture and modeling notes for classifying ~1.97M CFPB consumer complaint r
 31. [Day-1 deliverables: Neutral Query AST & Golden Query Suite](#31-day-1-deliverables-neutral-query-ast--golden-query-suite)
 32. [PII/redaction compliance & multi-tenant access control (RBAC)](#32-piiredaction-compliance--multi-tenant-access-control-rbac)
 33. [Data products & front ends for business and customers](#33-data-products--front-ends-for-business-and-customers)
+34. [Serving all three business models: Multi-Persona Experience Layer](#34-serving-all-three-business-models-multi-persona-experience-layer)
+35. [Unified monetization, metering, API gateway & multi-persona front-end stack](#35-unified-monetization-metering-api-gateway--multi-persona-front-end-stack)
 
 ---
 
@@ -1351,6 +1353,149 @@ Depending on whether you operate as a financial institution, a consumer advocacy
 | Consumer Issue Navigator | Retail Customers | Conversational triage & form filler | Semantic-to-Taxonomy classification |
 | B2B Intelligence API | External Fintechs / Legal | Developer portal + Data Share | Multi-tenant Query AST Gateway + Parquet Lake |
 
+
+---
+
+## 34. Serving all three business models: Multi-Persona Experience Layer
+
+To serve all three business models—**Internal Enterprise Operations**, **Direct Consumer Self-Service**, and **External B2B Monetization**—from a single 2-million-record ecosystem, you need a **Multi-Persona Experience Layer (BFF / Experience APIs)** sitting cleanly above your unified Query AST Gateway and Canonical Parquet Lake.
+
+Instead of building separate data pipelines for each audience, you expose one core intelligence engine through three tailored front-end applications and strict tenant/data boundaries.
+
+### 34.1 The Unified Multi-Product Architecture
+
+```text
+[Consumer Web/Mobile App]   [Internal Enterprise Portal]   [External B2B Portal & API]
+  • Issue Navigator           • Systemic Risk Radar          • Developer API Playground
+  • SLA & Trust Tracker       • Agent Case Copilot           • Cloud Data Shares (Parquet)
+           │                           │                              │
+           └───────────────────────────┼──────────────────────────────┘
+                                       ▼
+                ┌─────────────────────────────────────────────┐
+                │   Persona-Aware Experience Layer (BFFs)     │
+                │  (Rate limits, PII masks, Metering, UI DSL) │
+                └──────────────────────┬──────────────────────┘
+                                       ▼
+                ┌─────────────────────────────────────────────┐
+                │   Unified Query AST Gateway & DuckDB Engine │
+                └──────────────────────┬──────────────────────┘
+                                       ▼
+          [Canonical Parquet Lake]  +  [Multi-Cloud Vector Indexes]
+```
+
+### 34.2 Tailoring the Front-End Experience Across All Three Models
+
+Each business model consumes the exact same 2M records and three-tier taxonomy, but renders different UI paradigms, latency profiles, and data exposure rules.
+
+#### Model A: Internal Enterprise Front Ends (High Density & Actionable)
+
+- **Unified Command Center (Modular Web App):** Combine the Systemic Risk Radar, Product Friction Hub, and Peer Benchmarking into a single role-based web application using micro-frontends or modular workspaces.
+  - **Compliance View:** Live velocity charts of Tier 3 Emergent Micro-Topics, UDAAP risk flags, and geographic heatmaps.
+  - **Product View:** Cohort release comparisons powered by sub-second DuckDB queries over the Canonical Parquet Lake.
+  - **Strategy View:** Competitor and vendor scorecards built on `parent_org_id` entity roll-ups.
+- **Embedded CRM Copilot (Zero-Switch Workflow):** Deliver the Case Resolution Copilot as an embedded iframe/component inside Salesforce, Zendesk, or ServiceNow. Agents never leave their ticketing screen—the widget automatically reads the active ticket text, queries the AST Gateway, and renders top precedent resolutions and dispute-prevention checklists.
+
+#### Model B: Direct Consumer Front Ends (Conversational & Reassuring)
+
+- **Guided Triage & Dispute Assistant (Web / Mobile SDK):** Embed a conversational UI component inside your customer support portal.
+  - **Experience:** Instead of forcing customers to pick from 80 regulatory categories, they describe their problem in plain English. The front end calls the semantic classifier to map their text to Tier 1/2 taxonomy codes, auto-populates the right dispute form, and displays a Transparent SLA Card (“Similar billing disputes are typically resolved in 6 business days”).
+- **Strict Data Isolation Rule:** Consumer-facing front ends never render raw complaint narratives from other customers. They only surface aggregated statistics (median resolution times, required document checklists) and guided workflow steps.
+
+#### Model C: External B2B & Monetization Front Ends (Self-Service & Metered)
+
+- **B2B Regulatory Intelligence Portal (SaaS Web App):** Built for external law firms, fintech compliance officers, and risk consultants.
+  - **Experience:** Features an interactive Visual Query Builder (generating valid Neutral AST queries without writing JSON), downloadable peer benchmark reports, and subscription tier management.
+- **Developer Hub & Cloud Data Marketplace:**
+  - **API Product:** Interactive OpenAPI/Swagger sandbox with API key provisioning, usage metering, and webhook subscriptions for Tier 3 Emergent Topic Alerts.
+  - **Direct Data Product:** Automated publishing of versioned Canonical Parquet and Taxonomy Cross-Walk slices to AWS Data Exchange, Azure Marketplace, and GCP Analytics Hub, allowing enterprise buyers to join your clean regulatory data directly into their own warehouses.
+
+### 34.3 Shared Product Governance Across All Three Models
+
+Running all three business models simultaneously requires four cross-cutting controls in your Experience Layer (BFF):
+
+| Governance Dimension | Consumer Front Ends | Internal Enterprise Front Ends | External B2B Front Ends |
+|---|---|---|---|
+| Data Exposure Scope | Aggregated SLAs & taxonomy routing only (Zero raw narratives) | Full post-redaction narratives, internal Tier 2 tags, and peer data | Public regulatory corpus only (Proprietary internal tickets excluded) |
+| Authentication & Metering | Consumer session token + strict per-user rate limiting | Enterprise SSO (OIDC) + JWT role claims (RBAC) | OAuth2 Client Credentials / API Keys + usage-based billing metering |
+| Latency & Caching SLA | < 150ms (Edge-cached taxonomy routes & SLA stats) | < 80ms interactive search; < 500ms DuckDB analytics | < 200ms API SLA with tiered throughput quotas |
+| Explainability & Trust | Plain-language next steps & document checklists | Full citation links to precedent `complaint_ids` & confidence scores | Versioned `taxonomy_version` & `release_manifest` lineage metadata |
+
+### 34.4 Recommended Sequencing Strategy (Crawl → Walk → Run)
+
+Even when building for all three models, sequence your front-end rollouts to compound value:
+
+1. **Stage 1 (Internal Operations First):** Launch the Agent Case Copilot and Systemic Risk Radar first. Internal compliance and support teams validate your three-tier taxonomy and surface edge-case retrieval bugs safely behind your firewall.
+2. **Stage 2 (External B2B API & Data Share):** Expose the validated Query AST Gateway and Canonical Parquet Lake as a metered B2B API and Cloud Marketplace product—monetizing the exact infrastructure you already built for internal teams.
+3. **Stage 3 (Direct Consumer Self-Service):** Deploy the Consumer Issue Navigator once your taxonomy classification accuracy and SLA estimation models are proven in production, reducing incoming support volume at the front door.
+
+---
+
+## 35. Unified monetization, metering, API gateway & multi-persona front-end stack
+
+Complete architectural blueprint covering both the **Unified Monetization, Metering & API Gateway Layer** and the **Multi-Persona Front-End Technology Stack**, completing the full business-to-infrastructure loop.
+
+### 35.1 Part 1: Unified Monetization, Metering & API Gateway Architecture
+
+To safely expose your Query AST Gateway and Canonical Parquet Lake to internal teams, consumers, and paying B2B customers simultaneously, place an **Edge Control Plane** in front of your core services.
+
+#### Edge Gateway & Traffic Segmentation
+
+- **API Gateway Stack:** Kong Gateway, Envoy, or cloud-native edge gateways (AWS API Gateway / Azure APIM / GCP Apigee) sitting in front of your FastAPI/gRPC Query AST Translator.
+- **Three Isolated Traffic Lanes:**
+  - **Lane 1: Internal Enterprise (`*.internal.domain`):** Authenticated via corporate OIDC / Entra ID / Okta. Zero billing metering; bypasses public rate caps; unlocks proprietary internal complaint tags alongside public regulatory data.
+  - **Lane 2: Consumer Self-Service (`api.domain/v1/assist`):** Authenticated via short-lived consumer session JWTs. Protected by strict IP/session burst limits and restricted exclusively to aggregated SLA endpoints and taxonomy routing (blocked at the gateway route table from calling raw vector search endpoints).
+  - **Lane 3: External B2B Monetized (`api.domain/v1/intelligence`):** Authenticated via API Keys or OAuth2 Client Credentials issued by the B2B Developer Portal. Enforces tier-based quotas (Free Tier, Pro, Enterprise) and emits asynchronous metering events.
+
+#### Usage Metering & Monetization Engine
+
+Vector and analytical queries have vastly different compute costs. Meter B2B customers using **Value-Based Compute Units (CUs)** rather than naive HTTP request counts:
+
+- **Compute Unit (CU) Weighting Model:**
+  - **Taxonomy & Entity Lookup:** 1 CU (served from cached PostgreSQL/Parquet metadata).
+  - **Standard Semantic + AST Vector Search (`top_k` <= 20):** 5 CUs (HNSW graph traversal).
+  - **Bulk Analytical Aggregation (DuckDB Parquet Scan):** 15 CUs (columnar compute scan).
+  - **Webhook / Streaming Alert Subscription (Tier 3 Emergent Micro-Topics):** Flat monthly add-on per monitored product/organization cohort.
+- **Asynchronous Metering Pipeline:**
+  - The API Gateway publishes lightweight usage events (`tenant_id`, `endpoint`, `cu_cost`, `timestamp`, `status_code`) to an event bus (Kafka / AWS EventBridge / GCP PubSub) with zero impact on query latency.
+  - An aggregation engine (Lago, Orb, or Stripe Billing Metering) rolls up hourly CUs, enforces soft/hard quota thresholds, and generates automated monthly invoices.
+- **Direct Data Lake Monetization (Zero-API Compute):**
+  - For enterprise buyers wanting bulk access to the 2M records, publish automated read-only views of your Canonical Parquet Lake and Taxonomy Cross-Walks directly to AWS Data Exchange, Azure Marketplace, and GCP Analytics Hub. Customers pay cloud-native subscription fees and query the files using their own compute.
+
+### 35.2 Part 2: Multi-Persona Front-End Technology Stack
+
+To avoid maintaining three disconnected UI codebases while delivering distinct experiences for Executives/Analysts, Consumers, and B2B Developers, adopt a **Composable Monorepo Front-End Architecture**.
+
+#### Shared Front-End Foundation
+
+- **Framework & Build System:** Next.js (React) + TypeScript organized inside a Turborepo monorepo.
+- **Design System & UI Primitives:** Tailwind CSS + Shadcn/UI with multi-brand theme tokens—allowing internal compliance tools, external B2B portals, and consumer widgets to share accessible components while maintaining distinct visual identities.
+- **Type-Safe Query AST Client:** A shared TypeScript SDK generated from your OpenAPI spec that constructs, validates, and serializes Neutral Filter AST trees cleanly across all three front ends.
+
+#### Front-End Stack Mapping by Business Persona
+
+| Persona & Product | Front-End Delivery Form | Specialized UI Libraries & Capabilities | Key UX & Architectural Pattern |
+|---|---|---|---|
+| Internal Enterprise Portal (Risk Radar, Friction Hub, Peer Benchmarks) | Full-Page Modular Web App (Micro-frontends / Role-based workspaces) | Apache ECharts / Tremor (heatmaps, velocity spikes), TanStack Table (virtualized 100K+ row drill-downs) | Optimistic Filter State: Syncs complex AST filters directly to URL query params so compliance officers can share exact investigation views via link. |
+| Internal Agent Copilot (Case Resolution Assistant) | Embeddable Micro-Widget / Web Component | Lightweight React Bundle wrapped as a custom Web Component (`<complaint-copilot>`) for Salesforce LWC / ServiceNow / Zendesk | Context-Aware Auto-Query: Listens to CRM ticket field changes (product, description) and pre-fetches top precedent resolutions before the agent clicks. |
+| Direct Consumer Navigator (Guided Triage & SLA Tracker) | Embeddable Conversational SDK (Web & Mobile WebView) | Vercel AI SDK / Streaming UI for guided multi-turn triage cards and dynamic form pre-filling | Zero-Jargon Abstraction: Translates plain-language user inputs into Tier 1/2 taxonomy payloads behind the scenes; renders visual SLA timelines and checklists. |
+| External B2B Portal (Intelligence SaaS & Developer Hub) | Self-Service SaaS App + Docs Portal | Mintlify / Docusaurus (interactive API playground), React Flow / Visual Query Builder, Stripe Customer Portal | No-Code-to-AST Builder: Lets non-technical legal analysts build nested AND/OR taxonomy queries visually and export results as CSV, Parquet, or API cURL snippets. |
+
+#### Local-to-Cloud Front-End Parity
+
+Just like the backend data lake, the front-end monorepo connects seamlessly to the local workstation setup:
+
+- Running a single local workspace command starts the Next.js Front-End Apps pointed at your local FastAPI Query AST Gateway (`http://localhost:8000`), backed by DuckDB + Host Chroma (with the 50K fast sample or 2M full dataset).
+- Product managers, designers, and engineers can test real-time semantic search, visual AST query builders, and SLA aggregations across 2 million records completely offline before deploying to AWS, Azure, or GCP.
+
+### 35.3 Complete End-to-End Ecosystem Summary
+
+Cohesive, multi-cloud architecture spanning every layer of the stack:
+
+1. **System of Record:** Immutable, PII-scrubbed Canonical Parquet Lake + Three-Tier Hybrid Taxonomy (PostgreSQL + Git).
+2. **Compute & Portability:** Single-hub 512d SQ8 embedding generation + Neutral Query AST Gateway abstracting Chroma, pgvector, AWS OpenSearch, Azure AI Search, and GCP Vertex AI.
+3. **Developer & Release Agility:** Host-native DuckDB + Chroma local parity + decoupled Blue/Green CI/CD gated by the 100-case Golden Query Suite.
+4. **Business & Monetization:** A unified Edge Metering Gateway powering Internal Enterprise Command Centers, Embedded CRM Copilots, Consumer Self-Service Triage, and Metered B2B APIs / Cloud Data Shares.
+
 ---
 
 ## Document control
@@ -1360,5 +1505,5 @@ Depending on whether you operate as a financial institution, a consumer advocacy
 | Title | Complaints Data Classification & Indexing — Brainstorming |
 | Purpose | Preserve architecture / modeling brainstorming for Money Topic classification + multi-cloud vector indexing, plus business/customer data-product strategy |
 | Related product docs | Root `README.md` (embeddings exploration, Chroma recipe); M90 for cloud deployment |
-| Status | Brainstorming notes (not an approved Superpowers implementation plan) — complete end-to-end blueprint through security/RBAC and product strategy |
-| Last extended | M34-0001 #298 — §§21–33: platform architecture + Observability/FinOps + ADR/roadmap + Query AST/Golden Suite + PII/RBAC + business/customer data products & front ends |
+| Status | Brainstorming notes (not an approved Superpowers implementation plan) — complete end-to-end blueprint through multi-persona products, monetization, and front-end stack |
+| Last extended | M35-0001 #300 — §§34–35: Multi-Persona Experience Layer + Unified monetization/metering/API gateway + multi-persona front-end stack |
