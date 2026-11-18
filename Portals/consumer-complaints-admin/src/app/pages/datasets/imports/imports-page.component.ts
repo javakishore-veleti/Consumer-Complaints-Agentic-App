@@ -9,12 +9,6 @@ import {
   MioStatusCtx,
   MioStatusEntry,
 } from '../../../core/mio-status';
-import {
-  AppEndpointEntry,
-  AppEndpointsCtx,
-  endpointSideLabel,
-  loadAppEndpoints,
-} from '../../../core/app-endpoints';
 import { startWorkflow, StartWorkflowCtx } from '../../../core/start-workflow';
 import { SUCCESS } from '../../../core/return-codes';
 
@@ -33,12 +27,9 @@ export class ImportsPageComponent implements OnInit {
   protected readonly selectedByMio = signal<Record<string, string>>({});
   protected readonly startingMioIds = signal<ReadonlySet<string>>(new Set());
   protected readonly actionError = signal('');
-  protected readonly appEndpoints = signal<AppEndpointEntry[]>([]);
-  protected readonly appEndpointsError = signal('');
-  protected readonly endpointSideLabel = endpointSideLabel;
 
   async ngOnInit(): Promise<void> {
-    await Promise.all([this.loadStatus(), this.loadEndpoints()]);
+    await this.loadStatus();
     this.loading.set(false);
   }
 
@@ -98,7 +89,7 @@ export class ImportsPageComponent implements OnInit {
 
   protected async onRefresh(): Promise<void> {
     this.actionError.set('');
-    await Promise.all([this.loadStatus(), this.loadEndpoints()]);
+    await this.loadStatus();
   }
 
   /** Visual color only — label text stays the API status string. */
@@ -129,21 +120,6 @@ export class ImportsPageComponent implements OnInit {
     } else {
       this.entries.set([]);
       this.error.set(ctx.resp.error || 'Failed to load MIO status');
-    }
-  }
-
-  private async loadEndpoints(): Promise<void> {
-    const ctx: AppEndpointsCtx = {
-      req: { enabled: true },
-      resp: { entries: [], error: '' },
-    };
-    const code = await loadAppEndpoints(this.http, ctx);
-    if (code === SUCCESS) {
-      this.appEndpoints.set(ctx.resp.entries);
-      this.appEndpointsError.set('');
-    } else {
-      this.appEndpoints.set([]);
-      this.appEndpointsError.set(ctx.resp.error || 'Failed to load AppEndpoints');
     }
   }
 
