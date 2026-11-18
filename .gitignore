@@ -237,6 +237,12 @@ Middleware/ConsumerComplaintsHandsOn/.data/
 # Scratch space for local tooling and test temp dirs (create anything under runtime_data/tmp)
 runtime_data/
 
+# Local Iceberg Spark warehouse / notebooks (M40-0002 / #311); keep directory placeholders
+CICD/Local/iceberg/warehouse/**
+!CICD/Local/iceberg/warehouse/.gitkeep
+CICD/Local/iceberg/notebooks/**
+!CICD/Local/iceberg/notebooks/.gitkeep
+
 # Story worktrees created by /using-git-worktrees
 .worktrees/
 

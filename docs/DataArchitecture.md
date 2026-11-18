@@ -3,7 +3,7 @@
 **Document type:** Data architecture specification  
 **Status:** Living draft — Raw Data Zone (Iceberg Bronze) specified first  
 **Story:** M40-0001 #310  
-**Related:** `docs/Project_Management/PROJECT_CHARTER.md`; `docs/Complaints_Data_Classification_Indexing_Brainstorming.md`; planned Iceberg Docker infra #311
+**Related:** `docs/Project_Management/PROJECT_CHARTER.md`; `docs/Complaints_Data_Classification_Indexing_Brainstorming.md`; Iceberg Docker runtime #311 (`CICD/Local/iceberg/`)
 
 ---
 
@@ -50,7 +50,15 @@ The **Lift Zone** is the operational staging area **outside** the Iceberg wareho
 - **No re-download required for Raw backfills:** Raw Zone ingestion reads from Lift Zone paths for the active dataset slice (`3m`, `6m`, `9m`, `12m`, `all`).
 - **Ephemeral unzip staging is separate:** Airflow unpacks into `/tmp/airflow_stage/<run_id>/` for a single run; the Lift Zone zip remains durable for replay.
 
-### 3.2 Relationship to Raw Zone
+### 3.2 Local path (CCAA today)
+
+| Role | Path |
+|---|---|
+| **Host Lift Zone root** | `$HOME/runtime_data/apps/datasets/CCA/complains_datasets/` (Airflow binds this tree; imports live under it) |
+| **In Spark Iceberg container** | `/lift` (read-only bind from `CICD/Local/iceberg/docker-compose.yaml`) |
+| **Override** | Env `CCA_LIFT_ZONE` when starting the Iceberg compose stack |
+
+### 3.3 Relationship to Raw Zone
 
 ```text
 [CFPB source / download workflows]
@@ -61,13 +69,13 @@ The **Lift Zone** is the operational staging area **outside** the Iceberg wareho
             ▼  Airflow Sensor → Unzip → Pre-ingestion gate
 [Ephemeral staging CSV]
             │
-            ▼  PySpark Bronze hydration
+            ▼  PySpark Bronze hydration (cca-spark-iceberg)
 [Apache Iceberg Raw Data Zone: raw.cfpb_complaints_* ]
 ```
 
-### 3.3 Infra dependency (planned)
+### 3.4 Infra runtime (M40-0002 #311)
 
-Standing up Spark + Iceberg for this path is tracked as **M40-0002 #311** (Apache Iceberg Spark Docker container), aligned with the [Iceberg Spark quickstart](https://iceberg.apache.org/spark-quickstart/#reading-data-from-a-table). That story wires Airflow PySpark workers to the catalog/warehouse while continuing to read zips from the Lift Zone.
+Spark + Iceberg Docker stack lives at `CICD/Local/iceberg/` (quickstart-aligned). Operator guide: `CICD/Local/iceberg/README.md`. Start with `docker compose up -d` from that directory (or `CICD/Local/docker-all-up.sh iceberg`).
 
 ---
 
@@ -144,9 +152,14 @@ Because PySpark cannot natively split `.zip` archives across parallel worker thr
 - **Data Quality Gates:** Airflow executes source-to-target count reconciliation against Iceberg snapshot summaries and runs schema/null checks to ensure **0.0% null rates** on mandatory keys (`complaint_id`, `date_received`, `product`, `company`).
 - **Metadata Hygiene:** Table properties enforce retention limits (retaining the last 3 snapshots) alongside scheduled weekly maintenance tasks (`expire_snapshots` and `remove_orphan_files`) to prevent local storage bloat.
 
-### 4.7 Planned runtime: Iceberg Spark Docker (#311)
+### 4.7 Runtime: Iceberg Spark Docker (#311)
 
-Raw Zone compute is expected to run against a containerized Spark + Iceberg stack (see [Spark quickstart — reading a table](https://iceberg.apache.org/spark-quickstart/#reading-data-from-a-table)). Implementation of that container and Airflow wiring is **M40-0002 #311** and must not start until that story is story-started under Superpowers.
+Raw Zone compute runs against the containerized Spark + Iceberg stack under `CICD/Local/iceberg/` (see [Spark quickstart — reading a table](https://iceberg.apache.org/spark-quickstart/#reading-data-from-a-table)).
+
+- **Compose:** `CICD/Local/iceberg/docker-compose.yaml` (`tabulario/spark-iceberg` + REST + object store)
+- **Operator docs / Airflow connection contract:** `CICD/Local/iceberg/README.md`
+- **Lift Zone mount:** host complains_datasets → `/lift` (read-only)
+- **DAG note:** #311 does **not** change Airflow DAGs; future Raw ingest stories must follow the documented contract and story-start before DAG edits
 
 ---
 
