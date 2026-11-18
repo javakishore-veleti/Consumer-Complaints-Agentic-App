@@ -184,14 +184,14 @@ Criteria that matter for Chroma-now / multi-cloud-later:
 
 Chroma’s common local default (`all-MiniLM-L6-v2`, 384-d) is fine for **prototyping**; for sharper finance nuance, compare against BGE/E5 or a small commercial model on a golden set before a full re-index.
 
-#### How do you validate a model choice quickly?
+#### How to Validate Your Choice in 15 Minutes
 
-Before indexing millions of rows:
+Before indexing your full multi-month dataset, run a quick benchmark on 50–100 representative rows from your download:
 
-1. Build **10–15 golden queries** (exact category language and indirect symptoms).
-2. Index **50–100** representative rows into two temporary collections (two candidate models).
-3. Check **top-3 recall** without relying on metadata filters yet.
-4. Check **score separation** — relevant hits clearly above unrelated products. If every score sits in a narrow band, the document template may still have too much shared boilerplate or the model may be too generic.
+1. **Create a "Golden Test Set" of 10–15 Queries:** Write realistic questions a user might ask, ranging from exact terms ("checking account funds not disbursed") to indirect symptoms ("bank lost my transfer" or "military member charged unfair overdraft fee").
+2. **Test 2 Candidate Models Side-by-Side:** Index those 100 rows into two temporary Chroma collections—one using a local open-source model (`BAAI/bge-base-en-v1.5`) and one using an API model (`text-embedding-3-small`).
+3. **Check Top-3 Recall (Precision@3):** Verify whether the right Sub-issue and Product rows land in the top 3 results without relying on metadata filters yet.
+4. **Inspect Score Separation:** Check that relevant complaints score noticeably higher (e.g., cosine similarity > 0.75) than unrelated complaints (e.g., mortgage or student loan rows scoring < 0.45). If all scores cluster tightly together (e.g., between 0.68 and 0.74), your text template has too much repeated boilerplate or the model is too generic.
 
 Localhost CCAA today still has an MVP **hash** embedder for CI; professional indexing should swap to a real model under a later story while keeping this document/metadata contract stable.
 
