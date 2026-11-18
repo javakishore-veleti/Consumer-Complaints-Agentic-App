@@ -369,3 +369,67 @@ def test_notify_finished_failed_when_state_none_and_no_xcom():
     }
     sc.notify_execution_finished(ctx, "resolve_and_filter", report=fake_report)
     assert calls[0][1] == "failed"
+
+
+def test_xcom_indicates_success_accepts_list_task_ids():
+    ctx = {"ti": _CurrentTI({"run_children": {"count": 1}})}
+    # Simulate AF3 pull that only matches list task_ids
+    class _ListOnlyTI:
+        def xcom_pull(self, task_ids=None, key="return_value", default=None):
+            if isinstance(task_ids, list) and task_ids == ["run_children"]:
+                return {"count": 1}
+            return default
+
+    assert sc._xcom_indicates_success({"ti": _ListOnlyTI()}, "run_children") is True
+
+
+def test_upstream_succeeded_via_orm_when_context_empty(monkeypatch):
+    """M17-0011: empty get_task_instances + no XCom, but ORM TI is success."""
+
+    class _DagRun:
+        dag_id = "ingest_cfpb_imports_wrapper"
+        run_id = "manual__orm"
+
+        def get_task_instances(self, state=None):
+            return []
+
+    ctx = {
+        "dag_run": _DagRun(),
+        "ti": _CurrentTI({}),
+        "run_id": "manual__orm",
+    }
+    monkeypatch.setattr(sc, "_ti_state_from_orm", lambda context, task_id: "success")
+    assert sc.upstream_succeeded(ctx, "run_children") is True
+    calls = []
+    sc.notify_execution_finished(
+        {**ctx, "params": {"execution_id": "exec-orm"}},
+        "run_children",
+        report=lambda execution_id, status, **kwargs: calls.append(status),
+    )
+    assert calls == ["completed"]
+
+
+def test_upstream_failed_via_orm_when_context_empty(monkeypatch):
+    class _DagRun:
+        dag_id = "ingest_cfpb_imports_wrapper"
+        run_id = "manual__orm_fail"
+
+        def get_task_instances(self, state=None):
+            return []
+
+    ctx = {
+        "dag_run": _DagRun(),
+        "ti": _CurrentTI({}),
+        "run_id": "manual__orm_fail",
+        "params": {"execution_id": "exec-orm-fail"},
+    }
+    monkeypatch.setattr(sc, "_ti_state_from_orm", lambda context, task_id: "failed")
+    assert sc.upstream_succeeded(ctx, "run_children") is False
+    calls = []
+    sc.notify_execution_finished(
+        ctx,
+        "run_children",
+        report=lambda execution_id, status, **kwargs: calls.append((status, kwargs.get("message"))),
+    )
+    assert calls[0][0] == "failed"
+    assert "run_children" in (calls[0][1] or "")
