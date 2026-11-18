@@ -69,6 +69,7 @@ def test_ingest_zip_upserts_by_complaint_id(tmp_path: Path):
     assert result.batch_count == 2
     assert coll.indexes and coll.indexes[0][0] == "Complaint ID"
     assert coll.indexes[0][1].get("unique") is True
+    assert coll.indexes[0][1].get("name") == "uniq_complaint_id"
     assert len(coll.ops) == 2
     op0 = coll.ops[0]
     filt = getattr(op0, "_filter", None)

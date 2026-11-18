@@ -102,7 +102,11 @@ def ingest_complaints_zip(
         raise FileNotFoundError(f"source zip not found: {source_zip}")
 
     if ensure_index:
-        collection.create_index(COMPLAINT_ID_FIELD, unique=True)
+        # Same name as CICD/Local/mongodb docker-entrypoint-initdb.d/01-init-complaints.js
+        # so a fresh volume (uniq_complaint_id already present) does not IndexOptionsConflict.
+        collection.create_index(
+            COMPLAINT_ID_FIELD, unique=True, name="uniq_complaint_id"
+        )
 
     rows_loaded = 0
     batch_count = 0

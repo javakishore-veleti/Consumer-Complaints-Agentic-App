@@ -2,7 +2,7 @@
 
 **Scope:** Align `ingest_cfpb_all` / `mongo_ingest` unique index name with first-boot `uniq_complaint_id` so ingest does not fail `IndexOptionsConflict` after Mongo init (#259).
 
-**Status: Open.** Stories left to build: 1 (#268). Stories already done: 0.
+**Status: Closed.** Stories left to build: 0. Stories already done: 1 (#268).
 
 ## 1. Build order
 
@@ -14,10 +14,10 @@
 
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
-| #268 | 1 | `/ccaa-story-start 268` | Planned | - | - |
-| #268 | 2 | brainstorm → worktree → plan → TDD → implement | Planned | - | - |
-| #268 | 3 | `/ccaa-commit-push 268` | Planned | - | - |
-| #268 | 4 | `/ccaa-story-complete 268` | Planned | - | - |
+| #268 | 1 | `/ccaa-story-start 268` | Done | 2026-11-17 23:05 | 2026-11-17 23:05 |
+| #268 | 2 | brainstorm → worktree → plan → TDD → implement | Done | 2026-11-17 23:05 | 2026-11-17 23:07 |
+| #268 | 3 | `/ccaa-commit-push 268` | Done | 2026-11-17 23:07 | 2026-11-17 23:07 |
+| #268 | 4 | `/ccaa-story-complete 268` | Done | 2026-11-17 23:07 | 2026-11-17 23:07 |
 
 ## 3. Notes
 
