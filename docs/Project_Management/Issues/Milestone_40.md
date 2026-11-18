@@ -2,7 +2,7 @@
 
 **Scope:** Docs story #310 for DataArchitecture.md Raw Zone; Infra story #311 for Iceberg Spark Docker (planned until story-start). No product code under #310.
 
-**Status:** Open. Stories left to build: 2. Stories already done: 0.
+**Status:** Open. Stories left to build: 1 (#311). Stories already done: 1 (#310).
 
 ## 1. Build order
 
@@ -17,8 +17,8 @@
 |---|---|---|---|---|---|
 | #310 | 1 | story-start | Done | 2026-11-18 15:37 | 2026-11-18 15:37 |
 | #310 | 2 | worktree → implement | Done | 2026-11-18 15:37 | 2026-11-18 15:37 |
-| #310 | 3 | commit-push | In progress | 2026-11-18 15:37 | |
-| #310 | 4 | story-complete | Planned | | |
+| #310 | 3 | commit-push | Done | 2026-11-18 15:37 | 2026-11-18 15:38 |
+| #310 | 4 | story-complete | Done | 2026-11-18 15:38 | 2026-11-18 15:38 |
 | #311 | 1 | story-start | Planned | | |
 | #311 | 2 | worktree → implement | Planned | | |
 | #311 | 3 | commit-push | Planned | | |
