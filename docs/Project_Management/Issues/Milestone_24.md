@@ -2,7 +2,7 @@
 
 **Scope:** README.md only — consumer finance domain, CFPB data understanding, data product ideas. No index/product code.
 
-**Status: Open.** Stories left to build: 1 (#278). Stories already done: 0.
+**Status: Closed.** Stories left to build: 0. Stories already done: 1 (#278).
 
 ## 1. Build order
 
@@ -16,5 +16,5 @@
 |---|---|---|---|---|---|
 | #278 | 1 | story-start | Done | 2026-11-18 00:12 | 2026-11-18 00:12 |
 | #278 | 2 | worktree → implement | Done | 2026-11-18 00:12 | 2026-11-18 00:12 |
-| #278 | 3 | commit-push | In progress | 2026-11-18 00:12 | |
-| #278 | 4 | story-complete | — | | |
+| #278 | 3 | commit-push | Done | 2026-11-18 00:12 | 2026-11-18 00:12 |
+| #278 | 4 | story-complete | Done | 2026-11-18 00:12 | 2026-11-18 00:12 |
