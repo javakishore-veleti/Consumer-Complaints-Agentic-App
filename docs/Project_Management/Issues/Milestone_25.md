@@ -2,7 +2,7 @@
 
 **Scope:** README.md only — Consumer Financial Data Embeddings Exploration. No index/product code.
 
-**Status: Open.** Stories left to build: 1 (#280). Stories already done: 0.
+**Status: Closed.** Stories left to build: 0. Stories already done: 1 (#280).
 
 ## 1. Build order
 
@@ -16,5 +16,5 @@
 |---|---|---|---|---|---|
 | #280 | 1 | story-start | Done | 2026-11-18 00:23 | 2026-11-18 00:23 |
 | #280 | 2 | worktree → implement | Done | 2026-11-18 00:23 | 2026-11-18 00:24 |
-| #280 | 3 | commit-push | In progress | 2026-11-18 00:24 | |
-| #280 | 4 | story-complete | — | | |
+| #280 | 3 | commit-push | Done | 2026-11-18 00:24 | 2026-11-18 00:24 |
+| #280 | 4 | story-complete | Done | 2026-11-18 00:24 | 2026-11-18 00:24 |
