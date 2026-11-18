@@ -4,10 +4,12 @@
 # Started by CICD/Local/docker-all-up.sh like every other service. By hand:
 #   cd CICD/Local/mongodb && docker compose up -d
 #
-# Connect:  mongodb://root:changeme-local@localhost:27017/?authSource=admin
+# Connect (auth required or Compass looks empty):
+#   mongodb://root:changeme-local@localhost:27017/?authSource=admin
 # Override the defaults with MONGO_ROOT_USERNAME / MONGO_ROOT_PASSWORD / MONGO_PORT in your shell.
-# NOTE: the root user is created only the first time the data volume is empty. Changing the password later has
-#       no effect until you wipe the volume:  CICD/Local/docker-all-down.sh --wipe mongodb
+# NOTE: root user + docker-entrypoint-initdb.d scripts run only when the data volume is empty.
+#       Changing password or re-running init needs a wipe: CICD/Local/docker-all-down.sh --wipe mongodb
+# First boot creates consumer_comp_db.complaints + unique Complaint ID index (M17-0010 / #259 / D86).
 name: mongodb
 
 services:
@@ -17,12 +19,14 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:-root}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-changeme-local}
+      MONGO_INITDB_DATABASE: consumer_comp_db
     ports:
       # Bound to localhost only, so nothing else on your network can reach it.
       - "127.0.0.1:${MONGO_PORT:-27017}:27017"
     volumes:
       - mongodb-data:/data/db
       - mongodb-config:/data/configdb
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
       interval: 10s
