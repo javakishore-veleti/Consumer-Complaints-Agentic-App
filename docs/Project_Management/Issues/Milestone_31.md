@@ -2,7 +2,7 @@
 
 **Scope:** README.md only — Airflow parallel 14-CSV Chroma pipeline. No product code.
 
-**Status: Open.** Stories left to build: 1 (#292). Stories already done: 0.
+**Status: Closed.** Stories left to build: 0. Stories already done: 1 (#292).
 
 ## 1. Build order
 
@@ -16,5 +16,5 @@
 |---|---|---|---|---|---|
 | #292 | 1 | story-start | Done | 2026-11-18 01:21 | 2026-11-18 01:21 |
 | #292 | 2 | worktree → implement | Done | 2026-11-18 01:21 | 2026-11-18 01:21 |
-| #292 | 3 | commit-push | In progress | 2026-11-18 01:21 | |
-| #292 | 4 | story-complete | — | | |
+| #292 | 3 | commit-push | Done | 2026-11-18 01:21 | 2026-11-18 01:22 |
+| #292 | 4 | story-complete | Done | 2026-11-18 01:22 | 2026-11-18 01:22 |
