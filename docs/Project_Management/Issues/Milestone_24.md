@@ -1,0 +1,20 @@
+# Milestone M24 - README consumer finance domain & data products
+
+**Scope:** README.md only — consumer finance domain, CFPB data understanding, data product ideas. No index/product code.
+
+**Status: Open.** Stories left to build: 1 (#278). Stories already done: 0.
+
+## 1. Build order
+
+| # | Issue | Key | Type | Title |
+|---|---|---|---|---|
+| 1 | #278 | M24-0001 | Story | README: consumer finance, CFPB data understanding, data products |
+
+## 2. Superpowers workflow
+
+| Issue | Step | Command | Status | Started | Completed |
+|---|---|---|---|---|---|
+| #278 | 1 | story-start | Done | 2026-11-18 00:12 | 2026-11-18 00:12 |
+| #278 | 2 | worktree → implement | In progress | 2026-11-18 00:12 | |
+| #278 | 3 | commit-push | — | | |
+| #278 | 4 | story-complete | — | | |
