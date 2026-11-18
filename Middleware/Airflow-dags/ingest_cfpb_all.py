@@ -13,7 +13,7 @@ from airflow.utils.trigger_rule import TriggerRule
 
 from ccaa.dag_context import fetch_dag_context, materialize_app_endpoint
 from ccaa.db_reader import resolve_landing_dir
-from ccaa.import_runs import dataset_dir
+from ccaa.import_runs import dataset_dir, read_import_metadata
 from ccaa.mongo_ingest import (
     DEFAULT_BATCH_SIZE,
     ingest_complaints_parts,
@@ -109,22 +109,32 @@ def resolve_and_ingest(**context) -> dict:
     single = cfg.get("source_filename")
 
     location_ref = conf.get("location_ref")
+    meta_glob = None
     if import_id and location_ref:
         run_folder = Path(str(location_ref))
         parts_root = dataset_dir(run_folder)
         if not parts_root.is_dir():
             raise FileNotFoundError(f"import dataset dir missing: {parts_root}")
         landing_for_parts = parts_root
+        try:
+            meta_glob = (read_import_metadata(run_folder) or {}).get("part_glob")
+        except Exception:
+            meta_glob = None
     else:
         landing_for_parts = landing
 
     try:
         # Prefer split list/glob (D91). Legacy: only source_filename → single monolith zip.
         if filenames or glob_pat or not single or import_id:
+            effective_glob = (
+                str(glob_pat).strip()
+                if glob_pat
+                else (str(meta_glob).strip() if meta_glob else DEFAULT_PART_GLOB)
+            )
             parts = list_part_files(
                 landing_for_parts,
                 source_filenames=filenames,
-                source_filename_glob=str(glob_pat) if glob_pat else DEFAULT_PART_GLOB,
+                source_filename_glob=effective_glob,
                 source_filename=None,
             )
             coll = open_complaints_collection(mongo_url)

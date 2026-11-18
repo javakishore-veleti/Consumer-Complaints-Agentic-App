@@ -127,4 +127,12 @@ def test_seeded_all_and_3_months_bindings_are_readable(data_dir):
             _wf(INDEX_REDIS_WF),
         ]
     )
-    assert [r.workflow_id for r in three_links.resp.records] == [_wf(FILTER_WF)]
+    assert sorted(r.workflow_id for r in three_links.resp.records) == sorted(
+        [
+            _wf(FILTER_WF),
+            _wf(INGEST_WRAPPER_WF),
+            _wf(INDEX_PG_WF),
+            _wf(INDEX_CHROMA_WF),
+            _wf(INDEX_REDIS_WF),
+        ]
+    )

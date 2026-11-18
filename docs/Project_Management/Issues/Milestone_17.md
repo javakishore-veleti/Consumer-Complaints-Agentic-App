@@ -2,7 +2,7 @@
 
 **Scope:** End-to-end on **Customer complaints 3 months 2026** only — filter → Mongo ingest → vector indexes. Fix empty DB Ingest after filter; rewrite localhost 3m runbook with **no All-MIO detour**.
 
-**Status: Open.** Stories left to build: 4. Stories already done: 0.
+**Status: Open.** Stories left to build: 5. Stories already done: 0.
 
 ## 1. Build order
 
@@ -12,6 +12,7 @@
 | 2 | #244 | M17-0002 | Story | Rewrite 3m localhost runbook: 3-month MIO only (filter → Mongo → indexes) |
 | 3 | #246 | M17-0003 | Story | Rename Admin UI brand from CC Admin to Consumer Complaints Administration |
 | 4 | #247 | M17-0004 | Story | Dataset tags table (SQL-filterable, ≥5000 tags) + optional comment |
+| 5 | #248 | M17-0005 | Story | Per-MIO default split source folders (3/6/9/12/all months) |
 
 ## 2. Superpowers workflow
 

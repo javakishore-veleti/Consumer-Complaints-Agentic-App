@@ -100,13 +100,7 @@ export class DbIngestPageComponent implements OnInit {
       return this.selectedImportIds().size === 0;
     }
     const status = mio.latest_ingest?.status;
-    if (!status) {
-      return true;
-    }
-    if (RUNNING_STATUSES.has(status)) {
-      return true;
-    }
-    return false;
+    return status !== undefined && status !== null && RUNNING_STATUSES.has(status);
   }
 
   protected async onStart(mio: MioStatusEntry): Promise<void> {

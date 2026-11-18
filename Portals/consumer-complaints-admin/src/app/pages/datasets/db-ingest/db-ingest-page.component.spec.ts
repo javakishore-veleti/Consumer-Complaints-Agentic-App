@@ -130,7 +130,7 @@ describe('DbIngestPageComponent', () => {
     expect(btn.nativeElement.disabled).toBe(false);
   });
 
-  it('disables Start for legacy ingest when there is no prior status', async () => {
+  it('allows Start for legacy ingest when there is no prior status', async () => {
     const fixture = TestBed.createComponent(DbIngestPageComponent);
     fixture.detectChanges();
     flushBoot(
@@ -147,7 +147,11 @@ describe('DbIngestPageComponent', () => {
     );
     await settle();
     fixture.detectChanges();
+    const select = fixture.debugElement.query(By.css('[data-testid="mio-workflow-select"]'));
+    select.nativeElement.value = ingestAll.id;
+    select.nativeElement.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
     const btn = fixture.debugElement.query(By.css('[data-testid="mio-start-workflow"]'));
-    expect(btn.nativeElement.disabled).toBe(true);
+    expect(btn.nativeElement.disabled).toBe(false);
   });
 });
