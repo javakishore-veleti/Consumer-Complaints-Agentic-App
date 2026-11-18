@@ -375,7 +375,7 @@ def test_download_cfpb_all_workflow_is_seeded(data_dir):
     assert config["dataset_code"] == "CFPB"
     assert config.get("source_mode") == "split"
     assert config.get("source_filename_glob") == "complaints_part_*.csv.zip"
-    assert config.get("stage_from_env") == "CCA_CFPB_SPLIT_SOURCE_PATH"
+    assert config.get("stage_from_env") == "CCA_CFPB_SPLIT_SOURCE_PATH_ALL"
     assert config.get("app_endpoint_name") == "cfpb_stage_split_to_local"
     assert row[5] in (1, True)
 
@@ -413,7 +413,7 @@ def test_filter_cfpb_3_months_workflow_is_seeded(data_dir):
     assert config == {
         "dataset_code": "CFPB",
         "months": 3,
-        "source_path_env": "CCA_CFPB_SPLIT_SOURCE_PATH",
+        "source_path_env": "CCA_CFPB_SPLIT_SOURCE_PATH_3_MONTHS",
         "source_filename": "complaints.csv.zip",
         "output_filename": "complaints_3_months.csv.zip",
         "date_column": "Date received",
@@ -625,7 +625,7 @@ def test_app_endpoints_seed_cfpb_stage_split_to_local(data_dir):
         "763c400e-09e1-59a5-92ed-ed910df667ac",
         "cfpb_stage_split_to_local",
         "source",
-        "CCA_CFPB_SPLIT_SOURCE_PATH",
+        "CCA_CFPB_SPLIT_SOURCE_PATH_ALL",
         "LOCAL_DATA_PATH_CFPB",
         1,
     )

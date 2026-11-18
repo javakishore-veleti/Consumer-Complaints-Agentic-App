@@ -49,8 +49,8 @@ x-airflow-common:
     - ./plugins:/opt/airflow/plugins
     # M10-0005 / #212 + M10-0017 / #224: CCA landing tree (LOCAL_DATA_PATH_CFPB under imports/).
     - ${HOME}/runtime_data/apps/datasets/CCA/complains_datasets:${HOME}/runtime_data/apps/datasets/CCA/complains_datasets
-    # M10-0021 / #228: default split source folder (CCA_CFPB_SPLIT_SOURCE_PATH) — same path in worker.
-    - ${HOME}/Downloads/temp/complaints_split:${HOME}/Downloads/temp/complaints_split
+    # M17-0005 / #248: per-MIO split source folders under Downloads/temp (bind whole temp tree).
+    - ${HOME}/Downloads/temp:${HOME}/Downloads/temp
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on

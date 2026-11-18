@@ -118,7 +118,12 @@ Defaults from `CICD/Local/*/docker-compose.yaml` and portal/API scripts. **Local
 | `CCA_AIRFLOW_API_PASSWORD` | `airflow` | Matches Airflow WWW user (with username `airflow`) |
 | `CCA_VECTOR_STORE_PATH` | e.g. absolute path under Airflow data | JSONL vector index (`index_cfpb_all`) |
 | `LOCAL_DATA_PATH_CFPB` | `$HOME/runtime_data/apps/datasets/CCA/complains_datasets/imports` | Where CFPB zips land (localhost). Use absolute `$HOME/...` in `.env`; Airflow compose bind-mounts the same path (#212) |
-| `CCA_CFPB_SPLIT_SOURCE_PATH` | machine-local path to `complaints_part_*.csv.zip` | Optional split-parts staging (D91) |
+| `CCA_CFPB_SPLIT_SOURCE_PATH_3_MONTHS` | `$HOME/Downloads/temp/complaints_split_3_months_data` | 3-month filter input (M17-0005) |
+| `CCA_CFPB_SPLIT_SOURCE_PATH_6_MONTHS` | `$HOME/Downloads/temp/complaints_split_6_months_data` | Reserved for 6-month MIO |
+| `CCA_CFPB_SPLIT_SOURCE_PATH_9_MONTHS` | `$HOME/Downloads/temp/complaints_split_9_months_data` | Reserved for 9-month MIO |
+| `CCA_CFPB_SPLIT_SOURCE_PATH_12_MONTHS` | `$HOME/Downloads/temp/complaints_split_12_months_data` | Reserved for 12-month MIO |
+| `CCA_CFPB_SPLIT_SOURCE_PATH_ALL` | `$HOME/Downloads/temp/complaints_split_all_data` | All MIO download/stage (M17-0005) |
+| `CCA_CFPB_SPLIT_SOURCE_PATH` | legacy single-folder alias | Optional fallback if per-MIO var unset |
 
 After containers + `.env`: `npm run local:api:migrate` (SQLite/Postgres), sync Airflow Variables from Admin **Operations → Sync secrets**, then open Admin Imports.
 
