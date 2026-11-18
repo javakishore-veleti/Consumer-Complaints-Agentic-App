@@ -17,3 +17,9 @@ class DatasetImportRunFacadeImpl(DatasetImportRunFacade):
 
     def list(self, ctx: DatasetImportRunCtx) -> int:
         return ServicesObjectsFactory.get_dataset_import_run_service().list(ctx)
+
+    def add_tags(self, ctx: DatasetImportRunCtx) -> int:
+        return ServicesObjectsFactory.get_dataset_import_run_service().add_tags(ctx)
+
+    def list_tags(self, ctx: DatasetImportRunCtx) -> int:
+        return ServicesObjectsFactory.get_dataset_import_run_service().list_tags(ctx)

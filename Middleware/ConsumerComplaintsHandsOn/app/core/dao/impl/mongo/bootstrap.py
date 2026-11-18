@@ -84,6 +84,7 @@ COLLECTIONS = (
     "datasets",
     "datasets_location",
     "dataset_import_runs",
+    "dataset_import_run_tags",
     "app_endpoints",
     "mios",
     "mios_datasets",
@@ -125,6 +126,12 @@ def ensure_indexes() -> None:
     db["dataset_import_runs"].create_index("run_folder_name", unique=True)
     db["dataset_import_runs"].create_index("status")
     db["dataset_import_runs"].create_index([("workflow_started_at", -1), ("id", -1)])
+    db["dataset_import_run_tags"].create_index("tag")
+    db["dataset_import_run_tags"].create_index(
+        [("import_run_id", 1), ("tag", 1)],
+        unique=True,
+        name="uq_dataset_import_run_tags_run_tag",
+    )
 
 
 def _upsert(doc: MongoDocument) -> None:

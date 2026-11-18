@@ -60,3 +60,74 @@ def test_callback_requires_secret(client, data_dir):
         },
     )
     assert response.status_code == 401
+
+
+def test_comment_and_tags_http(client, monkeypatch, data_dir):
+    monkeypatch.setenv("CCA_CALLBACK_SECRET", SECRET)
+    created = client.post(
+        "/callbacks/dataset-import-runs",
+        headers=HEADERS,
+        json={
+            "id": "22222222-2222-2222-2222-222222222222",
+            "run_folder_name": "2026-11-14-15-18-00",
+            "location_kind": "local_path",
+            "location_ref": "/data/cfpb/2026-11-14-15-18-00",
+            "source_snapshot_start": STARTED,
+            "source_snapshot_end": STARTED,
+            "workflow_started_at": STARTED,
+            "status": "landed",
+            "comment": "seed comment",
+        },
+    )
+    assert created.status_code == 200, created.text
+    assert created.json()["comment"] == "seed comment"
+    import_id = created.json()["id"]
+
+    patched = client.patch(
+        f"/dataset-import-runs/{import_id}",
+        json={"comment": "ops note"},
+    )
+    assert patched.status_code == 200, patched.text
+    assert patched.json()["comment"] == "ops note"
+
+    added = client.post(
+        f"/dataset-import-runs/{import_id}/tags",
+        json={"tags": ["alpha", "beta", "alpha"]},
+    )
+    assert added.status_code == 200, added.text
+    assert [t["tag"] for t in added.json()] == ["alpha", "beta"]
+
+    listed = client.get(f"/dataset-import-runs/{import_id}/tags")
+    assert listed.status_code == 200
+    assert [t["tag"] for t in listed.json()] == ["alpha", "beta"]
+
+    other = client.post(
+        "/callbacks/dataset-import-runs",
+        headers=HEADERS,
+        json={
+            "id": "33333333-3333-3333-3333-333333333333",
+            "run_folder_name": "2026-11-14-16-00-00",
+            "location_kind": "local_path",
+            "location_ref": "/data/cfpb/other",
+            "source_snapshot_start": STARTED,
+            "source_snapshot_end": STARTED,
+            "workflow_started_at": "2026-11-14T16:00:00Z",
+            "status": "landed",
+        },
+    )
+    assert other.status_code == 200, other.text
+    other_id = other.json()["id"]
+    assert (
+        client.post(
+            f"/dataset-import-runs/{other_id}/tags",
+            json={"tags": ["beta"]},
+        ).status_code
+        == 200
+    )
+
+    filtered = client.get("/dataset-import-runs", params={"tag": "alpha"})
+    assert filtered.status_code == 200
+    assert [r["id"] for r in filtered.json()] == [import_id]
+
+    both = client.get("/dataset-import-runs", params={"tag": "beta"})
+    assert {r["id"] for r in both.json()} == {import_id, other_id}

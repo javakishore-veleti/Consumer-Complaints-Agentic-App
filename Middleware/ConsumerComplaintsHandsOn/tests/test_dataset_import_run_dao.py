@@ -173,3 +173,53 @@ def test_eligible_only_lists_landed_and_failed(data_dir):
 def test_list_rejects_bad_paging(data_dir, bad):
     assert _dao().list(_ctx(limit=bad)) == INVALID_INPUT
     assert _dao().list(_ctx(offset=bad)) == INVALID_INPUT
+
+
+def test_comment_on_create_and_update(data_dir):
+    row = _create(comment="first note")
+    assert row.comment == "first note"
+    updated = _ctx(id=row.id, comment="ops: keep for 3m replay")
+    assert _dao().update(updated) == SUCCESS
+    assert updated.resp.records[0].comment == "ops: keep for 3m replay"
+
+
+def test_add_list_and_filter_tags_at_5000(data_dir):
+    row = _create(status=STATUS_LANDED)
+    tags = [f"t{i:04d}" for i in range(5000)]
+    added = _ctx(id=row.id, tags=tags)
+    assert _dao().add_tags(added) == SUCCESS
+    assert len(added.resp.tag_records) == 5000
+
+    listed = _ctx(id=row.id)
+    assert _dao().list_tags(listed) == SUCCESS
+    assert len(listed.resp.tag_records) == 5000
+    assert listed.resp.tag_records[0].tag == "t0000"
+    assert listed.resp.tag_records[-1].tag == "t4999"
+
+    # idempotent re-add of a subset
+    again = _ctx(id=row.id, tags=["t0000", "t5000"])
+    assert _dao().add_tags(again) == SUCCESS
+    assert len(again.resp.tag_records) == 5001
+
+    other = _create(
+        run_folder_name="2026-11-14-16-00-00",
+        location_ref="/data/cfpb/other",
+        workflow_started_at=STARTED + timedelta(hours=1),
+        source_snapshot_start=STARTED + timedelta(hours=1),
+        source_snapshot_end=STARTED + timedelta(hours=1),
+        status=STATUS_LANDED,
+    )
+    assert _dao().add_tags(_ctx(id=other.id, tags=["shared", "other-only"])) == SUCCESS
+    assert _dao().add_tags(_ctx(id=row.id, tags=["shared"])) == SUCCESS
+
+    filtered = _ctx(tag="shared")
+    assert _dao().list(filtered) == SUCCESS
+    assert {r.id for r in filtered.resp.records} == {row.id, other.id}
+
+    only_other = _ctx(tag="other-only")
+    assert _dao().list(only_other) == SUCCESS
+    assert [r.id for r in only_other.resp.records] == [other.id]
+
+    missing = _ctx(tag="no-such-tag")
+    assert _dao().list(missing) == SUCCESS
+    assert missing.resp.records == []
