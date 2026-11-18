@@ -2,7 +2,7 @@
 
 **Scope:** End-to-end on **Customer complaints 3 months 2026** only — filter → Mongo ingest → vector indexes. Fix empty DB Ingest after filter; rewrite localhost 3m runbook with **no All-MIO detour**.
 
-**Status: Open.** Stories left to build: 4 (#244, #246, #247, #259). Stories already done: 7 (Phase 0 baseline 3 + #245 + #255 + #257 + #260).
+**Status: Open.** Stories left to build: 3 (#244, #246, #247). Stories already done: 8 (Phase 0 baseline 3 + #245 + #255 + #257 + #260 + #259).
 
 ## 1. Build order
 
@@ -40,6 +40,10 @@
 | #260 | 2 | brainstorm → worktree → plan → TDD → implement | Done | 2026-11-17 21:51 | 2026-11-17 21:55 |
 | #260 | 3 | `/ccaa-commit-push 260` | Done | 2026-11-17 21:55 | 2026-11-17 21:54 |
 | #260 | 4 | `/ccaa-story-complete 260` | Done | 2026-11-17 21:54 | 2026-11-17 21:54 |
+| #259 | 1 | `/ccaa-story-start 259` | Done | 2026-11-17 21:54 | 2026-11-17 21:54 |
+| #259 | 2 | brainstorm → worktree → plan → TDD → implement | Done | 2026-11-17 21:54 | 2026-11-17 21:56 |
+| #259 | 3 | `/ccaa-commit-push 259` | Done | 2026-11-17 21:56 | 2026-11-17 21:56 |
+| #259 | 4 | `/ccaa-story-complete 259` | Done | 2026-11-17 21:56 | 2026-11-17 21:56 |
 | #244 | 1 | `/ccaa-story-start 244` | Planned | - | - |
 | #244 | 2 | rewrite `docs/Runbooks/Localhost/3m-pgvector-chroma.md` (3m MIO only) | Planned | - | - |
 | #244 | 3 | `/ccaa-commit-push 244` | Planned | - | - |

@@ -169,6 +169,7 @@ Chroma HTTP: http://127.0.0.1:8100
 | Filter/ingest fails: Postgres `Connection refused` to `127.0.0.1:5432` | Ops config now comes from Middleware `dag-context` API (not Airflow→Postgres). Ensure Middleware is up and `CCA_API_URL` / `CCA_CALLBACK_SECRET` are synced; restart Middleware to pick up the new endpoint |
 | Filter finds no inputs | Point `CCA_CFPB_SPLIT_SOURCE_PATH` at a folder with `.csv`/`.zip` (or one file); Sync; retry step 1 |
 | Ingest: `ModuleNotFoundError: No module named 'pymongo'` | Airflow image must include pymongo (D51). Rebuild local Airflow: `cd CICD/Local/airflow && docker compose up -d --build` (or `CICD/Local/docker-all-up.sh`), then re-run DB Ingest |
+| Compass shows no databases on `localhost:27017` | Use auth: `mongodb://root:changeme-local@localhost:27017/?authSource=admin`. Fresh wipe recreates `consumer_comp_db.complaints` via init script (#259) |
 | Index empty | Ingest incomplete; or Mongo / pgvector / Chroma URLs not synced |
 
 Related: root README local credentials · path `docs/Runbooks/Localhost/3m-pgvector-chroma.md`
