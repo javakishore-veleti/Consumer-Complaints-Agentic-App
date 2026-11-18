@@ -2,7 +2,7 @@
 
 **Scope:** End-to-end on **Customer complaints 3 months 2026** only — filter → Mongo ingest → vector indexes. Fix empty DB Ingest after filter; rewrite localhost 3m runbook with **no All-MIO detour**.
 
-**Status: Open.** Stories left to build: 3 (#244, #246, #247). Stories already done: 5 (Phase 0 baseline 3 + #245 + #255).
+**Status: Open.** Stories left to build: 3 (#244, #246, #247). Stories already done: 5 (Phase 0 baseline 3 + #245 + #255); #257 in progress.
 
 ## 1. Build order
 
@@ -13,9 +13,10 @@
 | 3 | #251 | M17-0006 | Story | CI Postgres bindings count (12) |
 | 4 | #253 | M17-0007 | Story | Fix IndentationError in index_cfpb_* DAGs |
 | 5 | #255 | M17-0008 | Story | DB Ingest UX: clarify import-run selection; scale past large run lists |
-| 6 | #244 | M17-0002 | Story | Rewrite 3m localhost runbook: 3-month MIO only (filter → Mongo → indexes) |
-| 7 | #246 | M17-0003 | Story | Rename Admin UI brand from CC Admin to Consumer Complaints Administration |
-| 8 | #247 | M17-0004 | Story | Dataset tags table (SQL-filterable, ≥5000 tags) + optional comment |
+| 6 | #257 | M17-0009 | Story | Airflow image: install pymongo for Mongo ingest DAGs |
+| 7 | #244 | M17-0002 | Story | Rewrite 3m localhost runbook: 3-month MIO only (filter → Mongo → indexes) |
+| 8 | #246 | M17-0003 | Story | Rename Admin UI brand from CC Admin to Consumer Complaints Administration |
+| 9 | #247 | M17-0004 | Story | Dataset tags table (SQL-filterable, ≥5000 tags) + optional comment |
 
 ## 2. Superpowers workflow
 
@@ -29,6 +30,10 @@
 | #255 | 2 | brainstorm → worktree → plan → TDD → implement | Done | 2026-11-17 20:18 | 2026-11-17 20:22 |
 | #255 | 3 | `/ccaa-commit-push 255` | Done | 2026-11-17 20:22 | 2026-11-17 20:23 |
 | #255 | 4 | `/ccaa-story-complete 255` | Done | 2026-11-17 20:23 | 2026-11-17 20:23 |
+| #257 | 1 | `/ccaa-story-start 257` | Done | 2026-11-17 20:46 | 2026-11-17 20:46 |
+| #257 | 2 | brainstorm → worktree → plan → TDD → implement | Done | 2026-11-17 20:46 | 2026-11-17 20:48 |
+| #257 | 3 | `/ccaa-commit-push 257` | In progress | 2026-11-17 20:48 | - |
+| #257 | 4 | `/ccaa-story-complete 257` | Planned | - | - |
 | #244 | 1 | `/ccaa-story-start 244` | Planned | - | - |
 | #244 | 2 | rewrite `docs/Runbooks/Localhost/3m-pgvector-chroma.md` (3m MIO only) | Planned | - | - |
 | #244 | 3 | `/ccaa-commit-push 244` | Planned | - | - |
