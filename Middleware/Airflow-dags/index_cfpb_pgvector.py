@@ -57,21 +57,21 @@ def resolve_and_index(**context) -> dict:
         )
         frm = resolved["from"]
         to = resolved["to"]
-            if frm.get("kind") != "env" or not frm.get("value"):
-                raise ValueError(f"app_endpoint {ep_name} from must be Mongo env URI")
-            if to.get("kind") != "env" or not to.get("value"):
-                raise ValueError(f"app_endpoint {ep_name} to must be CCA_PGVECTOR_URL env")
-            mongo_url = frm["value"]
-            pg_url = to["value"]
-        else:
-            mongo_url = resolve_complaints_mongo_url(
-                getenv=os.getenv,
-                get_variable=Variable.get,
-            )
-            pg_url = resolve_pgvector_url(
-                getenv=os.getenv,
-                get_variable=Variable.get,
-            )
+        if frm.get("kind") != "env" or not frm.get("value"):
+            raise ValueError(f"app_endpoint {ep_name} from must be Mongo env URI")
+        if to.get("kind") != "env" or not to.get("value"):
+            raise ValueError(f"app_endpoint {ep_name} to must be CCA_PGVECTOR_URL env")
+        mongo_url = frm["value"]
+        pg_url = to["value"]
+    else:
+        mongo_url = resolve_complaints_mongo_url(
+            getenv=os.getenv,
+            get_variable=Variable.get,
+        )
+        pg_url = resolve_pgvector_url(
+            getenv=os.getenv,
+            get_variable=Variable.get,
+        )
 
     batch_size = int(cfg.get("batch_size") or 500)
     store = open_vector_store(backend=BACKEND_PGVECTOR, dsn=pg_url)
