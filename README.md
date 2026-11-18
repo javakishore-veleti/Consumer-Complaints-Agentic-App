@@ -247,6 +247,70 @@ Semantic match finds paraphrase (“wire held up” ↔ “funds not handled…�
 | Different embed models for index vs query | Vectors from different models live in incompatible spaces; queries will not match indexed documents. |
 | Claiming trends are statistically representative (CFPB caveats) | The public database is not a statistical sample of all consumers; volumes need company size/market-share context and must not be sold as market proof. |
 
+##### 1,970,702 rows in 3 months of data
+
+With **1,970,702** rows (nearly 2 million records), the dataset crosses the threshold where brute-force embedding and naive vector indexing become slow, expensive, and redundant.
+
+Because the records contain structured categorical fields (`Product`, `Sub-product`, `Issue`, `Sub-issue`, `Company response`, `Tags`) rather than unique free-text narratives, almost all 1.97 million rows are combinations of a few thousand unique text strings.
+
+**1. The game-changing optimization: deduplicate before embedding**
+
+Instead of running the embedding model 1,970,702 times, extract the unique `text_summary` combinations first.
+
+- **Massive compute savings:** Across 1.97 million CFPB rows, there are typically only **2,000 to 15,000** unique combinations of Product + Sub-product + Issue + Sub-issue + Tags + Company response.
+- **99%+ reduction in embedding work:** Run the embedding model once on those ~10,000 unique strings (under ~30 seconds on a laptop CPU, or under about $0.02 via API), store them in a lookup dictionary (`text_summary` → vector), and map the precomputed vectors back to all 1,970,702 rows.
+- **Cloud migration ready:** Save the resulting `complaint_id`, metadata, and embedding columns to Apache Parquet. When loading into AWS OpenSearch, Azure AI Search, or GCP Vertex AI later, upload the precomputed vectors directly without paying to re-embed 2 million rows.
+
+**2. Storage & hardware sizing for 1.97M vectors**
+
+At nearly 2 million rows, vector dimensionality directly dictates RAM requirements and cloud bills:
+
+| Embedding dimension | Raw vector size (Float32) | Estimated RAM with HNSW index | Practical fit |
+|---|---|---|---|
+| 384 dims (e.g. `bge-small-en-v1.5`) | ~2.8 GB | ~4.5 – 6 GB | Fits comfortably on a standard 16 GB laptop; keeps cloud vector hosting cheaper. |
+| 768 dims (e.g. `bge-base-en-v1.5` / `e5-base-v2`) | ~5.6 GB | ~9 – 12 GB | Strong accuracy/memory balance; runs well on a 16–32 GB machine or mid-tier cloud node. |
+| 1,536 dims (e.g. `text-embedding-3-small`) | ~11.3 GB | ~18 – 24 GB | High memory footprint; needs a 32 GB+ machine locally and noticeably higher cloud costs. |
+
+**Recommendation:** Prefer a **384- or 768-dimension** model such as `BAAI/bge-base-en-v1.5` or `intfloat/e5-base-v2`. Because the text strings are short categorical combinations, 768 dimensions captures full semantic nuance without bloating RAM.
+
+**3. Batch ingestion best practices for Chroma at 2M scale**
+
+Chroma handles 2 million records cleanly on a single machine if three rules are followed during ingestion:
+
+- **Insert in batches of 5,000 to 10,000:** Never call `collection.upsert()` one row at a time or pass all 1.97 million rows in a single call (which can hit SQLite/gRPC payload limits). Loop through the frame in chunks of 5,000.
+- **Pass precomputed `embeddings=` directly:** When calling `collection.add(ids=..., embeddings=..., documents=..., metadatas=...)`, pass the mapped vectors explicitly so Chroma bypasses its internal embedding function during the bulk load.
+- **Index only high-cardinality metadata you filter on:** Keep metadata lean (`company`, `state`, `product`, `tags`, `timely_response`, `date_received_int`). Avoid stuffing long, unused strings (like the full boilerplate `Company public response` sentence) into every metadata dictionary across 2 million rows, as it bloats SQLite disk and memory usage.
+
+**Example deduplication & mapping pattern (Python):**
+
+```python
+import pandas as pd
+
+df = pd.read_csv("complaints.csv", dtype=str).fillna("")
+
+# 1. Build clean, compact text summary
+df["text_summary"] = (
+    "passage: Product: "
+    + df["Product"]
+    + " - "
+    + df["Sub-product"]
+    + " | Issue: "
+    + df["Issue"]
+    + " - "
+    + df["Sub-issue"]
+    + " | Resolution: "
+    + df["Company response to consumer"]
+)
+
+# 2. Embed ONLY unique text summaries (~10k rows instead of 1.97M)
+unique_texts = df["text_summary"].unique().tolist()
+# unique_vectors = model.encode(unique_texts, normalize_embeddings=True)
+# vector_map = dict(zip(unique_texts, unique_vectors.tolist()))
+
+# 3. Map precomputed vectors back to all 1,970,702 rows
+# df["embedding"] = df["text_summary"].map(vector_map)
+```
+
 ## Overall architecture
 
 Capability view (not a folder map):
