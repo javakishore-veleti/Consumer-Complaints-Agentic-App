@@ -115,7 +115,18 @@ http://127.0.0.1:8080/dags — these should be on (3-month MIO bindings):
 6. Wait until status shows **`completed`** (not stuck on `requested`/`failed` with a stale message — **Refresh status**).
 7. Airflow: `ingest_cfpb_imports_wrapper` → child `ingest_cfpb_all` = success.
 
-Compass (auth required): `mongodb://root:changeme-local@localhost:27017/?authSource=admin` → `consumer_comp_db.complaints`.
+**MongoDB Compass (auth required — without it the Databases list looks empty):**
+
+| Field | Value |
+|---|---|
+| Connection string | `mongodb://root:changeme-local@localhost:27017/?authSource=admin` |
+| Username | `root` |
+| Password | `changeme-local` |
+| Authentication Database | `admin` |
+
+1. New/Edit connection → paste the URI (or fill Username / Password / Auth DB as above) → Connect → Refresh.
+2. Open `consumer_comp_db` → `complaints`. First container boot (empty Docker volume) creates that DB + collection + unique `Complaint ID` index; document count stays **0** until this ingest finishes.
+3. After a successful ingest, document count should be &gt; 0.
 
 ---
 
@@ -178,7 +189,7 @@ Chroma HTTP: http://127.0.0.1:8100
 | Start ingest disabled / “select landed runs” | Check a **landed** (or **failed**) import run above, then Start |
 | Ingest: `ModuleNotFoundError: pymongo` | `cd CICD/Local/airflow && docker compose up -d --build` |
 | Admin shows failed after Airflow success | Refresh status; ensure latest DAGs mounted (finalize ORM fix). Re-run Start ingest if needed |
-| Compass shows no databases | Auth URL: `mongodb://root:changeme-local@localhost:27017/?authSource=admin` |
+| Compass shows no databases | Connect with auth: `mongodb://root:changeme-local@localhost:27017/?authSource=admin` (user `root` / password `changeme-local` / authSource `admin`). Unauthenticated Compass looks empty even when `consumer_comp_db` exists. |
 | Index empty | Ingest incomplete; or Mongo / pgvector / Chroma URLs not synced |
 
 Related: root README local credentials · path `docs/Runbooks/Localhost/3m-pgvector-chroma.md`
