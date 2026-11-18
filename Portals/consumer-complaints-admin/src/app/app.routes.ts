@@ -6,6 +6,7 @@ import { ImportsPageComponent } from './pages/datasets/imports/imports-page.comp
 import { DbIngestPageComponent } from './pages/datasets/db-ingest/db-ingest-page.component';
 import { IndexPageComponent } from './pages/datasets/index/index-page.component';
 import { SyncSecretsPageComponent } from './pages/operations/sync-secrets-page.component';
+import { AppEndpointsPageComponent } from './pages/catalog/app-endpoints-page.component';
 
 export const routes: Routes = [
   {
@@ -38,6 +39,11 @@ export const routes: Routes = [
             title: 'Vector Stores | Consumer Complaints Administration',
           },
         ],
+      },
+      {
+        path: 'app-endpoints',
+        component: AppEndpointsPageComponent,
+        title: 'App Endpoints | Consumer Complaints Administration',
       },
       {
         path: 'operations',

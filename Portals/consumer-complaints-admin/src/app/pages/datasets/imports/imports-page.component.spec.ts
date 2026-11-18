@@ -41,36 +41,13 @@ describe('ImportsPageComponent', () => {
     await Promise.resolve();
   }
 
-  function flushEndpoints(endpoints: unknown[] = []): void {
-    httpMock
-      .expectOne((r) => r.url.includes('/app-endpoints'))
-      .flush(endpoints);
-  }
-
   function flushStatus(status: unknown[] = []): void {
     httpMock.expectOne((r) => r.url.includes('/mios/status')).flush(status);
   }
 
-  /** Init loads status + AppEndpoints in parallel. */
-  function flushInit(status: unknown[] = [], endpoints: unknown[] = []): void {
+  function flushInit(status: unknown[] = []): void {
     flushStatus(status);
-    flushEndpoints(endpoints);
   }
-
-  const sampleEndpoint = {
-    id: 'ccbce57d-bd9f-56fe-a258-fa2deb9dd393',
-    name: 'cfpb_source_http_to_local',
-    category: 'source',
-    from_dataset_location_id: 'loc-http',
-    from_env_var_name: null,
-    to_dataset_location_id: 'loc-local',
-    to_env_var_name: null,
-    credentials_ref: null,
-    description: 'CFPB HTTP → local',
-    enabled: true,
-    created_at: '2026-11-15T00:00:00Z',
-    updated_at: '2026-11-15T00:00:00Z',
-  };
 
   it('renders the accordion shell host', async () => {
     const fixture = TestBed.createComponent(ImportsPageComponent);
@@ -80,24 +57,6 @@ describe('ImportsPageComponent', () => {
     fixture.detectChanges();
     const host = fixture.debugElement.query(By.css('[data-testid="imports-accordion-shell"]'));
     expect(host).toBeTruthy();
-  });
-
-  it('lists AppEndpoints from GET /app-endpoints without secret values', async () => {
-    const fixture = TestBed.createComponent(ImportsPageComponent);
-    fixture.detectChanges();
-    flushInit([], [sampleEndpoint]);
-    await settle();
-    fixture.detectChanges();
-    const panel = fixture.debugElement.query(By.css('[data-testid="app-endpoints-panel"]'));
-    expect(panel).toBeTruthy();
-    const rows = fixture.debugElement.queryAll(By.css('[data-testid="app-endpoints-row"]'));
-    expect(rows.length).toBe(1);
-    expect(rows[0].nativeElement.textContent).toContain('cfpb_source_http_to_local');
-    expect(rows[0].nativeElement.textContent).toContain('source');
-    expect(rows[0].nativeElement.textContent).toContain('loc:loc-http');
-    expect(rows[0].nativeElement.textContent).toContain('loc:loc-local');
-    expect(panel.nativeElement.textContent).toContain('Neither shows secret values');
-    expect(panel.nativeElement.textContent).not.toMatch(/password|api[_-]?key/i);
   });
 
   it('renders one accordion per MIO with API status verbatim', async () => {
@@ -193,7 +152,6 @@ describe('ImportsPageComponent', () => {
     httpMock
       .expectOne((r) => r.url.includes('/mios/status'))
       .flush('boom', { status: 500, statusText: 'Server Error' });
-    flushEndpoints();
     await settle();
     fixture.detectChanges();
     expect(fixture.debugElement.queryAll(By.css('[data-testid="mio-accordion"]')).length).toBe(0);
@@ -283,7 +241,7 @@ describe('ImportsPageComponent', () => {
     );
   });
 
-  it('Refresh status reloads GET /mios/status and AppEndpoints', async () => {
+  it('Refresh status reloads GET /mios/status', async () => {
     const fixture = TestBed.createComponent(ImportsPageComponent);
     fixture.detectChanges();
     flushInit([
@@ -320,14 +278,10 @@ describe('ImportsPageComponent', () => {
         },
       },
     ]);
-    flushEndpoints([sampleEndpoint]);
     await settle();
     fixture.detectChanges();
     expect(fixture.debugElement.query(By.css('.mio-status')).nativeElement.textContent).toContain(
       'completed',
     );
-    expect(
-      fixture.debugElement.queryAll(By.css('[data-testid="app-endpoints-row"]')).length,
-    ).toBe(1);
   });
 });
