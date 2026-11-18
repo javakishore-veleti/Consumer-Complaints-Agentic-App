@@ -2,8 +2,9 @@
 # Opt-in: npm run local:containers:chroma:start
 #
 # Host port defaults to 8100 so it does not collide with Middleware API :8000 (M10-0001 / #208).
-# Then set:
-#   CCA_CHROMA_URL=http://127.0.0.1:8100
+# Then set (and Sync secrets into Airflow):
+#   CCA_CHROMA_URL=http://host.docker.internal:8100   # Airflow workers in Docker
+#   # CCA_CHROMA_URL=http://127.0.0.1:8100            # host-side only (curl/browser)
 name: cca-chroma
 
 services:

@@ -106,7 +106,7 @@ Defaults from `CICD/Local/*/docker-compose.yaml` and portal/API scripts. **Local
 | Airflow metadata Postgres | (internal Docker only) | `airflow` | `airflow` | DB `airflow`; not the CCA operational store |
 | CCA ops Postgres (+ pgvector) | `postgresql://postgres:postgres@127.0.0.1:5432/cca` | `postgres` | `postgres` | DB `cca`. Set `CCA_OPERATIONAL_STORE=postgres`, `CCA_DB_URL=postgresql+psycopg://postgres:postgres@127.0.0.1:5432/cca`, `CCA_PGVECTOR_URL=postgresql://postgres:postgres@127.0.0.1:5432/cca` |
 | MongoDB (complaints) | `mongodb://root:changeme-local@127.0.0.1:27017/?authSource=admin` | `root` | `changeme-local` | **Auth required** or Compass shows an empty Databases list. Paste that URI in Compass (or Username `root` / Password `changeme-local` / Auth DB `admin`). After first boot: `consumer_comp_db.complaints` (empty until DB Ingest). App: `CCA_MONGO_COMPLAINTS_URL=mongodb://root:changeme-local@127.0.0.1:27017/consumer_comp_db?authSource=admin`. Ops-store profile (optional): `CCA_OPERATIONAL_STORE=mongodb`, `CCA_MONGO_OPERATIONAL_URL=…/cca_operational?authSource=admin` |
-| Chroma | http://127.0.0.1:8100 | — | — | `CCA_CHROMA_URL=http://127.0.0.1:8100` (host default **8100** so it does not collide with Middleware `:8000`; override with `CCA_CHROMA_PORT`) |
+| Chroma | http://127.0.0.1:8100 (host) | — | — | Host port **8100** → container 8000 (avoids Middleware `:8000`; override with `CCA_CHROMA_PORT`). **Airflow (Docker):** set `CCA_CHROMA_URL=http://host.docker.internal:8100` then Sync secrets — `127.0.0.1` inside the worker is not your Mac |
 | Redis Stack | `redis://127.0.0.1:6379/0` | — | — | `CCA_REDIS_URL`. RedisInsight UI: http://127.0.0.1:8001 |
 
 #### Required Middleware `.env` for live Airflow callbacks
