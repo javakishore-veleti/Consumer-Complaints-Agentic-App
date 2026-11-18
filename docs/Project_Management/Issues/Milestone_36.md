@@ -2,7 +2,7 @@
 
 **Scope:** Board docs only — PROJECT_CHARTER.md (products, data/app architecture, processes, tech, portfolio). No product code.
 
-**Status:** Open. Stories left to build: 1. Stories already done: 0.
+**Status: Closed.** Stories left to build: 0. Stories already done: 1 (#302).
 
 ## 1. Build order
 
@@ -16,5 +16,5 @@
 |---|---|---|---|---|---|
 | #302 | 1 | story-start | Done | 2026-11-18 15:00 | 2026-11-18 15:00 |
 | #302 | 2 | worktree → implement | Done | 2026-11-18 15:00 | 2026-11-18 15:01 |
-| #302 | 3 | commit-push | In progress | 2026-11-18 15:01 | |
-| #302 | 4 | story-complete | Planned | | |
+| #302 | 3 | commit-push | Done | 2026-11-18 15:01 | 2026-11-18 15:02 |
+| #302 | 4 | story-complete | Done | 2026-11-18 15:02 | 2026-11-18 15:02 |
