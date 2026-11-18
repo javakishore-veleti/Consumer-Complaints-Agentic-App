@@ -58,21 +58,21 @@ def resolve_and_index(**context) -> dict:
         )
         frm = resolved["from"]
         to = resolved["to"]
-            if frm.get("kind") != "env" or not frm.get("value"):
-                raise ValueError(f"app_endpoint {ep_name} from must be Mongo env URI")
-            if to.get("kind") != "env" or not to.get("value"):
-                raise ValueError(f"app_endpoint {ep_name} to must be vector store path env")
-            mongo_url = frm["value"]
-            store_path = Path(to["value"])
-        else:
-            mongo_url = resolve_complaints_mongo_url(
-                getenv=os.getenv,
-                get_variable=Variable.get,
-            )
-            store_path = resolve_vector_store_path(
-                getenv=os.getenv,
-                get_variable=Variable.get,
-            )
+        if frm.get("kind") != "env" or not frm.get("value"):
+            raise ValueError(f"app_endpoint {ep_name} from must be Mongo env URI")
+        if to.get("kind") != "env" or not to.get("value"):
+            raise ValueError(f"app_endpoint {ep_name} to must be vector store path env")
+        mongo_url = frm["value"]
+        store_path = Path(to["value"])
+    else:
+        mongo_url = resolve_complaints_mongo_url(
+            getenv=os.getenv,
+            get_variable=Variable.get,
+        )
+        store_path = resolve_vector_store_path(
+            getenv=os.getenv,
+            get_variable=Variable.get,
+        )
 
     batch_size = int(cfg.get("batch_size") or 500)
     store = open_vector_store(backend=BACKEND_JSONL, path=store_path)
