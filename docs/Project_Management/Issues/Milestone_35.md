@@ -2,7 +2,7 @@
 
 **Scope:** Docs only — append unified multi-persona Experience Layer (Internal Enterprise, Direct Consumer, External B2B) to Complaints_Data_Classification_Indexing_Brainstorming.md. No product code.
 
-**Status:** Open. Stories left to build: 1. Stories already done: 0.
+**Status: Closed.** Stories left to build: 0. Stories already done: 1 (#300).
 
 ## 1. Build order
 
@@ -16,5 +16,5 @@
 |---|---|---|---|---|---|
 | #300 | 1 | story-start | Done | 2026-11-18 11:45 | 2026-11-18 11:45 |
 | #300 | 2 | worktree → implement | Done | 2026-11-18 11:45 | 2026-11-18 11:45 |
-| #300 | 3 | commit-push | In progress | 2026-11-18 11:45 | |
-| #300 | 4 | story-complete | Planned | | |
+| #300 | 3 | commit-push | Done | 2026-11-18 11:45 | 2026-11-18 11:46 |
+| #300 | 4 | story-complete | Done | 2026-11-18 11:46 | 2026-11-18 11:46 |
