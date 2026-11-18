@@ -40,6 +40,7 @@ Architecture and modeling notes for classifying ~1.97M CFPB consumer complaint r
 34. [Serving all three business models: Multi-Persona Experience Layer](#34-serving-all-three-business-models-multi-persona-experience-layer)
 35. [Unified monetization, metering, API gateway & multi-persona front-end stack](#35-unified-monetization-metering-api-gateway--multi-persona-front-end-stack)
 36. [Master system architecture diagram & team topology / resource sizing](#36-master-system-architecture-diagram--team-topology--resource-sizing)
+37. [What Tier 3 HDBSCAN micro-topics + drift detection means](#37-what-tier-3-hdbscan-micro-topics--drift-detection-means)
 
 ---
 
@@ -1606,6 +1607,44 @@ Complete, production-grade blueprint covering:
 - **Operations & FinOps:** Hub-and-spoke Blue/Green rollouts + OpenTelemetry drift alerts + 18-month Hot/Cold tiering.
 - **Business Monetization:** Unified Edge Metering Gateway serving Internal Risk/Copilot tools, Consumer Self-Service, and B2B SaaS/Data Shares.
 
+
+---
+
+## 37. What Tier 3 HDBSCAN micro-topics + drift detection means
+
+In this regulatory complaint architecture, **“Tier 3 HDBSCAN micro-topics + drift detection”** is an automated, bottom-up safety net that catches brand-new complaint patterns or sudden shifts in consumer issues that fixed rules (**Tier 1**) and business tags (**Tier 2**) do not yet recognize.
+
+Because the dataset has **no free-text narratives** (only the 15 structured categorical fields), this mechanism works slightly differently than it would on raw text.
+
+### 37.1 What “Tier 3 HDBSCAN Micro-Topics” Means
+
+While Tier 1 maps complaints to official statutory categories (like the 12 CFPB Money Topics) and Tier 2 maps them to known internal operational buckets (like Billing Delay or Unauthorized Access), **Tier 3 discovers granular, emerging patterns automatically without predefined labels**:
+
+- **How HDBSCAN Works Here:** HDBSCAN (Hierarchical Density-Based Spatial Clustering of Applications with Noise) is an unsupervised clustering algorithm. Unlike older clustering methods (such as K-Means), it does not force you to guess how many topics exist upfront, and it isolates unrelated outliers as “noise” rather than forcing them into inaccurate groups.
+- **How It Applies to Categorical Data:**
+  - **Semantic Signature Clustering:** Even across 15 structured fields (Product, Sub-product, Issue, Sub-issue, Tags, Company public response), thousands of distinct combinations exist. Running UMAP + HDBSCAN over the embeddings of your ~10,000 Semantic Signatures groups tightly related combinations into dense Micro-Topics (e.g., grouping all combinations involving Older Americans + Phone submission + Payment process errors into a single cluster ID).
+  - **Entity & Geographic Cohort Clustering:** You can also run HDBSCAN over Behavioral Entity Fingerprints (aggregated complaint distributions by Company or ZIP-3 region) to automatically group institutions or regions experiencing identical systemic breakdowns.
+- **LLM Summarization:** Once HDBSCAN forms a dense cluster, a lightweight LLM reads the cluster’s top categorical signatures and assigns a human-readable micro-topic label (e.g., “Senior Phone-Channel Payment Processing Spike”).
+
+### 37.2 What “Drift Detection” Means
+
+Drift detection is the system’s early-warning monitor for when incoming data starts changing in ways the current taxonomy or models were not built to handle. In a narrative-free CFPB pipeline, it tracks three specific shifts:
+
+1. **Schema & Category Drift (Unseen Semantic Signatures):**
+   - **What happens:** Regulators periodically rename, split, or retire Product, Issue, or Sub-issue labels (such as the 2026 CFPB taxonomy updates), or companies introduce new public response codes.
+   - **How it is detected:** The Semantic Signature Registry tracks its cache-miss rate. When new incoming complaints generate SHA-256 hashes that do not exist in the registry, a spike in cache misses immediately flags upstream taxonomy drift for audit.
+2. **Volume & Velocity Drift (Behavioral Spike Detection):**
+   - **What happens:** A specific existing signature or HDBSCAN micro-topic suddenly jumps from 20 complaints a week to 2,000 complaints a week (for example, due to a bank core-system outage or a new predatory fee).
+   - **How it is detected:** The analytical pipeline compares rolling 7-day complaint counts per `micro_topic_id` against a 90-day baseline. If volume exceeds a statistical threshold (such as > 2 standard deviations), it triggers an Emergent Risk Alert on the Compliance Radar.
+3. **Semantic Centroid Drift (Low-Confidence Classification):**
+   - **What happens:** New categorical combinations fall far away from the known embedding centroids of the 12 Money Topics, causing NLI/SetFit classifier confidence scores to drop below threshold (< 0.65).
+   - **How it is detected:** Monitoring the percentage of records landing in Other / Unclassified alerts the governance team to review those signatures and promote recurring HDBSCAN micro-topics into permanent Tier 2 Operational Tags.
+
+### 37.3 Summary: How They Work Together
+
+1. **Drift Detection** acts as the **alarm**—noticing when new categorical combinations appear, classifier confidence drops, or a specific issue cohort spikes in volume.
+2. **Tier 3 HDBSCAN Micro-Topics** acts as the **diagnostic lens**—automatically grouping those shifting records into clean, labeled clusters so compliance and product teams can investigate the root cause before updating Tier 1 or Tier 2 rules.
+
 ---
 
 ## Document control
@@ -1614,6 +1653,6 @@ Complete, production-grade blueprint covering:
 |---|---|
 | Title | Complaints Data Classification & Indexing — Brainstorming |
 | Purpose | Preserve architecture / modeling brainstorming for Money Topic classification + multi-cloud vector indexing, plus business/customer data-product strategy |
-| Related product docs | Root `README.md` (embeddings exploration, Chroma recipe); M90 for cloud deployment |
-| Status | Brainstorming notes (not an approved Superpowers implementation plan) — complete end-to-end blueprint including master architecture diagram and 90-day team/resource sizing |
-| Last extended | M35-0001 #300 — §§34–36: Multi-Persona Experience Layer, monetization/FE stack, master architecture diagram + team topology & resource sizing |
+| Related product docs | Root `README.md` (embeddings exploration, Chroma recipe); M90 for cloud deployment; `docs/Project_Management/PROJECT_CHARTER.md` |
+| Status | Brainstorming notes (not an approved Superpowers implementation plan) — includes Tier 3 HDBSCAN + drift detection explanation |
+| Last extended | M37-0001 #304 — §37: Tier 3 HDBSCAN micro-topics + drift detection (narrative-free / structured-field adaptation) |
