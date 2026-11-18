@@ -1,15 +1,19 @@
-"""Derive the CFPB 3-month dataset by Date received (D51 / D63 / D67 / D70 / M10-0023).
+"""Derive the CFPB 3-month dataset by Date received (D51 / D63 / D67 / D70 / M10-0023 / M17-0001).
 
 Input may be a single .zip/.csv file or a folder of them. Airflow checks which and
 filters each matching file **sequentially** (one file at a time, not parallel).
+
+Outputs land in a UTC ``YYYY-MM-DD-HH-MM-SS`` import-run folder under the landing
+root and are registered in ``dataset_import_runs`` (same contract as download/stage).
 """
 
 from __future__ import annotations
 
 import logging
 import os
-from datetime import date, datetime, timezone
+from datetime import date, datetime, time, timezone
 from pathlib import Path
+from uuid import uuid4
 
 from airflow import DAG
 from airflow.models import Variable
@@ -23,8 +27,22 @@ from ccaa.filter_by_date import (
     filter_path_by_date_received,
     filtered_output_name,
     list_filter_inputs,
+    subtract_calendar_months,
 )
-from ccaa.status_callback import notify_execution_finished, report_execution_status
+from ccaa.import_runs import (
+    LOCATION_LOCAL_PATH,
+    build_import_metadata,
+    dataset_dir,
+    prepare_run_folder,
+    resolve_snapshot_window,
+    write_import_metadata,
+)
+from ccaa.status_callback import (
+    notify_execution_finished,
+    report_execution_status,
+    report_import_run_create,
+    report_import_run_update,
+)
 
 log = logging.getLogger(__name__)
 
@@ -40,6 +58,12 @@ def _execution_id(context) -> str:
 def _engine_run_id(context) -> str | None:
     run_id = context.get("run_id")
     return str(run_id)[:128] if run_id else None
+
+
+def _mio_id(context) -> str | None:
+    conf = (context.get("dag_run").conf or {}) if context.get("dag_run") else {}
+    raw = conf.get("mio_id")
+    return str(raw) if raw else None
 
 
 def _as_of_date(context, cfg: dict) -> date:
@@ -100,10 +124,54 @@ def resolve_and_filter(**context) -> str:
     expected = cfg.get("expected_row_count")
     total = len(inputs)
 
+    started = datetime.now(timezone.utc)
+    snap_start_dt = datetime.combine(
+        subtract_calendar_months(as_of, months),
+        time.min,
+        tzinfo=timezone.utc,
+    )
+    snap_end_dt = datetime.combine(as_of, time.max.replace(microsecond=0), tzinfo=timezone.utc)
+    snap_start, snap_end = resolve_snapshot_window(
+        started,
+        source_snapshot_start=snap_start_dt,
+        source_snapshot_end=snap_end_dt,
+    )
+    run_folder = prepare_run_folder(landing, started)
+    dest_dir = dataset_dir(run_folder)
+    import_id = str(uuid4())
+    location_ref = str(run_folder.resolve())
+    part_glob = "*_3_months.csv.zip"
+    meta = build_import_metadata(
+        import_id=import_id,
+        workflow_started_at=started,
+        source_snapshot_start=snap_start,
+        source_snapshot_end=snap_end,
+        location_ref=location_ref,
+        location_kind=LOCATION_LOCAL_PATH,
+        part_glob=part_glob,
+        part_count=0,
+    )
+    write_import_metadata(run_folder, meta)
+    report_import_run_create(
+        {
+            "id": import_id,
+            "run_folder_name": run_folder.name,
+            "location_kind": LOCATION_LOCAL_PATH,
+            "location_ref": location_ref,
+            "source_snapshot_start": meta["source_snapshot_start"],
+            "source_snapshot_end": meta["source_snapshot_end"],
+            "workflow_started_at": meta["workflow_started_at"],
+            "status": "staging",
+            "execution_id": execution_id,
+            "mio_id": _mio_id(context),
+            "part_count": 0,
+        }
+    )
+
     log.info(
         "filter_cfpb_3_months start execution_id=%s dataset_code=%s "
         "mode=sequential file_count=%s months=%s as_of=%s date_column=%s "
-        "input_path=%s landing=%s",
+        "input_path=%s landing=%s run_folder=%s import_id=%s",
         execution_id,
         code,
         total,
@@ -112,58 +180,83 @@ def resolve_and_filter(**context) -> str:
         date_column,
         source_path,
         landing,
+        run_folder,
+        import_id,
     )
     for i, src in enumerate(inputs, start=1):
         log.info("filter input [%s/%s] %s", i, total, src)
 
     kept_total = 0
     outputs: list[str] = []
-    for i, src in enumerate(inputs, start=1):
-        dest = landing / filtered_output_name(src)
-        log.info(
-            "filter progress [%s/%s] BEGIN input=%s output=%s",
-            i,
-            total,
-            src,
-            dest,
-        )
-        try:
-            result = filter_path_by_date_received(
-                src,
-                dest,
-                months=months,
-                as_of=as_of,
-                date_column=date_column,
-            )
-        except Exception:
-            log.exception(
-                "filter progress [%s/%s] FAILED input=%s intended_output=%s",
+    try:
+        for i, src in enumerate(inputs, start=1):
+            dest = dest_dir / filtered_output_name(src)
+            log.info(
+                "filter progress [%s/%s] BEGIN input=%s output=%s",
                 i,
                 total,
                 src,
                 dest,
             )
-            raise
-        kept_total += result.rows_kept
-        outputs.append(f"{result.dest}:{result.rows_kept}")
-        log.info(
-            "filter progress [%s/%s] DONE input=%s output=%s rows_kept=%s",
-            i,
-            total,
-            src,
-            result.dest,
-            result.rows_kept,
-        )
+            try:
+                result = filter_path_by_date_received(
+                    src,
+                    dest,
+                    months=months,
+                    as_of=as_of,
+                    date_column=date_column,
+                )
+            except Exception:
+                log.exception(
+                    "filter progress [%s/%s] FAILED input=%s intended_output=%s",
+                    i,
+                    total,
+                    src,
+                    dest,
+                )
+                raise
+            kept_total += result.rows_kept
+            outputs.append(f"{result.dest}:{result.rows_kept}")
+            log.info(
+                "filter progress [%s/%s] DONE input=%s output=%s rows_kept=%s",
+                i,
+                total,
+                src,
+                result.dest,
+                result.rows_kept,
+            )
 
-    if expected is not None:
-        assert_expected_row_count(kept_total, int(expected))
+        if expected is not None:
+            assert_expected_row_count(kept_total, int(expected))
+
+        completed = datetime.now(timezone.utc)
+        meta["part_count"] = total
+        meta["workflow_completed_at"] = completed.strftime("%Y-%m-%dT%H:%M:%SZ")
+        write_import_metadata(run_folder, meta)
+        report_import_run_update(
+            import_id,
+            {
+                "status": "landed",
+                "workflow_completed_at": meta["workflow_completed_at"],
+                "part_count": total,
+            },
+        )
+    except Exception as exc:
+        report_import_run_update(
+            import_id,
+            {"status": "failed", "message": str(exc)[:2000]},
+        )
+        raise
+
     summary = ";".join(outputs)
     log.info(
-        "filter_cfpb_3_months complete execution_id=%s files=%s rows_kept_total=%s landing=%s",
+        "filter_cfpb_3_months complete execution_id=%s files=%s rows_kept_total=%s "
+        "run_folder=%s import_id=%s",
         execution_id,
         total,
         kept_total,
-        landing,
+        run_folder,
+        import_id,
     )
     return summary
 
