@@ -200,7 +200,11 @@ class PgvectorStore:
 
 
 class ChromaStore:
-    """HTTP Chroma upsert store (D94). Uses injectable client for tests."""
+    """HTTP Chroma upsert store (D94). Uses injectable client for tests.
+
+    Chroma 0.5.x requires the collection UUID in upsert/add paths; using the
+    collection name returns HTTP 400 InvalidUUID.
+    """
 
     def __init__(
         self,
@@ -213,6 +217,7 @@ class ChromaStore:
             raise ValueError("base_url is required")
         self.base_url = base_url.rstrip("/")
         self.collection = collection
+        self.collection_id: str = ""
         self._client = client
         self.ensure_schema()
 
@@ -226,7 +231,21 @@ class ChromaStore:
             def __init__(self, root: str) -> None:
                 self.root = root
 
-            def ensure_collection(self, name: str) -> None:
+            def _collection_id_from_payload(self, raw: bytes) -> str:
+                payload = json.loads(raw.decode("utf-8") or "{}")
+                cid = str((payload or {}).get("id") or "").strip()
+                if not cid:
+                    raise ValueError("Chroma create/get response missing collection id")
+                return cid
+
+            def _get_collection_id_by_name(self, name: str) -> str:
+                req = urllib.request.Request(
+                    f"{self.root}/api/v1/collections/{name}",
+                    method="GET",
+                )
+                return self._collection_id_from_payload(urllib.request.urlopen(req, timeout=30).read())
+
+            def ensure_collection(self, name: str) -> str:
                 req = urllib.request.Request(
                     f"{self.root}/api/v1/collections",
                     data=json.dumps({"name": name, "get_or_create": True}).encode("utf-8"),
@@ -234,15 +253,22 @@ class ChromaStore:
                     method="POST",
                 )
                 try:
-                    urllib.request.urlopen(req, timeout=30).read()
+                    return self._collection_id_from_payload(urllib.request.urlopen(req, timeout=30).read())
                 except urllib.error.HTTPError as exc:
-                    if exc.code not in (409, 200):
-                        raise
+                    if exc.code == 409:
+                        return self._get_collection_id_by_name(name)
+                    raise
 
-            def upsert(self, name: str, ids: list[str], embeddings: list[list[float]], documents: list[str]) -> None:
+            def upsert(
+                self,
+                collection_id: str,
+                ids: list[str],
+                embeddings: list[list[float]],
+                documents: list[str],
+            ) -> None:
                 body = {"ids": ids, "embeddings": embeddings, "documents": documents}
                 req = urllib.request.Request(
-                    f"{self.root}/api/v1/collections/{name}/upsert",
+                    f"{self.root}/api/v1/collections/{collection_id}/upsert",
                     data=json.dumps(body).encode("utf-8"),
                     headers={"Content-Type": "application/json"},
                     method="POST",
@@ -252,15 +278,17 @@ class ChromaStore:
         return _UrllibClient(self.base_url)
 
     def ensure_schema(self) -> None:
-        self._http().ensure_collection(self.collection)
+        self.collection_id = self._http().ensure_collection(self.collection)
 
     def upsert(self, docs: list[dict[str, Any]]) -> int:
         if not docs:
             return 0
+        if not self.collection_id:
+            self.ensure_schema()
         ids = [str(d["id"]) for d in docs]
         embeddings = [list(d.get("embedding") or []) for d in docs]
         documents = [str(d.get("text") or "") for d in docs]
-        self._http().upsert(self.collection, ids, embeddings, documents)
+        self._http().upsert(self.collection_id, ids, embeddings, documents)
         return len(docs)
 
 

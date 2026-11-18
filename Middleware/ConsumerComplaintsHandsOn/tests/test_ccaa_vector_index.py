@@ -123,15 +123,20 @@ def test_open_vector_store_jsonl_and_pgvector(tmp_path: Path):
 
 
 class _FakeChromaClient:
+    """Mirrors Chroma 0.5: ensure returns UUID; upsert path must use that UUID not name."""
+
+    FAKE_UUID = "31b71b25-4e45-4aab-9d9b-67061487a5d3"
+
     def __init__(self) -> None:
         self.collections: list[str] = []
         self.upserts: list[tuple] = []
 
-    def ensure_collection(self, name: str) -> None:
+    def ensure_collection(self, name: str) -> str:
         self.collections.append(name)
+        return self.FAKE_UUID
 
-    def upsert(self, name: str, ids: list[str], embeddings: list[list[float]], documents: list[str]) -> None:
-        self.upserts.append((name, ids, embeddings, documents))
+    def upsert(self, collection_id: str, ids: list[str], embeddings: list[list[float]], documents: list[str]) -> None:
+        self.upserts.append((collection_id, ids, embeddings, documents))
 
 
 class _FakeRedisClient:
@@ -155,9 +160,12 @@ def test_open_vector_store_chroma_and_redis():
     )
     assert isinstance(chroma, vi.ChromaStore)
     assert chroma_client.collections == [vi.DEFAULT_COLLECTION]
+    assert chroma.collection_id == _FakeChromaClient.FAKE_UUID
     emb = vi.hash_embedding("hi")
     assert chroma.upsert([{"id": "c1", "text": "hi", "embedding": emb}]) == 1
-    assert chroma_client.upserts[0][0] == vi.DEFAULT_COLLECTION
+    # Chroma 0.5 InvalidUUID if name is used — upsert must use collection UUID
+    assert chroma_client.upserts[0][0] == _FakeChromaClient.FAKE_UUID
+    assert chroma_client.upserts[0][0] != vi.DEFAULT_COLLECTION
     assert chroma_client.upserts[0][1] == ["c1"]
 
     redis_client = _FakeRedisClient()
