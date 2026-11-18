@@ -2,7 +2,7 @@
 
 **Scope:** Docs only — append Tier 3 HDBSCAN + drift detection to Complaints_Data_Classification_Indexing_Brainstorming.md. No product code.
 
-**Status:** Open. Stories left to build: 1. Stories already done: 0.
+**Status: Closed.** Stories left to build: 0. Stories already done: 1 (#304).
 
 ## 1. Build order
 
@@ -16,5 +16,5 @@
 |---|---|---|---|---|---|
 | #304 | 1 | story-start | Done | 2026-11-18 15:02 | 2026-11-18 15:02 |
 | #304 | 2 | worktree → implement | Done | 2026-11-18 15:02 | 2026-11-18 15:02 |
-| #304 | 3 | commit-push | In progress | 2026-11-18 15:02 | |
-| #304 | 4 | story-complete | Planned | | |
+| #304 | 3 | commit-push | Done | 2026-11-18 15:02 | 2026-11-18 15:03 |
+| #304 | 4 | story-complete | Done | 2026-11-18 15:03 | 2026-11-18 15:03 |
