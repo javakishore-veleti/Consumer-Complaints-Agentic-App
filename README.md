@@ -10,6 +10,64 @@ Operators do not push millions of rows through a browser. They work in **Managed
 
 Product intent: [`docs/PRODUCT_FEATURES.md`](docs/PRODUCT_FEATURES.md). Detailed rules: [`Middleware/ConsumerComplaintsHandsOn/DESIGN.md`](Middleware/ConsumerComplaintsHandsOn/DESIGN.md).
 
+### Consumer finance
+
+Consumer finance covers how individuals and households manage, borrow, save, invest, and protect their money.
+
+- **Cash flow & budgeting** — income vs expenses; a budget that funds needs, wants, and savings; an emergency reserve for unexpected costs
+- **Credit & debt** — credit scores, APR, principal vs interest, and debt-to-income when borrowing
+- **Saving & investing** — compounding, inflation and purchasing power, diversification, tax-advantaged accounts
+- **Risk protection & consumer rights** — insurance and deductibles; rules enforced by agencies such as the [CFPB](https://www.consumerfinance.gov/) (for example disputing credit-report errors and clear loan disclosures)
+
+This app operates on **CFPB consumer complaint** records inside that domain.
+
+### Understanding of Consumer Financial Data
+
+Localhost work often uses a **three-month** window from the public [CFPB Consumer Complaint Database](https://www.consumerfinance.gov/data-research/consumer-complaints/) (for example a recent `date_received` range derived from the All export). Records are anonymized complaints the CFPB **sent to companies** for a response.
+
+**Column groups** (CFPB field reference):
+
+| Group | Fields |
+|---|---|
+| Tracking & dates | `Complaint ID`, `Date received`, `Date sent to company`, `Submitted via` |
+| Product & issue | `Product`, `Sub-product`, `Issue`, `Sub-issue` |
+| Company & resolution | `Company`, `Company response to consumer`, `Company public response`, `Timely response?` |
+| Demographics & location | `State`, `ZIP code`, `Tags` (e.g. Older American, Servicemember) |
+
+**Context for recent windows (from ~August 2026 onward):**
+
+- **No free-text narratives** in the live database for this period — `Consumer complaint narrative` is typically blank; retrieval leans on structured categories plus synthesized text for vectors
+- Only complaints sent for a company response are published; complaints referred to other regulators (for example many smaller depository institutions) are excluded
+- **Not a statistical sample** of all consumers’ experiences; company complaint volume should be read with company size / market share in mind
+- One complaint is not representative of all consumers; the public database generally **updates daily**
+
+**Illustrative record shape** (fictional values — not a real complaint):
+
+```text
+Complaint ID: 00000000
+Date received / Date sent to company: 2026-09-01
+Product / Sub-product: Checking or savings account / Checking account
+Issue / Sub-issue: Managing an account / Funds not handled or disbursed as instructed
+Company: Example Bank, N.A.
+State / ZIP / Tags: XX / 00000 / Servicemember
+Submitted via: Web
+Company response to consumer: Closed with explanation
+Timely response?: Yes
+```
+
+After Mongo ingest, `_id` and `Complaint ID` may both hold the same public tracking number; treat **`Complaint ID`** as the stable key for indexing and joins.
+
+### Data Products Ideas
+
+Even without narratives, **semantic search + metadata filters** support products such as:
+
+1. **Compliance / risk copilot (RAG)** — plain-language questions grounded in complaint IDs and facets (product, state, tags, dates)
+2. **Issue clustering & trend detection** — similar patterns across companies or regions before they escalate
+3. **Peer resolution advisor** — how comparable sub-issues were closed (e.g. explanation vs monetary relief)
+4. **Triage / routing assist** — map incoming tickets to historical Product / Issue / Sub-issue; surface priority tags
+
+**Portability:** start with local Chroma (and other local backends already in this repo). The same document-summary + metadata schema can later target open-source stores (e.g. pgvector, Qdrant, Milvus, Weaviate) or cloud vector products on AWS, Azure, and GCP — see milestone **M90** for cloud deployment; this README lists product *ideas*, not those builds.
+
 ## Overall architecture
 
 Capability view (not a folder map):
