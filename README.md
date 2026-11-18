@@ -311,6 +311,160 @@ unique_texts = df["text_summary"].unique().tolist()
 # df["embedding"] = df["text_summary"].map(vector_map)
 ```
 
+##### Optimal setup for an M2 MacBook Air (16 GB RAM)
+
+With **16 GB of RAM** and **1,970,702** rows, memory management is critical—if you use a 768- or 1,536-dimension model, Chroma’s HNSW index plus macOS overhead will push the system into heavy swap.
+
+- **Embedding model (`BAAI/bge-small-en-v1.5` — 384 dimensions):** A 384-dimension index for 1.97 million rows takes roughly **4.5 to 5.5 GB** of RAM, leaving headroom for macOS and Python. Because the M2 chip supports Apple Metal (`mps`), embedding the unique text combinations finishes in just a few seconds.
+- **Streaming / chunked ingestion:** Never load all 1.97 million mapped vectors into a single Python list at once. Instead, embed the ~10,000 unique strings first, then stream the CSV/JSON file in chunks of **10,000** rows straight into Chroma and Parquet.
+
+**Memory-safe pipeline script (M2 + 16 GB RAM)**
+
+First, install the required libraries:
+
+```bash
+pip install chromadb sentence-transformers pandas pyarrow tqdm
+```
+
+Next, run this script to embed unique strings on the M2 GPU (`mps`), save a portable Parquet backup for AWS/Azure/GCP, and load Chroma without exceeding the 16 GB memory limit:
+
+```python
+import gc
+import chromadb
+import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
+from sentence_transformers import SentenceTransformer
+from tqdm import tqdm
+
+FILE_PATH = "complaints.csv"  # Update with your downloaded filename
+CHROMA_PATH = "./cfpb_chroma_384"
+PARQUET_PATH = "./cfpb_portable_vectors.parquet"
+BATCH_SIZE = 10000
+
+# 1. Load 384-dim model onto Apple M2 GPU (MPS)
+model = SentenceTransformer("BAAI/bge-small-en-v1.5", device="mps")
+
+
+def build_text(df: pd.DataFrame) -> pd.Series:
+  return (
+      "Product: "
+      + df["Product"]
+      + " - "
+      + df["Sub-product"]
+      + " | Issue: "
+      + df["Issue"]
+      + " - "
+      + df["Sub-issue"]
+      + " | Tag: "
+      + df["Tags"].replace("", "None")
+      + " | Resolution: "
+      + df["Company response to consumer"]
+  )
+
+
+# 2. Pass 1: Extract ONLY unique text summaries (~10k strings instead of 1.97M)
+print("Scanning unique text patterns...")
+unique_texts = set()
+cols_needed = [
+    "Complaint ID",
+    "Date received",
+    "Product",
+    "Sub-product",
+    "Issue",
+    "Sub-issue",
+    "Company",
+    "State",
+    "ZIP code",
+    "Tags",
+    "Company response to consumer",
+    "Timely response?",
+]
+
+for chunk in pd.read_csv(
+    FILE_PATH, usecols=cols_needed, dtype=str, chunksize=100000
+):
+  chunk = chunk.fillna("")
+  unique_texts.update(build_text(chunk).unique())
+
+unique_list = list(unique_texts)
+print(f"Found {len(unique_list):,} unique combinations across 1.97M rows.")
+
+# 3. Embed unique strings on M2 GPU
+vectors = model.encode(
+    unique_list, batch_size=256, show_progress_bar=True, normalize_embeddings=True
+)
+vector_map = {text: vec.tolist() for text, vec in zip(unique_list, vectors)}
+
+# 4. Pass 2: Stream chunks into Chroma & portable Parquet
+client = chromadb.PersistentClient(path=CHROMA_PATH)
+collection = client.get_or_create_collection(
+    name="cfpb_complaints", metadata={"hnsw:space": "cosine"}
+)
+
+parquet_writer = None
+
+print("Indexing into Chroma and exporting Parquet...")
+for chunk in tqdm(
+    pd.read_csv(FILE_PATH, usecols=cols_needed, dtype=str, chunksize=BATCH_SIZE),
+    total=198,
+):
+  chunk = chunk.fillna("")
+  texts = build_text(chunk).tolist()
+  embeddings = [vector_map[t] for t in texts]
+  ids = chunk["Complaint ID"].tolist()
+
+  # Build lean metadata for fast filtering
+  metadatas = [
+      {
+          "company": row["Company"],
+          "state": row["State"] or "UNKNOWN",
+          "product": row["Product"],
+          "tags": row["Tags"] or "None",
+          "company_response": row["Company response to consumer"],
+          "timely_response": row["Timely response?"] == "Yes",
+          "date_received_int": int(row["Date received"].replace("-", "")),
+      }
+      for row in chunk.to_dict(orient="records")
+  ]
+
+  # Insert batch into Chroma
+  collection.add(
+      ids=ids, embeddings=embeddings, documents=texts, metadatas=metadatas
+  )
+
+  # Append batch to portable Parquet file (for AWS, Azure, GCP later)
+  out_df = pd.DataFrame({
+      "id": ids,
+      "text": texts,
+      "embedding": embeddings,
+      "company": chunk["Company"].values,
+      "state": chunk["State"].values,
+      "product": chunk["Product"].values,
+      "tags": chunk["Tags"].values,
+      "date_received": chunk["Date received"].values,
+  })
+  table = pa.Table.from_pandas(out_df)
+  if parquet_writer is None:
+    parquet_writer = pq.ParquetWriter(
+        PARQUET_PATH, table.schema, compression="snappy"
+    )
+  parquet_writer.write_table(table)
+
+  del chunk, texts, embeddings, metadatas, out_df, table
+  gc.collect()
+
+if parquet_writer:
+  parquet_writer.close()
+
+print("Done! Total indexed:", collection.count())
+```
+
+**Quick tips before running**
+
+- **Disk space check:** Make sure you have at least **12–15 GB** of free SSD space on Macintosh HD (`cfpb_chroma_384` will use ~6–7 GB and `cfpb_portable_vectors.parquet` will use ~3–4 GB).
+- **Close memory-heavy apps:** Close extra browser tabs or Docker containers while running the indexing pass so Chroma has uninterrupted access to the 16 GB unified memory.
+
 ## Overall architecture
 
 Capability view (not a folder map):
