@@ -2,7 +2,7 @@
 
 **Scope:** Fix `ChromaStore` so upsert/add use the collection UUID returned by Chroma 0.5.x create/get (name in path → HTTP 400 `InvalidUUID`).
 
-**Status: Open.** Stories left to build: 1 (#276). Stories already done: 0.
+**Status: Closed.** Stories left to build: 0. Stories already done: 1 (#276).
 
 ## 1. Build order
 
@@ -16,5 +16,5 @@
 |---|---|---|---|---|---|
 | #276 | 1 | story-start | Done | 2026-11-17 23:27 | 2026-11-17 23:27 |
 | #276 | 2 | worktree → implement | Done | 2026-11-17 23:27 | 2026-11-17 23:29 |
-| #276 | 3 | commit-push | In progress | 2026-11-17 23:29 | |
-| #276 | 4 | story-complete | — | | |
+| #276 | 3 | commit-push | Done | 2026-11-17 23:29 | 2026-11-17 23:30 |
+| #276 | 4 | story-complete | Done | 2026-11-17 23:30 | 2026-11-17 23:30 |
