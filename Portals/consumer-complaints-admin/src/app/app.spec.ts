@@ -68,6 +68,6 @@ describe('AppComponent', () => {
 
     const indexNav = fixture.debugElement.query(By.css('[data-testid="left-nav-index"]'));
     expect(indexNav).toBeTruthy();
-    expect(indexNav.nativeElement.textContent.trim()).toBe('Index');
+    expect(indexNav.nativeElement.textContent.trim()).toBe('Vector Stores');
   });
 });

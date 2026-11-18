@@ -35,7 +35,7 @@ export const routes: Routes = [
           {
             path: 'index',
             component: IndexPageComponent,
-            title: 'Index | Consumer Complaints Administration',
+            title: 'Vector Stores | Consumer Complaints Administration',
           },
         ],
       },
