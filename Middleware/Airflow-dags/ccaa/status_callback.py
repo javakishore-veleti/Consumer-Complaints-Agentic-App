@@ -225,23 +225,81 @@ def _xcom_indicates_success(context: dict[str, Any], task_id: str) -> bool:
     current = context.get("ti")
     if current is None or not hasattr(current, "xcom_pull"):
         return False
+    wanted = str(task_id).strip()
+    for tids in (wanted, [wanted]):
+        try:
+            value = current.xcom_pull(task_ids=tids, key="return_value")
+        except TypeError:
+            try:
+                value = current.xcom_pull(task_ids=tids)
+            except Exception:
+                value = None
+        except Exception:
+            value = None
+        if value is not None:
+            return True
+    return False
+
+
+def _ti_state_from_orm(context: dict[str, Any], task_id: str) -> Any | None:
+    """Airflow 3: DagRun.get_task_instances() is often empty in the task SDK.
+
+    Read TaskInstance.state from the metadata DB when context TI/XCom are inconclusive
+    (M17-0011 / #260 — wrapper finalize false-failed with state=None).
+    """
+    wanted = str(task_id).strip()
+    if not wanted:
+        return None
+    dag_run = context.get("dag_run")
+    dag_id = getattr(dag_run, "dag_id", None) if dag_run is not None else None
+    run_id = context.get("run_id")
+    if run_id is None and dag_run is not None:
+        run_id = getattr(dag_run, "run_id", None)
+    if not dag_id or run_id is None or not str(run_id).strip():
+        return None
     try:
-        value = current.xcom_pull(task_ids=task_id)
+        from airflow.models.taskinstance import TaskInstance
+        from airflow.utils.session import create_session
     except Exception:
-        return False
-    return value is not None
+        return None
+    try:
+        with create_session() as session:
+            ti = (
+                session.query(TaskInstance)
+                .filter(
+                    TaskInstance.dag_id == str(dag_id),
+                    TaskInstance.run_id == str(run_id),
+                    TaskInstance.task_id == wanted,
+                )
+                .one_or_none()
+            )
+            if ti is None:
+                return None
+            return getattr(ti, "state", None)
+    except Exception:
+        return None
 
 
 def upstream_succeeded(context: dict[str, Any], task_id: str) -> bool:
-    """True when the named upstream task succeeded (TI state or XCom fallback)."""
+    """True when the named upstream task succeeded (TI state, XCom, or ORM)."""
     ti = task_instance_for(context, task_id)
     if ti is not None:
         state = getattr(ti, "state", None)
         if state is not None:
             return _state_is_success(state)
         # TI row present but state unloaded (common in Airflow 3 task SDK).
-        return _xcom_indicates_success(context, task_id)
-    return _xcom_indicates_success(context, task_id)
+        if _xcom_indicates_success(context, task_id):
+            return True
+        orm_state = _ti_state_from_orm(context, task_id)
+        if orm_state is not None:
+            return _state_is_success(orm_state)
+        return False
+    if _xcom_indicates_success(context, task_id):
+        return True
+    orm_state = _ti_state_from_orm(context, task_id)
+    if orm_state is not None:
+        return _state_is_success(orm_state)
+    return False
 
 
 def _execution_id_from_context(context: dict[str, Any]) -> str | None:
@@ -304,6 +362,8 @@ def notify_execution_finished(
         return
     upstream = task_instance_for(context, work_task_id)
     state = getattr(upstream, "state", None) if upstream is not None else None
+    if state is None:
+        state = _ti_state_from_orm(context, work_task_id)
     report(
         exec_id,
         "failed",
