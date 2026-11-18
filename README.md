@@ -68,6 +68,97 @@ Even without narratives, **semantic search + metadata filters** support products
 
 **Portability:** start with local Chroma (and other local backends already in this repo). The same document-summary + metadata schema can later target open-source stores (e.g. pgvector, Qdrant, Milvus, Weaviate) or cloud vector products on AWS, Azure, and GCP — see milestone **M90** for cloud deployment; this README lists product *ideas*, not those builds.
 
+### Consumer Financial Data Embeddings Exploration
+
+Recent CFPB windows often have **structured categories only** (little or no free-text narrative). Indexing that corpus in a vector store (Chroma first; other open-source and cloud stores later) works best when each row is split into a **document string for embeddings** and **strict metadata for exact filters**. The notes below capture the exploration of that design as a short Q&A.
+
+#### What does “descriptive text summary paired with strict metadata filters” mean?
+
+Split each complaint row into two inputs before upsert:
+
+1. **Document (text summary)** — a string the embedding model turns into one vector for **semantic** similarity (“funds not sent” ≈ “funds not handled or disbursed”).
+2. **Metadata** — flat key/value fields stored beside the vector for **exact** constraints (company, state, product, date ranges), like a `WHERE` clause.
+
+Embeddings alone are weak at hard filters (“only this company”, “on or after this date”). Metadata alone cannot match paraphrases. Together they support hybrid queries: filter first (or jointly), then rank by vector similarity inside the reduced set.
+
+#### How would an illustrative row split?
+
+Using the **fictional** shape above (`Complaint ID: 00000000`, Example Bank), not a live export row:
+
+**Document (compact key–value — preferred starting point):**
+
+```text
+Product: Checking or savings account - Checking account | Issue: Managing an account - Funds not handled or disbursed as instructed | Tag: Servicemember | Resolution: Closed with explanation
+```
+
+**Metadata (exact filters; dates as integers help range queries):**
+
+```json
+{
+  "complaint_id": "00000000",
+  "company": "Example Bank, N.A.",
+  "state": "XX",
+  "zip_code": "00000",
+  "product": "Checking or savings account",
+  "sub_product": "Checking account",
+  "issue": "Managing an account",
+  "sub_issue": "Funds not handled or disbursed as instructed",
+  "tags": "Servicemember",
+  "company_response": "Closed with explanation",
+  "timely_response": true,
+  "date_received_int": 20260901
+}
+```
+
+**At query time (hybrid):** for a question like “checking money-transfer problems in state XX after 2026-08-20 for Example Bank”, apply metadata (`company`, `state`, `date_received_int >= 20260820`) and embed the free-text question against document strings so rows about “funds not handled…” can rank highly even when the user did not type the official Sub-issue wording.
+
+#### Do fixed sentence prefixes like “Complaint regarding a…” help?
+
+Often **no** for this corpus. CFPB Product / Issue / Sub-issue phrases are already rich. Repeating the same English boilerplate on every row:
+
+- Pulls vectors toward a shared “generic complaint” region and **dilutes** differences between issues
+- Does **not** grow the stored vector’s byte size (dimension is fixed), but it can raise token/latency cost when embedding
+
+**Three document formats:**
+
+| Approach | Example shape | When |
+|---|---|---|
+| Pure value concatenation | `Checking or savings account \| Checking account \| Managing an account \| …` | Max signal, min noise; keyword-ish queries |
+| Compact key–value | `Product: … \| Issue: … \| Resolution: …` | Best default balance; labels keep roles (outcome vs issue) |
+| Full natural sentences | “On … a Servicemember submitted …” | Only if queries are long conversational sentences and the model is tuned for asymmetric sentence retrieval |
+
+**Practical pick for CFPB structured rows:** skip conversational fluff; use **pure concatenation** or **compact key–value**.
+
+#### How do you choose an embedding model here?
+
+Criteria that matter for Chroma-now / multi-cloud-later:
+
+1. **Portability** — vectors from model A cannot be queried by model B. Prefer open-weights or a cloud-agnostic API so you can embed once (e.g. store vectors with raw JSON in Parquet) and load the **same** vectors into Chroma, AWS, Azure, or GCP without re-embedding.
+2. **Asymmetric retrieval** — short structured documents vs conversational user questions; models trained for query↔passage help.
+3. **Dimension vs scale** — for a finite CFPB category vocabulary, **~384–1024** dims is usually enough; larger dims cost more storage/latency.
+4. **Matryoshka / truncatable dims (MRL)** — some models let you shorten vectors with limited quality loss when cloud bills matter.
+
+| Model family | Type | Dim (typical) | Fit |
+|---|---|---|---|
+| `BAAI/bge-base-en-v1.5` (or large) | Open weights | 768 / 1024 | Local Chroma, portable, no API cost |
+| `intfloat/e5-base-v2` (or multilingual-e5) | Open weights | 768 / 1024 | Strong asymmetric `query:` / `passage:` style |
+| `nomic-embed-text-v1.5` | Open / API | 768 (MRL) | Flexible dim sizing |
+| OpenAI `text-embedding-3-small` | Commercial API | 1536 (MRL) | Managed quality; still portable if you own the vectors |
+| Cohere `embed-english-v3.0` | Commercial API | 1024 | Explicit document vs query input types |
+
+Chroma’s common local default (`all-MiniLM-L6-v2`, 384-d) is fine for **prototyping**; for sharper finance nuance, compare against BGE/E5 or a small commercial model on a golden set before a full re-index.
+
+#### How do you validate a model choice quickly?
+
+Before indexing millions of rows:
+
+1. Build **10–15 golden queries** (exact category language and indirect symptoms).
+2. Index **50–100** representative rows into two temporary collections (two candidate models).
+3. Check **top-3 recall** without relying on metadata filters yet.
+4. Check **score separation** — relevant hits clearly above unrelated products. If every score sits in a narrow band, the document template may still have too much shared boilerplate or the model may be too generic.
+
+Localhost CCAA today still has an MVP **hash** embedder for CI; professional indexing should swap to a real model under a later story while keeping this document/metadata contract stable.
+
 ## Overall architecture
 
 Capability view (not a folder map):
