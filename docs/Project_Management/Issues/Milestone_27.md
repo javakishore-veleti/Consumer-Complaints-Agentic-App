@@ -2,7 +2,7 @@
 
 **Scope:** README.md only — professional Chroma indexing recipe. No product code.
 
-**Status: Open.** Stories left to build: 1 (#284). Stories already done: 0.
+**Status: Closed.** Stories left to build: 0. Stories already done: 1 (#284).
 
 ## 1. Build order
 
@@ -16,5 +16,5 @@
 |---|---|---|---|---|---|
 | #284 | 1 | story-start | Done | 2026-11-18 01:01 | 2026-11-18 01:01 |
 | #284 | 2 | worktree → implement | Done | 2026-11-18 01:01 | 2026-11-18 01:02 |
-| #284 | 3 | commit-push | In progress | 2026-11-18 01:02 | |
-| #284 | 4 | story-complete | — | | |
+| #284 | 3 | commit-push | Done | 2026-11-18 01:02 | 2026-11-18 01:02 |
+| #284 | 4 | story-complete | Done | 2026-11-18 01:02 | 2026-11-18 01:02 |
