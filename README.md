@@ -465,6 +465,218 @@ print("Done! Total indexed:", collection.count())
 - **Disk space check:** Make sure you have at least **12–15 GB** of free SSD space on Macintosh HD (`cfpb_chroma_384` will use ~6–7 GB and `cfpb_portable_vectors.parquet` will use ~3–4 GB).
 - **Close memory-heavy apps:** Close extra browser tabs or Docker containers while running the indexing pass so Chroma has uninterrupted access to the 16 GB unified memory.
 
+
+##### Airflow parallel indexing across 14 CSV files
+
+Using Apache Airflow with **14 CSV files** on an M2 MacBook Air (16 GB RAM) is a clean fit for Airflow’s Dynamic Task Mapping (`.expand()`), provided you avoid two critical traps: **SQLite write-locking in Chroma** and **RAM exhaustion** from loading multiple embedding models simultaneously.
+
+**Two architectural rules for parallel ingestion on 16 GB RAM**
+
+**1. Decouple embedding from Chroma writes (avoid SQLite locks):** Local `PersistentClient` Chroma uses SQLite under the hood for metadata. If 4 or 8 Airflow workers write to the same local Chroma folder simultaneously, SQLite will throw `database is locked` errors. Instead, run a **Map-Reduce-Load** DAG:
+
+- **Task 1 (Extract Unique Strings):** Scan all 14 CSVs quickly and write unique text combinations to a staging file.
+- **Task 2 (Single-Worker GPU Embedding):** Run one task on the M2 GPU (`mps`) to embed all ~10,000 unique strings and save a single `vector_map.parquet` lookup dictionary. (Running 1 task on MPS is faster and uses ~10× less RAM than loading 14 PyTorch models in parallel).
+- **Task 3 (Parallel Map via `.expand()`):** Run 14 parallel Airflow tasks (`max_active_tis_per_dagrun=4` to stay safe within 16 GB RAM). Each task reads one CSV, joins against `vector_map.parquet`, and writes a clean `part_XX.parquet` file containing `id`, `text`, `embedding`, and metadata.
+- **Task 4 (Sequential Bulk Load into Chroma):** A single lightweight task reads the 14 Parquet files and bulk-inserts them into Chroma cleanly with zero lock contention.
+
+**2. Cloud-ready artifact:** Because Task 3 produces 14 partitioned Parquet files with precomputed vectors, you can upload that exact Parquet folder straight to S3, Azure Blob, or GCS later to ingest into AWS OpenSearch, Azure AI Search, or GCP Vertex AI in parallel.
+
+**Complete Airflow DAG (`cfpb_parallel_vector_pipeline.py`)**
+
+Drop this file into your Airflow `dags/` folder and update `CSV_DIR` to point to your 14 CSV files:
+
+```python
+from datetime import datetime
+import glob
+import os
+from airflow.decorators import dag, task
+import pandas as pd
+
+CSV_DIR = "/path/to/your/14_csv_files"  # <-- Update this path
+STAGING_DIR = "/path/to/staging_parquet"  # <-- Update this path
+CHROMA_PATH = "/path/to/cfpb_chroma_384"  # <-- Update this path
+
+COLS_NEEDED = [
+    "Complaint ID",
+    "Date received",
+    "Product",
+    "Sub-product",
+    "Issue",
+    "Sub-issue",
+    "Company",
+    "State",
+    "Tags",
+    "Company response to consumer",
+    "Timely response?",
+]
+
+
+def build_text_series(df: pd.DataFrame) -> pd.Series:
+  return (
+      "Product: "
+      + df["Product"]
+      + " - "
+      + df["Sub-product"]
+      + " | Issue: "
+      + df["Issue"]
+      + " - "
+      + df["Sub-issue"]
+      + " | Tag: "
+      + df["Tags"].replace("", "None")
+      + " | Resolution: "
+      + df["Company response to consumer"]
+  )
+
+
+@dag(
+    dag_id="cfpb_parallel_vector_pipeline",
+    start_date=datetime(2026, 11, 1),
+    schedule=None,
+    catchup=False,
+    tags=["cfpb", "chromadb", "vectors"],
+)
+def cfpb_vector_pipeline():
+
+  @task
+  def list_csv_files() -> list[str]:
+    os.makedirs(STAGING_DIR, exist_ok=True)
+    files = sorted(glob.glob(os.path.join(CSV_DIR, "*.csv")))
+    if not files:
+      raise FileNotFoundError(f"No CSV files found in {CSV_DIR}")
+    return files
+
+  @task
+  def build_shared_embedding_lookup(csv_files: list[str]) -> str:
+    """Scans all 14 CSVs for unique text summaries and embeds them ONCE on M2 GPU."""
+    from sentence_transformers import SentenceTransformer
+
+    unique_texts = set()
+    for f in csv_files:
+      for chunk in pd.read_csv(
+          f, usecols=COLS_NEEDED, dtype=str, chunksize=100000
+      ):
+        chunk = chunk.fillna("")
+        unique_texts.update(build_text_series(chunk).unique())
+
+    unique_list = list(unique_texts)
+    model = SentenceTransformer("BAAI/bge-small-en-v1.5", device="mps")
+    vectors = model.encode(
+        unique_list,
+        batch_size=256,
+        show_progress_bar=False,
+        normalize_embeddings=True,
+    )
+
+    lookup_path = os.path.join(STAGING_DIR, "vector_lookup.parquet")
+    pd.DataFrame({
+        "text": unique_list,
+        "embedding": [v.tolist() for v in vectors],
+    }).to_parquet(lookup_path, index=False)
+
+    return lookup_path
+
+  @task(max_active_tis_per_dagrun=4)  # Cap at 4 workers for 16 GB RAM safety
+  def transform_csv_to_parquet(csv_path: str, lookup_path: str) -> str:
+    """Parallel worker: maps precomputed embeddings & cleans metadata for 1 CSV."""
+    lookup_df = pd.read_parquet(lookup_path)
+    vector_map = dict(zip(lookup_df["text"], lookup_df["embedding"]))
+
+    df = pd.read_csv(csv_path, usecols=COLS_NEEDED, dtype=str).fillna("")
+    df = df.drop_duplicates(subset=["Complaint ID"])
+
+    df["text"] = build_text_series(df)
+    df["embedding"] = df["text"].map(vector_map)
+    df["state_clean"] = df["State"].replace("", "UNKNOWN")
+    df["tags_clean"] = df["Tags"].replace("", "None")
+    df["timely_bool"] = df["Timely response?"] == "Yes"
+    df["date_received_int"] = (
+        pd.to_datetime(df["Date received"], errors="coerce")
+        .dt.strftime("%Y%m%d")
+        .fillna("0")
+        .astype(int)
+    )
+
+    out_df = df[[
+        "Complaint ID",
+        "text",
+        "embedding",
+        "Company",
+        "state_clean",
+        "Product",
+        "tags_clean",
+        "Company response to consumer",
+        "timely_bool",
+        "date_received_int",
+    ]]
+
+    base_name = os.path.splitext(os.path.basename(csv_path))[0]
+    out_parquet = os.path.join(STAGING_DIR, f"{base_name}_ready.parquet")
+    out_df.to_parquet(out_parquet, index=False, compression="snappy")
+    return out_parquet
+
+  @task
+  def load_parquets_to_chroma(parquet_files: list[str]) -> int:
+    """Single-writer bulk loader into Chroma to avoid SQLite lock errors."""
+    import gc
+    import chromadb
+
+    client = chromadb.PersistentClient(path=CHROMA_PATH)
+    collection = client.get_or_create_collection(
+        name="cfpb_complaints", metadata={"hnsw:space": "cosine"}
+    )
+
+    seen_ids = set()
+    batch_size = 10000
+
+    for pq_file in parquet_files:
+      df = pd.read_parquet(pq_file)
+      df = df[~df["Complaint ID"].isin(seen_ids)]
+      seen_ids.update(df["Complaint ID"].tolist())
+
+      for start in range(0, len(df), batch_size):
+        sub = df.iloc[start : start + batch_size]
+        metadatas = [
+            {
+                "company": r["Company"],
+                "state": r["state_clean"],
+                "product": r["Product"],
+                "tags": r["tags_clean"],
+                "company_response": r["Company response to consumer"],
+                "timely_response": bool(r["timely_bool"]),
+                "date_received_int": int(r["date_received_int"]),
+            }
+            for r in sub.to_dict(orient="records")
+        ]
+
+        collection.add(
+            ids=sub["Complaint ID"].tolist(),
+            embeddings=sub["embedding"].tolist(),
+            documents=sub["text"].tolist(),
+            metadatas=metadatas,
+        )
+      del df
+      gc.collect()
+
+    return collection.count()
+
+  # Wire the DAG with Dynamic Task Mapping (.expand)
+  files = list_csv_files()
+  lookup = build_shared_embedding_lookup(files)
+  mapped_parquets = transform_csv_to_parquet.partial(lookup_path=lookup).expand(
+      csv_path=files
+  )
+  load_parquets_to_chroma(mapped_parquets)
+
+
+cfpb_vector_pipeline()
+```
+
+**Why this DAG works well on an M2 Air**
+
+- **Zero duplicate model loads:** Only `build_shared_embedding_lookup` touches PyTorch and the M2 GPU (`mps`), keeping peak memory low while embedding all 14 files in seconds.
+- **Controlled concurrency (`max_active_tis_per_dagrun=4`):** Runs 4 CSV transformations concurrently without triggering macOS memory swap across 16 GB unified memory.
+- **Reusable cloud stage:** Once `transform_csv_to_parquet` finishes, the 14 `*_ready.parquet` files act as a clean data lake layer ready for parallel upload to AWS S3, Azure Blob Storage, or GCS.
+
 ## Overall architecture
 
 Capability view (not a folder map):
