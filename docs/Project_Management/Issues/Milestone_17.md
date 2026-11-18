@@ -44,10 +44,10 @@
 | #259 | 2 | brainstorm → worktree → plan → TDD → implement | Done | 2026-11-17 21:54 | 2026-11-17 21:56 |
 | #259 | 3 | `/ccaa-commit-push 259` | Done | 2026-11-17 21:56 | 2026-11-17 21:56 |
 | #259 | 4 | `/ccaa-story-complete 259` | Done | 2026-11-17 21:56 | 2026-11-17 21:56 |
-| #244 | 1 | `/ccaa-story-start 244` | Planned | - | - |
-| #244 | 2 | rewrite `docs/Runbooks/Localhost/3m-pgvector-chroma.md` (3m MIO only) | Planned | - | - |
-| #244 | 3 | `/ccaa-commit-push 244` | Planned | - | - |
-| #244 | 4 | `/ccaa-story-complete 244` | Planned | - | - |
+| #244 | 1 | `/ccaa-story-start 244` | Done | 2026-11-17 21:56 | 2026-11-17 21:56 |
+| #244 | 2 | rewrite `docs/Runbooks/Localhost/3m-pgvector-chroma.md` (3m MIO only) | Done | 2026-11-17 21:56 | 2026-11-17 21:58 |
+| #244 | 3 | `/ccaa-commit-push 244` | Done | 2026-11-17 21:58 | 2026-11-17 21:58 |
+| #244 | 4 | `/ccaa-story-complete 244` | Done | 2026-11-17 21:58 | 2026-11-17 21:58 |
 | #246 | 1 | `/ccaa-story-start 246` | Planned | - | - |
 | #246 | 2 | replace CC Admin chrome/titles with Consumer Complaints Administration | Planned | - | - |
 | #246 | 3 | `/ccaa-commit-push 246` | Planned | - | - |
