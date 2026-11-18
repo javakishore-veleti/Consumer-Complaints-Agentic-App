@@ -79,15 +79,25 @@ def _resolve_source_path(cfg: dict, landing: Path) -> Path:
     raw = cfg.get("source_path")
     if raw:
         return Path(str(raw)).expanduser()
-    env_name = str(cfg.get("source_path_env") or "CCA_CFPB_SPLIT_SOURCE_PATH").strip()
+    env_name = str(cfg.get("source_path_env") or "CCA_CFPB_SPLIT_SOURCE_PATH_3_MONTHS").strip()
     from_env = ""
+
+    def _lookup(name: str) -> str:
+        if not name:
+            return ""
+        value = (os.getenv(name) or "").strip()
+        if value:
+            return value
+        try:
+            return str(Variable.get(name) or "").strip()
+        except Exception:
+            return ""
+
     if env_name:
-        from_env = (os.getenv(env_name) or "").strip()
-        if not from_env:
-            try:
-                from_env = str(Variable.get(env_name) or "").strip()
-            except Exception:
-                from_env = ""
+        from_env = _lookup(env_name)
+    # Legacy single-folder env (pre–M17-0005) if the per-MIO var is unset.
+    if not from_env:
+        from_env = _lookup("CCA_CFPB_SPLIT_SOURCE_PATH")
     if from_env:
         return Path(from_env).expanduser()
     source_name = str(cfg.get("source_filename") or "complaints.csv.zip")

@@ -17,4 +17,10 @@ CCA_REDIS_URL
 
 # optional — unset is OK on localhost SQLite / when split staging is unused
 CCA_DB_URL
+# Legacy single-folder alias (optional fallback). Prefer per-MIO vars below (M17-0005 / #248).
 CCA_CFPB_SPLIT_SOURCE_PATH
+CCA_CFPB_SPLIT_SOURCE_PATH_3_MONTHS
+CCA_CFPB_SPLIT_SOURCE_PATH_6_MONTHS
+CCA_CFPB_SPLIT_SOURCE_PATH_9_MONTHS
+CCA_CFPB_SPLIT_SOURCE_PATH_12_MONTHS
+CCA_CFPB_SPLIT_SOURCE_PATH_ALL

@@ -46,11 +46,14 @@ def test_compose_mounts_localhost_cfpb_imports_path():
 
 
 def test_compose_mounts_default_cfpb_split_source_path():
-    """M10-0021 / #228: default CCA_CFPB_SPLIT_SOURCE_PATH under Downloads is bind-mounted."""
+    """M17-0005 / #248: Downloads/temp tree is bind-mounted for per-MIO split folders."""
     text = COMPOSE.read_text(encoding="utf-8")
-    marker = "Downloads/temp/complaints_split"
+    marker = "Downloads/temp"
     assert marker in text
-    assert any(marker in line and line.lstrip().startswith("-") and ":" in line for line in text.splitlines())
+    assert any(
+        marker in line and line.lstrip().startswith("-") and ":" in line
+        for line in text.splitlines()
+    )
 
 
 def test_compose_creates_dags_unpaused_by_default():
