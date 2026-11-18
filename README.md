@@ -129,6 +129,42 @@ Often **no** for this corpus. CFPB Product / Issue / Sub-issue phrases are alrea
 
 **Practical pick for CFPB structured rows:** skip conversational fluff; use **pure concatenation** or **compact key–value**.
 
+#### What do you mean by “asymmetric sentence retrieval”?
+
+**Asymmetric retrieval** (or asymmetric semantic search) happens when the user’s search query and the stored database document are fundamentally different in length, structure, or phrasing—yet need to match based on meaning.
+
+In a standard **symmetric** search, you compare two similar things (for example, matching a tweet to a similar tweet, or a news headline to another news headline). In **asymmetric** search, you are matching a short, natural question against a longer, differently structured record.
+
+**How this applies to CFPB-shaped data**
+
+This project is a textbook example of asymmetric retrieval because the two inputs look completely different:
+
+- **The query** (short, conversational, symptom-based):  
+  `Why are banks holding up military members' wire transfers?`
+- **The stored document** (structured, categorical, label-based):  
+  `Product: Checking or savings account - Checking account | Issue: Managing an account - Funds not handled or disbursed as instructed | Tag: Servicemember | Resolution: Closed with explanation`
+
+Notice that the query and the document share almost zero exact words (“wire transfer” vs “Funds not handled or disbursed as instructed”, “military members” vs “Servicemember”), and one is a question while the other is a structured tag summary.
+
+**Why some embedding models fail at asymmetric search**
+
+- **Symmetric models** (e.g. older `all-MiniLM` setups): Trained on pairs of similar sentences (paraphrases). Because they expect both texts to look alike, they often penalize matches when one text is a conversational question and the other is a structured database record.
+- **Asymmetric models** (e.g. E5, BGE, Cohere embed-v3): Trained on question-and-answer datasets (like MS MARCO) where short queries are paired with structured passages. They learn to map a question about a problem to the region in vector space where the description/answer to that problem lives.
+
+**How asymmetric models handle this in practice**
+
+Many asymmetric embedding models ask you to add special instruction prefixes so the model knows which role each text plays:
+
+```python
+# When indexing a CFPB-shaped row, mark it as a stored document:
+doc_text = "passage: Product: Checking account | Issue: Funds not handled or disbursed as instructed"
+
+# When a user searches, mark their input as a search query:
+query_text = "query: bank failed to send my wire transfer"
+```
+
+By using `query:` and `passage:` prefixes (used by models like `intfloat/e5`), the model adjusts its math to bridge the gap between how humans ask questions and how the database stores structured facts.
+
 #### How do you choose an embedding model here?
 
 Criteria that matter for Chroma-now / multi-cloud-later:
