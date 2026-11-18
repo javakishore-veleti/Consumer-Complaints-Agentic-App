@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { BadgeDirective, BadgeColor } from '../../../shared/components/ui/badge/badge.directive';
@@ -21,6 +21,8 @@ import { SUCCESS } from '../../../core/return-codes';
 const RUNNING_STATUSES = new Set(['requested', 'started']);
 const ELIGIBLE = new Set(['landed', 'failed']);
 const WRAPPER_NAME = 'ingest_cfpb_imports_wrapper';
+/** Client-side page size so the list stays usable with large catalogs. */
+export const IMPORT_RUNS_PAGE_SIZE = 25;
 
 function isIngestWorkflow(w: MioAllowedWorkflow): boolean {
   return w.workflow_name.startsWith('ingest_');
@@ -37,11 +39,38 @@ export class DbIngestPageComponent implements OnInit {
   protected readonly importRuns = signal<DatasetImportRun[]>([]);
   protected readonly selectedImportIds = signal<ReadonlySet<string>>(new Set());
   protected readonly ingestMode = signal<'sequential' | 'parallel'>('sequential');
+  protected readonly importSearch = signal('');
+  protected readonly importPage = signal(1);
   protected readonly error = signal('');
   protected readonly loading = signal(true);
   protected readonly selectedByMio = signal<Record<string, string>>({});
   protected readonly startingMioIds = signal<ReadonlySet<string>>(new Set());
   protected readonly actionError = signal('');
+
+  protected readonly filteredImportRuns = computed(() => {
+    const q = this.importSearch().trim().toLowerCase();
+    const runs = this.importRuns();
+    if (!q) {
+      return runs;
+    }
+    return runs.filter((run) => {
+      const hay = `${run.run_folder_name} ${run.location_ref} ${run.status}`.toLowerCase();
+      return hay.includes(q);
+    });
+  });
+
+  protected readonly importPageCount = computed(() => {
+    const n = this.filteredImportRuns().length;
+    return Math.max(1, Math.ceil(n / IMPORT_RUNS_PAGE_SIZE));
+  });
+
+  protected readonly pagedImportRuns = computed(() => {
+    const page = Math.min(this.importPage(), this.importPageCount());
+    const start = (page - 1) * IMPORT_RUNS_PAGE_SIZE;
+    return this.filteredImportRuns().slice(start, start + IMPORT_RUNS_PAGE_SIZE);
+  });
+
+  protected readonly selectedCount = computed(() => this.selectedImportIds().size);
 
   async ngOnInit(): Promise<void> {
     await this.loadAll();
@@ -87,20 +116,49 @@ export class DbIngestPageComponent implements OnInit {
     this.ingestMode.set(value === 'parallel' ? 'parallel' : 'sequential');
   }
 
+  protected onImportSearch(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.importSearch.set(value);
+    this.importPage.set(1);
+  }
+
+  protected goImportPage(delta: number): void {
+    const next = Math.min(this.importPageCount(), Math.max(1, this.importPage() + delta));
+    this.importPage.set(next);
+  }
+
+  protected selectLatestLanded(): void {
+    const landed = this.importRuns().find((r) => r.status === 'landed');
+    if (!landed) {
+      return;
+    }
+    this.selectedImportIds.set(new Set([landed.id]));
+  }
+
   protected isStartDisabled(mio: MioStatusEntry): boolean {
+    return this.startDisabledReason(mio) !== '';
+  }
+
+  protected startDisabledReason(mio: MioStatusEntry): string {
     const workflowId = this.selectedWorkflowId(mio.id);
     if (!workflowId) {
-      return true;
+      return 'Choose an ingest workflow.';
     }
     if (this.startingMioIds().has(mio.id)) {
-      return true;
+      return 'Starting…';
     }
     const wf = this.allowedWorkflows(mio).find((w) => w.id === workflowId);
     if (wf?.workflow_name === WRAPPER_NAME) {
-      return this.selectedImportIds().size === 0;
+      if (this.selectedImportIds().size === 0) {
+        return 'Select one or more landed import runs in the list above, then Start ingest.';
+      }
+      return '';
     }
     const status = mio.latest_ingest?.status;
-    return status !== undefined && status !== null && RUNNING_STATUSES.has(status);
+    if (status !== undefined && status !== null && RUNNING_STATUSES.has(status)) {
+      return 'An ingest is already running for this MIO.';
+    }
+    return '';
   }
 
   protected async onStart(mio: MioStatusEntry): Promise<void> {
@@ -186,6 +244,7 @@ export class DbIngestPageComponent implements OnInit {
     const code = await loadDatasetImportRuns(this.http, ctx);
     if (code === SUCCESS) {
       this.importRuns.set(ctx.resp.runs);
+      this.importPage.set(1);
     } else if (!this.error()) {
       this.error.set(ctx.resp.error || 'Failed to load import runs');
     }
