@@ -2,7 +2,7 @@
 
 **Scope:** End-to-end on **Customer complaints 3 months 2026** only — filter → Mongo ingest → vector indexes. Fix empty DB Ingest after filter; rewrite localhost 3m runbook with **no All-MIO detour**.
 
-**Status: Open.** Stories left to build: 3 (#244, #246, #247). Stories already done: 8 (Phase 0 baseline 3 + #245 + #255 + #257 + #260 + #259).
+**Status: Closed.** Stories left to build: 0. Stories already done: 11 (Phase 0 baseline 3 + #245 + #255 + #257 + #260 + #259 + #244 + #246 + #247).
 
 ## 1. Build order
 
@@ -52,6 +52,10 @@
 | #246 | 2 | replace CC Admin chrome/titles with Consumer Complaints Administration | Done | 2026-11-17 21:58 | 2026-11-17 21:59 |
 | #246 | 3 | `/ccaa-commit-push 246` | Done | 2026-11-17 21:59 | 2026-11-17 21:59 |
 | #246 | 4 | `/ccaa-story-complete 246` | Done | 2026-11-17 21:59 | 2026-11-17 21:59 |
+| #247 | 1 | `/ccaa-story-start 247` | Done | 2026-11-17 22:00 | 2026-11-17 22:00 |
+| #247 | 2 | brainstorm → worktree → plan → TDD → implement | Done | 2026-11-17 22:00 | 2026-11-17 22:15 |
+| #247 | 3 | `/ccaa-commit-push 247` | Done | 2026-11-17 22:15 | 2026-11-17 22:15 |
+| #247 | 4 | `/ccaa-story-complete 247` | Done | 2026-11-17 22:15 | 2026-11-17 22:15 |
 
 ## 3. Notes
 

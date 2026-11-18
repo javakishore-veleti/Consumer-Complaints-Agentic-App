@@ -1,4 +1,4 @@
-"""Facade for dataset import run register/list (M11)."""
+"""Facade for dataset import run register/list (M11 + M17-0004)."""
 
 from abc import abstractmethod
 
@@ -21,4 +21,12 @@ class DatasetImportRunFacade(metaclass=SingletonMeta):
 
     @abstractmethod
     def list(self, ctx: DatasetImportRunCtx) -> int:
+        ...
+
+    @abstractmethod
+    def add_tags(self, ctx: DatasetImportRunCtx) -> int:
+        ...
+
+    @abstractmethod
+    def list_tags(self, ctx: DatasetImportRunCtx) -> int:
         ...

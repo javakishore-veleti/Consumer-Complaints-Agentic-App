@@ -1,4 +1,4 @@
-"""DatasetImportRunDao on SQLAlchemy (M11)."""
+"""DatasetImportRunDao on SQLAlchemy (M11 + M17-0004 tags)."""
 
 from __future__ import annotations
 
@@ -19,6 +19,7 @@ from app.core.common.dtos.dataset_import_run_dtos import (
     STATUS_STAGING,
     DatasetImportRunCtx,
     DatasetImportRunRecord,
+    DatasetImportRunTagRecord,
 )
 from app.core.common.return_codes import (
     CONFLICT,
@@ -28,7 +29,7 @@ from app.core.common.return_codes import (
     SUCCESS,
 )
 from app.core.dao.dataset_import_run_dao import DatasetImportRunDao
-from app.core.dao.impl.models import DatasetImportRunModel
+from app.core.dao.impl.models import DatasetImportRunModel, DatasetImportRunTagModel
 from app.core.dao.impl.unit_of_work import unit_of_work
 
 log = logging.getLogger(__name__)
@@ -79,8 +80,21 @@ def _to_record(row: DatasetImportRunModel) -> DatasetImportRunRecord:
         execution_id=row.execution_id,
         part_count=row.part_count,
         message=row.message,
+        comment=row.comment,
         created_at=times["created_at"],
         updated_at=times["updated_at"],
+    )
+
+
+def _to_tag_record(row: DatasetImportRunTagModel) -> DatasetImportRunTagRecord:
+    created = row.created_at
+    if created is not None and created.tzinfo is None:
+        created = created.replace(tzinfo=UTC)
+    return DatasetImportRunTagRecord(
+        id=row.id,
+        import_run_id=row.import_run_id,
+        tag=row.tag,
+        created_at=created,
     )
 
 
@@ -117,6 +131,7 @@ class SqlAlchemyDatasetImportRunDao(DatasetImportRunDao):
                     execution_id=req.execution_id,
                     part_count=req.part_count,
                     message=req.message,
+                    comment=req.comment,
                     created_at=now,
                     updated_at=now,
                 )
@@ -152,12 +167,23 @@ class SqlAlchemyDatasetImportRunDao(DatasetImportRunDao):
             return INVALID_INPUT
         if req.status is not None and req.status not in _ALLOWED:
             return INVALID_INPUT
+        tag = req.tag.strip() if isinstance(req.tag, str) else req.tag
+        if req.tag is not None and (not isinstance(req.tag, str) or not tag):
+            return INVALID_INPUT
         try:
             with unit_of_work(ctx) as session:
                 q = select(DatasetImportRunModel).order_by(
                     DatasetImportRunModel.workflow_started_at.desc(),
                     DatasetImportRunModel.id.desc(),
                 )
+                if tag:
+                    q = q.where(
+                        DatasetImportRunModel.id.in_(
+                            select(DatasetImportRunTagModel.import_run_id).where(
+                                DatasetImportRunTagModel.tag == tag
+                            )
+                        )
+                    )
                 if req.ids:
                     q = q.where(DatasetImportRunModel.id.in_(list(req.ids)))
                 if req.status:
@@ -190,7 +216,6 @@ class SqlAlchemyDatasetImportRunDao(DatasetImportRunDao):
                     allowed = _TRANSITIONS.get(row.status, frozenset())
                     if req.status not in allowed:
                         return CONFLICT
-                    # optimistic: only match current status
                     values: dict = {"status": req.status, "updated_at": _now()}
                     if req.workflow_completed_at is not None:
                         values["workflow_completed_at"] = req.workflow_completed_at
@@ -200,6 +225,8 @@ class SqlAlchemyDatasetImportRunDao(DatasetImportRunDao):
                         values["part_count"] = req.part_count
                     if req.message is not None:
                         values["message"] = req.message
+                    if req.comment is not None:
+                        values["comment"] = req.comment
                     if req.status == STATUS_INGESTED and "ingested_at" not in values:
                         values["ingested_at"] = _now()
                     result = session.execute(
@@ -221,6 +248,7 @@ class SqlAlchemyDatasetImportRunDao(DatasetImportRunDao):
                         "part_count",
                         "message",
                         "execution_id",
+                        "comment",
                     ):
                         val = getattr(req, name)
                         if val is not None:
@@ -233,4 +261,83 @@ class SqlAlchemyDatasetImportRunDao(DatasetImportRunDao):
             return SUCCESS
         except Exception:
             log.exception("dataset_import_run update failed")
+            return FAILURE
+
+    def add_tags(self, ctx: DatasetImportRunCtx) -> int:
+        req = ctx.req
+        if not req.id:
+            return INVALID_INPUT
+        if req.tags is None:
+            return INVALID_INPUT
+        tags: list[str] = []
+        seen: set[str] = set()
+        for item in req.tags:
+            if not isinstance(item, str):
+                return INVALID_INPUT
+            tag = item.strip()
+            if not tag or len(tag) > 255:
+                return INVALID_INPUT
+            if tag not in seen:
+                seen.add(tag)
+                tags.append(tag)
+        if not tags:
+            return INVALID_INPUT
+        try:
+            with unit_of_work(ctx) as session:
+                row = session.get(DatasetImportRunModel, req.id)
+                if row is None:
+                    return NOT_FOUND
+                existing = set(
+                    session.scalars(
+                        select(DatasetImportRunTagModel.tag).where(
+                            DatasetImportRunTagModel.import_run_id == req.id,
+                            DatasetImportRunTagModel.tag.in_(tags),
+                        )
+                    ).all()
+                )
+                now = _now()
+                for tag in tags:
+                    if tag in existing:
+                        continue
+                    session.add(
+                        DatasetImportRunTagModel(
+                            id=str(uuid4()),
+                            import_run_id=req.id,
+                            tag=tag,
+                            created_at=now,
+                        )
+                    )
+                session.flush()
+                rows = session.scalars(
+                    select(DatasetImportRunTagModel)
+                    .where(DatasetImportRunTagModel.import_run_id == req.id)
+                    .order_by(DatasetImportRunTagModel.tag.asc())
+                ).all()
+                ctx.resp.tag_records = [_to_tag_record(r) for r in rows]
+                ctx.resp.records = [_to_record(row)]
+            return SUCCESS
+        except IntegrityError:
+            return CONFLICT
+        except Exception:
+            log.exception("dataset_import_run add_tags failed")
+            return FAILURE
+
+    def list_tags(self, ctx: DatasetImportRunCtx) -> int:
+        if not ctx.req.id:
+            return INVALID_INPUT
+        try:
+            with unit_of_work(ctx) as session:
+                row = session.get(DatasetImportRunModel, ctx.req.id)
+                if row is None:
+                    return NOT_FOUND
+                rows = session.scalars(
+                    select(DatasetImportRunTagModel)
+                    .where(DatasetImportRunTagModel.import_run_id == ctx.req.id)
+                    .order_by(DatasetImportRunTagModel.tag.asc())
+                ).all()
+                ctx.resp.tag_records = [_to_tag_record(r) for r in rows]
+                ctx.resp.records = [_to_record(row)]
+            return SUCCESS
+        except Exception:
+            log.exception("dataset_import_run list_tags failed")
             return FAILURE

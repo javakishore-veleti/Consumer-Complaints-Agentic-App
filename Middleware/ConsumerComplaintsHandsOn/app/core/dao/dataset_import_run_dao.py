@@ -1,4 +1,4 @@
-"""DAO interface for dataset_import_runs (M11)."""
+"""DAO interface for dataset_import_runs (M11) + tags (M17-0004)."""
 
 from abc import abstractmethod
 
@@ -17,8 +17,16 @@ class DatasetImportRunDao(metaclass=SingletonMeta):
 
     @abstractmethod
     def list(self, ctx: DatasetImportRunCtx) -> int:
-        """Optional status / eligible_only / paging. Newest workflow_started_at first."""
+        """Optional status / eligible_only / tag / paging. Newest workflow_started_at first."""
 
     @abstractmethod
     def update(self, ctx: DatasetImportRunCtx) -> int:
         """Update status and related fields by id. CONFLICT on illegal transitions."""
+
+    @abstractmethod
+    def add_tags(self, ctx: DatasetImportRunCtx) -> int:
+        """Add req.tags for req.id (import run). Idempotent on (import_run_id, tag)."""
+
+    @abstractmethod
+    def list_tags(self, ctx: DatasetImportRunCtx) -> int:
+        """List tags for req.id into resp.tag_records."""

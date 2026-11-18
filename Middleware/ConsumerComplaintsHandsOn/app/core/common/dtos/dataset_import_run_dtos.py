@@ -1,4 +1,4 @@
-"""Ctx for dataset_import_runs registry (M11)."""
+"""Ctx for dataset_import_runs registry (M11) + tags (M17-0004)."""
 
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -34,6 +34,15 @@ class DatasetImportRunRecord:
     message: str | None
     created_at: datetime
     updated_at: datetime
+    comment: str | None = None
+
+
+@dataclass
+class DatasetImportRunTagRecord:
+    id: str
+    import_run_id: str
+    tag: str
+    created_at: datetime
 
 
 @dataclass
@@ -52,15 +61,19 @@ class DatasetImportRunReq:
     execution_id: str | None = None
     part_count: int | None = None
     message: str | None = None
+    comment: str | None = None
     eligible_only: bool | None = None
     limit: int | None = None
     offset: int | None = None
     ids: list[str] | None = None
+    tag: str | None = None
+    tags: list[str] | None = None
 
 
 @dataclass
 class DatasetImportRunResp:
     records: list[DatasetImportRunRecord] = field(default_factory=list)
+    tag_records: list[DatasetImportRunTagRecord] = field(default_factory=list)
     code: int = 0
 
 

@@ -1,4 +1,4 @@
-"""DatasetImportRunDao on MongoDB (M11)."""
+"""DatasetImportRunDao on MongoDB (M11 + M17-0004 tags)."""
 
 from __future__ import annotations
 
@@ -15,6 +15,7 @@ from app.core.common.dtos.dataset_import_run_dtos import (
     STATUS_STAGING,
     DatasetImportRunCtx,
     DatasetImportRunRecord,
+    DatasetImportRunTagRecord,
 )
 from app.core.common.return_codes import (
     CONFLICT,
@@ -35,6 +36,7 @@ from app.core.dao.impl.mongo.unit_of_work import (
 
 log = logging.getLogger(__name__)
 COLL = "dataset_import_runs"
+TAGS_COLL = "dataset_import_run_tags"
 _ALLOWED = frozenset({STATUS_STAGING, STATUS_LANDED, STATUS_INGESTING, STATUS_INGESTED, STATUS_FAILED})
 _TRANSITIONS = {
     STATUS_STAGING: frozenset({STATUS_LANDED, STATUS_FAILED}),
@@ -78,8 +80,21 @@ def _to_record(doc: MongoDocument) -> DatasetImportRunRecord:
         execution_id=doc.get("execution_id"),
         part_count=doc.get("part_count"),
         message=doc.get("message"),
+        comment=doc.get("comment"),
         created_at=times["created_at"],
         updated_at=times["updated_at"],
+    )
+
+
+def _to_tag_record(doc: MongoDocument) -> DatasetImportRunTagRecord:
+    created = doc["created_at"]
+    if created is not None and created.tzinfo is None:
+        created = created.replace(tzinfo=UTC)
+    return DatasetImportRunTagRecord(
+        id=doc["id"],
+        import_run_id=doc["import_run_id"],
+        tag=doc["tag"],
+        created_at=created,
     )
 
 
@@ -120,6 +135,7 @@ class MongoDatasetImportRunDao(DatasetImportRunDao):
                     "execution_id": req.execution_id,
                     "part_count": req.part_count,
                     "message": req.message,
+                    "comment": req.comment,
                     "created_at": now,
                     "updated_at": now,
                 }
@@ -154,6 +170,9 @@ class MongoDatasetImportRunDao(DatasetImportRunDao):
             return INVALID_INPUT
         if req.status is not None and req.status not in _ALLOWED:
             return INVALID_INPUT
+        tag = req.tag.strip() if isinstance(req.tag, str) else req.tag
+        if req.tag is not None and (not isinstance(req.tag, str) or not tag):
+            return INVALID_INPUT
         try:
             query: dict = {}
             if req.ids:
@@ -163,6 +182,19 @@ class MongoDatasetImportRunDao(DatasetImportRunDao):
             if req.eligible_only:
                 query["status"] = {"$in": sorted(ELIGIBLE_FOR_INGEST)}
             with mongo_unit_of_work(ctx) as uow:
+                if tag:
+                    tag_docs = uow.find(
+                        MongoFindReq(collection=TAGS_COLL, query={"tag": tag})
+                    )
+                    run_ids = [d["import_run_id"] for d in tag_docs]
+                    if not run_ids:
+                        ctx.resp.records = []
+                        return SUCCESS
+                    if "id" in query and "$in" in query["id"]:
+                        allowed = set(query["id"]["$in"]) & set(run_ids)
+                        query["id"] = {"$in": list(allowed)}
+                    else:
+                        query["id"] = {"$in": run_ids}
                 docs = uow.find(
                     MongoFindReq(
                         collection=COLL,
@@ -203,6 +235,8 @@ class MongoDatasetImportRunDao(DatasetImportRunDao):
                         changes["part_count"] = req.part_count
                     if req.message is not None:
                         changes["message"] = req.message
+                    if req.comment is not None:
+                        changes["comment"] = req.comment
                     if req.status == STATUS_INGESTED and "ingested_at" not in changes:
                         changes["ingested_at"] = _now()
                     moved = uow.update_matching(
@@ -222,6 +256,7 @@ class MongoDatasetImportRunDao(DatasetImportRunDao):
                         "part_count",
                         "message",
                         "execution_id",
+                        "comment",
                     ):
                         val = getattr(req, name)
                         if val is not None:
@@ -235,4 +270,90 @@ class MongoDatasetImportRunDao(DatasetImportRunDao):
             return SUCCESS
         except Exception:
             log.exception("mongo dataset_import_run update failed")
+            return FAILURE
+
+    def add_tags(self, ctx: DatasetImportRunCtx) -> int:
+        req = ctx.req
+        if not req.id:
+            return INVALID_INPUT
+        if req.tags is None:
+            return INVALID_INPUT
+        tags: list[str] = []
+        seen: set[str] = set()
+        for item in req.tags:
+            if not isinstance(item, str):
+                return INVALID_INPUT
+            tag = item.strip()
+            if not tag or len(tag) > 255:
+                return INVALID_INPUT
+            if tag not in seen:
+                seen.add(tag)
+                tags.append(tag)
+        if not tags:
+            return INVALID_INPUT
+        try:
+            with mongo_unit_of_work(ctx) as uow:
+                doc = uow.find_one(MongoFindReq(collection=COLL, query={"id": req.id}))
+                if doc is None:
+                    return NOT_FOUND
+                existing_docs = uow.find(
+                    MongoFindReq(
+                        collection=TAGS_COLL,
+                        query={"import_run_id": req.id, "tag": {"$in": tags}},
+                    )
+                )
+                existing = {d["tag"] for d in existing_docs}
+                now = _now()
+                for tag in tags:
+                    if tag in existing:
+                        continue
+                    uow.insert(
+                        MongoWriteReq(
+                            collection=TAGS_COLL,
+                            doc=MongoDocument(
+                                {
+                                    "id": str(uuid4()),
+                                    "import_run_id": req.id,
+                                    "tag": tag,
+                                    "created_at": now,
+                                }
+                            ),
+                        )
+                    )
+                rows = uow.find(
+                    MongoFindReq(
+                        collection=TAGS_COLL,
+                        query={"import_run_id": req.id},
+                        sort=[("tag", 1)],
+                    )
+                )
+                ctx.resp.tag_records = [_to_tag_record(r) for r in rows]
+                ctx.resp.records = [_to_record(MongoDocument(doc))]
+            return SUCCESS
+        except Exception as exc:
+            if is_duplicate_key(exc):
+                return CONFLICT
+            log.exception("mongo dataset_import_run add_tags failed")
+            return FAILURE
+
+    def list_tags(self, ctx: DatasetImportRunCtx) -> int:
+        if not ctx.req.id:
+            return INVALID_INPUT
+        try:
+            with mongo_unit_of_work(ctx) as uow:
+                doc = uow.find_one(MongoFindReq(collection=COLL, query={"id": ctx.req.id}))
+                if doc is None:
+                    return NOT_FOUND
+                rows = uow.find(
+                    MongoFindReq(
+                        collection=TAGS_COLL,
+                        query={"import_run_id": ctx.req.id},
+                        sort=[("tag", 1)],
+                    )
+                )
+                ctx.resp.tag_records = [_to_tag_record(r) for r in rows]
+                ctx.resp.records = [_to_record(MongoDocument(doc))]
+            return SUCCESS
+        except Exception:
+            log.exception("mongo dataset_import_run list_tags failed")
             return FAILURE

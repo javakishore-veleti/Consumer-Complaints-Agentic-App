@@ -259,5 +259,23 @@ class DatasetImportRunModel(Base):
     execution_id: Mapped[str | None] = mapped_column(String(36))
     part_count: Mapped[int | None] = mapped_column(Integer)
     message: Mapped[str | None] = mapped_column(Text)
+    comment: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class DatasetImportRunTagModel(Base):
+    """M17-0004 / #247: SQL-filterable tags on a landed import run (≥5000 supported)."""
+
+    __tablename__ = "dataset_import_run_tags"
+    __table_args__ = (
+        Index("ix_dataset_import_run_tags_import_run_id", "import_run_id"),
+        Index("ix_dataset_import_run_tags_tag", "tag"),
+        Index("uq_dataset_import_run_tags_run_tag", "import_run_id", "tag", unique=True),
+        {"schema": SCHEMA_ADMIN},
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    import_run_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    tag: Mapped[str] = mapped_column(String(255), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)

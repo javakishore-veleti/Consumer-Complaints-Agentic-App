@@ -1,4 +1,4 @@
-"""Callback + portal routes for dataset_import_runs (M11)."""
+"""Callback + portal routes for dataset_import_runs (M11 + M17-0004)."""
 
 from typing import Annotated
 
@@ -8,6 +8,9 @@ from app.api.models.dataset_import_run_models import (
     DatasetImportRunCreateReq,
     DatasetImportRunListReq,
     DatasetImportRunOut,
+    DatasetImportRunTagOut,
+    DatasetImportRunTagsListReq,
+    DatasetImportRunTagsReq,
     DatasetImportRunUpdateReq,
 )
 from app.core.common.dtos.dataset_import_run_dtos import DatasetImportRunCtx, DatasetImportRunReq
@@ -50,6 +53,7 @@ class DatasetImportRunCallbackApi(metaclass=SingletonMeta):
                 mio_id=body.mio_id,
                 part_count=body.part_count,
                 message=body.message,
+                comment=body.comment,
             )
         )
         ctx.resp.code = FacadesObjectsFactory.get_dataset_import_run_facade().create(ctx)
@@ -67,6 +71,7 @@ class DatasetImportRunCallbackApi(metaclass=SingletonMeta):
                 part_count=body.part_count,
                 message=body.message,
                 execution_id=body.execution_id,
+                comment=body.comment,
             )
         )
         ctx.resp.code = FacadesObjectsFactory.get_dataset_import_run_facade().update(ctx)
@@ -88,7 +93,7 @@ class DatasetImportRunCallbackApi(metaclass=SingletonMeta):
 
 
 class DatasetImportRunApi(metaclass=SingletonMeta):
-    """Portal-facing list under /dataset-import-runs (no callback secret)."""
+    """Portal-facing list/tags under /dataset-import-runs (no callback secret)."""
 
     def __init__(self):
         self.router = APIRouter(prefix="/dataset-import-runs", tags=["dataset-import-runs"])
@@ -98,6 +103,24 @@ class DatasetImportRunApi(metaclass=SingletonMeta):
             methods=["GET"],
             response_model=list[DatasetImportRunOut],
         )
+        self.router.add_api_route(
+            "/{import_id}/tags",
+            self.add_tags,
+            methods=["POST"],
+            response_model=list[DatasetImportRunTagOut],
+        )
+        self.router.add_api_route(
+            "/{import_id}/tags",
+            self.list_tags,
+            methods=["GET"],
+            response_model=list[DatasetImportRunTagOut],
+        )
+        self.router.add_api_route(
+            "/{import_id}",
+            self.patch_run,
+            methods=["PATCH"],
+            response_model=DatasetImportRunOut,
+        )
 
     def list_runs(
         self, req: Annotated[DatasetImportRunListReq, Depends()]
@@ -106,6 +129,7 @@ class DatasetImportRunApi(metaclass=SingletonMeta):
             req=DatasetImportRunReq(
                 eligible_only=req.eligible_only,
                 status=req.status,
+                tag=req.tag,
                 limit=req.limit,
                 offset=req.offset,
             )
@@ -115,6 +139,50 @@ class DatasetImportRunApi(metaclass=SingletonMeta):
         return [
             DatasetImportRunOut.model_validate(r, from_attributes=True) for r in ctx.resp.records
         ]
+
+    def add_tags(
+        self, req: Annotated[DatasetImportRunTagsReq, Depends()]
+    ) -> list[DatasetImportRunTagOut]:
+        ctx = DatasetImportRunCtx(
+            req=DatasetImportRunReq(id=req.import_id, tags=list(req.body.tags))
+        )
+        ctx.resp.code = FacadesObjectsFactory.get_dataset_import_run_facade().add_tags(ctx)
+        self._check(ctx)
+        return [
+            DatasetImportRunTagOut.model_validate(r, from_attributes=True)
+            for r in ctx.resp.tag_records
+        ]
+
+    def list_tags(
+        self, req: Annotated[DatasetImportRunTagsListReq, Depends()]
+    ) -> list[DatasetImportRunTagOut]:
+        ctx = DatasetImportRunCtx(req=DatasetImportRunReq(id=req.import_id))
+        ctx.resp.code = FacadesObjectsFactory.get_dataset_import_run_facade().list_tags(ctx)
+        self._check(ctx)
+        return [
+            DatasetImportRunTagOut.model_validate(r, from_attributes=True)
+            for r in ctx.resp.tag_records
+        ]
+
+    def patch_run(
+        self, req: Annotated[DatasetImportRunUpdateReq, Depends()]
+    ) -> DatasetImportRunOut:
+        body = req.body
+        ctx = DatasetImportRunCtx(
+            req=DatasetImportRunReq(
+                id=req.import_id,
+                status=body.status,
+                workflow_completed_at=body.workflow_completed_at,
+                ingested_at=body.ingested_at,
+                part_count=body.part_count,
+                message=body.message,
+                execution_id=body.execution_id,
+                comment=body.comment,
+            )
+        )
+        ctx.resp.code = FacadesObjectsFactory.get_dataset_import_run_facade().update(ctx)
+        self._check(ctx)
+        return DatasetImportRunOut.model_validate(ctx.resp.records[0], from_attributes=True)
 
     @staticmethod
     def _check(ctx: DatasetImportRunCtx) -> None:
