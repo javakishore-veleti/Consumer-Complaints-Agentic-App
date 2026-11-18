@@ -5,8 +5,9 @@
 # Normally started through CICD/Local/docker-all-up.sh. By hand:
 #   cd CICD/Local/airflow
 #   cp .env.example .env     (fill in the secrets, see that file)
-#   docker compose up -d     (the one-shot airflow-init service runs first by itself)
+#   docker compose up -d --build   (builds Dockerfile with pymongo; airflow-init runs first)
 #   open http://localhost:8080      login: airflow / airflow
+#   Verify: docker compose exec airflow-scheduler python -c 'import pymongo; print(pymongo.__version__)'
 #
 # DAGs live in <repo>/Middleware/Airflow-dags. Local refresh is 10s via AIRFLOW__DAG_PROCESSOR__REFRESH_INTERVAL (Airflow 3.4.0; local-only; default is 300).
 # For Docker Airflow download DAGs (D63 / M10-0005 #212): set Airflow Variable CCA_DB_URL to a Postgres URL the
@@ -18,10 +19,12 @@ name: airflow
 
 x-airflow-common:
   &airflow-common
-  image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:3.4.0}
-  # To add Python packages for your DAGs, write a Dockerfile next to this file (FROM apache/airflow:3.4.0 + pip
-  # install), comment the image line above and uncomment the build line below.
-  # build: .
+  # M17-0009 / #257: bake pymongo into the image (Mongo ingest DAGs / D51).
+  # Rebuild after Dockerfile changes: `docker compose build` then `up -d`, or `docker-all-up.sh` (--build).
+  build:
+    context: .
+    dockerfile: Dockerfile
+  image: ${AIRFLOW_IMAGE_NAME:-cca-airflow:3.4.0-pymongo}
   env_file:
     - ${ENV_FILE_PATH:-.env}
   environment:
@@ -37,7 +40,7 @@ x-airflow-common:
     AIRFLOW__API_AUTH__JWT_SECRET: ${AIRFLOW__API_AUTH__JWT_SECRET:-airflow_jwt_secret}
     AIRFLOW__API_AUTH__JWT_ISSUER: ${AIRFLOW__API_AUTH__JWT_ISSUER:-airflow}
     AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
-    # Quick experiments only: installs on EVERY container start. Prefer the Dockerfile route above.
+    # Prefer Dockerfile bake-in. Ephemeral installs only for one-off experiments.
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
     AIRFLOW_CONFIG: '/opt/airflow/config/airflow.cfg'
     # Local only: discover new DAG files quickly (Airflow 3.4.0; default 300). Do not copy to cloud stacks.

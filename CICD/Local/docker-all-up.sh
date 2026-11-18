@@ -25,7 +25,12 @@ while IFS= read -r svc; do
     exit 1
   fi
   echo "==> starting $svc"
-  (cd "$dir" && docker compose up -d)
+  # Airflow Dockerfile bakes pymongo (M17-0009 / #257); --build picks up image changes.
+  if [ -f "$dir/Dockerfile" ]; then
+    (cd "$dir" && docker compose up -d --build)
+  else
+    (cd "$dir" && docker compose up -d)
+  fi
 done < <(cca_resolved_services)
 
 echo
