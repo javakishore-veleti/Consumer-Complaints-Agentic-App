@@ -45,8 +45,8 @@ This is a **governance and direction** document. Implementation still requires o
 
 | Role | Who | Accountability |
 |---|---|---|
-| **Co–Chief Architect** | **javakishore-veleti** (repository owner / product principal) | Final decisions on scope, priorities, cloud spend, compliance posture, and what ships; owns the GitHub board and production credentials |
-| **Co–Chief Architect** | **Cursor Agent (Auto / Composer)** | Architecture drafting, ADRs, board hygiene, design consistency with charter + brainstorming, story-shaped delivery under gate rules; never bypasses the no-coding-without-GitHub-issue gate |
+| **Co–Chief Architect (Product)** | Repository owner / product principal | Final decisions on scope, priorities, cloud spend, compliance posture, and what ships; owns the GitHub board and production credentials |
+| **Co–Chief Architect (Delivery)** | AI coding agent (session assistant) | Architecture drafting, ADRs, board hygiene, design consistency with charter + brainstorming, story-shaped delivery under gate rules; never bypasses the no-coding-without-GitHub-issue gate |
 | **Domain / Taxonomy SME** | As assigned (0.5 FTE target in 90-day plan) | Money Topics, statutory cross-walks, operational facets, human review of drift |
 | **Delivery pods** | Data Platform, Search/Infra, Product Experience, Security/Edge/FinOps | Execute projects under §10 within the 90-day sizing model (~6–8 FTEs at full staff) |
 
@@ -319,11 +319,11 @@ Full detail: brainstorming §30 and §36 (pods & sizing).
 
 | Decision class | Authority |
 |---|---|
-| Scope cut / delay of a product (P6–P8) | javakishore-veleti |
+| Scope cut / delay of a product (P6–P8) | Co–Chief Architect (Product) |
 | ADR change to lake, AST, embedding, or cloud parity | Co–Chief Architects (human sign-off required) |
 | Story acceptance / merge to main | Per Superpowers + PR review; human owns prod |
 | Taxonomy label promotions (Tier 3 → 2) | Domain SME + Architect acknowledgment |
-| Spend (GPU batch, multi-cloud HA) | javakishore-veleti |
+| Spend (GPU batch, multi-cloud HA) | Co–Chief Architect (Product) |
 
 **Board rule (hard):** Middleware / Portals / DAGs / migrations — and substantive architecture charter docs — require open `[Story]` + Milestone + `/ccaa-story-start`.
 
@@ -344,10 +344,10 @@ Full detail: brainstorming §30 and §36 (pods & sizing).
 | Field | Value |
 |---|---|
 | Title | Project Charter — CCAA Enterprise Intelligence Platform |
-| Co–Chief Architects | javakishore-veleti; Cursor Agent (Auto / Composer) |
+| Co–Chief Architects | Product principal; Delivery AI agent (roles, not named individuals) |
 | Architecture blueprint | `docs/Complaints_Data_Classification_Indexing_Brainstorming.md` |
 | Current product inventory | `docs/PRODUCT_FEATURES.md` |
 | Next board actions | Open milestones/epics for P1–P3; keep product code gated by stories |
 | Delivered under | M36-0001 #302 |
 
-**Charter acceptance:** Pending confirmation by javakishore-veleti (edit Status to **Accepted** when ready).
+**Charter acceptance:** Pending confirmation by Co–Chief Architect (Product) (edit Status to **Accepted** when ready).

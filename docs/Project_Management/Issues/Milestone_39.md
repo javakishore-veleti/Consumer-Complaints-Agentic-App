@@ -15,6 +15,6 @@
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
 | #308 | 1 | story-start | Done | 2026-11-18 15:25 | 2026-11-18 15:25 |
-| #308 | 2 | worktree → implement | In progress | 2026-11-18 15:25 | |
-| #308 | 3 | commit-push | Planned | | |
+| #308 | 2 | worktree → implement | Done | 2026-11-18 15:25 | 2026-11-18 15:25 |
+| #308 | 3 | commit-push | In progress | 2026-11-18 15:25 | |
 | #308 | 4 | story-complete | Planned | | |
