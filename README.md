@@ -195,6 +195,58 @@ Before indexing millions of rows:
 
 Localhost CCAA today still has an MVP **hash** embedder for CI; professional indexing should swap to a real model under a later story while keeping this document/metadata contract stable.
 
+#### How should we index in Chroma?
+
+##### What to put in Chroma (per complaint)
+
+| Chroma field | Source | Rule |
+|---|---|---|
+| `ids` | `Complaint ID` | Stable public key (ignore Mongo `_id` as the vector id) |
+| `documents` | Compact key–value summary | No “Complaint regarding a…” fluff |
+| `embeddings` | Real model (not hash) for prod | Same model at query time |
+| `metadatas` | Exact facets | For `where` filters / date ranges |
+
+**Document (index):**
+
+```text
+Product: {Product} - {Sub-product} | Issue: {Issue} - {Sub-issue} | Tag: {Tags} | Resolution: {Company response to consumer}
+```
+
+Omit blank parts. Do **not** put long `Company public response` boilerplate in the document.
+
+**Metadata (filter):**  
+`complaint_id`, `company`, `state`, `zip_code`, `product`, `sub_product`, `issue`, `sub_issue`, `tags`, `submitted_via`, `company_response`, `timely_response` (bool), `date_received_int` / `date_sent_int` (`YYYYMMDD` int).
+
+##### How to index (engine settings)
+
+1. **Collection:** new name (e.g. `complaints_v2`) — don’t reuse the hash/dim-32 `complaints` collection.
+2. **Index:** Chroma **HNSW**, space **`cosine`** (~2M rows, daily upserts).
+3. **Embedder:** open local model with asymmetric support — prefer `intfloat/e5-base-v2` or `BAAI/bge-base-en-v1.5`.
+   - If E5: index as `passage: {document}`; query as `query: {user text}`.
+4. **Upsert by UUID path** (Chroma 0.5): resolve collection id from create/get, then upsert (already fixed in M23).
+5. **Batch:** ~100–500; full re-index OK for 3m cutover; later = upsert new/changed `Complaint ID`s.
+6. **CI:** keep **hash** embeddings only in unit tests; Airflow uses the real model.
+
+##### How to query (hybrid)
+
+```text
+where: company / state / product / tags / date_received_int >= …
++ query_texts: conversational question (with query: prefix if E5)
+```
+
+Semantic match finds paraphrase (“wire held up” ↔ “funds not handled…”); metadata enforces bank/state/date.
+
+##### What not to do
+
+| Anti-pattern | Why not |
+|---|---|
+| Hash embeddings for real search | Hash vectors are not semantic; paraphrases and related issues will not cluster, so Intellect/RAG quality is meaningless. |
+| Full English sentence templates on every row | Shared boilerplate (“Complaint regarding a…”) pulls all vectors toward the same region and dilutes issue-level similarity. |
+| Embed-only with no metadata | Embeddings are weak at exact company/state/date constraints; without `where` filters you cannot do reliable hybrid triage queries. |
+| IVF / Flat as primary at ~2M | Flat is O(n) and too slow; static IVF clusters drift as CFPB topics arrive daily — HNSW fits upsert-heavy complaint corpora better as the default. |
+| Different embed models for index vs query | Vectors from different models live in incompatible spaces; queries will not match indexed documents. |
+| Claiming trends are statistically representative (CFPB caveats) | The public database is not a statistical sample of all consumers; volumes need company size/market-share context and must not be sold as market proof. |
+
 ## Overall architecture
 
 Capability view (not a folder map):
