@@ -2,7 +2,7 @@
 
 **Scope:** Docs only — Complaints_Data_Classification_Indexing_Brainstorming.md. No product code.
 
-**Status: Open.** Stories left to build: 1 (#296). Stories already done: 0.
+**Status: Closed.** Stories left to build: 0. Stories already done: 1 (#296).
 
 ## 1. Build order
 
@@ -16,5 +16,5 @@
 |---|---|---|---|---|---|
 | #296 | 1 | story-start | Done | 2026-11-18 11:21 | 2026-11-18 11:21 |
 | #296 | 2 | worktree → implement | Done | 2026-11-18 11:21 | 2026-11-18 11:23 |
-| #296 | 3 | commit-push | In progress | 2026-11-18 11:23 | |
-| #296 | 4 | story-complete | — | | |
+| #296 | 3 | commit-push | Done | 2026-11-18 11:23 | 2026-11-18 11:24 |
+| #296 | 4 | story-complete | Done | 2026-11-18 11:24 | 2026-11-18 11:24 |
