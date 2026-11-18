@@ -16,7 +16,7 @@ export const routes: Routes = [
         path: '',
         component: HomeComponent,
         pathMatch: 'full',
-        title: 'Consumer Complaints Admin',
+        title: 'Consumer Complaints Administration',
       },
       {
         path: 'datasets',
@@ -25,17 +25,17 @@ export const routes: Routes = [
           {
             path: 'imports',
             component: ImportsPageComponent,
-            title: 'Imports | Consumer Complaints Admin',
+            title: 'Imports | Consumer Complaints Administration',
           },
           {
             path: 'db-ingest',
             component: DbIngestPageComponent,
-            title: 'DB Ingest | Consumer Complaints Admin',
+            title: 'DB Ingest | Consumer Complaints Administration',
           },
           {
             path: 'index',
             component: IndexPageComponent,
-            title: 'Index | Consumer Complaints Admin',
+            title: 'Index | Consumer Complaints Administration',
           },
         ],
       },
@@ -46,7 +46,7 @@ export const routes: Routes = [
           {
             path: 'sync-secrets',
             component: SyncSecretsPageComponent,
-            title: 'Sync secrets | Consumer Complaints Admin',
+            title: 'Sync secrets | Consumer Complaints Administration',
           },
         ],
       },
@@ -55,6 +55,6 @@ export const routes: Routes = [
   {
     path: '**',
     component: NotFoundComponent,
-    title: 'Not found | Consumer Complaints Admin',
+    title: 'Not found | Consumer Complaints Administration',
   },
 ];

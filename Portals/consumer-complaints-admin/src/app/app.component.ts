@@ -11,7 +11,7 @@ import { RouterModule } from '@angular/router';
   styleUrl: './app.component.css',
 })
 export class AppComponent implements OnInit {
-  title = 'Consumer Complaints Admin';
+  title = 'Consumer Complaints Administration';
 
   ngOnInit(): void {
     const savedDir = localStorage.getItem('dir');

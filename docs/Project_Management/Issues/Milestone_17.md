@@ -48,10 +48,10 @@
 | #244 | 2 | rewrite `docs/Runbooks/Localhost/3m-pgvector-chroma.md` (3m MIO only) | Done | 2026-11-17 21:56 | 2026-11-17 21:58 |
 | #244 | 3 | `/ccaa-commit-push 244` | Done | 2026-11-17 21:58 | 2026-11-17 21:58 |
 | #244 | 4 | `/ccaa-story-complete 244` | Done | 2026-11-17 21:58 | 2026-11-17 21:58 |
-| #246 | 1 | `/ccaa-story-start 246` | Planned | - | - |
-| #246 | 2 | replace CC Admin chrome/titles with Consumer Complaints Administration | Planned | - | - |
-| #246 | 3 | `/ccaa-commit-push 246` | Planned | - | - |
-| #246 | 4 | `/ccaa-story-complete 246` | Planned | - | - |
+| #246 | 1 | `/ccaa-story-start 246` | Done | 2026-11-17 21:56 | 2026-11-17 21:56 |
+| #246 | 2 | replace CC Admin chrome/titles with Consumer Complaints Administration | Done | 2026-11-17 21:58 | 2026-11-17 21:59 |
+| #246 | 3 | `/ccaa-commit-push 246` | Done | 2026-11-17 21:59 | 2026-11-17 21:59 |
+| #246 | 4 | `/ccaa-story-complete 246` | Done | 2026-11-17 21:59 | 2026-11-17 21:59 |
 
 ## 3. Notes
 
