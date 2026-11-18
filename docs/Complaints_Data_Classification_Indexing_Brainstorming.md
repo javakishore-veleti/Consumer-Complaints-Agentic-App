@@ -24,6 +24,19 @@ Architecture and modeling notes for classifying ~1.97M CFPB consumer complaint r
 18. [Gold metadata contract & dual-path consumption](#18-gold-metadata-contract--dual-path-consumption)
 19. [Governance & Day-2 operations](#19-governance--day-2-operations)
 20. [Illustrative mapping notes (deterministic cues vs overrides)](#20-illustrative-mapping-notes-deterministic-cues-vs-overrides)
+21. [Deep dive: Data Modeling, Taxonomy, Compute Economics & Multi-Cloud Portability](#21-deep-dive-data-modeling-taxonomy-compute-economics--multi-cloud-portability)
+22. [What “canonical” means in this solution](#22-what-canonical-means-in-this-solution)
+23. [Business data modeling & taxonomy design](#23-business-data-modeling--taxonomy-design)
+24. [Tech stack & physical representation by layer](#24-tech-stack--physical-representation-by-layer)
+25. [Local development parity for the full 2M dataset](#25-local-development-parity-for-the-full-2m-dataset)
+26. [Why not Postgres or MongoDB as the data lake](#26-why-not-postgres-or-mongodb-as-the-data-lake)
+27. [Hybrid local serving: Chroma vs optional pgvector](#27-hybrid-local-serving-chroma-vs-optional-pgvector)
+28. [CI/CD promotion & multi-cloud release pipeline](#28-cicd-promotion--multi-cloud-release-pipeline)
+29. [Observability, drift detection & FinOps governance](#29-observability-drift-detection--finops-governance)
+30. [Executive ADR-001 & phased 90-day implementation roadmap](#30-executive-adr-001--phased-90-day-implementation-roadmap)
+31. [Day-1 deliverables: Neutral Query AST & Golden Query Suite](#31-day-1-deliverables-neutral-query-ast--golden-query-suite)
+32. [PII/redaction compliance & multi-tenant access control (RBAC)](#32-piiredaction-compliance--multi-tenant-access-control-rbac)
+33. [Data products & front ends for business and customers](#33-data-products--front-ends-for-business-and-customers)
 
 ---
 
@@ -562,6 +575,782 @@ These cues remain useful as **features / high-precision shortcuts** inside a man
 Product: … | Sub-product: … | Issue: … | Sub-issue: … | Tag: … | Resolution: …
 ```
 
+
+---
+
+## 21. Deep dive: Data Modeling, Taxonomy, Compute Economics & Multi-Cloud Portability
+
+For a ~2-million-record regulatory complaint ecosystem starting on Chroma and expanding across AWS, Azure, and GCP, the architecture must treat **vector embeddings as derived artifacts** while keeping canonical JSON/Parquet records and taxonomies as the **system of record**.
+
+When you have ~2 million regulatory complaint records that are categorical in nature, and the goal is a multi-cloud vector ecosystem (starting with Chroma and expanding to AWS, Azure, and GCP), you are solving three architectural challenges: **Data Modeling & Taxonomy**, **Compute Economics**, and **Multi-Cloud Portability**.
+
+### 21.1 Data Modeling (The Canonical Payload & Chunking Strategy)
+
+Regulatory complaints (such as CFPB datasets) combine high-cardinality structured fields with noisy, PII-redacted consumer narratives. Do not index raw CSV rows directly.
+
+- **Canonical Storage Separation:** Store the master record in cloud object storage using Apache Parquet (partitioned by `date_received` and product) or Iceberg/Delta Lake. Vector stores hold only the ID, vector, and filterable metadata.
+- **Composite Document Representation:** Build a deterministic text template before embedding so semantic search captures categorical context alongside the narrative:
+  - **Header Block:** `[Product] > [Sub-product] | [Issue] > [Sub-issue] | [Company] | [State]`
+  - **Body Block:** Cleaned consumer narrative (stripping placeholder tokens like `XXXX` that dilute embedding quality).
+- **Selective Chunking Rule:**
+  - **Short/Medium Narratives (< 512 tokens, ~80% of complaints):** Keep as a single vector (1 record = 1 vector) to preserve global intent and avoid cross-chunk metadata duplication.
+  - **Long Narratives (> 512 tokens):** Use recursive semantic chunking (512-token window, 64-token overlap). Attach `parent_complaint_id` and `chunk_index` to every chunk so retrieval can deduplicate back to unique complaint counts.
+- **Strict Metadata Schema (Filter-First Design):**
+  - **Low-Cardinality Enumerations (Pre-filterable):** `product_id`, `issue_id`, `company_tier`, `timely_response`, `consumer_disputed`, `year_month` (stored as integer `YYYYMM` for fast range scans).
+  - **High-Cardinality Fields (Avoid indexing in HNSW):** Keep `company_name` or `zip_code` as stored payload attributes rather than indexed filter fields where possible, preventing metadata graph bloat.
+
+### 21.2 Taxonomy Architecture (Hybrid Hierarchical & Semantic)
+
+Regulatory data has a rigid statutory taxonomy (e.g., Product → Sub-product → Issue → Sub-issue) that often diverges from emerging consumer language. You need a two-tier taxonomy architecture.
+
+- **Tier 1: Canonical Regulatory Spine (Deterministic):**
+  - Normalize legacy or drifted category labels into a versioned Master Taxonomy Registry (e.g., `tax_version: v2.4`) using lookup tables.
+  - Encode paths as hierarchical path strings (e.g., `credit_reporting/improper_use/credit_inquiry`) to enable prefix-based filtering across all vector engines.
+- **Tier 2: Dynamic Micro-Taxonomy (LLM / Embedding-Driven):**
+  - Regulatory categories are too broad for root-cause analysis (e.g., thousands of complaints sit under “Incorrect information on your report”).
+  - Run periodic unsupervised clustering (HDBSCAN over UMAP-reduced embeddings) on recent complaint windows to discover emerging micro-themes (e.g., “BNPL late fee reporting glitch”).
+  - Assign a `semantic_cluster_id` and LLM-generated short label back to the canonical record, turning unstructured drift into queryable taxonomy tags.
+- **Hybrid Routing Pattern:** At query time, classify incoming user intent to extract explicit taxonomy filters first (**Pre-filtering**), then execute vector similarity search within that narrowed subspace.
+
+### 21.3 Compute Economics (2M Records at Multi-Cloud Scale)
+
+At 2 million records (roughly 2.4M–2.8M vectors after chunking), naive dense indexing wastes significant RAM and embedding spend.
+
+- **Embedding Model Sizing:**
+  - Standardize on a compact, high-throughput embedding model (384 or 768 dimensions, such as `bge-base-en-v1.5` or `text-embedding-3-small` truncated via Matryoshka Representation Learning to 512 dimensions).
+  - **Math impact:** 2.5M vectors at 1536-dim (float32) requires ~15.3 GB raw vector memory (~30–40 GB RAM with HNSW graph overhead). At 512-dim with Scalar Quantization (int8 / SQ8), raw footprint drops to ~1.28 GB (~3–4 GB RAM with HNSW), cutting cloud memory costs by ~85% with < 1.5% recall loss.
+- **Ingestion & Inference Economics:**
+  - **Historical Backfill (2M rows):** Run asynchronously via serverless batch inference (AWS Bedrock Batch, Azure OpenAI Batch, or GCP Vertex Batch) for a 50% API cost discount, or self-host on spot GPU instances (e.g., single L4/T4 GPU processes 2M records in ~2–3 hours).
+  - **Incremental Daily Delta:** Regulatory feeds update daily or weekly, not sub-second. Use micro-batch pipelines (every 6–24 hours) rather than always-on streaming clusters.
+- **Storage & Index Tiering:**
+  - **Hot Tier (Last 12–18 months, ~600K vectors):** Full HNSW in RAM for sub-50ms interactive triage.
+  - **Warm/Cold Tier (Historical > 18 months, ~1.9M vectors):** Disk-backed ANN (DiskANN / memory-mapped HNSW) or IVF-PQ on object storage, accepting 150–300ms latency for historical trend queries.
+
+### 21.4 Multi-Cloud Portability (Chroma → AWS, Azure, GCP)
+
+Chroma uses SQLite/DuckDB + local HNSW files, while AWS (OpenSearch / Aurora pgvector), Azure (AI Search), and GCP (Vertex AI Vector Search / AlloyDB) have incompatible filter syntax and index APIs. Achieve portability via decoupled storage and a thin abstraction layer.
+
+| Architectural Layer | Portability Strategy | Target Implementation Across Clouds |
+|---|---|---|
+| 1. Vector & Metadata Lake (Source of Truth) | Store pre-computed embeddings alongside canonical metadata in Parquet files on S3 / ADLS / GCS. Never re-embed when migrating clouds. | Single Parquet schema (`complaint_id`, `embedding_v1`, `taxonomy_tags`, `metadata_json`) replicated via rclone/object sync. |
+| 2. Embedding Determinism | Lock model weights, tokenizer version, and normalization parameters in an Embedding Manifest. | Self-hosted container (ONNX/vLLM) or fixed API model snapshot so Chroma vectors match cloud vectors identically. |
+| 3. Query & Filter Abstraction (DAL) | Build an internal Vector Repository Interface that translates a neutral JSON filter AST into native provider syntax. | Translates `{product: "Mortgage", year: {$gte: 2024}}` into Chroma `$where`, OpenSearch `bool`/`filter`, Azure OData, or Vertex restricts. |
+| 4. Index Parameter Mapping | Standardize around HNSW + Cosine Similarity + SQ8 across all targets. | Chroma: `hnsw:space=cosine`; AWS: OpenSearch FAISS + SQ; Azure: AI Search HNSW + scalarQuantization; GCP: Vertex Tree-AH or AlloyDB HNSW |
+| 5. Blue/Green Index Hydration | Treat cloud vector databases as ephemeral, rebuildable caches. | Spin up target cloud index, bulk-ingest vectors directly from Parquet lake in < 20 minutes, validate recall@10 on a golden query set, and flip traffic. |
+
+### 21.5 Summary Execution Blueprint
+
+1. **Phase 1 (Local/Dev on Chroma):** Build the Parquet canonical store, run batch embedding with a locked 512/768-dim model, and load Chroma with strict metadata schemas.
+2. **Phase 2 (Abstraction & Governance):** Implement the neutral Query AST translator and Taxonomy Registry before writing any cloud-specific SDK calls.
+3. **Phase 3 (Multi-Cloud Expansion):** Replicate the Parquet vector lake to S3, ADLS, and GCS, using cloud-native bulk loaders to hydrate AWS, Azure, and GCP vector stores without incurring second-pass embedding costs.
+
+---
+
+## 22. What “canonical” means in this solution
+
+In this architecture, **canonical** means the single, authoritative, standardized **source of truth** for your data—as opposed to derived, temporary, or vendor-specific copies.
+
+Because you are working across Chroma, AWS, Azure, and GCP, each vector database will store data in its own proprietary format. Your canonical layer is the master version that stays neutral, clean, and permanent regardless of which cloud or database you use.
+
+### 22.1 Canonical Storage (The Master Record vs. Disposable Indexes)
+
+- **What it is:** The complete, immutable record of each complaint stored in open-source Apache Parquet files in object storage (like S3, GCS, or ADLS), containing the cleaned text, standardized fields, and pre-computed vectors.
+- **Why it matters:** Cloud vector databases are expensive to maintain and hard to migrate directly. By keeping a canonical Parquet lake, your vector databases become **disposable caches**. If you switch from Chroma to AWS OpenSearch or Azure AI Search, you simply re-load from your canonical files without re-cleaning or re-embedding 2 million records.
+
+### 22.2 Canonical Taxonomy (Standardized Labels vs. Raw Input)
+
+- **What it is:** A clean, unified set of category names and hierarchy paths (e.g., `credit_reporting/improper_use/credit_inquiry`) governed by a central lookup registry.
+- **Why it matters:** Over years of regulatory reporting, category names drift (e.g., “Credit reporting” in 2018 vs. “Credit reporting, credit repair services, or other personal consumer reports” in 2024). Mapping all historical variations into one canonical taxonomy ensures a single filter works accurately across the entire 2-million-record timeline.
+
+### 22.3 Canonical Payload / Representation (Deterministic Input)
+
+- **What it is:** The exact, standardized text template (combining structured headers + cleaned narrative) fed into your embedding model.
+- **Why it matters:** Embedding models are sensitive to formatting changes. Defining a canonical text structure guarantees that a record embedded today on Chroma produces the exact same vector space geometry as a record embedded six months from now on GCP.
+
+### 22.4 The Core Architectural Rule
+
+- **Canonical** = Permanent, Cloud-Agnostic, Source of Truth.
+- **Non-Canonical (Vector DBs)** = Derived, Cloud-Specific, Rebuildable.
+
+---
+
+## 23. Business data modeling & taxonomy design
+
+To design a robust multi-cloud vector ecosystem for 2 million regulatory complaints, separate your **business data model** from your **vector storage model** and build a multi-layered taxonomy that handles both statutory rules and evolving consumer language.
+
+### 23.1 Business Data Modeling (Three-Layer Architecture)
+
+Define three distinct logical data models so that business analytics, compliance auditing, and semantic search do not interfere with one another.
+
+#### Layer A: The Canonical Domain Model (System of Record)
+
+This is your cloud-agnostic, relational/columnar business model stored in Parquet or Iceberg. It captures the complete lifecycle of a regulatory complaint.
+
+- **Core Fact Entity (`Complaint_Master`):** Holds immutable business facts—`complaint_id` (natural key), `date_received`, `date_sent_to_company`, `submission_channel`, `narrative_raw`, `narrative_cleaned`, and `narrative_hash` (for deduplication and idempotent updates).
+- **Entity Resolution Dimension (`Organization_Entity`):** Regulatory data contains noisy company variations (e.g., “JPMORGAN CHASE & CO.” vs. “Chase Bank”). Model a canonical `parent_org_id` mapped to raw aliases so executives can roll up complaints accurately across subsidiaries.
+- **Outcome & SLA Dimension (`Resolution_State`):** Tracks `company_response_type`, `timely_response_flag`, and `consumer_disputed_flag` to support compliance risk scoring.
+- **Geographic Dimension (`Geo_Hierarchy`):** Maps `zip_code` to state, region, and census_division for regional regulatory reporting.
+
+#### Layer B: The Semantic Projection Model (Embedding Input)
+
+Vector models fail when fed raw relational rows or unformatted text. Define an explicit **Projection Model** that dictates how business entities are serialized into a single semantic unit before embedding.
+
+- **Context Header Injection:** Prepend normalized business attributes (Product, Issue, Organization Tier, Year) to the cleaned narrative so every vector encodes both *what happened* and *which regulatory domain* it belongs to.
+- **Parent-Child Chunking Model:** Define a strict two-table relationship for long narratives:
+  - **Parent Record:** Holds the full business metadata and summary metrics.
+  - **Child Chunk Record:** Holds `chunk_id`, `parent_complaint_id`, `chunk_sequence`, `text_segment`, and the `embedding_vector`. This ensures high-precision search without inflating business counts.
+
+#### Layer C: The Vector Index Payload Model (Portability Contract)
+
+Define a minimal, strict contract for what actually enters Chroma, AWS, Azure, or GCP.
+
+- **Rule of Minimum Viable Metadata:** Only project fields required for pre-filtering (e.g., `canonical_product_code`, `canonical_issue_code`, `parent_org_id`, `year_month_int`, `has_narrative`). Keep heavy text and audit fields in Layer A and hydrate them post-search using `complaint_id`.
+
+### 23.2 Taxonomy Architecture (Three-Tier Hybrid Design)
+
+Regulatory complaints suffer from two problems: **upstream category drift** (regulators rename or split categories every few years) and **downstream granularity gaps** (categories are too broad to pinpoint specific operational bugs). Define a three-tier taxonomy to solve both.
+
+#### Tier 1: Statutory / Regulatory Taxonomy (Deterministic & Hierarchical)
+
+- **Purpose:** Guarantees compliance reporting and exact roll-ups across historical and current data.
+- **Design Pattern:** Model this as a strictly versioned Directed Acyclic Graph (DAG) or Materialized Path Hierarchy (e.g., `L1_Product / L2_SubProduct / L3_Issue / L4_SubIssue`).
+- **Cross-Walk Governance:** Maintain an explicit Taxonomy Cross-Walk Table that maps retired or renamed historical categories to current canonical IDs. Never overwrite raw regulatory labels; store both `raw_regulatory_label` and `canonical_taxonomy_id`.
+
+#### Tier 2: Operational & Root-Cause Taxonomy (Business-Defined Facets)
+
+- **Purpose:** Translates legal/regulatory terms into internal business ownership (which product team, billing system, or vendor caused the complaint).
+- **Design Pattern:** Model this as **orthogonal (multi-facet) tags** rather than a single tree, because one complaint often spans multiple operational causes:
+  - **Lifecycle Stage:** Onboarding, Billing/Servicing, Collections, Account Closure.
+  - **Failure Mode:** System Outage, Fee Dispute, Miscommunication, Fraud/Unauthorized Access, Delay.
+  - **Severity / Regulatory Risk:** Routine, Escalated, Fair Lending / UDAAP Risk.
+- **Population Method:** Populated via deterministic business rules combined with zero-shot/few-shot LLM classification pipelines during ingestion.
+
+#### Tier 3: Emergent Semantic Micro-Taxonomy (Bottom-Up Discovery)
+
+- **Purpose:** Catches brand-new product defects or emerging consumer issues that do not yet exist in Tier 1 or Tier 2.
+- **Design Pattern:** A dynamic, unsupervised clustering layer (`micro_topic_id`) generated periodically over recent embedding windows (e.g., rolling 30-day cohorts).
+- **Lifecycle Promotion:** When a dynamic cluster exceeds a volume or velocity threshold, a governance workflow promotes that cluster into a formal Tier 2 Operational Tag, keeping your taxonomy continuously synchronized with real-world complaint trends.
+
+### 23.3 Summary Architectural Governance Rules
+
+| Architectural Concern | Modeling Decision | Taxonomy Decision |
+|---|---|---|
+| Historical Drift | Immutable raw fields paired with normalized canonical IDs | Versioned Master Registry with backward-compatible cross-walks |
+| Search Precision | Parent-child chunking with injected context headers | Pre-filter on Tier 1/2 codes before running vector similarity |
+| Multi-Cloud Sync | Minimal flat metadata payload (enums + integers only) | Materialized path strings (supported natively across all vector DBs) |
+| Business Agility | Decouple heavy relational attributes from vector stores | Combine top-down statutory trees with bottom-up semantic clusters |
+
+---
+
+## 24. Tech stack & physical representation by layer
+
+To translate logical data models and three-tier taxonomy into a concrete, multi-cloud solution, each architectural layer must map to a portable, cloud-agnostic technology stack and a clear physical storage representation.
+
+### 24.1 Layer A: The Canonical Domain Model (System of Record)
+
+- **Tech Stack:**
+  - **Storage Engine:** Cloud Object Storage (AWS S3, Azure Data Lake Storage Gen2, Google Cloud Storage) backed by Apache Iceberg (or Delta Lake) as the open table format.
+  - **Processing & Transformation:** Apache Spark (Databricks / EMR / Dataproc) or DuckDB (for local/single-node batch processing up to ~2M–5M rows).
+- **Physical Representation:**
+  - Stored as columnar Apache Parquet files compressed with Zstandard (ZSTD).
+  - **Partitioning Strategy:** Physically partitioned into directories by `year_month` and `l1_product_code` (e.g., `/canonical/complaints/year_month=202611/product=MORTGAGE/part-0001.parquet`) so incremental updates and backfills only scan relevant partitions.
+  - **Dimension Tables** (`Organization_Entity`, `Geo_Hierarchy`): Stored as small, broadcastable Parquet reference tables alongside the fact table.
+
+### 24.2 Layer B: The Taxonomy Registry & Cross-Walk Store
+
+- **Tech Stack:**
+  - **Authoritative Store:** PostgreSQL (hosted on AWS RDS, Azure Database for PostgreSQL, or GCP Cloud SQL) for transactional governance, paired with Git (YAML/JSON definitions) for version control.
+  - **Runtime Cache:** Exported as versioned Parquet / JSON lookup artifacts to object storage for fast distributed joins during ingestion.
+- **Physical Representation:**
+  - **Tier 1 (Statutory Hierarchy):** Relational adjacency/materialized-path table (`taxonomy_id`, `version`, `materialized_path`, `is_active`) plus a `taxonomy_crosswalk` table mapping `raw_source_label` → `canonical_taxonomy_id`.
+  - **Tier 2 (Operational Facets):** A bridge/junction table (`complaint_facet_map`) storing many-to-many tags (`complaint_id`, `facet_category`, `facet_value`, `confidence_score`).
+  - **Tier 3 (Emergent Micro-Topics):** A time-windowed cluster registry (`micro_topic_id`, `window_start`, `window_end`, `centroid_vector`, `llm_summary_label`).
+
+### 24.3 Layer C: The Semantic Projection & Embedding Pipeline
+
+- **Tech Stack:**
+  - **Orchestration:** Apache Airflow or Prefect / Dagster (cloud-portable workflow orchestrators).
+  - **Embedding Inference:** Self-hosted vLLM or Hugging Face Text Embeddings Inference (TEI) running on containerized GPUs (NVIDIA L4/T4), or cloud batch endpoints (AWS Bedrock Batch, Azure OpenAI Batch, GCP Vertex Batch).
+  - **Tier 2/3 Classification:** BERTopic / HDBSCAN + UMAP (running on CPU/GPU batch workers) for clustering, paired with a small distilled LLM (e.g., Llama-3-8B or Mistral-7B) for labeling.
+- **Physical Representation:**
+  - **The Vector Lake (Intermediate Artifact):** Before touching any vector database, embeddings are written to a dedicated Vector Parquet Lake (`/vector_lake/model=bge_base_v1.5_512d/year_month=202611/`).
+  - **Physical Row Layout:** Each row contains `chunk_id` (String), `parent_complaint_id` (String), `embedding` (Fixed-Size List of float32 or pre-quantized int8), and a flattened struct of pre-filterable metadata integers/strings.
+
+### 24.4 Layer D: The Multi-Cloud Vector Serving Layer
+
+- **Tech Stack:**
+  - **Local / Edge / Dev:** Chroma (Persistent Client mode).
+  - **AWS:** Amazon OpenSearch Service (or Aurora PostgreSQL with pgvector).
+  - **Azure:** Azure AI Search.
+  - **GCP:** Vertex AI Vector Search (or AlloyDB with pgvector).
+  - **Abstraction Gateway:** A containerized FastAPI / gRPC Query Service containing your neutral Query AST Translator.
+- **Physical Representation Across Engines:**
+
+| Engine | Physical Storage & Index Representation | Metadata Physical Layout |
+|---|---|---|
+| Chroma (Local/Initial) | Local directory containing a SQLite3 database (`chroma.sqlite3`) for metadata/collections and memory-mapped binary HNSW segment files (`data_level0.bin`, `header.bin`). | Key-value rows inside SQLite tables (`embedding_metadata`) indexed via B-Trees for `$where` pre-filtering. |
+| AWS OpenSearch | Distributed Lucene shards backed by native C++ FAISS HNSW graph files (`.faiss` / `.knnvec`) stored on EBS/NVMe volumes. | Inverted indexes and DocValues column stores inside the same Lucene segment for single-pass hybrid filtering. |
+| Azure AI Search | Partitioned search units storing HNSW graph structures alongside Inverted Indexes with optional Scalar Quantization (int8) compressed vector blocks. | Strongly-typed JSON document fields marked `filterable: true` stored in columnar storage per partition. |
+| GCP Vertex Vector Search | Distributed ScaNN (Tree-AH) index shards deployed on managed matching-engine nodes, built from JSONL/Avro batch snapshots in GCS. | Namespace `restricts` and numeric `numeric_restricts` embedded directly into the ScaNN shard postings lists. |
+
+### 24.5 End-to-End Physical Data Flow Summary
+
+1. **Raw Landing:** Source CSV/JSON files arrive in Object Storage (`/raw/`).
+2. **Canonical Hydration:** Spark/DuckDB cleans narratives, resolves company aliases, joins the PostgreSQL/Git Taxonomy Registry, and writes partitioned Canonical Parquet files (`/canonical/`).
+3. **Vector Materialization:** Batch inference workers read `/canonical/`, apply the context header template, generate 512-dim vectors, and write to the Vector Parquet Lake (`/vector_lake/`).
+4. **Target Hydration (Push Model):** Cloud-specific bulk loaders read `/vector_lake/` and hydrate Chroma (SQLite + HNSW files) locally, or push bulk batches into OpenSearch, Azure AI Search, or Vertex Vector Search.
+
+---
+
+## 25. Local development parity for the full 2M dataset
+
+To make the multi-cloud architecture seamless for local development at a 2-million-record scale, design a **1-to-1 architectural parity model**. Local developers should run the exact same logical pipelines, storage formats, and query abstractions on a modern laptop (e.g., 16GB–32GB RAM) without spinning up expensive cloud clusters or hitting cloud API limits.
+
+Because 2 million rows of structured text and 512-dim quantized vectors take only ~2.5 GB to 4 GB on disk, a single developer workstation can easily hold and query the entire production dataset locally.
+
+### 25.1 Local vs. Multi-Cloud Parity Stack
+
+| Architectural Layer | Local Development Stack (Laptop / Workstation) | Multi-Cloud Production Stack (AWS / Azure / GCP) | Parity & Portability Mechanism |
+|---|---|---|---|
+| Object Storage (Data Lake) | Local Filesystem (`./data_lake/`) or MinIO (S3-compatible container) | AWS S3 / Azure ADLS Gen2 / GCP GCS | `fsspec` / S3A URI Abstraction: Code points to `s3://lake/...` or `file:///lake/...` via environment config. |
+| Table Format & Compute | DuckDB (Embedded in-process SQL engine over Parquet/Iceberg) | Apache Spark / Trino / Snowflake over Apache Iceberg | SQL & Parquet Standard: DuckDB reads and writes identical Parquet/Iceberg files on a single machine with zero JVM overhead. |
+| Taxonomy Registry | SQLite (or containerized PostgreSQL via Docker Compose) + Local Git Repo | Managed PostgreSQL (RDS / Cloud SQL) + Git | Schema Migration Parity: Identical DDL schemas and versioned YAML/JSON taxonomy artifacts exported to Parquet. |
+| Workflow Orchestration | Dagster / Prefect (Local dev server) or Taskfile / Make | Dagster Cloud / Managed Airflow / Cloud Composer | Declarative Assets: Pipeline steps are defined as storage-agnostic assets reading/writing Parquet partitions. |
+| Embedding & Classification | ONNX Runtime / Ollama / llama.cpp (Apple Silicon Metal / local CPU/GPU) | vLLM / Hugging Face TEI (GPU nodes) or Cloud Batch APIs | Pre-Computed Vector Sync: Devs pull pre-embedded Parquet slices from cloud object storage for the 2M backfill, using local ONNX only for small test deltas. |
+| Vector Serving Engine | Chroma (Persistent local mode with HNSW) | AWS OpenSearch / Azure AI Search / GCP Vertex Vector Search | Query AST Translator (DAL): Application code talks only to your internal repository interface, never directly to Chroma or cloud SDKs. |
+
+### 25.2 Physical Representation on a Local Workstation
+
+For a developer working with all 2 million records locally, physical disk layout and memory management are critical so the laptop does not swap or freeze.
+
+**Local Directory & File Layout:**
+
+```text
+./local_ecosystem/
+├── lake/
+│   ├── raw/                  # Raw regulatory CSV/JSON drops (~1.2 GB)
+│   ├── canonical/            # Partitioned ZSTD Parquet files (~850 MB total)
+│   │   └── year_month=202611/product=MORTGAGE/part-0.parquet
+│   ├── taxonomy_registry/    # Versioned Parquet & JSON lookup tables (~5 MB)
+│   └── vector_lake/          # Pre-computed 512d SQ8 int8 embeddings (~1.4 GB)
+│       └── model=bge_base_512d_sq8/part-0.parquet
+├── state/
+│   └── taxonomy.db           # Local SQLite/Postgres state for taxonomy governance
+└── chroma_db/                # Local Chroma persistence directory (~3.2 GB)
+    ├── chroma.sqlite3        # Metadata B-Trees & collection catalog
+    └── <collection-uuid>/    # Memory-mapped HNSW binary segments
+```
+
+### 25.3 Local Compute & Memory Mechanics (2M Records on 16GB–32GB RAM)
+
+- **Zero-Copy Analytics with DuckDB:** Instead of loading 2 million rows into pandas/RAM, DuckDB streams directly from the local `canonical/*.parquet` files using vectorized execution, running full aggregations and taxonomy joins in < 500 milliseconds using < 500 MB RAM.
+- **Pre-Computed Vector Hydration (Avoid Local Re-Embedding):** Embedding 2 million records on a laptop CPU takes hours. In this architecture, the CI/CD or data engineering pipeline publishes the Vector Parquet Lake to shared cloud storage. A local developer runs a single sync command to download the ~1.4 GB `vector_lake` Parquet files and bulk-loads them into local Chroma in ~3 to 5 minutes.
+- **Two Local Developer Profiles (Data Tiers):**
+  - **Full-Scale Mode (2M records, ~3.5 GB RAM):** Loads the entire `vector_lake` into Chroma with memory-mapped (mmap) HNSW segments for realistic latency, memory profiling, and recall benchmarking.
+  - **Fast-Iteration Mode (50K stratified sample, ~150 MB RAM):** A deterministic 2.5% sample partitioned by `l1_product_code` that spins up in < 5 seconds for rapid UI, API, and Query AST testing.
+
+### 25.4 Local Development Environment Topology
+
+To keep local setup simple and cloud-faithful, package the local runtime into two lightweight components:
+
+1. **Docker Compose Infrastructure Profile (`infra-local`):**
+   - **MinIO:** Emulates S3 buckets locally so developers can test S3 multipart uploads, IAM-style bucket policies, and Iceberg catalog commits offline.
+   - **PostgreSQL:** Runs the exact production DDL for the Tier 1/2/3 Taxonomy Registry and Cross-Walk tables.
+2. **Host-Native Execution Profile (`compute-local`):**
+   - **DuckDB + Chroma + FastAPI DAL:** Run natively on the host OS (macOS/Linux/Windows) rather than inside Docker containers. Running Chroma and DuckDB natively avoids Docker Desktop filesystem mount bottlenecks (virtiofs / osxfs) when memory-mapping multi-gigabyte HNSW index files and scanning Parquet partitions.
+
+---
+
+## 26. Why not Postgres or MongoDB as the data lake
+
+You can use PostgreSQL (with pgvector) or MongoDB (with Atlas Vector Search) as an **operational store** or hybrid database. However, in a multi-cloud ecosystem (Chroma, AWS, Azure, GCP) processing 2 million regulatory complaints, making either one your primary **Data Lake (System of Record)** introduces major architectural, economic, and portability bottlenecks compared to an Object Storage + Parquet/Iceberg lake.
+
+### 26.1 Local development nuance
+
+When you narrow the question down to **local development**, comparing Postgres (pgvector) and MongoDB against the Parquet + DuckDB + Chroma stack becomes more nuanced. On a single laptop with 2 million records, Postgres and MongoDB are actually quite viable—but they introduce specific architectural trade-offs that affect multi-cloud portability.
+
+### 26.2 Why not Postgres (pgvector) for Local Development?
+
+Postgres is the strongest alternative to the current local setup, because a single container can act as your Taxonomy Registry, Analytical Store, and Vector Database (pgvector). However, it introduces four friction points for local developers:
+
+- **Heavy Bulk-Loading & Index Build Overhead:** Loading 2 million vectors into pgvector and building an HNSW index locally takes 15 to 40 minutes of heavy CPU and disk I/O (Write-Ahead Logging / WAL). By contrast, bulk-loading pre-computed Parquet vectors into Chroma takes 3 to 5 minutes.
+- **Storage Bloat on a Laptop:** Postgres stores data in row-oriented 8KB pages with MVCC transaction overhead, TOAST tables for long complaint narratives, and heavy B-Tree/HNSW indexes. A 2M-record dataset that takes ~4.5 GB total in Parquet + Chroma will easily expand to 12 GB–18 GB inside a local Postgres volume.
+- **Container Disk I/O Bottlenecks:** Running Postgres with 2M vectors inside Docker Desktop (especially on macOS or Windows) suffers from virtualized filesystem overhead during index builds and vacuuming. DuckDB and Chroma run natively in-process with zero daemon overhead.
+- **False Architectural Assumptions (The Biggest Risk):** If developers build against Postgres locally, they inevitably rely on SQL JOINs between vector similarity (`<=>`) and relational taxonomy tables. When you deploy to AWS OpenSearch, Azure AI Search, or GCP Vertex Vector Search, those engines cannot perform relational joins at query time. Parquet + Chroma forces developers to respect the strict flat-metadata pre-filtering contract from day one.
+
+**Where Postgres Does Belong Locally:** Keep local Postgres small (~5 MB) strictly for the Taxonomy Registry & Cross-Walk state, **not** for the 2M complaint vectors.
+
+### 26.3 Why not MongoDB for Local Development?
+
+Even though MongoDB Community Edition supports local Atlas Vector Search via `mongot` containers, using it as a local data lake for 2 million records creates major bottlenecks:
+
+- **Uncompressed BSON Footprint:** MongoDB stores every complaint document as verbose BSON, repeating field names (`"product"`, `"issue"`, `"narrative"`, `"embedding"`) 2 million times. Locally, 2M records with 512-dim float arrays will consume 18 GB–25 GB of disk space, compared to ~2.2 GB in columnar Parquet.
+- **Slow Analytical Aggregations:** Regulatory workflows require frequent local slicing (e.g., “Group 2M complaints by Organization, Year, and Tier-1 Issue”). MongoDB’s aggregation pipeline scans documents sequentially and struggles with memory limits (100MB stage caps unless spilling to disk), whereas DuckDB scans columnar Parquet in < 500ms.
+- **Multi-Container Memory Tax:** Running local MongoDB + the `mongot` Java search sidecar process requires 6 GB–8 GB of dedicated RAM just to stay idle, leaving little headroom on a 16GB developer laptop.
+- **No Multi-Cloud Object Lake Parity:** MongoDB locks your local data inside proprietary WiredTiger storage files. You cannot directly push WiredTiger files to S3, ADLS, or GCS to hydrate cloud vector stores—you would have to export them back out to Parquet/JSONL anyway.
+
+### 26.4 Local Development Comparison Matrix (2M Records)
+
+| Architectural Metric | Parquet + DuckDB + Chroma (Recommended) | Local Postgres (pgvector) | Local MongoDB (mongot) |
+|---|---|---|---|
+| Total Local Disk Footprint | ~4.5 GB (Compressed Parquet + mmap HNSW) | ~14 GB (Heap + WAL + HNSW + TOAST) | ~22 GB (BSON + WiredTiger + Lucene) |
+| Initial 2M Data Hydration | 3–5 mins (Direct Parquet stream) | 15–40 mins (INSERT + HNSW build) | 20–45 mins (BSON import + Lucene index) |
+| Idle RAM Overhead | ~0 MB (In-process / on-demand) | ~1.5–3 GB (Shared buffers + daemon) | ~6–8 GB (mongod + JVM mongot) |
+| 2M Group-By Analytics | < 0.5 sec (Vectorized columnar scan) | 3–8 sec (Row scan / parallel workers) | 10–30+ sec (Document scan) |
+| Multi-Cloud Parity | 100% (Files match S3/ADLS/GCS; filter AST matches Cloud Vector DBs) | Low (Tempts devs to use SQL joins unsupported by cloud vector DBs) | Low (Proprietary BSON/MQL doesn’t map to OpenSearch/Vertex/Azure) |
+
+### 26.5 Summary Architectural Rule for Local Dev
+
+Use **Parquet + DuckDB + Chroma** locally not just because it is lighter on a laptop, but because it enforces the exact same physical and query constraints as your cloud production environment:
+
+1. **Parquet** gives you zero-copy file portability to S3, ADLS, and GCS.
+2. **DuckDB** replaces cloud Spark/Snowflake for instant local analytics.
+3. **Chroma** enforces flat metadata filtering just like OpenSearch, Azure AI Search, and Vertex Vector Search.
+
+---
+
+## 27. Hybrid local serving: Chroma vs optional pgvector
+
+To give developers seamless local agility without sacrificing cloud portability, design a **Swappable Vector Serving Profile** on top of a single Parquet + DuckDB canonical lake.
+
+In this architecture, the data lake and taxonomy registry never change. Developers simply toggle an environment variable (`VECTOR_BACKEND=chroma` or `VECTOR_BACKEND=pgvector`) to swap the serving adapter behind your Query AST Translator (DAL).
+
+### 27.1 Hybrid Local Architecture Topology
+
+The local environment is split into two distinct zones: **Permanent Lake Storage** (shared by both profiles) and **Pluggable Serving Runtimes** (started on demand).
+
+```text
+[Canonical Parquet Lake (./lake/)] + [DuckDB Analytical Engine]
+                        │
+                        ▼ (Shared Hydration Stream)
+         ┌──────────────────────────────┐
+         │  Query AST Translator (DAL)  │  <── Application / API
+         └──────────────┬───────────────┘
+                        │
+        ┌───────────────┴───────────────┐
+        ▼ (Profile A: Default)          ▼ (Profile B: Optional)
+[Chroma Persistent Engine]      [Postgres 17 + pgvector Container]
+  • Host-native execution         • Docker Compose profile
+  • Sub-5 min hydration           • Tests SQL/Hybrid parity
+  • Maps to OpenSearch/Vertex     • Maps to AWS Aurora / GCP AlloyDB
+```
+
+### 27.2 Profile A vs. Profile B: Architectural Roles
+
+#### Profile A: The Fast Iteration Profile (`VECTOR_BACKEND=chroma`)
+
+- **When to use:** Daily feature development, UI work, taxonomy rule tuning, and fast local smoke tests.
+- **Physical Runtime:** Runs natively on the host OS (no Docker overhead) reading memory-mapped HNSW segments from `./chroma_db/`.
+- **Data Scale:**
+  - Supports the 50K stratified sample (hydrates in < 5 seconds) for rapid branch switching.
+  - Supports the full 2M dataset (~3.2 GB on disk) when testing recall or memory behavior.
+- **Cloud Parity Target:** Mirrors dedicated vector engines (AWS OpenSearch, Azure AI Search, GCP Vertex Vector Search) where relational joins are prohibited and all filtering uses flat metadata predicates.
+
+#### Profile B: The Relational-Vector Parity Profile (`VECTOR_BACKEND=pgvector`)
+
+- **When to use:** Integration testing before deploying to AWS Aurora PostgreSQL, Azure Database for PostgreSQL, or GCP AlloyDB, or when testing complex transactional metadata updates.
+- **Physical Runtime:** Packaged as an opt-in Docker Compose profile (`--profile pgvector`) so it consumes zero RAM or CPU unless explicitly started.
+- **Resource Guardrails (Laptop Protection):**
+  - **Volume Persistence:** Store Postgres data in a named Docker volume (`pgdata_2m`) so developers only pay the 15–20 minute HNSW index build cost once, rather than every time containers restart.
+  - **Memory Cap:** Explicitly constrain the container to 4 GB RAM (`shared_buffers=1GB`, `maintenance_work_mem=1GB`) so HNSW graph construction never triggers macOS/Windows swap thrashing.
+  - **Strict Schema Isolation:** Mirror the exact same flat metadata table structure used in Chroma—forbidding developers from writing ad-hoc JOINs against the Taxonomy Registry inside vector queries, preserving portability to non-SQL cloud targets.
+
+### 27.3 Shared Hydration & Governance Mechanics
+
+To prevent drift between local Chroma, local pgvector, and cloud targets, enforce three architectural rules:
+
+1. **Single Hydration Pipeline (Parquet-to-Target):** Both Chroma and pgvector read directly from the exact same pre-computed `vector_lake/*.parquet` files. Neither engine ever invokes the embedding model directly.
+2. **Idempotent Manifest Tracking:** Maintain a lightweight local state file (`hydration_manifest.json`) recording the `taxonomy_version`, `embedding_model_id`, and `parquet_snapshot_hash` currently loaded into each local engine. When a developer pulls updated Parquet files, the startup script automatically detects version skew and refreshes only the stale local index.
+3. **Golden Query Verification Suite:** Maintain a curated set of 50–100 benchmark queries (covering edge-case taxonomy filters, organization aliases, and semantic similarity) with expected `complaint_id` top-10 results. Developers run this suite locally against both Chroma and pgvector to verify that the Query AST Translator produces consistent recall across engines before pushing to CI/CD.
+
+### 27.4 Summary Developer Workflow
+
+- **90% of daily work:** Developer runs DuckDB + Host Chroma (zero containers, < 1 GB RAM footprint, instant startup).
+- **10% pre-release validation:** Developer spins up the pgvector Docker profile, hydrates from the local Parquet lake, runs the Golden Query Suite to verify relational-vector parity, and tears down the container.
+
+---
+
+## 28. CI/CD promotion & multi-cloud release pipeline
+
+To take the multi-cloud vector ecosystem from a local workstation into automated production across AWS, Azure, and GCP, the CI/CD architecture must treat **code**, **taxonomy definitions**, and **vector artifacts** as **decoupled release pipelines**.
+
+Because re-embedding 2 million records is expensive and slow, separate **fast software/taxonomy releases** from **heavy vector-model releases**.
+
+### 28.1 The Three Decoupled Promotion Tracks
+
+Do not bundle everything into a single monolithic deployment pipeline. Structure CI/CD into three independent tracks that converge at the serving layer:
+
+- **Track 1: Application & Query AST Track (Fast — Minutes)**
+  - **What moves:** API services, Query AST Translators (Chroma, OpenSearch, AI Search, Vertex, pgvector), and UI components.
+  - **Trigger:** Every pull request / merge to main.
+  - **Validation:** Runs the Golden Query Suite locally/in CI against the 50K sample on both Chroma and pgvector containers to verify zero filter-translation regressions.
+- **Track 2: Taxonomy & Cross-Walk Track (Medium — 10–15 Minutes)**
+  - **What moves:** Versioned Tier 1/2/3 taxonomy definitions (YAML/JSON in Git) and Organization Entity alias tables.
+  - **Trigger:** Merge to the taxonomy-registry repository.
+  - **Execution:** Updates the authoritative PostgreSQL Registry, runs a lightweight metadata-only transformation on the Canonical Parquet Lake (updating tags without re-computing embeddings), and pushes metadata patches to active vector stores.
+- **Track 3: Embedding Model & Full Re-Index Track (Heavy — Hours, Scheduled/Manual)**
+  - **What moves:** Embedding model upgrades (e.g., migrating from 512d to 768d) or major chunking template changes.
+  - **Trigger:** Explicit release tag (`model-v2.0`).
+  - **Execution:** Runs once on a single primary compute cloud (wherever GPU spot/batch rates are lowest) to generate a new Vector Parquet Lake partition, then replicates the resulting Parquet files to the other clouds.
+
+### 28.2 Multi-Cloud Artifact Replication & Hydration Topology
+
+Instead of running three separate embedding pipelines on AWS, Azure, and GCP, adopt a **Hub-and-Spoke Artifact Distribution Model**:
+
+```text
+[Git + CI Runner] ──► [Primary Compute Hub (e.g., AWS / GCP Batch)]
+                             │  (Generates Canonical & Vector Parquet once)
+                             ▼
+                  [Primary Object Lake (S3 / GCS)]
+                             │
+             ┌───────────────┼───────────────┐ (Async Object Replication)
+             ▼               ▼               ▼
+       [AWS S3 Lake]   [Azure ADLS]    [GCP GCS Lake]
+             │               │               │
+             ▼               ▼               ▼
+      [AWS OpenSearch] [Azure AI Search] [GCP Vertex AI]
+      (Blue/Green Hydrate) (Blue/Green)   (Blue/Green)
+```
+
+- **Zero Duplicate Compute:** You pay for embedding inference and LLM taxonomy classification once. Cross-cloud object replication (via rclone or cloud-native storage transfer services) moves the ~2.2 GB compressed Parquet lake across AWS, Azure, and GCP in under two minutes for pennies.
+- **Immutable Snapshot Tagging:** Every release publishes a `release_manifest.json` alongside the Parquet files containing `schema_version`, `taxonomy_version`, `embedding_model_hash`, and `row_count_checksum`. Cloud bulk loaders refuse to ingest unless the manifest checksum passes validation.
+
+### 28.3 Zero-Downtime Blue/Green Vector Rollouts
+
+Cloud vector databases cannot safely mutate 2 million vectors in place during major taxonomy or model updates without causing query latency spikes or mixed-version search results. Enforce a **Blue/Green Index Alias Pattern** across all targets:
+
+1. **Provision Green Target:** When a new `release_manifest.json` lands in S3, ADLS, or GCS, a cloud-native orchestration job spins up an isolated Green index (a new OpenSearch index, Azure AI Search index, Vertex index endpoint, or Postgres table).
+2. **Bulk Hydrate from Parquet:** The cloud bulk loader streams the 2M vectors and flat metadata directly from local cloud object storage into the Green index (~10–20 minutes).
+3. **Automated Quality Gates (Smoke & Recall Gate):** Before routing live user traffic, the pipeline executes the Golden Query Suite against the Green index and checks three SLAs:
+   - **Completeness Gate:** Document count matches `release_manifest.json` within 0.01%.
+   - **Recall Gate:** Recall@10 against the benchmark set meets or exceeds the Blue baseline.
+   - **Latency Gate:** P95 query latency under synthetic load stays under target threshold (e.g., < 80ms).
+4. **Atomic Traffic Cutover:** Once gates pass, the pipeline flips the routing pointer (OpenSearch Index Alias, Azure AI Search Alias, Vertex Endpoint traffic split, or Postgres View swap) from Blue to Green with zero downtime.
+5. **Rollback & Retention Window:** Keep the Blue index warm (or snapshotted) for 24–48 hours for instant rollback, then decommission it to reclaim compute and RAM costs.
+
+### 28.4 End-to-End Environment Promotion Matrix
+
+| Environment | Compute & Storage Stack | Dataset Scale | Promotion Gate |
+|---|---|---|---|
+| Local Dev | DuckDB + Host Chroma / Optional pgvector | 50K Sample (Fast) / 2M Full (Parity) | Unit tests + Golden Query AST parity check |
+| CI / PR Ephemeral | GitHub Actions / GitLab CI + DuckDB + Chroma | 50K Stratified Sample | Automated schema lint, taxonomy DAG cycle check, AST tests |
+| Staging (Multi-Cloud) | Single-node OpenSearch / Basic AI Search / Small Vertex | Full 2M Production Mirror | Full Blue/Green hydration dry run + Recall@10 & P95 latency SLA |
+| Production (AWS/Azure/GCP) | Multi-AZ HA Clusters with SQ8 Quantization | Full 2M + Daily Micro-Batches | Canary alias switch + automated drift & query latency alerts |
+
+
+---
+
+## 29. Observability, drift detection & FinOps governance
+
+To complete the multi-cloud vector architecture, the **Observability, Drift Detection, and FinOps Governance** layer must monitor not only traditional infrastructure health (CPU/RAM/latency) but also **semantic search quality**, **taxonomy accuracy**, and **cross-cloud vector economics**.
+
+### 29.1 Semantic & Data Drift Detection (Protecting Search Quality)
+
+Unlike traditional SQL databases, a vector search engine can appear healthy (returning HTTP 200 in 25ms) while silently returning irrelevant results due to data drift or taxonomy erosion. Implement three automated drift monitors:
+
+- **Embedding Distribution Drift (Covariate Shift):**
+  - **What to monitor:** Track the cosine distance distribution between incoming daily complaint vectors and your static Tier 1 / Tier 2 category centroids stored in the Taxonomy Registry.
+  - **Trigger threshold:** If the rolling 7-day average distance to known centroids increases beyond a statistical threshold (e.g., > 2 standard deviations), flag an **Emergent Topic Alert**—indicating consumers are reporting a novel issue, product bug, or scam pattern not captured by current taxonomy rules.
+- **Taxonomy & Entity Coverage Drift:**
+  - **What to monitor:** Track the percentage of daily ingested complaints falling into “Other / Uncategorized” buckets or matching “Unresolved Organization Alias” records.
+  - **Trigger threshold:** When unmapped company names or low-confidence Tier 2 classifications exceed 5% of daily volume, route those samples to a human-in-the-loop review queue to update the Taxonomy Cross-Walk Table.
+- **Retrieval Quality & Zero-Hit Monitoring:**
+  - **What to monitor:** Log user query telemetry inside your Query AST Translator (DAL)—tracking empty result rates (when over-restrictive pre-filters return zero vectors) and downstream click/citation engagement.
+  - **Auto-relaxation signal:** High zero-hit rates on valid taxonomy filters signal that pre-filter predicates are too narrow, informing automated fallback rules (e.g., broadening from `L4_SubIssue` to `L3_Issue`).
+
+### 29.2 Multi-Cloud Observability Architecture (Unified Telemetry)
+
+Because the serving layer spans Chroma (local), AWS OpenSearch, Azure AI Search, and GCP Vertex Vector Search, avoid fragmented cloud-native dashboards. Centralize telemetry at the Abstraction Gateway (DAL) using open standards.
+
+- **Standardized Telemetry Backbone:** Instrument your FastAPI/gRPC Query Service with OpenTelemetry (OTel), exporting traces, metrics, and structured query logs to a single observability backend (e.g., Grafana Stack / Prometheus / Tempo or Datadog).
+- **Four Core Golden Signals for Vector Serving:**
+  1. **End-to-End vs. Engine Latency Breakdown:** Separate AST Translation Time, Pre-Filter Execution Time, HNSW Graph Traversal Time, and Canonical Hydration Time so you know whether a bottleneck sits in metadata filtering or vector search.
+  2. **Recall@K Shadow Benchmarking:** Run an asynchronous background replay job (1% traffic sample) comparing fast quantized indexes (SQ8 / Tree-AH) against an exact brute-force (Flat) scan on a small audit slice to verify recall stays above 95%.
+  3. **Index Freshness Lag (Data SLA):** Track the timestamp delta between `date_received` in the Canonical Parquet Lake and the newest `indexed_at` watermark across AWS, Azure, and GCP, alerting if any cloud falls behind its 24-hour ingestion SLA.
+  4. **Segment & Shard Skew:** Monitor memory pressure and document distribution across OpenSearch shards, Azure search units, and Vertex replicas to catch hot partitions (e.g., when a single major bank accounts for 20% of all complaints).
+
+### 29.3 FinOps Governance (Controlling Multi-Cloud Vector Spend)
+
+Vector databases are notoriously expensive because HNSW indexes keep high-dimensional vectors pinned in RAM 24/7. Enforce four FinOps controls across AWS, Azure, and GCP:
+
+- **Compute & Storage Tiering (Hot vs. Cold Partitioning):**
+  - **Hot Serving Tier (Rolling 18 Months, ~650K vectors):** Kept in memory-optimized HNSW nodes across active clouds for sub-50ms interactive analyst triage.
+  - **Cold Archive Tier (Historical > 18 Months, ~1.35M vectors):** Demoted out of expensive RAM-bound vector clusters into disk-backed ANN (pgvectorscale DiskANN / memory-mapped storage) or queried on-demand via DuckDB/Spark batch scans over the Canonical Parquet Lake, cutting active cloud RAM spend by 60%–70%.
+- **Single-Compute Inference Rule (Zero Redundant GPU Spend):**
+  - Enforce via CI/CD policy that no cloud target ever runs its own embedding inference. All embedding and LLM classification compute executes once on whichever cloud offers the lowest spot/batch GPU pricing, distributing static Parquet artifacts to the remaining clouds.
+- **Blue/Green Orphan Reaper:**
+  - Automated scheduled policies verify that old Blue indexes are decommissioned automatically 48 hours after a successful Green cutover, preventing forgotten multi-gigabyte indexes from silently accruing monthly charges.
+- **Cross-Cloud Cost Attribution Tagging:**
+  - Inject `tenant_id`, `business_unit`, and `query_type` tags at the Query AST Translator layer so cloud compute and query unit costs can be charged back accurately to compliance, legal, or product teams.
+
+### 29.4 End-to-End Architecture Summary
+
+| Architectural Pillar | Core Pattern | Primary Technology / Artifact |
+|---|---|---|
+| System of Record | Decoupled Columnar Lake | Object Storage (S3/ADLS/GCS/Local) + Parquet / Iceberg |
+| Taxonomy Governance | Three-Tier Hybrid Registry | PostgreSQL + Git (Statutory DAG, Operational Facets, Emergent Clusters) |
+| Compute Economics | 512d SQ8 Quantization + Hot/Cold Tiering | Batch GPU inference once → Vector Parquet Lake |
+| Multi-Cloud & Local Parity | Neutral Query AST Translator + Swappable Profiles | DuckDB + Host Chroma (Default) / pgvector (Relational Parity) |
+| Release Engineering | Decoupled Tracks + Blue/Green Alias Swaps | Hub-and-spoke Parquet sync + Golden Query Recall Gates |
+| Observability & FinOps | OpenTelemetry Gateway + Centroid Drift Alerts | OTel + Prometheus/Grafana + 48-hour Blue Index Reaper |
+
+---
+
+## 30. Executive ADR-001 & phased 90-day implementation roadmap
+
+Here is both the **Executive Architecture Decision Record (ADR)** and the **Phased 90-Day Implementation Roadmap** to serve as the actionable blueprint for kicking off the multi-cloud regulatory complaint ecosystem.
+
+### 30.1 Part 1: Executive Architecture Decision Record (ADR-001)
+
+- **Title:** Multi-Cloud Vector & Taxonomy Ecosystem for 2M+ Regulatory Complaints
+- **Status:** Accepted / Baseline Architecture
+- **Context:** We need to ingest, categorize, and semantically search ~2 million categorical regulatory complaints. The system must support lightweight local development on standard laptops, start with Chroma, and scale seamlessly across AWS, Azure, and GCP without vendor lock-in or duplicate compute spend.
+
+#### Key Architectural Decisions
+
+1. **Decoupled Canonical Data Lake (System of Record):** Store raw, cleaned, and enriched records in ZSTD-compressed Apache Parquet / Iceberg on cloud object storage (S3, ADLS, GCS) and local filesystems. Vector databases are treated strictly as ephemeral, rebuildable serving caches, never as primary storage.
+2. **Three-Tier Hybrid Taxonomy:** Govern data using a PostgreSQL + Git registry combining: (1) a deterministic statutory hierarchy with backward-compatible cross-walks, (2) orthogonal operational root-cause facets, and (3) unsupervised semantic micro-clusters for emergent issue discovery.
+3. **Single-Compute Inference & SQ8 Compression:** Standardize on 512-dimensional embeddings with int8 Scalar Quantization (SQ8). Run embedding and LLM classification once on a single primary compute hub, distributing static Vector Parquet artifacts across all clouds to eliminate duplicate GPU spend and cut RAM footprint by ~85%.
+4. **Neutral Query AST Translator (DAL):** Abstract all search and pre-filtering behind an internal Query AST Gateway. Applications never call Chroma, OpenSearch, Azure AI Search, Vertex, or pgvector SDKs directly.
+5. **Local-to-Cloud Parity Profiles:** Equip local developers with DuckDB + Host-Native Chroma (default fast iteration) alongside an opt-in pgvector Docker profile (relational parity), hydrated directly from pre-computed Parquet snapshots.
+6. **Blue/Green Zero-Downtime Rollouts & Hot/Cold Tiering:** Deploy index updates via automated Blue/Green alias swaps gated by a Golden Query recall benchmark, while keeping only the rolling 18-month active window in RAM-backed HNSW nodes.
+
+#### Trade-Offs Accepted
+
+- **Eventual Consistency over Real-Time Streaming:** Regulatory complaints arrive in daily/weekly batches. Adopting micro-batch Parquet pipelines trades sub-second ingestion for massive cost savings and cross-cloud simplicity.
+- **Flat Metadata Contract:** Prohibiting relational joins at vector query time requires denormalizing taxonomy codes into flat metadata payloads during ingestion, ensuring 100% compatibility across non-SQL cloud vector engines.
+
+### 30.2 Part 2: Phased 90-Day Implementation Roadmap
+
+#### Phase 1: Foundation, Canonical Lake & Local Parity (Days 1–30)
+
+**Goal:** Establish the single source of truth, taxonomy governance, and a working local 2M-record developer experience.
+
+- **Weeks 1–2: Canonical Modeling & Taxonomy Registry**
+  - Finalize the logical schemas for `Complaint_Master`, `Organization_Entity` aliases, and the flat Vector Payload contract.
+  - Stand up the Git + PostgreSQL Taxonomy Registry and build the Tier 1 statutory cross-walk tables to normalize historical category drift.
+  - Build the DuckDB ingestion pipeline to transform raw regulatory files into partitioned Canonical Parquet files.
+- **Weeks 3–4: Vector Lake Hydration & Local Stack**
+  - Run the initial batch embedding pass (512-dim + SQ8) to generate the Vector Parquet Lake (~1.4 GB) and publish both the 2M Full Snapshot and 50K Stratified Sample.
+  - Configure the local developer environment (DuckDB + Host Chroma default profile + optional pgvector Docker profile) with idempotent manifest hydration.
+  - Curate the initial 50-to-100 Golden Query Benchmark Suite for recall and filter testing.
+
+#### Phase 2: Abstraction Gateway & Operational Taxonomy (Days 31–60)
+
+**Goal:** Decouple application queries from vendor SDKs and activate Tier 2/3 automated classification.
+
+- **Weeks 5–6: Query AST Translator (DAL)**
+  - Design and build the containerized FastAPI / gRPC Query Gateway with a neutral JSON filter AST.
+  - Implement the first two backend adapters (Chroma and pgvector) and verify identical recall@10 and pre-filtering behavior across both using the Golden Query Suite in CI.
+- **Weeks 7–8: Tier 2 & Tier 3 Automated Enrichment**
+  - Integrate deterministic rules and distilled LLM classification into the batch pipeline to populate Tier 2 Operational Facets (Lifecycle Stage, Failure Mode, Severity).
+  - Deploy rolling 30-day UMAP + HDBSCAN clustering jobs to detect Tier 3 Emergent Micro-Topics and surface novel consumer issues to governance reviewers.
+
+#### Phase 3: Multi-Cloud Expansion, Blue/Green CI/CD & FinOps (Days 61–90)
+
+**Goal:** Replicate the ecosystem across AWS, Azure, and GCP with automated release gates and cost controls.
+
+- **Weeks 9–10: Cloud Adapters & Hub-and-Spoke Sync**
+  - Implement the remaining Query AST adapters for AWS OpenSearch, Azure AI Search, and GCP Vertex AI Vector Search.
+  - Configure automated cross-cloud object replication (rclone / storage transfer) to sync Canonical and Vector Parquet snapshots from the primary compute hub to S3, ADLS, and GCS.
+- **Weeks 11–12: Blue/Green Automation, Observability & FinOps**
+  - Build automated Blue/Green bulk hydration pipelines with mandatory document-count, P95 latency, and Golden Query recall gates before atomic alias cutovers.
+  - Instrument the Query Gateway with OpenTelemetry (latency breakdown, shadow recall checks, and centroid drift alerts).
+  - Enforce Hot/Cold tiering (18-month HNSW retention) and activate the 48-hour Blue Index Orphan Reaper across all three cloud environments.
+
+### 30.3 Day-1 Kickoff Checklist for the Architecture Team
+
+1. Lock the Canonical Parquet Schema (`complaint_id`, `tax_version`, `parent_org_id`, `year_month`, `embedding_sq8`).
+2. Freeze the Embedding Model & Template (confirm 512-dim model snapshot and deterministic context header format).
+3. Define the Neutral Filter AST Specification before any engineer writes a single line of Chroma or cloud SDK integration code.
+
+---
+
+## 31. Day-1 deliverables: Neutral Query AST & Golden Query Suite
+
+Architectural specification for both Day-1 deliverables: the **Neutral Query AST Specification** (which guarantees multi-cloud portability) and the **Golden Query Benchmark Suite** (which guarantees search quality across engines).
+
+### 31.1 Part 1: Neutral Query AST Specification (Portability Contract)
+
+To ensure an application query produces identical filtering behavior on Chroma, pgvector, AWS OpenSearch, Azure AI Search, and GCP Vertex AI Vector Search, the Abstraction Gateway (DAL) must restrict queries to the **Lowest Common Denominator (LCD) Predicate Set** supported natively as pre-filters across all five engines.
+
+#### Logical Request Envelope
+
+Every search request entering the Query Gateway conforms to four strict sections:
+
+- **Vector Intent Block:** Either a raw `query_text` (embedded on the fly by the gateway using the locked model) or a pre-computed `query_vector` array, paired with `top_k` (capped at 100) and `similarity_metric` (locked to cosine).
+- **Deterministic Pre-Filter AST (`filter_tree`):** A recursive boolean expression tree (`AND`, `OR`, `NOT`) evaluating leaf predicates before HNSW graph traversal.
+- **Grouping & Deduplication Directive (`collapse_policy`):** Instructs the gateway how to roll up chunk-level hits back to unique parent records (`group_by: parent_complaint_id`, `aggregation: max_score`), preventing a single long narrative with four chunks from dominating top-10 business counts.
+- **Hydration Projection (`include_canonical_fields`):** Specifies which heavy fields (e.g., `narrative_raw`, `company_response_text`) the gateway should fetch from the Canonical Parquet/DuckDB/Object store post-search, keeping vector indexes lightweight.
+
+#### Supported Leaf Operators & Cross-Cloud Mapping
+
+Limit AST leaf operators strictly to these six primitives so every target engine executes them as true single-pass pre-filters rather than slow post-filters:
+
+| AST Operator | Supported Data Types | Cross-Cloud Native Translation Target |
+|---|---|---|
+| EQ / NEQ | String Enum, Integer, Boolean | Chroma `$eq`/`$ne`, OpenSearch `term`, Azure OData `eq`/`ne`, Vertex `allow_list`/`deny_list` |
+| IN / NOT_IN | List of String Enums or Integers | Chroma `$in`/`$nin`, OpenSearch `terms`, Azure `search.in()`, Vertex multi-token restricts |
+| RANGE (GT, GTE, LT, LTE) | Integer (`year_month` as YYYYMM), Float | Chroma `$gte`/`$lte`, OpenSearch `range`, Azure OData `ge`/`le`, Vertex `numeric_restricts` |
+| PREFIX | Materialized Taxonomy Path String | Translated at Gateway into an explicit IN list of descendant codes using the cached Taxonomy Registry (ensures 100% parity on engines lacking native prefix filters like Vertex). |
+| AND / OR | Nested Predicate Nodes (Max depth: 3) | Mapped to native boolean combinators (`$and`/`$or`, Lucene `bool`, OData `and`/`or`, Vertex conjunctions). |
+
+**Architectural Guardrail:** Strictly forbid wildcard text matching (`LIKE %...%`), regex filters, or cross-entity joins inside the Query AST. If full-text keyword matching is needed alongside semantic search, model it as an explicit Hybrid BM25 + Vector Rank Fusion (RRF) flag handled by the gateway.
+
+#### Automated Zero-Hit Fallback Policy
+
+When regulatory analysts apply overly narrow filters (e.g., filtering simultaneously by a specific `zip_code`, `parent_org_id`, and `L4_SubIssue`), vector search can return zero results. Define a deterministic **Three-Step Relaxation Cascade** inside the gateway:
+
+1. **Step 1 (Exact Execution):** Execute the AST as submitted. If `result_count >= min_results_threshold` (e.g., 5), return immediately.
+2. **Step 2 (Taxonomy Broadening):** Automatically widen the Tier 1 taxonomy filter one level up the hierarchy (`L4_SubIssue` → `L3_Issue`) while preserving organization and date constraints, tagging the response metadata with `relaxation_applied: taxonomy_broadened`.
+3. **Step 3 (Geographic Broadening):** If still below threshold, widen `zip_code` to `state` (`relaxation_applied: geo_broadened`). Never silently drop `parent_org_id` or `year_month` without explicit user consent, as doing so violates compliance audit expectations.
+
+### 31.2 Part 2: Golden Query Benchmark Suite Structure
+
+The Golden Query Suite is the automated quality gate that runs locally on developer laptops, in CI pull requests, and during Blue/Green cloud cutovers. Structure it as a version-controlled JSON/YAML artifact containing **100 curated test cases** stratified across five distinct test categories.
+
+#### Benchmark Suite Stratification (100 Test Cases)
+
+- **Category 1: Pure Semantic & Paraphrase Queries (25 Cases)**
+  - **What it tests:** Consumer phrasing that uses colloquial language instead of regulatory jargon (e.g., “bank froze my account without warning and bounced my rent check”).
+  - **Assertion:** Verifies embedding alignment and ensures expected `L2_SubProduct` and `L3_Issue` complaints appear in Top-10.
+- **Category 2: High-Selectivity Metadata Pre-Filtering (25 Cases)**
+  - **What it tests:** Complex boolean AST trees combining `year_month` ranges, `parent_org_id` aliases, and Tier 1/Tier 2 taxonomy codes (e.g., “Mortgage servicing complaints against Chase between 202401 and 202506”).
+  - **Assertion:** Zero False-Positive Filter Leakage—100% of returned results must strictly satisfy every AST predicate across Chroma, pgvector, OpenSearch, Azure AI Search, and Vertex.
+- **Category 3: Long-Narrative Chunk Deduplication (20 Cases)**
+  - **What it tests:** Complaints exceeding 512 tokens that were split into multiple child chunks during ingestion.
+  - **Assertion:** Verifies that `collapse_policy` correctly deduplicates multiple matching chunks from the same complaint so no `parent_complaint_id` appears twice in Top-10 results.
+- **Category 4: Historical Taxonomy Drift & Alias Resolution (15 Cases)**
+  - **What it tests:** Queries targeting categories that changed names between 2018 and 2026, or companies that underwent mergers/rebrands.
+  - **Assertion:** Confirms that the Taxonomy Cross-Walk and Entity Resolution layers retrieve records seamlessly across both pre-drift and post-drift partitions.
+- **Category 5: Edge Cases & Zero-Hit Relaxation (15 Cases)**
+  - **What it tests:** Contradictory filters, empty narratives, special characters, and ultra-narrow queries designed to trigger the Three-Step Relaxation Cascade.
+  - **Assertion:** Verifies graceful fallback execution, deterministic response flags, and sub-100ms SLA compliance even on worst-case filter combinations.
+
+#### Multi-Engine Pass/Fail Gate Criteria
+
+Every candidate index (local Chroma, local pgvector, or cloud Blue/Green staging) is scored against the exact same **Canonical Ground Truth** (computed via exact brute-force Flat cosine search over the Canonical Parquet Lake):
+
+| Quality Metric | Minimum Promotion Threshold | Architectural Purpose |
+|---|---|---|
+| Filter Compliance Rate | 100.0% (Zero tolerance) | Guarantees the Query AST Translator has zero syntax or boolean precedence bugs on the target cloud engine. |
+| Recall@10 vs. Exact Flat | ≥ 95.0% | Proves that HNSW graph parameters (`ef_search`, `M`) and SQ8 quantization have not degraded semantic accuracy. |
+| NDCG@10 (Ranking Stability) | ≥ 0.92 | Ensures the ordering of top-ranked regulatory evidence remains stable across AWS, Azure, and GCP. |
+| P95 End-to-End Latency | ≤ 80 ms (Hot Tier) | Validates that index sharding and pre-filter execution meet interactive user SLAs before flipping traffic. |
+
+---
+
+## 32. PII/redaction compliance & multi-tenant access control (RBAC)
+
+To complete the security and compliance posture of the multi-cloud vector ecosystem, protect sensitive consumer narratives and enforce strict data isolation across Chroma, AWS, Azure, and GCP.
+
+Vector embeddings are vulnerable to **embedding inversion attacks** (reconstructing original sensitive text from vectors) and **cross-tenant metadata leakage**. Address **PII/Redaction Compliance** and **Multi-Tenant Access Control (RBAC)** directly inside the canonical pipeline and Query AST Gateway.
+
+### 32.1 PII & Redaction Compliance Architecture
+
+Regulatory complaint datasets already contain partial redactions (such as `XXXX` masks), but unredacted names, account fragments, or sensitive attributes frequently slip into free-text narratives.
+
+- **Two-Stage Redaction Gate (Before Embedding):**
+  - **Stage 1 (Deterministic Regex & Checksum Scrubbing):** Strip structured identifiers (SSNs, credit card patterns, routing numbers, email addresses, phone numbers) and normalize inconsistent regulator masks (`XX/XX/XXXX` or `XXXX`) into clean semantic tokens (e.g., `[DATE]`, `[ACCOUNT]`) so embedding quality is not degraded by noise.
+  - **Stage 2 (NLP / NER Entity Masking):** Run a lightweight local Named Entity Recognition pipeline (such as Microsoft Presidio or a fine-tuned DeBERTa NER model) during canonical hydration to mask residual person names, street addresses, and medical/financial identifiers before any text reaches an embedding model.
+- **Air-Gapped Sensitive Vault (Tokenization Pattern):**
+  - Store the unredacted raw intake file in a restricted **Compliance Vault Bucket** (S3/ADLS/GCS with strict IAM and Customer-Managed Encryption Keys / KMS) accessible only to authorized legal auditors.
+  - The Canonical Parquet Lake and all Vector Indexes ingest only the scrubbed `narrative_cleaned` text, ensuring PII never enters vector space or local developer laptops.
+- **Right-to-Erasure (GDPR / CCPA) Propagation:**
+  - Maintain a **Deletion Tombstone Log** in the PostgreSQL Control Plane keyed by `complaint_id`.
+  - When a consumer deletion request arrives, immediately add the `complaint_id` to an active Gateway Exclusion Filter (blocking it from search results in milliseconds) while asynchronous batch jobs purge the record from the Canonical Parquet partitions and active Blue/Green vector indexes.
+
+### 32.2 Multi-Tenant Access Control (RBAC & ABAC)
+
+In a regulatory enterprise, different business units (e.g., Mortgage Servicing vs. Credit Cards), external auditors, or regional compliance teams must only query complaints within their authorized scope. Because Chroma, OpenSearch, Azure AI Search, and Vertex have incompatible security models, enforce **Gateway-Driven Mandatory Filter Injection**.
+
+- **Policy Enforcement Point (PEP) at the Query AST Gateway:**
+  - Never rely on cloud-specific database roles to enforce row-level security. Authenticate callers at the Query AST Gateway via OIDC / OAuth2 JWT tokens containing claims (`tenant_id`, `allowed_products`, `allowed_orgs`, `clearance_level`).
+  - **Mandatory AST Injection:** Before translating a user’s query into Chroma or cloud syntax, the gateway wraps the incoming `filter_tree` inside a non-overridable top-level AND security envelope injecting the caller’s authorized `parent_org_id` and `l1_product_code` list. Even if a user crafts a malicious query, the vector database only searches within their permitted subspace.
+- **Tenant Isolation Tiers (Physical vs. Logical):**
+  - **Logical Isolation (Default for Internal Business Units):** All 2 million complaints live in a shared index partitioned logically via `tenant_id` and `l1_product_code` pre-filters. This maximizes HNSW memory efficiency and simplifies Blue/Green rollouts.
+  - **Physical Isolation (High-Sensitivity / External Audit Tenants):** If strict contractual or regulatory segregation is required for a specific subsidiary or legal investigation, spin up a dedicated Index Namespace / Collection routed dynamically by the gateway based on the caller’s `tenant_id` claim.
+- **Local Developer Security Parity:**
+  - Local developer datasets (both the 2M Full Snapshot and 50K Sample) are generated exclusively from the post-redaction Canonical Parquet Lake with synthetic or stripped tenant identifiers, ensuring developers never pull unredacted consumer PII onto local workstations.
+
+### 32.3 End-to-End Security & Governance Summary
+
+| Security Domain | Architectural Control | Physical Enforcement Layer |
+|---|---|---|
+| PII Prevention | Two-stage regex + NER scrubbing before vectorization | Canonical Hydration Pipeline (Pre-Parquet) |
+| Raw Audit Access | KMS-encrypted Compliance Vault separated from analytics | Restricted Cloud Object Storage Bucket |
+| Row-Level RBAC | Mandatory JWT-claim AND filter injection | Query AST Translator Gateway (PEP) |
+| Right-to-Erasure | Instant Tombstone filter + async Blue/Green purge | PostgreSQL Control Plane + Gateway Cache |
+| Local Dev Safety | Post-redaction snapshots only; zero raw PII synced | Local `vector_lake` Parquet Artifacts |
+
+
+---
+
+## 33. Data products & front ends for business and customers
+
+Shifting from infrastructure to **product strategy**, a 2-million-record regulatory complaint ecosystem—enriched with a three-tier taxonomy, entity resolution, and semantic search—becomes a **strategic intelligence engine**. Instead of serving a single search bar, you can package this foundation into distinct **internal business products** and **external customer-facing experiences**.
+
+### 33.1 Internal Business & Compliance Data Products
+
+These products serve executives, compliance officers, legal teams, and product managers by turning raw complaint volume into proactive risk and revenue protection.
+
+#### Early-Warning Systemic Risk Radar (Compliance & Legal)
+
+- **Core Value:** Detects emerging UDAAP (Unfair, Deceptive, or Abusive Acts or Practices) violations, fair-lending anomalies, or systemic billing bugs weeks before regulators launch formal inquiries.
+- **How It Uses Your Stack:** Monitors Tier 3 Emergent Micro-Topics and embedding centroid velocity to trigger automated alerts when a specific failure mode spikes across a geographic region or demographic segment.
+- **Front-End Experience:** An executive command-center dashboard featuring live spike heatmaps, cluster velocity timelines, and one-click drill-downs into representative consumer narratives.
+
+#### AI Case Resolution Copilot (Customer Operations & Escalations)
+
+- **Core Value:** Cuts resolution time and repeat escalations by arming frontline agents with proven resolutions from historical twin cases.
+- **How It Uses Your Stack:** Takes an incoming customer complaint, runs semantic similarity search via the Query AST Gateway filtered by `L2_SubProduct` and `Failure_Mode`, and surfaces past cases that achieved “Closed with non-monetary relief” without consumer dispute.
+- **Front-End Experience:** An embedded side-panel widget inside Salesforce or ServiceNow displaying the top 3 precedent cases, root-cause tags, and suggested compliant response templates.
+
+#### Product Friction & Churn Intelligence Hub (Product Management)
+
+- **Core Value:** Quantifies the exact financial and reputational cost of specific product flaws (e.g., mobile app login loops, confusing fee disclosures, or third-party vendor delays).
+- **How It Uses Your Stack:** Combines DuckDB columnar aggregations over the Canonical Parquet Lake with Tier 2 Operational Facets to rank product defects by dispute rate and remediation cost.
+- **Front-End Experience:** A self-service product analytics portal with side-by-side cohort comparisons (e.g., comparing complaint drivers before and after a major app release or fee policy change).
+
+#### Competitive & Third-Party Vendor Benchmarking Engine (Strategy & Procurement)
+
+- **Core Value:** Benchmarks your organization’s complaint ratios and SLA timeliness against peer institutions, or holds third-party loan servicers and debt collectors accountable.
+- **How It Uses Your Stack:** Leverages your Organization Entity Resolution dimension (`parent_org_id`) across public regulatory datasets to normalize subsidiary aliases and compare peer performance fairly.
+- **Front-End Experience:** Interactive peer scorecards showing market-share-adjusted complaint rates, response-time percentiles, and topic-level win/loss comparisons.
+
+### 33.2 Customer-Facing & Public Ecosystem Products
+
+Depending on whether you operate as a financial institution, a consumer advocacy platform, or a B2B SaaS provider, you can expose curated slices of this ecosystem directly to end users.
+
+#### Plain-Language Consumer Issue Navigator (Self-Service Support)
+
+- **Core Value:** Helps frustrated customers articulate their issue accurately and route directly to the right resolution workflow without navigating confusing regulatory jargon.
+- **How It Uses Your Stack:** Translates everyday user descriptions into your Tier 1 Statutory and Tier 2 Operational taxonomies using semantic matching, automatically pre-filling support tickets or self-service dispute forms.
+- **Front-End Experience:** A conversational guided triage assistant on your web and mobile portals that turns messy customer descriptions into structured, instant resolution paths.
+
+#### Transparent Resolution & SLA Estimator (Customer Trust Portal)
+
+- **Core Value:** Reduces anxious repeat calls and regulatory escalations by giving customers realistic expectations on how long their specific issue takes to resolve.
+- **How It Uses Your Stack:** Queries historical resolution distributions in the Canonical Parquet Lake for matching `L3_Issue` and `Failure_Mode` cohorts to calculate median turnaround times and common documentation requirements.
+- **Front-End Experience:** A status tracker inside the customer portal showing estimated resolution windows, required proof checklists, and proactive status updates.
+
+#### B2B Embedded Regulatory Intelligence API / Data Marketplace (Monetizable Product)
+
+- **Core Value:** Packages your clean, canonical, pre-embedded regulatory dataset and taxonomy cross-walks as a commercial data product for law firms, fintech compliance teams, and risk consultants.
+- **How It Uses Your Stack:** Exposes your Query AST Gateway and Versioned Parquet Snapshots via metered APIs and cloud data shares (AWS Data Exchange, Snowflake Marketplace, GCP Analytics Hub) protected by your RBAC tenant layer.
+- **Front-End Experience:** A developer portal with interactive query builders, downloadable taxonomy cross-walk schemas, and embedded executive benchmark widgets.
+
+### 33.3 Product-to-Architecture Mapping Summary
+
+| Data Product | Target Persona | Primary Front-End UX | Underlying Engine Capability |
+|---|---|---|---|
+| Systemic Risk Radar | Chief Compliance Officer / Legal | Alert feed + cluster velocity map | Tier 3 HDBSCAN micro-topics + drift detection |
+| Case Resolution Copilot | Escalation & Support Agents | CRM embedded side-panel | Real-time semantic search + `collapse_policy` |
+| Product Friction Hub | Product Managers | Release-impact analytics portal | DuckDB Parquet aggregations + Tier 2 facets |
+| Peer & Vendor Benchmarks | Strategy / Vendor Risk | Comparative scorecard UI | `Organization_Entity` alias roll-ups |
+| Consumer Issue Navigator | Retail Customers | Conversational triage & form filler | Semantic-to-Taxonomy classification |
+| B2B Intelligence API | External Fintechs / Legal | Developer portal + Data Share | Multi-tenant Query AST Gateway + Parquet Lake |
+
 ---
 
 ## Document control
@@ -569,6 +1358,7 @@ Product: … | Sub-product: … | Issue: … | Sub-issue: … | Tag: … | Resol
 | Field | Value |
 |---|---|
 | Title | Complaints Data Classification & Indexing — Brainstorming |
-| Purpose | Preserve architecture / modeling brainstorming for Money Topic classification + multi-cloud vector indexing |
+| Purpose | Preserve architecture / modeling brainstorming for Money Topic classification + multi-cloud vector indexing, plus business/customer data-product strategy |
 | Related product docs | Root `README.md` (embeddings exploration, Chroma recipe); M90 for cloud deployment |
-| Status | Brainstorming notes (not an approved Superpowers implementation plan) |
+| Status | Brainstorming notes (not an approved Superpowers implementation plan) — complete end-to-end blueprint through security/RBAC and product strategy |
+| Last extended | M34-0001 #298 — §§21–33: platform architecture + Observability/FinOps + ADR/roadmap + Query AST/Golden Suite + PII/RBAC + business/customer data products & front ends |
