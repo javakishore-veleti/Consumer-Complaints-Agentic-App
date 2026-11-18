@@ -53,7 +53,7 @@ export class AppSidebarComponent {
     },
     {
       icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M4.5 4.25A.75.75 0 0 1 5.25 3.5h13.5a.75.75 0 0 1 .75.75v15a.75.75 0 0 1-.75.75H5.25a.75.75 0 0 1-.75-.75v-15Zm1.5 1.5v12h12v-12h-12Zm2.25 2.25h7.5a.75.75 0 0 1 0 1.5h-7.5a.75.75 0 0 1 0-1.5Zm0 3.5h7.5a.75.75 0 0 1 0 1.5h-7.5a.75.75 0 0 1 0-1.5Zm0 3.5h5a.75.75 0 0 1 0 1.5h-5a.75.75 0 0 1 0-1.5Z" fill="currentColor"></path></svg>`,
-      name: 'Index',
+      name: 'Vector Stores',
       path: '/datasets/index',
       testId: 'left-nav-index',
     },
