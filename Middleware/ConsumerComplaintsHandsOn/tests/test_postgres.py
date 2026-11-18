@@ -220,7 +220,7 @@ def test_catalog_works_on_postgres(postgres):
         bindings = c.execute(text(f"select count(*) from {SCHEMA_ADMIN}.mios_workflows")).scalar()
         endpoints = c.execute(text(f"select count(*) from {SCHEMA_ADMIN}.app_endpoints")).scalar()
     assert seeded == 5  # four month MIOs + All (0011 / D84)
-    assert bindings == 8  # + ingest_cfpb_imports_wrapper (0021 / M11)
+    assert bindings == 12  # + 3m ingest/index binds (0023 / M17-0001)
     assert endpoints == 7  # + chroma + redis (0019)
 
     datasets = DaoObjectsFactory.get_dataset_dao()
