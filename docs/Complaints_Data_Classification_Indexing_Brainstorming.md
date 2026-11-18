@@ -39,6 +39,7 @@ Architecture and modeling notes for classifying ~1.97M CFPB consumer complaint r
 33. [Data products & front ends for business and customers](#33-data-products--front-ends-for-business-and-customers)
 34. [Serving all three business models: Multi-Persona Experience Layer](#34-serving-all-three-business-models-multi-persona-experience-layer)
 35. [Unified monetization, metering, API gateway & multi-persona front-end stack](#35-unified-monetization-metering-api-gateway--multi-persona-front-end-stack)
+36. [Master system architecture diagram & team topology / resource sizing](#36-master-system-architecture-diagram--team-topology--resource-sizing)
 
 ---
 
@@ -1496,6 +1497,115 @@ Cohesive, multi-cloud architecture spanning every layer of the stack:
 3. **Developer & Release Agility:** Host-native DuckDB + Chroma local parity + decoupled Blue/Green CI/CD gated by the 100-case Golden Query Suite.
 4. **Business & Monetization:** A unified Edge Metering Gateway powering Internal Enterprise Command Centers, Embedded CRM Copilots, Consumer Self-Service Triage, and Metered B2B APIs / Cloud Data Shares.
 
+
+---
+
+## 36. Master system architecture diagram & team topology / resource sizing
+
+Master System Architecture Blueprint alongside the Team Topology & Resource Sizing Plan to execute the 90-day roadmap.
+
+### 36.1 Part 1: Master System Architecture Diagram Specification
+
+This end-to-end topology unifies the Data Lake, Three-Tier Taxonomy, Multi-Cloud Vector Serving, Security Boundaries, and Three Business Product Front Ends into a single visual architecture.
+
+```text
+====================================================================================================
+ZONE 1: INGESTION, GOVERNANCE & CANONICAL LAKE (SINGLE COMPUTE HUB - RUN ONCE)
+====================================================================================================
+[Raw Regulatory Feeds] ──► (1. Two-Stage PII Scrub & NER Gate) ──► [Air-Gapped KMS Compliance Vault]
+                                      │
+                                      ▼
+[Git + Postgres Taxonomy] ──► (2. Canonical Hydration: Spark/DuckDB)
+ (Tier 1 DAG, Tier 2 Facets,          │
+  Org Aliases, Cross-Walks)           ▼
+                      [Canonical Parquet Lake (ZSTD)]  ◄── (3. Tier 3 UMAP+HDBSCAN Drift Loop)
+                                      │
+                                      ▼
+                      (4. Single-Hub Batch Inference: 512d + SQ8 int8)
+                                      │
+                                      ▼
+                      [Vector Parquet Lake + Release Manifest]
+                                      │
+        ┌─────────────────────────────┼─────────────────────────────┐ (Hub-and-Spoke Sync)
+        ▼                             ▼                             ▼
+[Local Dev Storage]           [AWS S3 / GCP GCS]            [Azure ADLS Gen2]
+
+====================================================================================================
+ZONE 2: MULTI-CLOUD & LOCAL VECTOR SERVING (EPHEMERAL BLUE/GREEN CACHES)
+====================================================================================================
+[Local Dev Laptop]            [AWS Production]              [Azure / GCP Production]
+ • DuckDB (Analytics)          • OpenSearch (HNSW SQ8)       • Azure AI Search / Vertex
+ • Host Chroma (Default)       • Aurora pgvector (Opt.)      • Blue/Green Alias Swaps
+ • Docker pgvector (Parity)    • Hot (18m) / Cold Tiering    • Golden Query Recall Gates
+
+====================================================================================================
+ZONE 3: ABSTRACTION, SECURITY & EDGE METERING CONTROL PLANE
+====================================================================================================
+                      [Unified Query AST Gateway (FastAPI / gRPC)]
+                       • Translates Neutral Filter AST to Native Target Syntax
+                       • Injects Mandatory JWT RBAC Filters (PEP) & Tombstone Exclusions
+                       • Executes Zero-Hit 3-Step Relaxation Cascade & Chunk Deduplication
+                       • Emits OpenTelemetry Traces & Shadow Recall Metrics
+                                      │
+                                      ▼
+                      [Edge API Gateway (Kong / Envoy / Cloud APIM)]
+                       • Traffic Lane Isolation & Rate Limiting
+                       • Async Compute Unit (CU) Metering -> Kafka -> Lago/Stripe
+
+====================================================================================================
+ZONE 4: MULTI-PERSONA PRODUCT FRONT ENDS (NEXT.JS MONOREPO + CLOUD DATA SHARES)
+====================================================================================================
+┌───────────────────────────┐ ┌───────────────────────────┐ ┌───────────────────────────┐
+│  INTERNAL ENTERPRISE      │ │  DIRECT CONSUMER          │ │  EXTERNAL B2B & DATA      │
+│  • Systemic Risk Radar    │ │  • Guided Issue Navigator │ │  • Visual AST Query SaaS  │
+│  • Product Friction Hub   │ │  • Plain-Language Triage  │ │  • Metered Developer API  │
+│  • Embedded CRM Copilot   │ │  • Transparent SLA Card   │ │  • AWS/Azure/GCP Shares   │
+│  (Full Post-PII Access)   │ │  (Aggregated SLAs Only)   │ │  (Public Corpus Only)     │
+└───────────────────────────┘ └───────────────────────────┘ └───────────────────────────┘
+```
+
+#### Architectural Boundary Rules
+
+- **Trust Boundary 1 (Vault vs. Lake):** Raw unredacted data never leaves the KMS Compliance Vault; only scrubbed Parquet records enter Zone 1 downstream.
+- **Trust Boundary 2 (Lake vs. Vector DBs):** Vector stores never write back to the Parquet Lake; data flows strictly unidirectional via Blue/Green bulk hydration.
+- **Trust Boundary 3 (Gateway vs. Front Ends):** Front-end applications never hold database credentials or execute raw queries; all access passes through the Edge API Gateway and Query AST Policy Enforcement Point.
+
+### 36.2 Part 2: Team Topology & Resource Sizing (90-Day Execution)
+
+To deliver this ecosystem in 90 days without cross-team bottlenecks, organize around four streamlined, domain-aligned pods totaling **6 to 8 FTEs**.
+
+#### Recommended Pod Structure
+
+| Pod Name | Staffing & Roles | Core Architectural Ownership | Key 90-Day Deliverables |
+|---|---|---|---|
+| Pod 1: Data Platform & Taxonomy | 2 Senior Data Engineers + 0.5 Taxonomist / Domain SME | Canonical Parquet Lake, PII/NER scrubbing gate, Postgres/Git Taxonomy Registry, and Tier 2/3 batch pipelines. | Partitioned Parquet lake, Cross-Walk tables, single-hub 512d SQ8 embedding pipeline, and 2M/50K local snapshots. |
+| Pod 2: Search & Multi-Cloud Infra | 2 Backend / Distributed Systems Engineers | Query AST Translator Gateway, native adapters (Chroma, pgvector, OpenSearch, AI Search, Vertex), and Blue/Green CI/CD. | Neutral AST Gateway, Golden Query Benchmark Suite (100 cases), local parity profiles, and multi-cloud alias swaps. |
+| Pod 3: Product Experience (Front End) | 2 Full-Stack / Front-End Engineers | Next.js Turborepo monorepo, shared TypeScript AST SDK, Internal Command Center, CRM Copilot, and Consumer Navigator. | Role-based Enterprise Radar UI, embeddable CRM Web Component, and Consumer conversational triage widget. |
+| Pod 4: Security, Edge & FinOps | 1 Platform / DevSecOps Engineer (Shared across pods) | Edge API Gateway, OIDC/JWT RBAC injection, CU usage metering pipeline, OpenTelemetry, and Hot/Cold FinOps reapers. | Three-lane API Gateway, Lago/Stripe CU billing integration, OTel drift dashboards, and 48-hour Blue index reaper. |
+
+#### Cloud & Local Infrastructure Sizing Baseline (2M Records)
+
+Because you standardized on 512-dimensional embeddings with int8 Scalar Quantization (SQ8) and 18-month Hot/Cold tiering, your hardware footprint stays remarkably lean across all environments:
+
+- **Local Developer Workstation (Per Engineer):**
+  - **Hardware:** Standard 16GB–32GB RAM laptop (Apple Silicon or x86 Linux/Windows).
+  - **Footprint:** ~4.5 GB disk for full 2M Parquet + Chroma HNSW; < 1 GB active RAM in default mode.
+- **Primary Compute Hub (Batch Inference & Clustering — Run Once):**
+  - **Sizing:** Single spot GPU worker (1x NVIDIA L4 or T4, 16–24 GB VRAM) triggered on demand.
+  - **Runtime:** Processes 2M historical backfill in ~2.5 hours; daily incremental deltas finish in < 3 minutes.
+- **Multi-Cloud Serving Targets (Per Active Cloud — AWS / Azure / GCP):**
+  - **Hot Tier (~650K active vectors, rolling 18 months):** ~1.5 GB RAM footprint with SQ8 HNSW. Run a compact 2-node HA cluster (e.g., 2x `r6g.large` OpenSearch nodes, Azure AI Search S1 2 partitions, or small Vertex `e2-standard-4` replicas) to guarantee sub-50ms P95 latency and zero single-point-of-failure.
+  - **Cold Tier (~1.35M historical vectors, > 18 months):** Stored in ZSTD Parquet on Object Storage (~1.5 GB total, costing pennies/month) and queried on demand via serverless DuckDB/Athena/BigQuery or disk-backed pgvectorscale.
+
+### 36.3 Final Architectural Sign-Off Summary
+
+Complete, production-grade blueprint covering:
+
+- **Data & Taxonomy:** Canonical Parquet Lake + Three-Tier Hybrid Taxonomy + PII Scrubbing Vault.
+- **Portability & DevEx:** Neutral Query AST Gateway + Local DuckDB/Chroma/pgvector parity.
+- **Operations & FinOps:** Hub-and-spoke Blue/Green rollouts + OpenTelemetry drift alerts + 18-month Hot/Cold tiering.
+- **Business Monetization:** Unified Edge Metering Gateway serving Internal Risk/Copilot tools, Consumer Self-Service, and B2B SaaS/Data Shares.
+
 ---
 
 ## Document control
@@ -1505,5 +1615,5 @@ Cohesive, multi-cloud architecture spanning every layer of the stack:
 | Title | Complaints Data Classification & Indexing — Brainstorming |
 | Purpose | Preserve architecture / modeling brainstorming for Money Topic classification + multi-cloud vector indexing, plus business/customer data-product strategy |
 | Related product docs | Root `README.md` (embeddings exploration, Chroma recipe); M90 for cloud deployment |
-| Status | Brainstorming notes (not an approved Superpowers implementation plan) — complete end-to-end blueprint through multi-persona products, monetization, and front-end stack |
-| Last extended | M35-0001 #300 — §§34–35: Multi-Persona Experience Layer + Unified monetization/metering/API gateway + multi-persona front-end stack |
+| Status | Brainstorming notes (not an approved Superpowers implementation plan) — complete end-to-end blueprint including master architecture diagram and 90-day team/resource sizing |
+| Last extended | M35-0001 #300 — §§34–36: Multi-Persona Experience Layer, monetization/FE stack, master architecture diagram + team topology & resource sizing |
