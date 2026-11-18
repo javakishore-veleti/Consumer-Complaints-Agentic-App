@@ -1,0 +1,114 @@
+# Apache Iceberg + Spark local stack for CCAA Raw/Bronze zone (M40-0002 / #311).
+# Aligned with https://iceberg.apache.org/spark-quickstart/ (tabulario/spark-iceberg + REST + object store).
+#
+# Port remaps vs upstream quickstart so Airflow :8080 and Middleware :8000 stay free:
+#   Spark UI          -> 18080
+#   Jupyter           -> 18888
+#   Spark Connect     -> 10000 / 10001 (unchanged)
+#   Iceberg REST      -> 8181
+#   Object store S3   -> 9000 / console 9001
+#
+# Opt-in start (not part of default docker-all-up profiles unless named explicitly):
+#   cd CICD/Local/iceberg && docker compose up -d
+#   docker exec -it cca-spark-iceberg spark-sql
+#
+# Lift Zone (CSV zips) bind-mounted read-only from LOCAL_DATA_PATH_CFPB parent tree.
+# Warehouse persists under ./warehouse (gitignored contents).
+name: cca-iceberg
+
+services:
+  spark-iceberg:
+    image: tabulario/spark-iceberg
+    container_name: cca-spark-iceberg
+    networks:
+      iceberg_net:
+    depends_on:
+      rest:
+        condition: service_started
+      object-store:
+        condition: service_healthy
+      create-bucket:
+        condition: service_completed_successfully
+    volumes:
+      - ./warehouse:/home/iceberg/warehouse
+      - ./notebooks:/home/iceberg/notebooks/notebooks
+      # Lift Zone: same CCA complains_datasets tree Airflow mounts (imports/ + per-MIO zips).
+      - ${CCA_LIFT_ZONE:-${HOME}/runtime_data/apps/datasets/CCA/complains_datasets}:/lift:ro
+    environment:
+      - AWS_ACCESS_KEY_ID=admin
+      - AWS_SECRET_ACCESS_KEY=password
+      - AWS_REGION=us-east-1
+      # Documented for Airflow/PySpark operators (catalog name used in quickstart demos).
+      - CCA_ICEBERG_CATALOG=demo
+      - CCA_LIFT_ZONE_IN_CONTAINER=/lift
+      - CCA_WAREHOUSE_IN_CONTAINER=/home/iceberg/warehouse
+    ports:
+      - "127.0.0.1:${CCA_ICEBERG_NOTEBOOK_PORT:-18888}:8888"
+      - "127.0.0.1:${CCA_ICEBERG_SPARK_UI_PORT:-18080}:8080"
+      - "127.0.0.1:${CCA_ICEBERG_SPARK_CONNECT_PORT:-10000}:10000"
+      - "127.0.0.1:${CCA_ICEBERG_SPARK_CONNECT_PORT_ALT:-10001}:10001"
+    restart: unless-stopped
+
+  rest:
+    image: apache/iceberg-rest-fixture
+    container_name: cca-iceberg-rest
+    networks:
+      iceberg_net:
+    ports:
+      - "127.0.0.1:${CCA_ICEBERG_REST_PORT:-8181}:8181"
+    environment:
+      - AWS_ACCESS_KEY_ID=admin
+      - AWS_SECRET_ACCESS_KEY=password
+      - AWS_REGION=us-east-1
+      - CATALOG_WAREHOUSE=s3://warehouse/
+      - CATALOG_IO__IMPL=org.apache.iceberg.aws.s3.S3FileIO
+      - CATALOG_S3_ENDPOINT=http://object-store:9000
+      - CATALOG_S3_PATH__STYLE__ACCESS=true
+    restart: unless-stopped
+
+  # tabulario/spark-iceberg expects virtual-hosted-style S3 at http://minio:9000
+  object-store:
+    image: rustfs/rustfs:1.0.0
+    container_name: cca-iceberg-object-store
+    environment:
+      - RUSTFS_ACCESS_KEY=admin
+      - RUSTFS_SECRET_KEY=password
+      - RUSTFS_OBS_LOG_STDOUT_ENABLED=true
+      - RUSTFS_SERVER_DOMAINS=minio
+    networks:
+      iceberg_net:
+        aliases:
+          - minio
+          - warehouse.minio
+    ports:
+      - "127.0.0.1:${CCA_ICEBERG_S3_PORT:-9000}:9000"
+      - "127.0.0.1:${CCA_ICEBERG_S3_CONSOLE_PORT:-9001}:9001"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:9000/health/ready"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  create-bucket:
+    image: rustfs/rustfs:1.0.0
+    container_name: cca-iceberg-create-bucket
+    depends_on:
+      object-store:
+        condition: service_healthy
+    networks:
+      iceberg_net:
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - >-
+        curl -sf -o /dev/null --aws-sigv4 aws:amz:us-east-1:s3 --user admin:password
+        --head http://object-store:9000/warehouse ||
+        curl -sSf --aws-sigv4 aws:amz:us-east-1:s3 --user admin:password
+        -X PUT http://object-store:9000/warehouse
+    restart: "no"
+
+networks:
+  iceberg_net:
+    name: cca-iceberg-net
