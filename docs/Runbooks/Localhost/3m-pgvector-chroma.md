@@ -155,7 +155,7 @@ docker exec -it cca-operational-postgres \
 2. Wait until **`completed`**
 3. Airflow: DAG `index_cfpb_chroma` = success
 
-Chroma HTTP: http://127.0.0.1:8100
+Host HTTP check: http://127.0.0.1:8100 — Airflow must use `CCA_CHROMA_URL=http://host.docker.internal:8100` (Sync secrets). `127.0.0.1` inside the worker is not your Mac.
 
 ---
 
@@ -191,5 +191,6 @@ Chroma HTTP: http://127.0.0.1:8100
 | Admin shows failed after Airflow success | Refresh status; ensure latest DAGs mounted (finalize ORM fix). Re-run Start ingest if needed |
 | Compass shows no databases | Connect with auth: `mongodb://root:changeme-local@localhost:27017/?authSource=admin` (user `root` / password `changeme-local` / authSource `admin`). Unauthenticated Compass looks empty even when `consumer_comp_db` exists. |
 | Index empty | Ingest incomplete; or Mongo / pgvector / Chroma URLs not synced |
+| `index_cfpb_chroma` Connection refused | Set `CCA_CHROMA_URL=http://host.docker.internal:8100` in `.env`, Sync secrets, retry (not `127.0.0.1`) |
 
 Related: root README local credentials · path `docs/Runbooks/Localhost/3m-pgvector-chroma.md`
