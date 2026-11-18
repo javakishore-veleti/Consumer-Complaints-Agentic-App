@@ -677,6 +677,239 @@ cfpb_vector_pipeline()
 - **Controlled concurrency (`max_active_tis_per_dagrun=4`):** Runs 4 CSV transformations concurrently without triggering macOS memory swap across 16 GB unified memory.
 - **Reusable cloud stage:** Once `transform_csv_to_parquet` finishes, the 14 `*_ready.parquet` files act as a clean data lake layer ready for parallel upload to AWS S3, Azure Blob Storage, or GCS.
 
+
+##### Airflow in Docker on macOS (local native containers)
+
+Running Airflow inside Docker on macOS changes two things for an M2 MacBook Air (16 GB RAM):
+
+- **CPU inference instead of MPS:** Docker Desktop runs Linux virtual machines on Apple Silicon, which cannot access macOS Metal (`device="mps"`). Set `device="cpu"`—embedding ~10,000 unique short strings on an M2 CPU still takes under 45 seconds.
+- **Docker memory allocation:** By default, Docker Desktop on macOS caps container memory at 2 GB to 8 GB. Open **Docker Desktop → Settings → Resources** and set the Memory limit to **10–12 GB** so Chroma’s HNSW index does not trigger an `OOMKilled` (exit code 137) error during the final bulk load.
+
+**1. Docker setup (`docker-compose.yaml` & `requirements.txt`)**
+
+Add these packages to your Airflow Docker image (or via `_PIP_ADDITIONAL_REQUIREMENTS` for quick local dev):
+
+```text
+chromadb==0.5.23
+sentence-transformers==3.3.1
+pandas==2.2.3
+pyarrow==18.1.0
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.5.1
+```
+
+(Using the CPU-only PyTorch wheel shrinks the Docker image by over 2 GB compared to the default CUDA build.)
+
+Mount your local Mac folders into the Airflow containers in `docker-compose.yaml` so Parquet files and the Chroma database persist on the MacBook’s SSD:
+
+```yaml
+volumes:
+  - ./dags:/opt/airflow/dags
+  - ./data/raw_csvs:/opt/airflow/data/raw_csvs
+  - ./data/staging:/opt/airflow/data/staging
+  - ./data/chroma_db:/opt/airflow/data/chroma_db
+```
+
+**2. Docker-ready Airflow DAG (`cfpb_docker_parallel_pipeline.py`)**
+
+Save this in your mounted `./dags` folder. Notice the container-internal `/opt/airflow/data/...` paths, `device="cpu"`, and `max_active_tis_per_dagrun=3` to keep concurrent Celery/LocalExecutor workers comfortably inside Docker’s RAM ceiling:
+
+```python
+from datetime import datetime
+import gc
+import glob
+import os
+from airflow.decorators import dag, task
+import pandas as pd
+
+# Container paths mapped via docker-compose volumes
+CSV_DIR = "/opt/airflow/data/raw_csvs"
+STAGING_DIR = "/opt/airflow/data/staging"
+CHROMA_PATH = "/opt/airflow/data/chroma_db"
+
+COLS_NEEDED = [
+    "Complaint ID",
+    "Date received",
+    "Product",
+    "Sub-product",
+    "Issue",
+    "Sub-issue",
+    "Company",
+    "State",
+    "Tags",
+    "Company response to consumer",
+    "Timely response?",
+]
+
+
+def build_text_series(df: pd.DataFrame) -> pd.Series:
+  return (
+      "Product: "
+      + df["Product"]
+      + " - "
+      + df["Sub-product"]
+      + " | Issue: "
+      + df["Issue"]
+      + " - "
+      + df["Sub-issue"]
+      + " | Tag: "
+      + df["Tags"].replace("", "None")
+      + " | Resolution: "
+      + df["Company response to consumer"]
+  )
+
+
+@dag(
+    dag_id="cfpb_docker_parallel_pipeline",
+    start_date=datetime(2026, 11, 1),
+    schedule=None,
+    catchup=False,
+    tags=["cfpb", "chromadb", "docker"],
+)
+def cfpb_docker_pipeline():
+
+  @task
+  def list_csv_files() -> list[str]:
+    os.makedirs(STAGING_DIR, exist_ok=True)
+    os.makedirs(CHROMA_PATH, exist_ok=True)
+    files = sorted(glob.glob(os.path.join(CSV_DIR, "*.csv")))
+    if not files:
+      raise FileNotFoundError(f"No CSV files found in {CSV_DIR}")
+    return files
+
+  @task
+  def build_shared_embedding_lookup(csv_files: list[str]) -> str:
+    """Extracts unique text patterns across all 14 CSVs and embeds ONCE on CPU."""
+    from sentence_transformers import SentenceTransformer
+
+    unique_texts = set()
+    for f in csv_files:
+      for chunk in pd.read_csv(
+          f, usecols=COLS_NEEDED, dtype=str, chunksize=100000
+      ):
+        chunk = chunk.fillna("")
+        unique_texts.update(build_text_series(chunk).unique())
+
+    unique_list = list(unique_texts)
+    # CPU inference inside Linux Docker container on M2
+    model = SentenceTransformer("BAAI/bge-small-en-v1.5", device="cpu")
+    vectors = model.encode(
+        unique_list,
+        batch_size=128,
+        show_progress_bar=False,
+        normalize_embeddings=True,
+    )
+
+    lookup_path = os.path.join(STAGING_DIR, "vector_lookup.parquet")
+    pd.DataFrame({
+        "text": unique_list,
+        "embedding": [v.tolist() for v in vectors],
+    }).to_parquet(lookup_path, index=False)
+
+    return lookup_path
+
+  @task(max_active_tis_per_dagrun=3)  # Safe concurrency for Docker RAM limit
+  def transform_csv_to_parquet(csv_path: str, lookup_path: str) -> str:
+    """Parallel worker: joins precomputed vectors & formats metadata for 1 CSV."""
+    lookup_df = pd.read_parquet(lookup_path)
+    vector_map = dict(zip(lookup_df["text"], lookup_df["embedding"]))
+
+    df = pd.read_csv(csv_path, usecols=COLS_NEEDED, dtype=str).fillna("")
+    df = df.drop_duplicates(subset=["Complaint ID"])
+
+    df["text"] = build_text_series(df)
+    df["embedding"] = df["text"].map(vector_map)
+    df["state_clean"] = df["State"].replace("", "UNKNOWN")
+    df["tags_clean"] = df["Tags"].replace("", "None")
+    df["timely_bool"] = df["Timely response?"] == "Yes"
+    df["date_received_int"] = (
+        pd.to_datetime(df["Date received"], errors="coerce")
+        .dt.strftime("%Y%m%d")
+        .fillna("0")
+        .astype(int)
+    )
+
+    out_df = df[[
+        "Complaint ID",
+        "text",
+        "embedding",
+        "Company",
+        "state_clean",
+        "Product",
+        "tags_clean",
+        "Company response to consumer",
+        "timely_bool",
+        "date_received_int",
+    ]]
+
+    # Extract clean filename without extension
+    base_name = os.path.splitext(os.path.basename(csv_path))[0]
+    out_parquet = os.path.join(STAGING_DIR, f"{base_name}_ready.parquet")
+    out_df.to_parquet(out_parquet, index=False, compression="snappy")
+
+    del df, lookup_df, out_df
+    gc.collect()
+    return out_parquet
+
+  @task
+  def load_parquets_to_chroma(parquet_files: list[str]) -> int:
+    """Single-writer bulk loader into mounted Chroma directory."""
+    import chromadb
+
+    client = chromadb.PersistentClient(path=CHROMA_PATH)
+    collection = client.get_or_create_collection(
+        name="cfpb_complaints", metadata={"hnsw:space": "cosine"}
+    )
+
+    seen_ids = set()
+    batch_size = 10000
+
+    for pq_file in parquet_files:
+      df = pd.read_parquet(pq_file)
+      df = df[~df["Complaint ID"].isin(seen_ids)]
+      seen_ids.update(df["Complaint ID"].tolist())
+
+      for start in range(0, len(df), batch_size):
+        sub = df.iloc[start : start + batch_size]
+        metadatas = [
+            {
+                "company": r["Company"],
+                "state": r["state_clean"],
+                "product": r["Product"],
+                "tags": r["tags_clean"],
+                "company_response": r["Company response to consumer"],
+                "timely_response": bool(r["timely_bool"]),
+                "date_received_int": int(r["date_received_int"]),
+            }
+            for r in sub.to_dict(orient="records")
+        ]
+
+        collection.add(
+            ids=sub["Complaint ID"].tolist(),
+            embeddings=sub["embedding"].tolist(),
+            documents=sub["text"].tolist(),
+            metadatas=metadatas,
+        )
+      del df
+      gc.collect()
+
+    return collection.count()
+
+  files = list_csv_files()
+  lookup = build_shared_embedding_lookup(files)
+  mapped_parquets = transform_csv_to_parquet.partial(lookup_path=lookup).expand(
+      csv_path=files
+  )
+  load_parquets_to_chroma(mapped_parquets)
+
+
+cfpb_docker_pipeline()
+```
+
+**Bonus: querying directly from the Mac host**
+
+Because `./data/chroma_db` is mounted as a local volume, you do not even need to query inside Docker—you can point a local Python script or Streamlit app directly at `./data/chroma_db` on the MacBook while leveraging `device="mps"` for instant query encoding.
+
 ## Overall architecture
 
 Capability view (not a folder map):
