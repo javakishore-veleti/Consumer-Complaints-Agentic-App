@@ -2,7 +2,7 @@
 
 **Scope:** README.md only — 1.97M-row dedupe, sizing, batch practices. No product code.
 
-**Status: Open.** Stories left to build: 1 (#288). Stories already done: 0.
+**Status: Closed.** Stories left to build: 0. Stories already done: 1 (#288).
 
 ## 1. Build order
 
@@ -16,5 +16,5 @@
 |---|---|---|---|---|---|
 | #288 | 1 | story-start | Done | 2026-11-18 01:18 | 2026-11-18 01:18 |
 | #288 | 2 | worktree → implement | Done | 2026-11-18 01:18 | 2026-11-18 01:18 |
-| #288 | 3 | commit-push | In progress | 2026-11-18 01:18 | |
-| #288 | 4 | story-complete | — | | |
+| #288 | 3 | commit-push | Done | 2026-11-18 01:18 | 2026-11-18 01:19 |
+| #288 | 4 | story-complete | Done | 2026-11-18 01:19 | 2026-11-18 01:19 |
