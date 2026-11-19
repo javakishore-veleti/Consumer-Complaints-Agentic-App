@@ -10,6 +10,11 @@ URL = "/workflows"
 SEEDED = [
     "download_cfpb_all",
     "filter_cfpb_3_months",
+    "hydrate_chroma_signatures_3m",
+    "hydrate_curated_iceberg_3m",
+    "hydrate_raw_iceberg_3m",
+    "hydrate_refined_iceberg_3m",
+    "hydrate_taxonomy_mode2_3m",
     "index_cfpb_all",
     "index_cfpb_chroma",
     "index_cfpb_pgvector",
