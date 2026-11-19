@@ -4,7 +4,7 @@
 
 **Demoable outcome:** Intellect Risk Radar alert feed from Middleware; click alert → Query AST drill-down (k-anon ≥10). Fixture path works without warehouse.
 
-**Status: Open.** Stories left to build: 0. Stories already done: 3. (closing)
+**Status: Done.** Stories left to build: 0. Stories already done: 3. Closed 2026-11-19 17:50 (feature #358; GitHub Milestone 54).
 
 **GitHub Milestone:** M53 - Internal Systemic Risk Radar MVP (api id 54)
 
@@ -74,7 +74,7 @@ One chat per story. Full **12-step** path (M02 standard). Do **not** abbreviate.
 | #360 | 9 | `/requesting-code-review Story #360` | Done | 2026-11-19 17:50 | 2026-11-19 17:50 |
 | #360 | 10 | `/ccaa-commit-push 360` | Done | 2026-11-19 17:50 | 2026-11-19 17:50 |
 | #360 | 11 | `/finishing-a-development-branch Story #360` | Done | 2026-11-19 17:50 | 2026-11-19 17:50 |
-| #360 | 12 | `/ccaa-story-complete 360` | In progress | 2026-11-19 17:50 | - |
+| #360 | 12 | `/ccaa-story-complete 360` | Done | 2026-11-19 17:50 | 2026-11-19 17:50 |
 | #361 | 1 | `/ccaa-story-start 361` | Done | 2026-11-19 17:49 | 2026-11-19 17:49 |
 | #361 | 2 | `/brainstorming Story #361` | Done | 2026-11-19 17:50 | 2026-11-19 17:50 |
 | #361 | 3 | `/using-git-worktrees Story #361` | Done | 2026-11-19 17:50 | 2026-11-19 17:50 |
@@ -86,4 +86,4 @@ One chat per story. Full **12-step** path (M02 standard). Do **not** abbreviate.
 | #361 | 9 | `/requesting-code-review Story #361` | Done | 2026-11-19 17:50 | 2026-11-19 17:50 |
 | #361 | 10 | `/ccaa-commit-push 361` | Done | 2026-11-19 17:50 | 2026-11-19 17:50 |
 | #361 | 11 | `/finishing-a-development-branch Story #361` | Done | 2026-11-19 17:50 | 2026-11-19 17:50 |
-| #361 | 12 | `/ccaa-story-complete 361` | In progress | 2026-11-19 17:50 | - |
+| #361 | 12 | `/ccaa-story-complete 361` | Done | 2026-11-19 17:50 | 2026-11-19 17:50 |
