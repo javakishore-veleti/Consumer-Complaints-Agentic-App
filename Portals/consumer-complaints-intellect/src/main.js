@@ -52,6 +52,37 @@ export async function runQueryAst(ast, { fetchImpl = fetch, apiBase = API_BASE, 
   return response.json();
 }
 
+export async function fetchRiskRadar({ fetchImpl = fetch, apiBase = API_BASE, source = 'fixture' } = {}) {
+  const response = await fetchImpl(`${apiBase}/intellect/risk-radar?source=${encodeURIComponent(source)}`, {
+    method: 'GET',
+  });
+  if (!response.ok) {
+    let detail = await response.text();
+    try {
+      const parsed = JSON.parse(detail);
+      detail = parsed.detail || detail;
+    } catch {
+      /* keep text */
+    }
+    throw new Error(detail || `HTTP ${response.status}`);
+  }
+  return response.json();
+}
+
+export function applyAlertDrilldown(alert, { astInput, panel } = {}) {
+  if (!alert?.drilldown_ast) {
+    throw new Error('alert missing drilldown_ast');
+  }
+  if (astInput) {
+    astInput.value = JSON.stringify(alert.drilldown_ast, null, 2);
+    astInput.focus();
+  }
+  if (panel?.scrollIntoView) {
+    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  return alert.drilldown_ast;
+}
+
 function renderHits(hits) {
   const list = document.getElementById('results');
   if (!list) return;
@@ -77,6 +108,13 @@ function setAstStatus(message, show = true) {
   el.textContent = message;
 }
 
+function setRadarStatus(message, show = true) {
+  const el = document.getElementById('radar-status');
+  if (!el) return;
+  el.hidden = !show;
+  el.textContent = message;
+}
+
 function renderAstResult(data) {
   const sqlEl = document.getElementById('ast-sql');
   const metaEl = document.getElementById('ast-meta');
@@ -96,6 +134,58 @@ function renderAstResult(data) {
     if (!data.executed) parts.push('translate only (not executed)');
     metaEl.hidden = parts.length === 0;
     metaEl.textContent = parts.join(' · ');
+  }
+}
+
+function renderRadarAlerts(alerts, { onSelect } = {}) {
+  const list = document.getElementById('radar-alerts');
+  if (!list) return;
+  list.innerHTML = '';
+  for (const alert of alerts || []) {
+    const li = document.createElement('li');
+    li.className = 'radar-alert';
+    li.dataset.testid = 'intellect-radar-alert';
+    li.innerHTML = `
+      <div class="radar-alert-head">
+        <span class="radar-severity radar-severity-${alert.severity || 'info'}">${alert.severity || 'info'}</span>
+        <strong>${alert.title || alert.id}</strong>
+      </div>
+      <div class="radar-alert-meta">
+        ${alert.primary_money_topic || '—'} · z=${Number(alert.z_score || 0).toFixed(1)} · n=${alert.current_count ?? '—'}
+        · k-anon ${alert.k_anon_ok ? 'ok' : 'fail'}
+      </div>
+      <button type="button" class="radar-drilldown" data-testid="intellect-radar-drilldown">Open in Query AST</button>
+    `;
+    const btn = li.querySelector('button');
+    btn?.addEventListener('click', () => onSelect?.(alert));
+    list.appendChild(li);
+  }
+}
+
+async function loadRadarAlerts() {
+  setRadarStatus('Loading alerts…');
+  try {
+    const data = await fetchRiskRadar({ source: 'fixture' });
+    const alerts = data.alerts || [];
+    renderRadarAlerts(alerts, {
+      onSelect: async (alert) => {
+        const astInput = document.getElementById('ast-input');
+        const panel = document.querySelector('[data-testid="intellect-ast-panel"]');
+        try {
+          applyAlertDrilldown(alert, { astInput, panel });
+          setAstStatus('Drill-down AST loaded — translating…');
+          const result = await runQueryAst(alert.drilldown_ast, { execute: false });
+          renderAstResult(result);
+          setAstStatus('Translated from Risk Radar alert');
+        } catch (err) {
+          setAstStatus(err instanceof Error ? err.message : 'Drill-down failed');
+        }
+      },
+    });
+    setRadarStatus(alerts.length ? `${alerts.length} alert(s) · ${data.source || 'fixture'}` : 'No alerts');
+  } catch (err) {
+    renderRadarAlerts([]);
+    setRadarStatus(err instanceof Error ? err.message : 'Risk Radar failed');
   }
 }
 
@@ -147,4 +237,14 @@ if (astForm) {
       setAstStatus(err instanceof Error ? err.message : 'Query AST failed');
     }
   });
+}
+
+const radarRefresh = document.getElementById('radar-refresh');
+if (radarRefresh) {
+  radarRefresh.addEventListener('click', () => {
+    void loadRadarAlerts();
+  });
+}
+if (document.getElementById('radar-alerts')) {
+  void loadRadarAlerts();
 }

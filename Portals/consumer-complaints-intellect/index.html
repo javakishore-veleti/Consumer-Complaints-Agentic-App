@@ -11,7 +11,7 @@
       <header>
         <p class="brand">Consumer Complaints Intellect</p>
         <h1>Ask the local index</h1>
-        <p class="lede">Vector search over the local store, plus Query AST against curated Iceberg.</p>
+        <p class="lede">Vector search, Systemic Risk Radar alerts, and Query AST against curated Iceberg.</p>
       </header>
       <form id="query-form" data-testid="intellect-query-form">
         <label>
@@ -34,6 +34,14 @@
       </form>
       <p id="status" data-testid="intellect-status" hidden></p>
       <ul id="results" data-testid="intellect-results"></ul>
+
+      <section class="radar-panel" data-testid="intellect-radar-panel">
+        <h2>Systemic Risk Radar</h2>
+        <p class="lede">Cohort velocity alerts from Middleware (fixture path works without warehouse).</p>
+        <button type="button" id="radar-refresh" data-testid="intellect-radar-refresh">Refresh alerts</button>
+        <p id="radar-status" data-testid="intellect-radar-status" hidden></p>
+        <ul id="radar-alerts" data-testid="intellect-radar-alerts" class="radar-alerts"></ul>
+      </section>
 
       <section class="ast-panel" data-testid="intellect-ast-panel">
         <h2>Query AST (curated)</h2>

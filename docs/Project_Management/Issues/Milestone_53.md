@@ -4,7 +4,7 @@
 
 **Demoable outcome:** Intellect Risk Radar alert feed from Middleware; click alert → Query AST drill-down (k-anon ≥10). Fixture path works without warehouse.
 
-**Status: Open.** Stories left to build: 2. Stories already done: 1.
+**Status: Open.** Stories left to build: 0. Stories already done: 3. (closing)
 
 **GitHub Milestone:** M53 - Internal Systemic Risk Radar MVP (api id 54)
 
@@ -64,26 +64,26 @@ One chat per story. Full **12-step** path (M02 standard). Do **not** abbreviate.
 | #359 | 11 | `/finishing-a-development-branch Story #359` | Done | 2026-11-19 17:45 | 2026-11-19 17:46 |
 | #359 | 12 | `/ccaa-story-complete 359` | Done | 2026-11-19 17:46 | 2026-11-19 17:46 |
 | #360 | 1 | `/ccaa-story-start 360` | Done | 2026-11-19 17:49 | 2026-11-19 17:49 |
-| #360 | 2 | `/brainstorming Story #360` | In progress | 2026-11-19 17:49 | - |
-| #360 | 3 | `/using-git-worktrees Story #360` | Planned | - | - |
-| #360 | 4 | `/writing-plans Story #360` | Planned | - | - |
-| #360 | 5 | `/test-driven-development Story #360` | Planned | - | - |
-| #360 | 6 | `/subagent-driven-development Story #360` | Planned | - | - |
-| #360 | 7 | `/ccaa-commit-push 360 (after each task)` | Planned | - | - |
-| #360 | 8 | `/verification-before-completion Story #360` | Planned | - | - |
-| #360 | 9 | `/requesting-code-review Story #360` | Planned | - | - |
-| #360 | 10 | `/ccaa-commit-push 360` | Planned | - | - |
-| #360 | 11 | `/finishing-a-development-branch Story #360` | Planned | - | - |
-| #360 | 12 | `/ccaa-story-complete 360` | Planned | - | - |
+| #360 | 2 | `/brainstorming Story #360` | Done | 2026-11-19 17:50 | 2026-11-19 17:50 |
+| #360 | 3 | `/using-git-worktrees Story #360` | Done | 2026-11-19 17:50 | 2026-11-19 17:50 |
+| #360 | 4 | `/writing-plans Story #360` | Done | 2026-11-19 17:50 | 2026-11-19 17:50 |
+| #360 | 5 | `/test-driven-development Story #360` | Done | 2026-11-19 17:50 | 2026-11-19 17:50 |
+| #360 | 6 | `/subagent-driven-development Story #360` | Done | 2026-11-19 17:50 | 2026-11-19 17:50 |
+| #360 | 7 | `/ccaa-commit-push 360 (after each task)` | Done | 2026-11-19 17:50 | 2026-11-19 17:50 |
+| #360 | 8 | `/verification-before-completion Story #360` | Done | 2026-11-19 17:50 | 2026-11-19 17:50 |
+| #360 | 9 | `/requesting-code-review Story #360` | Done | 2026-11-19 17:50 | 2026-11-19 17:50 |
+| #360 | 10 | `/ccaa-commit-push 360` | Done | 2026-11-19 17:50 | 2026-11-19 17:50 |
+| #360 | 11 | `/finishing-a-development-branch Story #360` | Done | 2026-11-19 17:50 | 2026-11-19 17:50 |
+| #360 | 12 | `/ccaa-story-complete 360` | In progress | 2026-11-19 17:50 | - |
 | #361 | 1 | `/ccaa-story-start 361` | Done | 2026-11-19 17:49 | 2026-11-19 17:49 |
-| #361 | 2 | `/brainstorming Story #361` | In progress | 2026-11-19 17:49 | - |
-| #361 | 3 | `/using-git-worktrees Story #361` | Planned | - | - |
-| #361 | 4 | `/writing-plans Story #361` | Planned | - | - |
-| #361 | 5 | `/test-driven-development Story #361` | Planned | - | - |
-| #361 | 6 | `/subagent-driven-development Story #361` | Planned | - | - |
-| #361 | 7 | `/ccaa-commit-push 361 (after each task)` | Planned | - | - |
-| #361 | 8 | `/verification-before-completion Story #361` | Planned | - | - |
-| #361 | 9 | `/requesting-code-review Story #361` | Planned | - | - |
-| #361 | 10 | `/ccaa-commit-push 361` | Planned | - | - |
-| #361 | 11 | `/finishing-a-development-branch Story #361` | Planned | - | - |
-| #361 | 12 | `/ccaa-story-complete 361` | Planned | - | - |
+| #361 | 2 | `/brainstorming Story #361` | Done | 2026-11-19 17:50 | 2026-11-19 17:50 |
+| #361 | 3 | `/using-git-worktrees Story #361` | Done | 2026-11-19 17:50 | 2026-11-19 17:50 |
+| #361 | 4 | `/writing-plans Story #361` | Done | 2026-11-19 17:50 | 2026-11-19 17:50 |
+| #361 | 5 | `/test-driven-development Story #361` | Done | 2026-11-19 17:50 | 2026-11-19 17:50 |
+| #361 | 6 | `/subagent-driven-development Story #361` | Done | 2026-11-19 17:50 | 2026-11-19 17:50 |
+| #361 | 7 | `/ccaa-commit-push 361 (after each task)` | Done | 2026-11-19 17:50 | 2026-11-19 17:50 |
+| #361 | 8 | `/verification-before-completion Story #361` | Done | 2026-11-19 17:50 | 2026-11-19 17:50 |
+| #361 | 9 | `/requesting-code-review Story #361` | Done | 2026-11-19 17:50 | 2026-11-19 17:50 |
+| #361 | 10 | `/ccaa-commit-push 361` | Done | 2026-11-19 17:50 | 2026-11-19 17:50 |
+| #361 | 11 | `/finishing-a-development-branch Story #361` | Done | 2026-11-19 17:50 | 2026-11-19 17:50 |
+| #361 | 12 | `/ccaa-story-complete 361` | In progress | 2026-11-19 17:50 | - |

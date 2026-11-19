@@ -37,3 +37,46 @@ label.inline { display: flex; align-items: center; gap: 0.5rem; font-weight: 500
   white-space: pre-wrap;
 }
 #ast-status { margin-top: 1rem; color: var(--muted); }
+.radar-panel { margin-top: 2.5rem; }
+.radar-panel h2 { margin: 0 0 0.35rem; font-size: 1.35rem; }
+#radar-refresh {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid #9bb8cc;
+  border-radius: 0.55rem;
+  padding: 0.45rem 0.9rem;
+  font: inherit;
+  cursor: pointer;
+}
+#radar-status { margin: 0.75rem 0 0; color: var(--muted); }
+.radar-alerts { list-style: none; padding: 0; margin: 1rem 0 0; display: grid; gap: 0.75rem; }
+.radar-alert {
+  background: var(--panel);
+  border-radius: 0.85rem;
+  padding: 0.9rem 1rem;
+  box-shadow: 0 6px 18px rgba(26, 36, 51, 0.06);
+  display: grid;
+  gap: 0.55rem;
+}
+.radar-alert-head { display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap; }
+.radar-severity {
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.45rem;
+  border-radius: 0.35rem;
+  background: #e7f0f7;
+  color: var(--accent);
+}
+.radar-severity-high { background: #fde8e4; color: #9b3418; }
+.radar-alert-meta { color: var(--muted); font-size: 0.9rem; }
+.radar-drilldown {
+  justify-self: start;
+  background: var(--accent);
+  color: white;
+  border: 0;
+  border-radius: 0.55rem;
+  padding: 0.5rem 0.9rem;
+  font: inherit;
+  cursor: pointer;
+}
