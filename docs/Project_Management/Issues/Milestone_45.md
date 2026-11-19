@@ -46,17 +46,17 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
-| #320 | 1 | `/ccaa-story-start 320` | Not started | — | — |
-| #320 | 2 | `/brainstorming Story #320` | Not started | — | — |
-| #320 | 3 | `/using-git-worktrees Story #320` | Not started | — | — |
-| #320 | 4 | `/writing-plans Story #320` | Not started | — | — |
-| #320 | 5 | `/test-driven-development Story #320` | Not started | — | — |
-| #320 | 6 | `/subagent-driven-development Story #320` | Not started | — | — |
-| #320 | 7 | `/ccaa-commit-push 320 (after each task)` | Not started | — | — |
-| #320 | 8 | `/verification-before-completion Story #320` | Not started | — | — |
-| #320 | 9 | `/requesting-code-review Story #320` | Not started | — | — |
-| #320 | 10 | `/ccaa-commit-push 320` | Not started | — | — |
-| #320 | 11 | `/finishing-a-development-branch Story #320` | Not started | — | — |
+| #320 | 1 | `/ccaa-story-start 320` | Done | 2026-11-19 12:24 | 2026-11-19 12:25 |
+| #320 | 2 | `/brainstorming Story #320` | Done | 2026-11-19 12:25 | 2026-11-19 12:25 |
+| #320 | 3 | `/using-git-worktrees Story #320` | Done | 2026-11-19 12:25 | 2026-11-19 12:25 |
+| #320 | 4 | `/writing-plans Story #320` | Done | 2026-11-19 12:25 | 2026-11-19 12:25 |
+| #320 | 5 | `/test-driven-development Story #320` | Done | 2026-11-19 12:25 | 2026-11-19 12:26 |
+| #320 | 6 | `/subagent-driven-development Story #320` | Done | 2026-11-19 12:26 | 2026-11-19 12:26 |
+| #320 | 7 | `/ccaa-commit-push 320 (after each task)` | Done | 2026-11-19 12:26 | 2026-11-19 12:26 |
+| #320 | 8 | `/verification-before-completion Story #320` | Done | 2026-11-19 12:26 | 2026-11-19 12:26 |
+| #320 | 9 | `/requesting-code-review Story #320` | Done | 2026-11-19 12:26 | 2026-11-19 12:26 |
+| #320 | 10 | `/ccaa-commit-push 320` | Done | 2026-11-19 12:26 | 2026-11-19 12:26 |
+| #320 | 11 | `/finishing-a-development-branch Story #320` | In progress | 2026-11-19 12:26 | — |
 | #320 | 12 | `/ccaa-story-complete 320` | Not started | — | — |
 | #321 | 1 | `/ccaa-story-start 321` | Not started | — | — |
 | #321 | 2 | `/brainstorming Story #321` | Not started | — | — |

@@ -20,6 +20,7 @@ npm run local:handson:middlware:all:stop
 npm run local:containers:chroma:stop
 npm run local:containers:mongodb:stop
 npm run local:containers:postgres:stop
+npm run local:containers:iceberg:stop
 ```
 
 Then start:
@@ -28,9 +29,16 @@ Then start:
 npm run local:containers:postgres:start
 npm run local:containers:mongodb:start
 npm run local:containers:chroma:start
+npm run local:containers:iceberg:start
 npm run local:api:migrate
 npm run local:handson:middlware:all:start
 npm run local:portals:all:start
+```
+
+Iceberg Raw DDL (once per warehouse; idempotent):
+
+```bash
+npm run local:iceberg:apply-raw-ddl
 ```
 
 Also ensure local Airflow is up (includes pymongo image):
