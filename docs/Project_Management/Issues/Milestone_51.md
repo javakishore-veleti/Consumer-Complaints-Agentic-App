@@ -4,7 +4,7 @@
 
 **Demoable outcome:** From Admin **Lakehouse**, start separate hydrate workflows; Middleware triggers Airflow; callbacks update status (same loop as Downloads).
 
-**Status: Open.** Stories left to build: 1. Stories already done: 5.
+**Status: Closed.** Stories left to build: 0. Stories already done: 6.
 
 **GitHub Milestone:** M51 - Admin lakehouse workflows (UI → Middleware → Airflow → status) (api id 52)
 
@@ -120,9 +120,9 @@ One chat per story. Full **12-step** path (M02 standard). Do **not** abbreviate.
 | #349 | 4 | `/writing-plans Story #349` | Done | 2026-11-19 16:20 | 2026-11-19 16:20 |
 | #349 | 5 | `/test-driven-development Story #349` | Done | 2026-11-19 16:20 | 2026-11-19 16:22 |
 | #349 | 6 | `/subagent-driven-development Story #349` | Done | 2026-11-19 16:22 | 2026-11-19 16:22 |
-| #349 | 7 | `/ccaa-commit-push 349 (after each task)` | In progress | 2026-11-19 16:22 | - |
-| #349 | 8 | `/verification-before-completion Story #349` | Planned | - | - |
-| #349 | 9 | `/requesting-code-review Story #349` | Planned | - | - |
-| #349 | 10 | `/ccaa-commit-push 349` | Planned | - | - |
-| #349 | 11 | `/finishing-a-development-branch Story #349` | Planned | - | - |
-| #349 | 12 | `/ccaa-story-complete 349` | Planned | - | - |
+| #349 | 7 | `/ccaa-commit-push 349 (after each task)` | Done | 2026-11-19 16:22 | 2026-11-19 16:24 |
+| #349 | 8 | `/verification-before-completion Story #349` | Done | 2026-11-19 16:24 | 2026-11-19 16:24 |
+| #349 | 9 | `/requesting-code-review Story #349` | Done | 2026-11-19 16:24 | 2026-11-19 16:24 |
+| #349 | 10 | `/ccaa-commit-push 349` | Done | 2026-11-19 16:24 | 2026-11-19 16:24 |
+| #349 | 11 | `/finishing-a-development-branch Story #349` | Done | 2026-11-19 16:24 | 2026-11-19 16:24 |
+| #349 | 12 | `/ccaa-story-complete 349` | Done | 2026-11-19 16:24 | 2026-11-19 16:24 |
