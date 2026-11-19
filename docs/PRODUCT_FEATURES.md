@@ -161,6 +161,8 @@ Each workflow that downloads or ingests data is registered in the database, so t
 | **M07** | Pluggable local vector Storage Layer (#175) | Done |
 | **M08** | Advanced Intellect retrieval + evaluation (#183) | Done |
 | **M09** | Chroma + Redis Stack (separate containers) + consolidate pgvector (#195) | Done |
+| **M45–M50** | Iceberg lakehouse spine (Raw→…→Query AST) — npm/prove + Raw DAG | Done |
+| **M51** | Admin Lakehouse workflows (UI→Middleware→Airflow→status) (#340 / #341–#345) | In progress |
 | **M90** | Cloud deployment (parked; was M06) (#73) | Planned |
 
 ## 7. Open questions

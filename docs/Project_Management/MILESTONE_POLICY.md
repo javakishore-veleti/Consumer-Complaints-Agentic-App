@@ -36,7 +36,8 @@ A milestone is closable only when:
 | **M48** | `curated.cfpb_complaints_3m` Money Topics + parent org; DuckDB group-by works |
 | **M49** | Chroma `cfpb_semantic_signatures` searchable (catalog, not 19M rows) |
 | **M50** | Query AST Gateway answers ≥1 Golden query against Curated |
-| **M51+** | Internal MVP / edge / multi-cloud / B2B / consumer — each with a demoable slice |
+| **M51** | Admin Lakehouse workflows: UI → Middleware → Airflow → callback status (per-stage hydrate_*) |
+| **M52+** | Internal MVP / edge / multi-cloud / B2B / consumer — each with a demoable slice |
 
 M40 = Raw **docs** + Iceberg **Docker** only. **Raw hydrate = M45** (product).
 
