@@ -14,6 +14,7 @@ from app.core.services.dataset_import_run_service import DatasetImportRunService
 from app.core.services.intellect_query_service import IntellectQueryService
 from app.core.services.mio_status_service import MioStatusService
 from app.core.services.query_ast_service import QueryAstService
+from app.core.services.risk_radar_service import RiskRadarService
 from app.core.services.start_wf_service import StartWfService
 from app.core.services.wf_exec_status_service import WfExecStatusService
 from app.core.services.wf_list_service import WfListService
@@ -56,6 +57,7 @@ class ServicesObjectsFactory:
                 MioStatusServiceImpl,
             )
             from app.core.services.impl.query_ast_service_impl import QueryAstServiceImpl
+            from app.core.services.impl.risk_radar_service_impl import RiskRadarServiceImpl
             from app.core.services.impl.start_wf_service_impl import StartWfServiceImpl
             from app.core.services.impl.wf_exec_status_service_impl import (
                 WfExecStatusServiceImpl,
@@ -72,6 +74,7 @@ class ServicesObjectsFactory:
             bean_registry.register(StartWfService, StartWfServiceImpl())
             bean_registry.register(IntellectQueryService, IntellectQueryServiceImpl())
             bean_registry.register(QueryAstService, QueryAstServiceImpl())
+            bean_registry.register(RiskRadarService, RiskRadarServiceImpl())
             bean_registry.register(DatasetImportRunService, DatasetImportRunServiceImpl())
             bean_registry.register(DagContextService, DagContextServiceImpl())
             ServicesObjectsFactory._initialized = True
@@ -120,6 +123,11 @@ class ServicesObjectsFactory:
     def get_query_ast_service() -> QueryAstService:
         ServicesObjectsFactory.init()
         return bean_registry.get_one(QueryAstService)  # type: ignore[return-value]
+
+    @staticmethod
+    def get_risk_radar_service() -> RiskRadarService:
+        ServicesObjectsFactory.init()
+        return bean_registry.get_one(RiskRadarService)  # type: ignore[return-value]
 
     @staticmethod
     def get_dataset_import_run_service() -> DatasetImportRunService:
