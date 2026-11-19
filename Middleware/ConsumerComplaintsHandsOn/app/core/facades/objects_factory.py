@@ -13,6 +13,7 @@ from app.core.facades.dag_context_facade import DagContextFacade
 from app.core.facades.dataset_import_run_facade import DatasetImportRunFacade
 from app.core.facades.intellect_query_facade import IntellectQueryFacade
 from app.core.facades.mio_status_facade import MioStatusFacade
+from app.core.facades.query_ast_facade import QueryAstFacade
 from app.core.facades.start_wf_facade import StartWfFacade
 from app.core.facades.wf_exec_status_facade import WfExecStatusFacade
 from app.core.facades.wf_list_facade import WfListFacade
@@ -47,6 +48,9 @@ class FacadesObjectsFactory:
             from app.core.facades.impl.intellect.intellect_query_facade_impl import (
                 IntellectQueryFacadeImpl,
             )
+            from app.core.facades.impl.intellect.query_ast_facade_impl import (
+                QueryAstFacadeImpl,
+            )
             from app.core.facades.impl.mio_status_facade_impl import MioStatusFacadeImpl
             from app.core.facades.impl.start_wf.start_wf_facade_impl import (
                 StartWfFacadeImpl,
@@ -66,6 +70,7 @@ class FacadesObjectsFactory:
             bean_registry.register(AirflowStartDagFacade, AirflowStartDagFacadeImpl())
             bean_registry.register(StartWfFacade, StartWfFacadeImpl())
             bean_registry.register(IntellectQueryFacade, IntellectQueryFacadeImpl())
+            bean_registry.register(QueryAstFacade, QueryAstFacadeImpl())
             bean_registry.register(DatasetImportRunFacade, DatasetImportRunFacadeImpl())
             bean_registry.register(DagContextFacade, DagContextFacadeImpl())
             FacadesObjectsFactory._initialized = True
@@ -109,6 +114,11 @@ class FacadesObjectsFactory:
     def get_intellect_query_facade() -> IntellectQueryFacade:
         FacadesObjectsFactory.init()
         return bean_registry.get_one(IntellectQueryFacade)  # type: ignore[return-value]
+
+    @staticmethod
+    def get_query_ast_facade() -> QueryAstFacade:
+        FacadesObjectsFactory.init()
+        return bean_registry.get_one(QueryAstFacade)  # type: ignore[return-value]
 
     @staticmethod
     def get_dataset_import_run_facade() -> DatasetImportRunFacade:
