@@ -65,8 +65,8 @@ One chat per story. Full **12-step** path (M02 standard). Do **not** abbreviate.
 | #341 | 10 | `/ccaa-commit-push 341` | Done | 2026-11-19 16:09 | 2026-11-19 16:09 |
 | #341 | 11 | `/finishing-a-development-branch Story #341` | Done | 2026-11-19 16:09 | 2026-11-19 16:09 |
 | #341 | 12 | `/ccaa-story-complete 341` | Done | 2026-11-19 16:09 | 2026-11-19 16:09 |
-| #342 | 1 | `/ccaa-story-start 342` | Not started | — | — |
-| #342 | 2 | `/brainstorming Story #342` | Not started | — | — |
+| #342 | 1 | `/ccaa-story-start 342` | Done | 2026-11-19 16:09 | 2026-11-19 16:09 |
+| #342 | 2 | `/brainstorming Story #342` | In progress | 2026-11-19 16:09 | — |
 | #342 | 3 | `/using-git-worktrees Story #342` | Not started | — | — |
 | #342 | 4 | `/writing-plans Story #342` | Not started | — | — |
 | #342 | 5 | `/test-driven-development Story #342` | Not started | — | — |
