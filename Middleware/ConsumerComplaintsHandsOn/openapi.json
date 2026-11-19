@@ -989,6 +989,11 @@
             "default": false,
             "title": "Execute",
             "type": "boolean"
+          },
+          "relax": {
+            "default": false,
+            "title": "Relax",
+            "type": "boolean"
           }
         },
         "required": [
@@ -1031,6 +1036,13 @@
             ],
             "title": "K Anon Ok"
           },
+          "relaxation": {
+            "items": {
+              "$ref": "#/components/schemas/QueryAstRelaxStepOut"
+            },
+            "title": "Relaxation",
+            "type": "array"
+          },
           "sql": {
             "title": "Sql",
             "type": "string"
@@ -1040,6 +1052,34 @@
           "sql"
         ],
         "title": "QueryAstOut",
+        "type": "object"
+      },
+      "QueryAstRelaxStepOut": {
+        "properties": {
+          "ast": {
+            "additionalProperties": true,
+            "title": "Ast",
+            "type": "object"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "sql": {
+            "title": "Sql",
+            "type": "string"
+          },
+          "step": {
+            "title": "Step",
+            "type": "string"
+          }
+        },
+        "required": [
+          "step",
+          "reason",
+          "sql"
+        ],
+        "title": "QueryAstRelaxStepOut",
         "type": "object"
       },
       "RiskRadarAlertOut": {

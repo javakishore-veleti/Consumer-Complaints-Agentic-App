@@ -4,7 +4,7 @@
 
 **Demoable outcome:** Narrow AST with `relax: true` broadens predicates and returns an explanation trail + usable SQL/count (k-anon ≥10).
 
-**Status: Open.** Stories left to build: 3. Stories already done: 0.
+**Status: Done.** Stories left to build: 0. Stories already done: 3. Closed 2026-11-19 18:00.
 
 **GitHub Milestone:** M54 - Query AST zero-hit relaxation (api id 55)
 
@@ -32,39 +32,39 @@ Intellect AST form (relax ✓) → POST /intellect/query-ast {ast, execute, rela
 
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
-| #366 | 1 | `/ccaa-story-start 366` | Planned | - | - |
-| #366 | 2 | `/brainstorming Story #366` | Planned | - | - |
-| #366 | 3 | `/using-git-worktrees Story #366` | Planned | - | - |
-| #366 | 4 | `/writing-plans Story #366` | Planned | - | - |
-| #366 | 5 | `/test-driven-development Story #366` | Planned | - | - |
-| #366 | 6 | `/subagent-driven-development Story #366` | Planned | - | - |
-| #366 | 7 | `/ccaa-commit-push 366 (after each task)` | Planned | - | - |
-| #366 | 8 | `/verification-before-completion Story #366` | Planned | - | - |
-| #366 | 9 | `/requesting-code-review Story #366` | Planned | - | - |
-| #366 | 10 | `/ccaa-commit-push 366` | Planned | - | - |
-| #366 | 11 | `/finishing-a-development-branch Story #366` | Planned | - | - |
-| #366 | 12 | `/ccaa-story-complete 366` | Planned | - | - |
-| #367 | 1 | `/ccaa-story-start 367` | Planned | - | - |
-| #367 | 2 | `/brainstorming Story #367` | Planned | - | - |
-| #367 | 3 | `/using-git-worktrees Story #367` | Planned | - | - |
-| #367 | 4 | `/writing-plans Story #367` | Planned | - | - |
-| #367 | 5 | `/test-driven-development Story #367` | Planned | - | - |
-| #367 | 6 | `/subagent-driven-development Story #367` | Planned | - | - |
-| #367 | 7 | `/ccaa-commit-push 367 (after each task)` | Planned | - | - |
-| #367 | 8 | `/verification-before-completion Story #367` | Planned | - | - |
-| #367 | 9 | `/requesting-code-review Story #367` | Planned | - | - |
-| #367 | 10 | `/ccaa-commit-push 367` | Planned | - | - |
-| #367 | 11 | `/finishing-a-development-branch Story #367` | Planned | - | - |
-| #367 | 12 | `/ccaa-story-complete 367` | Planned | - | - |
-| #368 | 1 | `/ccaa-story-start 368` | Planned | - | - |
-| #368 | 2 | `/brainstorming Story #368` | Planned | - | - |
-| #368 | 3 | `/using-git-worktrees Story #368` | Planned | - | - |
-| #368 | 4 | `/writing-plans Story #368` | Planned | - | - |
-| #368 | 5 | `/test-driven-development Story #368` | Planned | - | - |
-| #368 | 6 | `/subagent-driven-development Story #368` | Planned | - | - |
-| #368 | 7 | `/ccaa-commit-push 368 (after each task)` | Planned | - | - |
-| #368 | 8 | `/verification-before-completion Story #368` | Planned | - | - |
-| #368 | 9 | `/requesting-code-review Story #368` | Planned | - | - |
-| #368 | 10 | `/ccaa-commit-push 368` | Planned | - | - |
-| #368 | 11 | `/finishing-a-development-branch Story #368` | Planned | - | - |
-| #368 | 12 | `/ccaa-story-complete 368` | Planned | - | - |
+| #366 | 1 | `/ccaa-story-start 366` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #366 | 2 | `/brainstorming Story #366` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #366 | 3 | `/using-git-worktrees Story #366` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #366 | 4 | `/writing-plans Story #366` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #366 | 5 | `/test-driven-development Story #366` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #366 | 6 | `/subagent-driven-development Story #366` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #366 | 7 | `/ccaa-commit-push 366 (after each task)` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #366 | 8 | `/verification-before-completion Story #366` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #366 | 9 | `/requesting-code-review Story #366` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #366 | 10 | `/ccaa-commit-push 366` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #366 | 11 | `/finishing-a-development-branch Story #366` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #366 | 12 | `/ccaa-story-complete 366` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #367 | 1 | `/ccaa-story-start 367` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #367 | 2 | `/brainstorming Story #367` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #367 | 3 | `/using-git-worktrees Story #367` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #367 | 4 | `/writing-plans Story #367` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #367 | 5 | `/test-driven-development Story #367` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #367 | 6 | `/subagent-driven-development Story #367` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #367 | 7 | `/ccaa-commit-push 367 (after each task)` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #367 | 8 | `/verification-before-completion Story #367` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #367 | 9 | `/requesting-code-review Story #367` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #367 | 10 | `/ccaa-commit-push 367` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #367 | 11 | `/finishing-a-development-branch Story #367` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #367 | 12 | `/ccaa-story-complete 367` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #368 | 1 | `/ccaa-story-start 368` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #368 | 2 | `/brainstorming Story #368` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #368 | 3 | `/using-git-worktrees Story #368` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #368 | 4 | `/writing-plans Story #368` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #368 | 5 | `/test-driven-development Story #368` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #368 | 6 | `/subagent-driven-development Story #368` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #368 | 7 | `/ccaa-commit-push 368 (after each task)` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #368 | 8 | `/verification-before-completion Story #368` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #368 | 9 | `/requesting-code-review Story #368` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #368 | 10 | `/ccaa-commit-push 368` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #368 | 11 | `/finishing-a-development-branch Story #368` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |
+| #368 | 12 | `/ccaa-story-complete 368` | Done | 2026-11-19 18:00 | 2026-11-19 18:00 |

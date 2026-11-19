@@ -5,7 +5,7 @@ from typing import Annotated
 from fastapi import APIRouter, HTTPException, Query, status
 
 from app.api.models.intellect_query_models import IntellectHitOut, IntellectQueryBody, IntellectQueryOut
-from app.api.models.query_ast_models import QueryAstBody, QueryAstOut
+from app.api.models.query_ast_models import QueryAstBody, QueryAstOut, QueryAstRelaxStepOut
 from app.api.models.risk_radar_models import (
     RiskRadarAlertOut,
     RiskRadarBody,
@@ -66,7 +66,9 @@ class IntellectQueryApi(metaclass=SingletonMeta):
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "request failed")
 
     def query_ast(self, body: QueryAstBody) -> QueryAstOut:
-        ctx = QueryAstFacadeCtx(req=QueryAstReq(ast=body.ast, execute=body.execute))
+        ctx = QueryAstFacadeCtx(
+            req=QueryAstReq(ast=body.ast, execute=body.execute, relax=body.relax)
+        )
         FacadesObjectsFactory.get_query_ast_facade().run(ctx)
         if ctx.resp.code == SUCCESS:
             return QueryAstOut(
@@ -74,6 +76,12 @@ class IntellectQueryApi(metaclass=SingletonMeta):
                 executed=ctx.resp.executed,
                 count=ctx.resp.count,
                 k_anon_ok=ctx.resp.k_anon_ok,
+                relaxation=[
+                    QueryAstRelaxStepOut(
+                        step=s.step, reason=s.reason, sql=s.sql, ast=s.ast
+                    )
+                    for s in ctx.resp.relaxation
+                ],
             )
         if ctx.resp.code == INVALID_INPUT:
             raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, ctx.resp.error or "invalid request")

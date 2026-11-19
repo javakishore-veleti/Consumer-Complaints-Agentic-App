@@ -37,6 +37,9 @@ label.inline { display: flex; align-items: center; gap: 0.5rem; font-weight: 500
   white-space: pre-wrap;
 }
 #ast-status { margin-top: 1rem; color: var(--muted); }
+.ast-relax-trail { margin: 0.75rem 0 0; padding-left: 1.25rem; color: var(--muted); }
+.ast-relax-trail li { margin: 0.5rem 0; }
+.ast-relax-trail .ast-sql { margin-top: 0.35rem; }
 .radar-panel { margin-top: 2.5rem; }
 .radar-panel h2 { margin: 0 0 0.35rem; font-size: 1.35rem; }
 #radar-refresh {

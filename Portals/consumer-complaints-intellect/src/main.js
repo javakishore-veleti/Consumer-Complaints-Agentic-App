@@ -33,11 +33,14 @@ export async function runQuery(query, { fetchImpl = fetch, apiBase = API_BASE, c
   return response.json();
 }
 
-export async function runQueryAst(ast, { fetchImpl = fetch, apiBase = API_BASE, execute = false } = {}) {
+export async function runQueryAst(
+  ast,
+  { fetchImpl = fetch, apiBase = API_BASE, execute = false, relax = false } = {},
+) {
   const response = await fetchImpl(`${apiBase}/intellect/query-ast`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ast, execute }),
+    body: JSON.stringify({ ast, execute, relax }),
   });
   if (!response.ok) {
     let detail = await response.text();
@@ -118,6 +121,7 @@ function setRadarStatus(message, show = true) {
 function renderAstResult(data) {
   const sqlEl = document.getElementById('ast-sql');
   const metaEl = document.getElementById('ast-meta');
+  const relaxEl = document.getElementById('ast-relax-trail');
   if (sqlEl) {
     sqlEl.hidden = !data?.sql;
     sqlEl.textContent = data?.sql || '';
@@ -126,14 +130,29 @@ function renderAstResult(data) {
     if (!data) {
       metaEl.hidden = true;
       metaEl.textContent = '';
-      return;
+    } else {
+      const parts = [];
+      if (data.executed) parts.push(`count ${data.count}`);
+      if (data.k_anon_ok != null) parts.push(`k-anon ${data.k_anon_ok ? 'ok' : 'fail'}`);
+      if (!data.executed) parts.push('translate only (not executed)');
+      metaEl.hidden = parts.length === 0;
+      metaEl.textContent = parts.join(' · ');
     }
-    const parts = [];
-    if (data.executed) parts.push(`count ${data.count}`);
-    if (data.k_anon_ok != null) parts.push(`k-anon ${data.k_anon_ok ? 'ok' : 'fail'}`);
-    if (!data.executed) parts.push('translate only (not executed)');
-    metaEl.hidden = parts.length === 0;
-    metaEl.textContent = parts.join(' · ');
+  }
+  if (relaxEl) {
+    const steps = data?.relaxation || [];
+    if (!steps.length) {
+      relaxEl.hidden = true;
+      relaxEl.innerHTML = '';
+    } else {
+      relaxEl.hidden = false;
+      relaxEl.innerHTML = steps
+        .map(
+          (s, i) =>
+            `<li data-testid="intellect-ast-relax-step"><strong>${i + 1}. ${s.step}</strong> — ${s.reason}<pre class="ast-sql">${s.sql || ''}</pre></li>`,
+        )
+        .join('');
+    }
   }
 }
 
@@ -219,6 +238,7 @@ if (astForm) {
     event.preventDefault();
     const raw = document.getElementById('ast-input')?.value?.trim() || '';
     const execute = Boolean(document.getElementById('ast-execute')?.checked);
+    const relax = Boolean(document.getElementById('ast-relax')?.checked);
     setAstStatus('Running Query AST…');
     renderAstResult(null);
     let ast;
@@ -229,9 +249,14 @@ if (astForm) {
       return;
     }
     try {
-      const data = await runQueryAst(ast, { execute });
+      const data = await runQueryAst(ast, { execute, relax });
       renderAstResult(data);
-      setAstStatus(data.executed ? `Executed · n=${data.count}` : 'Translated');
+      const trail = (data.relaxation || []).length;
+      setAstStatus(
+        data.executed
+          ? `Executed · n=${data.count}${trail ? ` · ${trail} relax step(s)` : ''}`
+          : `Translated${trail ? ` · ${trail} relax step(s)` : ''}`,
+      );
     } catch (err) {
       renderAstResult(null);
       setAstStatus(err instanceof Error ? err.message : 'Query AST failed');
