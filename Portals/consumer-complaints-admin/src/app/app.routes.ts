@@ -5,6 +5,7 @@ import { HomeComponent } from './pages/home/home.component';
 import { ImportsPageComponent } from './pages/datasets/imports/imports-page.component';
 import { DbIngestPageComponent } from './pages/datasets/db-ingest/db-ingest-page.component';
 import { IndexPageComponent } from './pages/datasets/index/index-page.component';
+import { LakehousePageComponent } from './pages/datasets/lakehouse/lakehouse-page.component';
 import { SyncSecretsPageComponent } from './pages/operations/sync-secrets-page.component';
 import { AppEndpointsPageComponent } from './pages/catalog/app-endpoints-page.component';
 
@@ -37,6 +38,11 @@ export const routes: Routes = [
             path: 'index',
             component: IndexPageComponent,
             title: 'Vector Stores | Consumer Complaints Administration',
+          },
+          {
+            path: 'lakehouse',
+            component: LakehousePageComponent,
+            title: 'Lakehouse | Consumer Complaints Administration',
           },
         ],
       },

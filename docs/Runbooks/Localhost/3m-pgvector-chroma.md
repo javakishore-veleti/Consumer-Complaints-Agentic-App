@@ -42,7 +42,7 @@ npm run local:iceberg:apply-raw-ddl
 npm run local:iceberg:hydrate-raw-3m
 ```
 
-Airflow alternative (after iceberg + Airflow are up; DAG `hydrate_raw_iceberg_3m`): Admin → start workflow, or Airflow UI trigger. Does **not** re-download when Lift 3m zips exist.
+Airflow + Admin (M51-0001): after iceberg + Airflow + API migrate, open Admin **Lakehouse**, select `hydrate_raw_iceberg_3m` on the 3-month MIO, Start. Same loop as Downloads (Middleware → Airflow → callback status). Or trigger the DAG in Airflow UI. Does **not** re-download when Lift 3m zips exist.
 
 Prove Raw 3m count reconcile (M45-0004):
 
