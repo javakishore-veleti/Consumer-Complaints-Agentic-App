@@ -23,3 +23,7 @@
 | #311 | 2 | worktree → implement | Done | 2026-11-18 15:39 | 2026-11-18 15:41 |
 | #311 | 3 | commit-push | Done | 2026-11-18 15:41 | 2026-11-18 15:49 |
 | #311 | 4 | story-complete | Done | 2026-11-18 15:49 | 2026-11-18 15:49 |
+
+## 3. Clarification (2026-11-19)
+
+M40 **did not** finish Lift → Iceberg Raw **hydrate**. #310 = architecture docs; #311 = Spark/Iceberg Docker + Lift mount contract (explicitly no DAG). Raw table population is **M45**.

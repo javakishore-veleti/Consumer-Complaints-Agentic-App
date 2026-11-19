@@ -4,7 +4,7 @@
 **Status:** Proposed baseline — refreshed for Mode 2 lakehouse architecture  
 **Date:** 2026-11-18  
 **Story:** M42-0001 #317  
-**Related:** `docs/DataArchitecture.md` (canonical data architecture); `docs/Project_Management/AI_Capabilities_Solutions.md` (AI by Platform/Internal/B2B/Consumer); `docs/Project_Management/Future_Requirements.md` (cyber SOC AI / ATO gap track); `docs/Complaints_Data_Classification_Indexing_Brainstorming.md` (design notes); `docs/PRODUCT_FEATURES.md` (what exists today); M40 #310/#311 (Lift + Raw Iceberg done); M41 #314–#316 (Refined/Curated/Taxonomy/Vectors docs planned); M43 #318 (AI capabilities); M44 #319 (Future Requirements)
+**Related:** `docs/DataArchitecture.md` (canonical data architecture); `docs/Project_Management/AI_Capabilities_Solutions.md` (AI by Platform/Internal/B2B/Consumer); `docs/Project_Management/Future_Requirements.md` (cyber SOC AI / ATO gap track); `docs/Complaints_Data_Classification_Indexing_Brainstorming.md` (design notes); `docs/PRODUCT_FEATURES.md` (what exists today); M40 #310/#311 (Raw docs + Iceberg Docker done; Raw hydrate = M45 not done); M41 #314–#316 (Refined/Curated/Taxonomy/Vectors docs planned); M43 #318 (AI capabilities); M44 #319 (Future Requirements)
 
 ---
 
