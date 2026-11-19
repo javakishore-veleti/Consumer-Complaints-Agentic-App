@@ -4,7 +4,7 @@
 
 **Demoable outcome:** Intellect Risk Radar alert feed from Middleware; click alert → Query AST drill-down (k-anon ≥10). Fixture path works without warehouse.
 
-**Status: Open.** Stories left to build: 3. Stories already done: 0.
+**Status: Open.** Stories left to build: 2. Stories already done: 1.
 
 **GitHub Milestone:** M53 - Internal Systemic Risk Radar MVP (api id 54)
 
