@@ -122,6 +122,25 @@ SELECT COUNT(*) FROM demo.raw.cfpb_complaints_3m;
 -- 1970702
 ```
 
+## Refined 3m with signature_id (M46-0001 / #324)
+
+Requires Raw 3m hydrated first (`npm run local:iceberg:prove-raw-3m` or hydrate).
+
+```bash
+npm run local:iceberg:apply-refined-ddl
+npm run local:iceberg:hydrate-refined-3m
+npm run local:iceberg:prove-refined-3m
+```
+
+Operator demo:
+
+```sql
+SELECT COUNT(*) AS n, COUNT(DISTINCT signature_id) AS u_sig
+FROM demo.refined.cfpb_complaints_3m;
+```
+
+Verified 2026-11-19: **n=1,970,702**, **u_sig=6,716**, null `signature_id`=0 (matches Raw).
+
 ## Airflow DAG (M45-0003 / #322)
 
 DAG id: `hydrate_raw_iceberg_3m` (`Middleware/Airflow-dags/hydrate_raw_iceberg_3m.py`).

@@ -4,7 +4,7 @@
 
 **Demoable outcome:** SparkSQL/DuckDB query on refined 3m with signature_id; depends on M45 #323
 
-**Status: Open.** Stories left to build: 1. Stories already done: 0.
+**Status: Open.** Stories left to build: 1 (closing #324). Stories already done: 1 (#331).
 
 **GitHub Milestone:** M46 - Refined Iceberg working product (3m signature_id) (api id 47)
 
@@ -36,14 +36,14 @@ One chat per story. Full **12-step** path (M02 standard). Do **not** abbreviate.
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
 | #324 | 1 | `/ccaa-story-start 324` | Not started | — | — |
-| #324 | 2 | `/brainstorming Story #324` | Not started | — | — |
-| #324 | 3 | `/using-git-worktrees Story #324` | Not started | — | — |
-| #324 | 4 | `/writing-plans Story #324` | Not started | — | — |
-| #324 | 5 | `/test-driven-development Story #324` | Not started | — | — |
-| #324 | 6 | `/subagent-driven-development Story #324` | Not started | — | — |
-| #324 | 7 | `/ccaa-commit-push 324 (after each task)` | Not started | — | — |
-| #324 | 8 | `/verification-before-completion Story #324` | Not started | — | — |
-| #324 | 9 | `/requesting-code-review Story #324` | Not started | — | — |
-| #324 | 10 | `/ccaa-commit-push 324` | Not started | — | — |
-| #324 | 11 | `/finishing-a-development-branch Story #324` | Not started | — | — |
+| #324 | 2 | `/brainstorming Story #324` | Done | 2026-11-19 12:48 | 2026-11-19 12:50 |
+| #324 | 3 | `/using-git-worktrees Story #324` | Done | 2026-11-19 12:50 | 2026-11-19 12:50 |
+| #324 | 4 | `/writing-plans Story #324` | Done | 2026-11-19 12:50 | 2026-11-19 12:50 |
+| #324 | 5 | `/test-driven-development Story #324` | Done | 2026-11-19 12:50 | 2026-11-19 12:50 |
+| #324 | 6 | `/subagent-driven-development Story #324` | Done | 2026-11-19 12:50 | 2026-11-19 12:50 |
+| #324 | 7 | `/ccaa-commit-push 324 (after each task)` | Done | 2026-11-19 12:50 | 2026-11-19 12:50 |
+| #324 | 8 | `/verification-before-completion Story #324` | Done | 2026-11-19 12:50 | 2026-11-19 12:50 |
+| #324 | 9 | `/requesting-code-review Story #324` | Done | 2026-11-19 12:50 | 2026-11-19 12:50 |
+| #324 | 10 | `/ccaa-commit-push 324` | Done | 2026-11-19 12:50 | 2026-11-19 12:50 |
+| #324 | 11 | `/finishing-a-development-branch Story #324` | In progress | 2026-11-19 12:50 | — |
 | #324 | 12 | `/ccaa-story-complete 324` | Not started | — | — |

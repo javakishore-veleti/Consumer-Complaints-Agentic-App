@@ -51,6 +51,14 @@ npm run local:iceberg:prove-raw-3m
 ```
 
 PASS means Lift CSV rows == `demo.raw.cfpb_complaints_3m` COUNT(*) (verified **1,970,702** on 2026-11-19; quarantine 0).
+
+Refined 3m + `signature_id` (M46-0001):
+
+```bash
+npm run local:iceberg:prove-refined-3m
+```
+
+Demo: `SELECT COUNT(*), COUNT(DISTINCT signature_id) FROM demo.refined.cfpb_complaints_3m;`
 Also ensure local Airflow is up (includes pymongo image):
 
 ```bash
