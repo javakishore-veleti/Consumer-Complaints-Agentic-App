@@ -43,8 +43,8 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
-| #314 | 1 | `/ccaa-story-start 314` | Not started | — | — |
-| #314 | 2 | `/brainstorming Story #314` | Not started | — | — |
+| #314 | 1 | `/ccaa-story-start 314` | Done | 2026-11-19 17:46 | 2026-11-19 17:46 |
+| #314 | 2 | `/brainstorming Story #314` | In progress | 2026-11-19 17:46 | — |
 | #314 | 3 | `/using-git-worktrees Story #314` | Not started | — | — |
 | #314 | 4 | `/writing-plans Story #314` | Not started | — | — |
 | #314 | 5 | `/test-driven-development Story #314` | Not started | — | — |
