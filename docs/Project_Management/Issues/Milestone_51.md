@@ -53,17 +53,17 @@ One chat per story. Full **12-step** path (M02 standard). Do **not** abbreviate.
 
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
-| #341 | 1 | `/ccaa-story-start 341` | Done | 2026-11-19 16:06 | 2026-11-19 16:06 |
-| #341 | 2 | `/brainstorming Story #341` | In progress | 2026-11-19 16:06 | — |
-| #341 | 3 | `/using-git-worktrees Story #341` | Not started | — | — |
-| #341 | 4 | `/writing-plans Story #341` | Not started | — | — |
-| #341 | 5 | `/test-driven-development Story #341` | Not started | — | — |
-| #341 | 6 | `/subagent-driven-development Story #341` | Not started | — | — |
-| #341 | 7 | `/ccaa-commit-push 341 (after each task)` | Not started | — | — |
-| #341 | 8 | `/verification-before-completion Story #341` | Not started | — | — |
-| #341 | 9 | `/requesting-code-review Story #341` | Not started | — | — |
-| #341 | 10 | `/ccaa-commit-push 341` | Not started | — | — |
-| #341 | 11 | `/finishing-a-development-branch Story #341` | Not started | — | — |
+| #341 | 1 | `/ccaa-story-start 341` | Done | 2026-11-19 16:09 | 2026-11-19 16:09 |
+| #341 | 2 | `/brainstorming Story #341` | Done | 2026-11-19 16:09 | 2026-11-19 16:09 |
+| #341 | 3 | `/using-git-worktrees Story #341` | Done | 2026-11-19 16:09 | 2026-11-19 16:09 |
+| #341 | 4 | `/writing-plans Story #341` | Done | 2026-11-19 16:09 | 2026-11-19 16:09 |
+| #341 | 5 | `/test-driven-development Story #341` | Done | 2026-11-19 16:09 | 2026-11-19 16:09 |
+| #341 | 6 | `/subagent-driven-development Story #341` | Done | 2026-11-19 16:09 | 2026-11-19 16:09 |
+| #341 | 7 | `/ccaa-commit-push 341 (after each task)` | Done | 2026-11-19 16:09 | 2026-11-19 16:09 |
+| #341 | 8 | `/verification-before-completion Story #341` | Done | 2026-11-19 16:09 | 2026-11-19 16:09 |
+| #341 | 9 | `/requesting-code-review Story #341` | Done | 2026-11-19 16:09 | 2026-11-19 16:09 |
+| #341 | 10 | `/ccaa-commit-push 341` | Done | 2026-11-19 16:09 | 2026-11-19 16:09 |
+| #341 | 11 | `/finishing-a-development-branch Story #341` | In progress | 2026-11-19 16:09 | — |
 | #341 | 12 | `/ccaa-story-complete 341` | Not started | — | — |
 | #342 | 1 | `/ccaa-story-start 342` | Not started | — | — |
 | #342 | 2 | `/brainstorming Story #342` | Not started | — | — |
