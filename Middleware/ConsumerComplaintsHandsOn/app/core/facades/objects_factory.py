@@ -14,6 +14,7 @@ from app.core.facades.dataset_import_run_facade import DatasetImportRunFacade
 from app.core.facades.intellect_query_facade import IntellectQueryFacade
 from app.core.facades.mio_status_facade import MioStatusFacade
 from app.core.facades.query_ast_facade import QueryAstFacade
+from app.core.facades.risk_radar_facade import RiskRadarFacade
 from app.core.facades.start_wf_facade import StartWfFacade
 from app.core.facades.wf_exec_status_facade import WfExecStatusFacade
 from app.core.facades.wf_list_facade import WfListFacade
@@ -51,6 +52,9 @@ class FacadesObjectsFactory:
             from app.core.facades.impl.intellect.query_ast_facade_impl import (
                 QueryAstFacadeImpl,
             )
+            from app.core.facades.impl.intellect.risk_radar_facade_impl import (
+                RiskRadarFacadeImpl,
+            )
             from app.core.facades.impl.mio_status_facade_impl import MioStatusFacadeImpl
             from app.core.facades.impl.start_wf.start_wf_facade_impl import (
                 StartWfFacadeImpl,
@@ -71,6 +75,7 @@ class FacadesObjectsFactory:
             bean_registry.register(StartWfFacade, StartWfFacadeImpl())
             bean_registry.register(IntellectQueryFacade, IntellectQueryFacadeImpl())
             bean_registry.register(QueryAstFacade, QueryAstFacadeImpl())
+            bean_registry.register(RiskRadarFacade, RiskRadarFacadeImpl())
             bean_registry.register(DatasetImportRunFacade, DatasetImportRunFacadeImpl())
             bean_registry.register(DagContextFacade, DagContextFacadeImpl())
             FacadesObjectsFactory._initialized = True
@@ -119,6 +124,11 @@ class FacadesObjectsFactory:
     def get_query_ast_facade() -> QueryAstFacade:
         FacadesObjectsFactory.init()
         return bean_registry.get_one(QueryAstFacade)  # type: ignore[return-value]
+
+    @staticmethod
+    def get_risk_radar_facade() -> RiskRadarFacade:
+        FacadesObjectsFactory.init()
+        return bean_registry.get_one(RiskRadarFacade)  # type: ignore[return-value]
 
     @staticmethod
     def get_dataset_import_run_facade() -> DatasetImportRunFacade:

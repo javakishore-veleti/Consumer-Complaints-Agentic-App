@@ -52,14 +52,14 @@ One chat per story. Full **12-step** path (M02 standard). Do **not** abbreviate.
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
 | #359 | 1 | `/ccaa-story-start 359` | Done | 2026-11-19 17:40 | 2026-11-19 17:40 |
-| #359 | 2 | `/brainstorming Story #359` | In progress | 2026-11-19 17:40 | - |
-| #359 | 3 | `/using-git-worktrees Story #359` | Planned | - | - |
-| #359 | 4 | `/writing-plans Story #359` | Planned | - | - |
-| #359 | 5 | `/test-driven-development Story #359` | Planned | - | - |
-| #359 | 6 | `/subagent-driven-development Story #359` | Planned | - | - |
-| #359 | 7 | `/ccaa-commit-push 359 (after each task)` | Planned | - | - |
-| #359 | 8 | `/verification-before-completion Story #359` | Planned | - | - |
-| #359 | 9 | `/requesting-code-review Story #359` | Planned | - | - |
+| #359 | 2 | `/brainstorming Story #359` | Done | 2026-11-19 17:42 | 2026-11-19 17:42|
+| #359 | 3 | `/using-git-worktrees Story #359` | Done | 2026-11-19 17:42 | 2026-11-19 17:42|
+| #359 | 4 | `/writing-plans Story #359` | Done | 2026-11-19 17:42 | 2026-11-19 17:42|
+| #359 | 5 | `/test-driven-development Story #359` | Done | 2026-11-19 17:42 | 2026-11-19 17:42|
+| #359 | 6 | `/subagent-driven-development Story #359` | Done | 2026-11-19 17:42 | 2026-11-19 17:42|
+| #359 | 7 | `/ccaa-commit-push 359 (after each task)` | Done | 2026-11-19 17:42 | 2026-11-19 17:42|
+| #359 | 8 | `/verification-before-completion Story #359` | Done | 2026-11-19 17:42 | 2026-11-19 17:42|
+| #359 | 9 | `/requesting-code-review Story #359` | In progress | 2026-11-19 17:42 | -|
 | #359 | 10 | `/ccaa-commit-push 359` | Planned | - | - |
 | #359 | 11 | `/finishing-a-development-branch Story #359` | Planned | - | - |
 | #359 | 12 | `/ccaa-story-complete 359` | Planned | - | - |

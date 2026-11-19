@@ -1042,6 +1042,106 @@
         "title": "QueryAstOut",
         "type": "object"
       },
+      "RiskRadarAlertOut": {
+        "properties": {
+          "baseline_mean": {
+            "default": 0.0,
+            "title": "Baseline Mean",
+            "type": "number"
+          },
+          "current_count": {
+            "default": 0,
+            "title": "Current Count",
+            "type": "integer"
+          },
+          "drilldown_ast": {
+            "additionalProperties": true,
+            "title": "Drilldown Ast",
+            "type": "object"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "k_anon_ok": {
+            "default": false,
+            "title": "K Anon Ok",
+            "type": "boolean"
+          },
+          "parent_org_id": {
+            "default": "",
+            "title": "Parent Org Id",
+            "type": "string"
+          },
+          "primary_money_topic": {
+            "default": "",
+            "title": "Primary Money Topic",
+            "type": "string"
+          },
+          "severity": {
+            "title": "Severity",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "window_days": {
+            "default": 0,
+            "title": "Window Days",
+            "type": "integer"
+          },
+          "z_score": {
+            "default": 0.0,
+            "title": "Z Score",
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "severity"
+        ],
+        "title": "RiskRadarAlertOut",
+        "type": "object"
+      },
+      "RiskRadarBody": {
+        "properties": {
+          "source": {
+            "default": "fixture",
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "title": "RiskRadarBody",
+        "type": "object"
+      },
+      "RiskRadarOut": {
+        "properties": {
+          "alerts": {
+            "items": {
+              "$ref": "#/components/schemas/RiskRadarAlertOut"
+            },
+            "title": "Alerts",
+            "type": "array"
+          },
+          "error": {
+            "default": "",
+            "title": "Error",
+            "type": "string"
+          },
+          "source": {
+            "default": "fixture",
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "alerts"
+        ],
+        "title": "RiskRadarOut",
+        "type": "object"
+      },
       "StartWfBody": {
         "additionalProperties": false,
         "properties": {
@@ -2057,6 +2157,88 @@
           }
         },
         "summary": "Query Ast",
+        "tags": [
+          "intellect"
+        ]
+      }
+    },
+    "/intellect/risk-radar": {
+      "get": {
+        "operationId": "risk_radar_get_intellect_risk_radar_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "source",
+            "required": false,
+            "schema": {
+              "default": "fixture",
+              "title": "Source",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RiskRadarOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Risk Radar Get",
+        "tags": [
+          "intellect"
+        ]
+      },
+      "post": {
+        "operationId": "risk_radar_post_intellect_risk_radar_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RiskRadarBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RiskRadarOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Risk Radar Post",
         "tags": [
           "intellect"
         ]
