@@ -64,16 +64,16 @@ One chat per story. Full **12-step** path (M02 standard). Do **not** abbreviate.
 | #352 | 11 | `/finishing-a-development-branch Story #352` | Done | 2026-11-19 17:24 | 2026-11-19 17:24 |
 | #352 | 12 | `/ccaa-story-complete 352` | Done | 2026-11-19 17:24 | 2026-11-19 17:24 |
 | #353 | 1 | `/ccaa-story-start 353` | Done | 2026-11-19 17:26 | 2026-11-19 17:26 |
-| #353 | 2 | `/brainstorming Story #353` | In progress | 2026-11-19 17:26 | - |
-| #353 | 3 | `/using-git-worktrees Story #353` | Planned | - | - |
-| #353 | 4 | `/writing-plans Story #353` | Planned | - | - |
-| #353 | 5 | `/test-driven-development Story #353` | Planned | - | - |
-| #353 | 6 | `/subagent-driven-development Story #353` | Planned | - | - |
-| #353 | 7 | `/ccaa-commit-push 353 (after each task)` | Planned | - | - |
-| #353 | 8 | `/verification-before-completion Story #353` | Planned | - | - |
-| #353 | 9 | `/requesting-code-review Story #353` | Planned | - | - |
-| #353 | 10 | `/ccaa-commit-push 353` | Planned | - | - |
-| #353 | 11 | `/finishing-a-development-branch Story #353` | Planned | - | - |
+| #353 | 2 | `/brainstorming Story #353` | Done | 2026-11-19 17:26 | 2026-11-19 17:26 |
+| #353 | 3 | `/using-git-worktrees Story #353` | Done | 2026-11-19 17:26 | 2026-11-19 17:26 |
+| #353 | 4 | `/writing-plans Story #353` | Done | 2026-11-19 17:26 | 2026-11-19 17:26 |
+| #353 | 5 | `/test-driven-development Story #353` | Done | 2026-11-19 17:27 | 2026-11-19 17:27 |
+| #353 | 6 | `/subagent-driven-development Story #353` | Done | 2026-11-19 17:27 | 2026-11-19 17:27 |
+| #353 | 7 | `/ccaa-commit-push 353 (after each task)` | Done | 2026-11-19 17:27 | 2026-11-19 17:27 |
+| #353 | 8 | `/verification-before-completion Story #353` | Done | 2026-11-19 17:27 | 2026-11-19 17:27 |
+| #353 | 9 | `/requesting-code-review Story #353` | Done | 2026-11-19 17:27 | 2026-11-19 17:27 |
+| #353 | 10 | `/ccaa-commit-push 353` | Done | 2026-11-19 17:27 | 2026-11-19 17:27 |
+| #353 | 11 | `/finishing-a-development-branch Story #353` | In progress | 2026-11-19 17:27 | - |
 | #353 | 12 | `/ccaa-story-complete 353` | Planned | - | - |
 | #354 | 1 | `/ccaa-story-start 354` | Planned | - | - |
 | #354 | 2 | `/brainstorming Story #354` | Planned | - | - |

@@ -11,7 +11,7 @@
       <header>
         <p class="brand">Consumer Complaints Intellect</p>
         <h1>Ask the local index</h1>
-        <p class="lede">Queries the local vector store only — no cloud LLM.</p>
+        <p class="lede">Vector search over the local store, plus Query AST against curated Iceberg.</p>
       </header>
       <form id="query-form" data-testid="intellect-query-form">
         <label>
@@ -33,6 +33,25 @@
       </form>
       <p id="status" data-testid="intellect-status" hidden></p>
       <ul id="results" data-testid="intellect-results"></ul>
+
+      <section class="ast-panel" data-testid="intellect-ast-panel">
+        <h2>Query AST (curated)</h2>
+        <p class="lede">Structured filter against <code>demo.curated.cfpb_complaints_3m</code> via Middleware.</p>
+        <form id="ast-form" data-testid="intellect-ast-form">
+          <label>
+            AST JSON
+            <textarea id="ast-input" data-testid="intellect-ast-input" rows="12" required></textarea>
+          </label>
+          <label class="inline">
+            <input type="checkbox" id="ast-execute" data-testid="intellect-ast-execute" />
+            Execute against warehouse (requires Iceberg Spark)
+          </label>
+          <button type="submit" data-testid="intellect-ast-submit">Run Query AST</button>
+        </form>
+        <p id="ast-status" data-testid="intellect-ast-status" hidden></p>
+        <p id="ast-meta" data-testid="intellect-ast-meta" class="ast-meta" hidden></p>
+        <pre id="ast-sql" data-testid="intellect-ast-sql" class="ast-sql" hidden></pre>
+      </section>
     </main>
     <script type="module" src="/src/main.js"></script>
   </body>
