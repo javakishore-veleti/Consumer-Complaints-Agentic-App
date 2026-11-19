@@ -4,7 +4,7 @@
 
 **Demoable outcome:** ≥1 Golden Query AST answered against curated 3m; depends on M48
 
-**Status: In progress.** Stories left to build: 1. Stories already done: 0.
+**Status: Closed.** PR #339 merged; golden AST PASS (n=3844). Stories left to build: 0. Stories already done: 1.
 
 **GitHub Milestone:** M50 - Query AST Gateway golden query (working product) (api id 51)
 
@@ -35,15 +35,15 @@ One chat per story. Full **12-step** path (M02 standard). Do **not** abbreviate.
 
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
-| #338 | 1 | `/ccaa-story-start 338` | Done | 2026-11-19 15:57 | 2026-11-19 15:57 |
-| #338 | 2 | `/brainstorming Story #338` | Done | 2026-11-19 15:57 | 2026-11-19 15:57 |
-| #338 | 3 | `/using-git-worktrees Story #338` | Done | 2026-11-19 15:57 | 2026-11-19 15:57 |
-| #338 | 4 | `/writing-plans Story #338` | Done | 2026-11-19 15:57 | 2026-11-19 15:57 |
-| #338 | 5 | `/test-driven-development Story #338` | Done | 2026-11-19 15:57 | 2026-11-19 15:57 |
-| #338 | 6 | `/subagent-driven-development Story #338` | Done | 2026-11-19 15:57 | 2026-11-19 15:57 |
-| #338 | 7 | `/ccaa-commit-push 338 (after each task)` | Done | 2026-11-19 15:57 | 2026-11-19 15:57 |
-| #338 | 8 | `/verification-before-completion Story #338` | Done | 2026-11-19 15:57 | 2026-11-19 15:57 |
-| #338 | 9 | `/requesting-code-review Story #338` | Done | 2026-11-19 15:57 | 2026-11-19 15:57 |
-| #338 | 10 | `/ccaa-commit-push 338` | Done | 2026-11-19 15:57 | 2026-11-19 15:57 |
-| #338 | 11 | `/finishing-a-development-branch Story #338` | In progress | 2026-11-19 15:57 | — |
-| #338 | 12 | `/ccaa-story-complete 338` | Not started | — | — |
+| #338 | 1 | `/ccaa-story-start 338` | Done | 2026-11-19 15:58 | 2026-11-19 15:58 |
+| #338 | 2 | `/brainstorming Story #338` | Done | 2026-11-19 15:58 | 2026-11-19 15:58 |
+| #338 | 3 | `/using-git-worktrees Story #338` | Done | 2026-11-19 15:58 | 2026-11-19 15:58 |
+| #338 | 4 | `/writing-plans Story #338` | Done | 2026-11-19 15:58 | 2026-11-19 15:58 |
+| #338 | 5 | `/test-driven-development Story #338` | Done | 2026-11-19 15:58 | 2026-11-19 15:58 |
+| #338 | 6 | `/subagent-driven-development Story #338` | Done | 2026-11-19 15:58 | 2026-11-19 15:58 |
+| #338 | 7 | `/ccaa-commit-push 338 (after each task)` | Done | 2026-11-19 15:58 | 2026-11-19 15:58 |
+| #338 | 8 | `/verification-before-completion Story #338` | Done | 2026-11-19 15:58 | 2026-11-19 15:58 |
+| #338 | 9 | `/requesting-code-review Story #338` | Done | 2026-11-19 15:58 | 2026-11-19 15:58 |
+| #338 | 10 | `/ccaa-commit-push 338` | Done | 2026-11-19 15:58 | 2026-11-19 15:58 |
+| #338 | 11 | `/finishing-a-development-branch Story #338` | Done | 2026-11-19 15:58 | 2026-11-19 15:58 |
+| #338 | 12 | `/ccaa-story-complete 338` | Done | 2026-11-19 15:58 | 2026-11-19 15:58 |
