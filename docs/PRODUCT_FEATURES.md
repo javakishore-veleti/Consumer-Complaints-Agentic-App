@@ -149,6 +149,7 @@ Each workflow that downloads or ingests data is registered in the database, so t
 | Advanced Intellect retrieval + EVALUATION ladder | Done M08 (#183 / #187–#189) |
 | Extra local vector backends (Chroma, Redis) + pgvector consolidate | Done M09 (#195 / #200–#205) |
 | Intellect Query AST over curated | Done M52 (#351 / #352–#354) |
+| Internal Systemic Risk Radar MVP | Planned M53 (#358 / #359–#361) |
 | Cloud deployment | Planned M90 (#73; was M06) |
 
 ## 6. Milestones
@@ -165,6 +166,7 @@ Each workflow that downloads or ingests data is registered in the database, so t
 | **M45–M50** | Iceberg lakehouse spine (Raw→…→Query AST) — npm/prove + Raw DAG | Done |
 | **M51** | Admin Lakehouse workflows (UI→Middleware→Airflow→status) (#340 / #341–#345/#349) | Done |
 | **M52** | Intellect Query AST over curated lakehouse (#351 / #352–#354) | Done |
+| **M53** | Internal Systemic Risk Radar MVP (#358 / #359–#361) | Open |
 | **M90** | Cloud deployment (parked; was M06) (#73) | Planned |
 
 ## 7. Open questions
