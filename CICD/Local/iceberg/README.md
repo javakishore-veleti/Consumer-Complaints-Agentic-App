@@ -187,6 +187,17 @@ npm run local:iceberg:prove-chroma-signatures-3m
 
 Verified 2026-11-19: chroma **cfpb_semantic_signatures**=**2,924** (= taxonomy U_sig); sample query returns `signature_id` + Money Topic metadata.
 
+
+## Query AST Gateway golden (M50-0001 / #338)
+
+Requires curated 3m. Compiles Neutral Query AST → SparkSQL COUNT against curated; k-anonymity n≥10.
+
+```bash
+npm run local:iceberg:prove-query-ast-golden-3m
+```
+
+Golden case: Capital One `parent_org_id` + Credit Cards → **exact_count=3844** (verified 2026-11-19).
+
 ## Airflow DAG (M45-0003 / #322)
 
 DAG id: `hydrate_raw_iceberg_3m` (`Middleware/Airflow-dags/hydrate_raw_iceberg_3m.py`).

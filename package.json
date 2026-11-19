@@ -46,6 +46,7 @@
     "local:iceberg:prove-curated-3m": "bash CICD/Local/iceberg/scripts/prove_curated_3m.sh",
     "local:iceberg:hydrate-chroma-signatures-3m": "bash CICD/Local/iceberg/scripts/run_hydrate_chroma_signatures_3m.sh",
     "local:iceberg:prove-chroma-signatures-3m": "bash CICD/Local/iceberg/scripts/prove_chroma_signatures_3m.sh",
+    "local:iceberg:prove-query-ast-golden-3m": "bash CICD/Local/iceberg/scripts/prove_query_ast_golden_3m.sh",
     "local:api:migrate": "cd Middleware/ConsumerComplaintsHandsOn && uv run alembic upgrade head",
     "local:handson:middlware:all:start": "bash Middleware/ConsumerComplaintsHandsOn/run_app.sh start",
     "local:handson:middlware:all:stop": "bash Middleware/ConsumerComplaintsHandsOn/run_app.sh stop",
