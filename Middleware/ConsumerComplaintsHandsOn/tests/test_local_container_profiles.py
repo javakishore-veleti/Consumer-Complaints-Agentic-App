@@ -21,6 +21,7 @@ EXPECTED = {
     "pgvector": ["airflow", "postgres"],
     "chroma": ["airflow", "chroma"],
     "redis": ["airflow", "redis"],
+    "iceberg": ["iceberg"],
 }
 
 
@@ -46,7 +47,7 @@ def test_cca_profile_services_matches_map() -> None:
     script = f"""
 set -euo pipefail
 source "{DOCKER_PROFILES_SH}"
-for p in sqlite postgres mongodb pgvector chroma redis; do
+for p in sqlite postgres mongodb pgvector chroma redis iceberg; do
   echo "BEGIN:$p"
   cca_profile_services "$p"
   echo "END:$p"
@@ -74,7 +75,10 @@ done
     assert got == EXPECTED
 
 
-@pytest.mark.parametrize("profile", ["sqlite", "postgres", "mongodb", "pgvector", "chroma", "redis"])
+@pytest.mark.parametrize(
+    "profile",
+    ["sqlite", "postgres", "mongodb", "pgvector", "chroma", "redis", "iceberg"],
+)
 def test_status_script_prints_expected_for_profile(profile: str) -> None:
     result = subprocess.run(
         ["bash", str(STATUS_SH), "--profile", profile],
@@ -122,6 +126,9 @@ def test_package_json_has_profile_scripts_and_keeps_all() -> None:
         "local:containers:redis:start",
         "local:containers:redis:stop",
         "local:containers:redis:status",
+        "local:containers:iceberg:start",
+        "local:containers:iceberg:stop",
+        "local:containers:iceberg:status",
     ):
         assert name in text, name
     assert "docker-all-up.sh --profile sqlite" in text
@@ -130,6 +137,8 @@ def test_package_json_has_profile_scripts_and_keeps_all() -> None:
     assert "docker-all-up.sh --profile pgvector" in text
     assert "docker-all-up.sh --profile chroma" in text
     assert "docker-all-up.sh --profile redis" in text
+    assert "docker-all-up.sh --profile iceberg" in text
+    assert "docker-all-down.sh --keep-volumes --profile iceberg" in text
 
 
 def test_operational_postgres_compose_hosts_pgvector() -> None:
