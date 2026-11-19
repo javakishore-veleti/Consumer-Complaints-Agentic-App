@@ -2,7 +2,7 @@
 
 **Scope:** Docs only — expand `docs/DataArchitecture.md` with Refined/Curated zones, database-first Taxonomy Control Plane (Postgres/Mongo; zero flat files), Mode 2 classification, Vector DB Store (Chroma + multi-cloud), Airflow DAG plane, and Query AST Gateway. No Middleware/Portals/DAG product code until each story is started.
 
-**Status: Open.** Stories left to build: 2. Stories already done: 1.
+**Status: Done.** Stories left to build: 0. Stories already done: 3. Closed 2026-11-19 17:56.
 
 **Product policy (2026-11-19):** Documentation-only milestones are discontinued. Prefer shipping architecture sections as Superpowers brainstorming/plan artifacts inside **product** milestones (M45+). M41 docs may proceed later but **must not block** Raw hydrate (M45) or subsequent working-product milestones.
 
