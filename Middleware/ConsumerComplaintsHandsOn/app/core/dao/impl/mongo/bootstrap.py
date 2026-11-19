@@ -86,6 +86,12 @@ NOW_M51 = datetime(2026, 11, 19, tzinfo=UTC)
 HYDRATE_REFINED_ICEBERG_WF_ID = "e5d00f51-f8af-5055-a153-23426590c86d"
 # uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m51-0002/mios-workflows-3m-hydrate-refined")
 MW_3M_HYDRATE_REFINED_ID = "f26e2cea-3e5c-55cb-9a37-2e2cf6c07572"
+HYDRATE_TAXONOMY_WF_ID = "0f362cca-2dd3-55d1-b0d4-7d4cc769defd"
+MW_3M_HYDRATE_TAXONOMY_ID = "c7661b4d-92d2-59eb-b778-f2cde5bf0e56"
+HYDRATE_CURATED_WF_ID = "24e5f80c-68cc-5f99-8f33-2fd3ea48d4b0"
+MW_3M_HYDRATE_CURATED_ID = "e1043a76-3059-57de-945f-a376c6ad3a78"
+HYDRATE_CHROMA_WF_ID = "0663b30e-987d-5938-85d5-cf919bd8f017"
+MW_3M_HYDRATE_CHROMA_ID = "7808b2a0-b480-5ab8-b631-10f32aa82f90"
 
 COLLECTIONS = (
     "app_workflows",
@@ -695,11 +701,68 @@ def ensure_m51_hydrate_refined_iceberg_seed() -> None:
     )
 
 
+def _ensure_m51_hydrate_workflow(
+    *,
+    wf_id: str,
+    bind_id: str,
+    workflow_name: str,
+    lakehouse_zone: str,
+) -> None:
+    _upsert(
+        MongoDocument(
+            {
+                "_collection": "app_workflows",
+                "id": wf_id,
+                "workflow_name": workflow_name,
+                "engine_type": "apache_airflow",
+                "engine_workflow_id": workflow_name,
+                "config": {
+                    "dataset_code": "CFPB",
+                    "dataset_slice": "3m",
+                    "lakehouse_zone": lakehouse_zone,
+                },
+                "enabled": True,
+                "created_at": NOW_M51,
+                "updated_at": NOW_M51,
+            }
+        )
+    )
+    _upsert(
+        MongoDocument(
+            {
+                "_collection": "mios_workflows",
+                "id": bind_id,
+                "mio_id": MIO_3_MONTHS_ID,
+                "workflow_id": wf_id,
+                "created_at": NOW_M51,
+            }
+        )
+    )
+
+
 def bootstrap_operational_mongo() -> None:
     ensure_indexes()
     seed_if_empty()
     ensure_m51_hydrate_raw_iceberg_seed()
     ensure_m51_hydrate_refined_iceberg_seed()
+    _ensure_m51_hydrate_workflow(
+        wf_id=HYDRATE_TAXONOMY_WF_ID,
+        bind_id=MW_3M_HYDRATE_TAXONOMY_ID,
+        workflow_name="hydrate_taxonomy_mode2_3m",
+        lakehouse_zone="taxonomy",
+    )
+    _ensure_m51_hydrate_workflow(
+        wf_id=HYDRATE_CURATED_WF_ID,
+        bind_id=MW_3M_HYDRATE_CURATED_ID,
+        workflow_name="hydrate_curated_iceberg_3m",
+        lakehouse_zone="curated",
+    )
+    _ensure_m51_hydrate_workflow(
+        wf_id=HYDRATE_CHROMA_WF_ID,
+        bind_id=MW_3M_HYDRATE_CHROMA_ID,
+        workflow_name="hydrate_chroma_signatures_3m",
+        lakehouse_zone="chroma",
+    )
 
 
 def drop_all_collections() -> None:
