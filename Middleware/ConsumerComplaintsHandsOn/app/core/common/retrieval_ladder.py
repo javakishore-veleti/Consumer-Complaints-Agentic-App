@@ -23,6 +23,7 @@ CONFIG_SELF_QUERY = "self_query"
 CONFIG_DECOMPOSE = "decompose"
 CONFIG_RERANKER = "reranker"
 CONFIG_EVERYTHING = "everything"
+CONFIG_SIGNATURES = "signatures"
 
 LADDER_CONFIGS: tuple[str, ...] = (
     CONFIG_BASELINE,
@@ -31,6 +32,7 @@ LADDER_CONFIGS: tuple[str, ...] = (
     CONFIG_DECOMPOSE,
     CONFIG_RERANKER,
     CONFIG_EVERYTHING,
+    CONFIG_SIGNATURES,
 )
 
 RRF_K = 60
@@ -264,7 +266,7 @@ def retrieve(req: RetrievalReq) -> list[dict[str, Any]]:
         return []
     rank_req = RankCorpusReq(query=query, corpus=corpus)
 
-    if config == CONFIG_BASELINE:
+    if config in (CONFIG_BASELINE, CONFIG_SIGNATURES):
         return _hits_from_scores(
             HitsFromScoresReq(scored=_vector_ranked(rank_req), by_id=by_id, limit=req.limit)
         )

@@ -57,3 +57,37 @@ def test_unknown_config_is_422(client, tmp_path, monkeypatch):
 def test_path_is_in_openapi(client):
     spec = client.get("/openapi.json").json()
     assert "/intellect/query" in spec["paths"]
+
+
+def test_signatures_config_uses_jsonl_catalog(client, tmp_path, monkeypatch):
+    store = tmp_path / "vectors"
+    store.mkdir()
+    row = {
+        "id": "sig-cc",
+        "text": "Credit card | Billing dispute | Credit Cards",
+        "embedding": hash_embedding(HashEmbeddingReq(text="Credit card Billing dispute Credit Cards")),
+    }
+    (store / "cfpb_semantic_signatures.jsonl").write_text(json.dumps(row) + "\n", encoding="utf-8")
+    monkeypatch.setenv("CCA_VECTOR_STORE_PATH", str(store))
+    response = client.post(
+        "/intellect/query",
+        json={"query": "credit card billing", "limit": 3, "config": "signatures"},
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["config"] == "signatures"
+    assert body["hits"]
+    assert body["hits"][0]["id"] == "sig-cc"
+
+
+def test_signatures_config_empty_catalog_is_ok(client, tmp_path, monkeypatch):
+    monkeypatch.setenv("CCA_VECTOR_STORE_PATH", str(tmp_path))
+    monkeypatch.delenv("CCA_CHROMA_URL", raising=False)
+    response = client.post(
+        "/intellect/query",
+        json={"query": "anything", "limit": 3, "config": "signatures"},
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["config"] == "signatures"
+    assert body["hits"] == []
