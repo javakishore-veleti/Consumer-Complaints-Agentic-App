@@ -1,9 +1,18 @@
 # Data Architecture — CCAA Enterprise
 
 **Document type:** Data architecture specification  
-**Status:** Living draft — Raw Data Zone (Iceberg Bronze) specified first  
-**Story:** M40-0001 #310  
+**Status:** Living draft — Lift + Raw (Bronze) + Refined (Silver) + Curated (Gold) specified; Taxonomy / Vectors / Mode 2 orchestration follow in M41-0002 / M41-0003  
+**Stories:** M40-0001 #310 (Lift + Raw); M41-0001 #314 (Refined + Curated)  
 **Related:** `docs/Project_Management/PROJECT_CHARTER.md`; `docs/Complaints_Data_Classification_Indexing_Brainstorming.md`; Iceberg Docker runtime #311 (`CICD/Local/iceberg/`)
+
+**Empirical calibration (Lift Zone profiling):**
+
+| Slice | Rows (N) | U_prod `(Product, Sub-product)` | U_sig `(Product, Sub-product, Issue, Sub-issue, Tags)` | % Cross-Cutting |
+|---|---:|---:|---:|---:|
+| 3-month | 1,970,702 | 55 | 2,924 | 0.345% |
+| Full archive | 19,170,856 | 127 | 8,438 | 0.764% |
+
+**Mode snap:** **Mode 2 — Semantic Signature Registry + Hybrid Rules / NLI** (full cascade documented in M41-0003 #316).
 
 ---
 
@@ -13,7 +22,9 @@
 2. [Medallion overview (Bronze → Silver → Gold)](#2-medallion-overview-bronze--silver--gold)
 3. [Lift Zone (local CSV zip landing)](#3-lift-zone-local-csv-zip-landing)
 4. [Apache Iceberg Raw Data Zone (Bronze)](#4-apache-iceberg-raw-data-zone-bronze)
-5. [Document control](#5-document-control)
+5. [Refined Data Zone (Silver)](#5-refined-data-zone-silver)
+6. [Curated Data Zone (Gold)](#6-curated-data-zone-gold)
+7. [Document control](#7-document-control)
 
 ---
 
@@ -21,22 +32,25 @@
 
 This document defines the **canonical data architecture** for ingesting ~2M+ CFPB consumer complaint records into a portable lakehouse that supports local development and multi-cloud promotion (S3 / ADLS / GCS).
 
-**Initial scope of this revision:** the **Lift Zone** (local workflow zip inputs) and the **Apache Iceberg Raw Data Zone (Bronze)** — immutable, zero-loss landing tables fed by Airflow + PySpark from already-local CSV zip endpoints.
+**Scope of this revision (M41-0001 #314):** expand the living spec with **Refined (Silver)** and **Curated (Gold)** Iceberg zone models — 24-column and 31-column contracts, ZIP-3 hygiene, deterministic `signature_id`, Money Topics + parent-org enrichment, and size targets — while **preserving** the existing Lift Zone and Raw/Bronze sections.
 
-Silver (semantic signatures / classification) and Gold (enriched vector lake) zones are outlined only at overview level until dedicated sections are added under follow-on stories.
+Database-first Taxonomy Control Plane, Mode 2 classification cascade, Vector DB Store, Airflow DAG plane, and Query AST Gateway land in sibling M41 stories (#315 / #316).
 
 ---
 
 ## 2. Medallion overview (Bronze → Silver → Gold)
 
-| Zone | Responsibility | Primary tech |
-|---|---|---|
-| **Lift Zone** | Durable local copies of CFPB CSV zip inputs produced by existing download/filter workflow endpoints | Local filesystem folder (workflow-managed) |
-| **Raw / Bronze** | Immutable Iceberg tables; all-string business columns + audit lineage; no business transforms | Apache Iceberg + ZSTD Parquet + PySpark |
-| **Silver** | Deduped semantic signatures, taxonomy joins, enrichment registry | Iceberg / Parquet + ML enrichment |
-| **Gold** | Business facts + portable embeddings + flat filter metadata for vector fan-out | Parquet/Iceberg + vector stores |
+| Zone | Namespace / tables | Responsibility | Primary tech |
+|---|---|---|---|
+| **Lift Zone** | Filesystem zips | Durable local copies of CFPB CSV zip inputs produced by existing download/filter workflow endpoints | Local filesystem folder (workflow-managed) |
+| **Raw / Bronze** | `raw.cfpb_complaints_<slice>` + quarantine | Immutable Iceberg tables; all-string business columns + audit lineage; no business transforms | Apache Iceberg + ZSTD Parquet + PySpark |
+| **Refined / Silver** | `refined.cfpb_complaints_<slice>` | Typed **24-column** facts; ZIP-3 hygiene; deterministic `signature_id` | Iceberg + PySpark |
+| **Curated / Gold** | `curated.cfpb_complaints_<slice>` | Typed **31-column** business SoR: Money Topics + parent org (~220 MB / ~2 GB) | Iceberg + broadcast registry join |
+| **Vector serving (later)** | Compact catalogs | Semantic routing indexes (not the fact SoR) | Chroma / multi-cloud (M41-0003) |
 
-Data flows **unidirectionally**: Lift → Raw → Silver → Gold → Vector serving caches.
+Data flows **unidirectionally**: **Lift → Raw → Refined → Curated** → Vector serving caches / DuckDB analytics.
+
+All five slices (`3m`, `6m`, `9m`, `12m`, `all`) share identical table templates per zone, **ZSTD Level 3**, `write.distribution-mode=hash`, and Iceberg hidden partitioning on **`months(date_received)`**.
 
 ---
 
@@ -163,13 +177,88 @@ Raw Zone compute runs against the containerized Spark + Iceberg stack under `CIC
 
 ---
 
-## 5. Document control
+## 5. Refined Data Zone (Silver)
+
+### 5.1 Purpose
+
+Type-safe analytical foundation and **deterministic `signature_id`** generation. Silver is where taxonomy discovery inputs (`DISTINCT product/sub_product`, distinct companies) are produced for the Database Taxonomy Control Plane (M41-0002). Money Topics are **not** attached here.
+
+### 5.2 Tables
+
+`refined.cfpb_complaints_<slice>` — same five slices as Raw (`3m` … `all`). Partition: `months(date_received)`.
+
+### 5.3 Data model — 24 columns
+
+| Group | Columns |
+|---|---|
+| **Keys & lineage** | `complaint_id` (PK), `signature_id` (SHA-256 of normalized `product\|sub_product\|issue\|sub_issue\|tags` — lower/trim/coalesce empty), `_source_row_hash`, `_refined_ts` |
+| **Temporal / SLA** | `date_received` (DATE), `date_sent_to_company` (DATE when parseable), `date_received_int` (YYYYMMDD), `year_month` (YYYYMM), `forwarding_lag_days` (INT) |
+| **Standardized categoricals** | `product`, `sub_product`, `issue`, `sub_issue`, `submitted_via`, `company_raw_clean`, `company_response`, `company_public_response` (nulls → `UNKNOWN` / `NONE_PROVIDED`) |
+| **Booleans** | `is_timely_response`, `is_monetary_relief`, `is_older_american`, `is_servicemember` |
+| **Geo hygiene (ZIP-3)** | `state` (2-letter), `zip_code_clean`, `zip_precision` (`5_DIGIT` \| `3_DIGIT_MASKED` \| `UNAVAILABLE`); `zip3` = first 3 digit chars of `zip_code` else `UNK` |
+
+Count check: **24 columns** across the five groups above.
+
+### 5.4 Transforms (logical)
+
+- Read Raw → parse dates; uppercase / normalize enums; derive Tags booleans (`Older American`, `Servicemember`).
+- **ZIP-3 hygiene:** mask sparse geographies (&lt; 20,000 residents policy) to 3-digit precision; never store full ZIP when policy requires masking.
+- Compute `signature_id`; retain lineage to Raw via `_source_row_hash` / audit fields as needed.
+- **Do not** attach Money Topics or parent-org resolution on Silver (that is Gold + registry).
+
+### 5.5 Quality gates
+
+- `COUNT(*)` Refined = `COUNT(*)` Raw for the slice (quarantine excluded).
+- `signature_id` non-null on every refined row.
+- Operator demo: `COUNT(DISTINCT signature_id)` ≈ U_sig for the slice (2,924 on 3m; 8,438 on full).
+
+---
+
+## 6. Curated Data Zone (Gold)
+
+### 6.1 Purpose
+
+Business-ready **System of Record**: Refined facts + multi-label Money Topics + parent organization resolution. **No heavy vector arrays in the fact table** — vectors live in the registry + Vector DB Store (M41-0003).
+
+### 6.2 Tables
+
+`curated.cfpb_complaints_<slice>` — same five slices; partition `months(date_received)`.
+
+### 6.3 Data model — 31 columns
+
+All **24 Refined columns** plus **7 enrichment columns**:
+
+| Group | Columns |
+|---|---|
+| **Money Topics (multi-label)** | `primary_money_topic`, `secondary_money_topics` (pipe-delimited, e.g. `\|Fraud & Scams\|`), `is_fraud_scam`, `is_money_transfer`, `classification_source` |
+| **Entity resolution** | `parent_org_id` (SHA-256 of normalized company / alias override), `canonical_org_name`, `org_peer_tier` |
+| **Governance lineage** | `tax_version`, `classifier_version` |
+
+Count check: **24 + 7 = 31 columns**.
+
+### 6.4 Physical footprint (target)
+
+| Slice | Approx. size |
+|---|---|
+| 3-month (1,970,702 rows) | ~220 MB |
+| Full archive (19,170,856 rows) | ~2.0 GB |
+
+### 6.5 Materialization
+
+PySpark broadcast-joins Refined facts to Parquet snapshots of `semantic_signatures` + `organization_aliases` (exported from Postgres/Mongo Taxonomy Control Plane — M41-0002). Cache hits dominate; only new signatures trigger Mode 2 inference upstream of the join (M41-0003).
+
+DuckDB / SparkSQL / cloud SQL engines query Curated for exact counts and KPIs — never route aggregations through vector stores.
+
+---
+
+## 7. Document control
 
 | Field | Value |
 |---|---|
 | Title | Data Architecture — CCAA Enterprise |
-| Initial focus | Lift Zone + Apache Iceberg Raw Data Zone (Bronze) |
+| Current focus | Lift + Raw (Bronze) + Refined (Silver) + Curated (Gold) |
 | Related charter | `docs/Project_Management/PROJECT_CHARTER.md` |
 | Related brainstorming | `docs/Complaints_Data_Classification_Indexing_Brainstorming.md` |
 | Follow-on infra | M40-0002 #311 — Iceberg Spark Docker for Raw Zone |
-| Delivered under | M40-0001 #310 |
+| Delivered under | M40-0001 #310 (Lift + Raw); M41-0001 #314 (Refined + Curated) |
+| Next docs | M41-0002 #315 Taxonomy Control Plane; M41-0003 #316 Vectors + Mode 2 + orchestration |
