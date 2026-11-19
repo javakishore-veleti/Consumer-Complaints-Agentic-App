@@ -4,7 +4,7 @@
 
 **Demoable outcome:** Registry ~2924 signatures classified; depends on M46
 
-**Status: Open.** Stories left to build: 1. Stories already done: 0.
+**Status: Closed.** Stories left to build: 0. Stories already done: 1.
 
 **GitHub Milestone:** M47 - Taxonomy registry + Mode 2 working product (api id 48)
 
@@ -45,5 +45,5 @@ One chat per story. Full **12-step** path (M02 standard). Do **not** abbreviate.
 | #325 | 8 | `/verification-before-completion Story #325` | Not started | — | — |
 | #325 | 9 | `/requesting-code-review Story #325` | Not started | — | — |
 | #325 | 10 | `/ccaa-commit-push 325` | Not started | — | — |
-| #325 | 11 | `/finishing-a-development-branch Story #325` | Not started | — | — |
-| #325 | 12 | `/ccaa-story-complete 325` | Not started | — | — |
+| #325 | 11 | `/finishing-a-development-branch Story #325` | Done | 2026-11-19 13:02 | 2026-11-19 13:02 |
+| #325 | 12 | `/ccaa-story-complete 325` | Done | 2026-11-19 13:02 | 2026-11-19 13:02 |
