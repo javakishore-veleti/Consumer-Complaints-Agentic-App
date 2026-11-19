@@ -107,6 +107,14 @@ Header-map unit check (no Docker):
 bash CICD/Local/iceberg/scripts/verify_hydrate_raw_headers.sh
 ```
 
+## Airflow DAG (M45-0003 / #322)
+
+DAG id: `hydrate_raw_iceberg_3m` (`Middleware/Airflow-dags/hydrate_raw_iceberg_3m.py`).
+
+Flow: sense Lift 3m zips → pre-ingest gate → docker-exec Spark hydrate → DQ → cleanup staging.
+
+Local Airflow compose mounts `/var/run/docker.sock` so workers can exec into `cca-spark-iceberg`. Spark compose mounts `./scripts` at `/opt/cca/iceberg/scripts`. Rebuild Airflow image after pull (`docker compose up -d --build` under `CICD/Local/airflow`) so the `docker` Python SDK is present.
+
 ## Verify catalog / tables
 
 ```bash

@@ -54,6 +54,8 @@ x-airflow-common:
     - ${HOME}/runtime_data/apps/datasets/CCA/complains_datasets:${HOME}/runtime_data/apps/datasets/CCA/complains_datasets
     # M17-0005 / #248: per-MIO split source folders under Downloads/temp (bind whole temp tree).
     - ${HOME}/Downloads/temp:${HOME}/Downloads/temp
+    # M45-0003 / #322: docker-exec into cca-spark-iceberg for Raw hydrate / DQ.
+    - /var/run/docker.sock:/var/run/docker.sock
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on

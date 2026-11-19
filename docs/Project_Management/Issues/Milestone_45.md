@@ -71,16 +71,16 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #321 | 11 | `/finishing-a-development-branch Story #321` | Done | 2026-11-19 12:31 | 2026-11-19 12:31 |
 | #321 | 12 | `/ccaa-story-complete 321` | Done | 2026-11-19 12:31 | 2026-11-19 12:31 |
 | #322 | 1 | `/ccaa-story-start 322` | Not started | — | — |
-| #322 | 2 | `/brainstorming Story #322` | Not started | — | — |
-| #322 | 3 | `/using-git-worktrees Story #322` | Not started | — | — |
-| #322 | 4 | `/writing-plans Story #322` | Not started | — | — |
-| #322 | 5 | `/test-driven-development Story #322` | Not started | — | — |
-| #322 | 6 | `/subagent-driven-development Story #322` | Not started | — | — |
-| #322 | 7 | `/ccaa-commit-push 322 (after each task)` | Not started | — | — |
-| #322 | 8 | `/verification-before-completion Story #322` | Not started | — | — |
-| #322 | 9 | `/requesting-code-review Story #322` | Not started | — | — |
-| #322 | 10 | `/ccaa-commit-push 322` | Not started | — | — |
-| #322 | 11 | `/finishing-a-development-branch Story #322` | Not started | — | — |
+| #322 | 2 | `/brainstorming Story #322` | Done | 2026-11-19 12:33 | 2026-11-19 12:34 |
+| #322 | 3 | `/using-git-worktrees Story #322` | Done | 2026-11-19 12:34 | 2026-11-19 12:34 |
+| #322 | 4 | `/writing-plans Story #322` | Done | 2026-11-19 12:34 | 2026-11-19 12:34 |
+| #322 | 5 | `/test-driven-development Story #322` | Done | 2026-11-19 12:34 | 2026-11-19 12:34 |
+| #322 | 6 | `/subagent-driven-development Story #322` | Done | 2026-11-19 12:34 | 2026-11-19 12:34 |
+| #322 | 7 | `/ccaa-commit-push 322 (after each task)` | Done | 2026-11-19 12:34 | 2026-11-19 12:34 |
+| #322 | 8 | `/verification-before-completion Story #322` | Done | 2026-11-19 12:34 | 2026-11-19 12:34 |
+| #322 | 9 | `/requesting-code-review Story #322` | Done | 2026-11-19 12:34 | 2026-11-19 12:34 |
+| #322 | 10 | `/ccaa-commit-push 322` | Done | 2026-11-19 12:34 | 2026-11-19 12:34 |
+| #322 | 11 | `/finishing-a-development-branch Story #322` | In progress | 2026-11-19 12:34 | — |
 | #322 | 12 | `/ccaa-story-complete 322` | Not started | — | — |
 | #323 | 1 | `/ccaa-story-start 323` | Not started | — | — |
 | #323 | 2 | `/brainstorming Story #323` | Not started | — | — |
