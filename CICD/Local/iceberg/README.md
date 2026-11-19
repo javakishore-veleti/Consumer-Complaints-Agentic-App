@@ -85,6 +85,28 @@ Static template check (no Docker):
 bash CICD/Local/iceberg/scripts/verify_raw_ddl_templates.sh
 ```
 
+## Hydrate Raw 3m from Lift Zone (M45-0002 / #321)
+
+Requires iceberg containers up and Raw DDL applied. Reads latest `/lift/imports/*/dataset/*3_months*.csv.zip`, stages CSVs, writes `demo.raw.cfpb_complaints_3m` (+ quarantine).
+
+```bash
+npm run local:containers:iceberg:start
+npm run local:iceberg:apply-raw-ddl
+npm run local:iceberg:hydrate-raw-3m
+```
+
+Optional smoke limit:
+
+```bash
+CCA_RAW_LIMIT=1000 npm run local:iceberg:hydrate-raw-3m
+```
+
+Header-map unit check (no Docker):
+
+```bash
+bash CICD/Local/iceberg/scripts/verify_hydrate_raw_headers.sh
+```
+
 ## Verify catalog / tables
 
 ```bash
