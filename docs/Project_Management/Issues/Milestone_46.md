@@ -4,7 +4,7 @@
 
 **Demoable outcome:** SparkSQL/DuckDB query on refined 3m with signature_id; depends on M45 #323
 
-**Status: Open.** Stories left to build: 1 (closing #324). Stories already done: 1 (#331).
+**Status: Closed.** Stories left to build: 0. Stories already done: 2 (#331, #324).
 
 **GitHub Milestone:** M46 - Refined Iceberg working product (3m signature_id) (api id 47)
 
@@ -45,5 +45,5 @@ One chat per story. Full **12-step** path (M02 standard). Do **not** abbreviate.
 | #324 | 8 | `/verification-before-completion Story #324` | Done | 2026-11-19 12:50 | 2026-11-19 12:50 |
 | #324 | 9 | `/requesting-code-review Story #324` | Done | 2026-11-19 12:50 | 2026-11-19 12:50 |
 | #324 | 10 | `/ccaa-commit-push 324` | Done | 2026-11-19 12:50 | 2026-11-19 12:50 |
-| #324 | 11 | `/finishing-a-development-branch Story #324` | In progress | 2026-11-19 12:50 | — |
-| #324 | 12 | `/ccaa-story-complete 324` | Not started | — | — |
+| #324 | 11 | `/finishing-a-development-branch Story #324` | Done | 2026-11-19 12:50 | 2026-11-19 12:51 |
+| #324 | 12 | `/ccaa-story-complete 324` | Done | 2026-11-19 12:51 | 2026-11-19 12:51 |
