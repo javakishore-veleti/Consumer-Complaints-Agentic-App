@@ -6,7 +6,7 @@
 
 **Scope:** Implement Lift Zone → Apache Iceberg **Raw hydrate**. M40 (#310/#311) delivered Raw **docs** + Iceberg Spark **Docker** only — ingest was explicitly future. No Refined/Curated. No product/DAG code until each story is `/ccaa-story-start`.
 
-**Status: Open.** Stories left to build: 3. Stories already done: 1.
+**Status: Open.** Stories left to build: 2. Stories already done: 2.
 
 **GitHub Milestone:** M45 - Raw Iceberg ingest (Lift → raw.cfpb_complaints_*) (api id 46)
 
@@ -68,8 +68,8 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #321 | 8 | `/verification-before-completion Story #321` | Done | 2026-11-19 12:30 | 2026-11-19 12:30 |
 | #321 | 9 | `/requesting-code-review Story #321` | Done | 2026-11-19 12:30 | 2026-11-19 12:30 |
 | #321 | 10 | `/ccaa-commit-push 321` | Done | 2026-11-19 12:30 | 2026-11-19 12:30 |
-| #321 | 11 | `/finishing-a-development-branch Story #321` | In progress | 2026-11-19 12:30 | — |
-| #321 | 12 | `/ccaa-story-complete 321` | Not started | — | — |
+| #321 | 11 | `/finishing-a-development-branch Story #321` | Done | 2026-11-19 12:31 | 2026-11-19 12:31 |
+| #321 | 12 | `/ccaa-story-complete 321` | Done | 2026-11-19 12:31 | 2026-11-19 12:31 |
 | #322 | 1 | `/ccaa-story-start 322` | Not started | — | — |
 | #322 | 2 | `/brainstorming Story #322` | Not started | — | — |
 | #322 | 3 | `/using-git-worktrees Story #322` | Not started | — | — |
