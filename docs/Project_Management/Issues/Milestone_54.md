@@ -4,7 +4,7 @@
 
 **Demoable outcome:** Narrow AST with `relax: true` broadens predicates and returns an explanation trail + usable SQL/count (k-anon ≥10).
 
-**Status: Done.** Stories left to build: 0. Stories already done: 3. Closed 2026-11-19 18:00.
+**Status: Done.** Stories left to build: 0. Stories already done: 3. Closed 2026-11-19 18:01 (feature #365; GitHub Milestone 55).
 
 **GitHub Milestone:** M54 - Query AST zero-hit relaxation (api id 55)
 
