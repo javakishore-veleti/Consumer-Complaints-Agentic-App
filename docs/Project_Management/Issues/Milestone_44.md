@@ -18,5 +18,5 @@
 |---|---|---|---|---|---|
 | #319 | 1 | story-start | Board allow-list path (Project_Management) | 2026-11-18 20:59 | 2026-11-18 20:59 |
 | #319 | 2 | worktree → implement | Done | 2026-11-18 20:59 | 2026-11-18 21:00 |
-| #319 | 3 | commit-push | In progress | 2026-11-18 21:00 | — |
+| #319 | 3 | commit-push | Done | 2026-11-18 21:00 | 2026-11-18 21:00 |
 | #319 | 4 | story-complete | Not started | — | — |
