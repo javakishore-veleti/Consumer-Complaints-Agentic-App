@@ -44,17 +44,17 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
 | #314 | 1 | `/ccaa-story-start 314` | Done | 2026-11-19 17:46 | 2026-11-19 17:46 |
-| #314 | 2 | `/brainstorming Story #314` | In progress | 2026-11-19 17:46 | — |
-| #314 | 3 | `/using-git-worktrees Story #314` | Not started | — | — |
-| #314 | 4 | `/writing-plans Story #314` | Not started | — | — |
-| #314 | 5 | `/test-driven-development Story #314` | Not started | — | — |
-| #314 | 6 | `/subagent-driven-development Story #314` | Not started | — | — |
-| #314 | 7 | `/ccaa-commit-push 314 (after each task)` | Not started | — | — |
-| #314 | 8 | `/verification-before-completion Story #314` | Not started | — | — |
-| #314 | 9 | `/requesting-code-review Story #314` | Not started | — | — |
-| #314 | 10 | `/ccaa-commit-push 314` | Not started | — | — |
-| #314 | 11 | `/finishing-a-development-branch Story #314` | Not started | — | — |
-| #314 | 12 | `/ccaa-story-complete 314` | Not started | — | — |
+| #314 | 2 | `/brainstorming Story #314` | Done | 2026-11-19 17:48 | 2026-11-19 17:48 |
+| #314 | 3 | `/using-git-worktrees Story #314` | Done | 2026-11-19 17:48 | 2026-11-19 17:48 |
+| #314 | 4 | `/writing-plans Story #314` | Done | 2026-11-19 17:48 | 2026-11-19 17:48 |
+| #314 | 5 | `/test-driven-development Story #314` | Done | 2026-11-19 17:48 | 2026-11-19 17:48 |
+| #314 | 6 | `/subagent-driven-development Story #314` | Done | 2026-11-19 17:48 | 2026-11-19 17:48 |
+| #314 | 7 | `/ccaa-commit-push 314 (after each task)` | Done | 2026-11-19 17:48 | 2026-11-19 17:48 |
+| #314 | 8 | `/verification-before-completion Story #314` | Done | 2026-11-19 17:48 | 2026-11-19 17:48 |
+| #314 | 9 | `/requesting-code-review Story #314` | Done | 2026-11-19 17:48 | 2026-11-19 17:48 |
+| #314 | 10 | `/ccaa-commit-push 314` | Done | 2026-11-19 17:48 | 2026-11-19 17:48 |
+| #314 | 11 | `/finishing-a-development-branch Story #314` | Done | 2026-11-19 17:48 | 2026-11-19 17:48 |
+| #314 | 12 | `/ccaa-story-complete 314` | In progress | 2026-11-19 17:48 | — |
 | #315 | 1 | `/ccaa-story-start 315` | Not started | — | — |
 | #315 | 2 | `/brainstorming Story #315` | Not started | — | — |
 | #315 | 3 | `/using-git-worktrees Story #315` | Not started | — | — |
