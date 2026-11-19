@@ -75,6 +75,13 @@ npm run local:iceberg:hydrate-chroma-signatures-3m
 npm run local:iceberg:prove-chroma-signatures-3m
 ```
 
+Query AST Gateway golden (M50-0001):
+
+```bash
+npm run local:iceberg:prove-query-ast-golden-3m
+```
+
+
 Demo: `SELECT primary_money_topic, COUNT(*) FROM demo.curated.cfpb_complaints_3m GROUP BY 1 ORDER BY 2 DESC;`
 Also ensure local Airflow is up (includes pymongo image):
 

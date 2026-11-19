@@ -1,0 +1,31 @@
+{
+  "suite": "m50-query-ast-curated-3m",
+  "cases": [
+    {
+      "id": "g1-capital-one-credit-cards",
+      "description": "Capital One parent_org + Credit Cards Money Topic on curated 3m",
+      "ast": {
+        "table": "demo.curated.cfpb_complaints_3m",
+        "filter_tree": {
+          "op": "AND",
+          "args": [
+            {
+              "op": "EQ",
+              "field": "parent_org_id",
+              "value": "6d55f403495e51ed7212000a597144abed8a3c310895cb601bea4403339300c6"
+            },
+            {
+              "op": "EQ",
+              "field": "primary_money_topic",
+              "value": "Credit Cards"
+            }
+          ]
+        }
+      },
+      "expect": {
+        "min_count": 1000,
+        "exact_count": 3844
+      }
+    }
+  ]
+}
