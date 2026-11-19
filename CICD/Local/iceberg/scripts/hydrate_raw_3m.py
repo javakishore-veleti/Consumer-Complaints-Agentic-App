@@ -136,11 +136,11 @@ def main() -> int:
         )
         print(f"appended {q_count} rows to {args.quarantine_table}")
 
-    (
-        good.writeTo(args.target_table)
-        .overwritePartitions()
-    )
-    print(f"wrote {g_count} rows to {args.target_table} (overwritePartitions)")
+    # Full-slice replace (not dynamic partition overwrite) so partial/smoke runs
+    # cannot leave stale partitions behind when a later full hydrate runs.
+    spark.sql(f"DELETE FROM {args.target_table}")
+    good.writeTo(args.target_table).append()
+    print(f"wrote {g_count} rows to {args.target_table} (delete+append replace)")
 
     # Quick verify
     total = spark.table(args.target_table).count()

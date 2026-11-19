@@ -6,7 +6,7 @@
 
 **Scope:** Implement Lift Zone → Apache Iceberg **Raw hydrate**. M40 (#310/#311) delivered Raw **docs** + Iceberg Spark **Docker** only — ingest was explicitly future. No Refined/Curated. No product/DAG code until each story is `/ccaa-story-start`.
 
-**Status: Open.** Stories left to build: 1. Stories already done: 3.
+**Status: Open.** Stories left to build: 1 (closing #323). Stories already done: 3.
 
 **GitHub Milestone:** M45 - Raw Iceberg ingest (Lift → raw.cfpb_complaints_*) (api id 46)
 
@@ -83,16 +83,16 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #322 | 11 | `/finishing-a-development-branch Story #322` | Done | 2026-11-19 12:35 | 2026-11-19 12:34 |
 | #322 | 12 | `/ccaa-story-complete 322` | Done | 2026-11-19 12:34 | 2026-11-19 12:34 |
 | #323 | 1 | `/ccaa-story-start 323` | Not started | — | — |
-| #323 | 2 | `/brainstorming Story #323` | Not started | — | — |
-| #323 | 3 | `/using-git-worktrees Story #323` | Not started | — | — |
-| #323 | 4 | `/writing-plans Story #323` | Not started | — | — |
-| #323 | 5 | `/test-driven-development Story #323` | Not started | — | — |
-| #323 | 6 | `/subagent-driven-development Story #323` | Not started | — | — |
-| #323 | 7 | `/ccaa-commit-push 323 (after each task)` | Not started | — | — |
-| #323 | 8 | `/verification-before-completion Story #323` | Not started | — | — |
-| #323 | 9 | `/requesting-code-review Story #323` | Not started | — | — |
-| #323 | 10 | `/ccaa-commit-push 323` | Not started | — | — |
-| #323 | 11 | `/finishing-a-development-branch Story #323` | Not started | — | — |
+| #323 | 2 | `/brainstorming Story #323` | Done | 2026-11-19 12:35 | 2026-11-19 12:36 |
+| #323 | 3 | `/using-git-worktrees Story #323` | Done | 2026-11-19 12:36 | 2026-11-19 12:36 |
+| #323 | 4 | `/writing-plans Story #323` | Done | 2026-11-19 12:36 | 2026-11-19 12:36 |
+| #323 | 5 | `/test-driven-development Story #323` | Done | 2026-11-19 12:36 | 2026-11-19 12:36 |
+| #323 | 6 | `/subagent-driven-development Story #323` | Done | 2026-11-19 12:36 | 2026-11-19 12:36 |
+| #323 | 7 | `/ccaa-commit-push 323 (after each task)` | Done | 2026-11-19 12:36 | 2026-11-19 12:36 |
+| #323 | 8 | `/verification-before-completion Story #323` | Done | 2026-11-19 12:36 | 2026-11-19 12:36 |
+| #323 | 9 | `/requesting-code-review Story #323` | Done | 2026-11-19 12:36 | 2026-11-19 12:36 |
+| #323 | 10 | `/ccaa-commit-push 323` | Done | 2026-11-19 12:36 | 2026-11-19 12:36 |
+| #323 | 11 | `/finishing-a-development-branch Story #323` | In progress | 2026-11-19 12:36 | — |
 | #323 | 12 | `/ccaa-story-complete 323` | Not started | — | — |
 
 ## 3. Status truth (do not skip)
@@ -102,8 +102,8 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | Lift Zone zips | Operational |
 | Raw architecture docs | Done (M40 #310) |
 | Iceberg Spark Docker | Done (M40 #311) |
-| Raw **ingest into Iceberg tables** | **Not done** — this milestone |
-| Refined / Curated implement | Blocked until #323 proof |
+| Raw **ingest into Iceberg tables** | **Done for 3m** — #320–#323 (COUNT=1,970,702) |
+| Refined / Curated implement | Unblocked for milestoned stories (M46+) |
 
 ## 4. Commands (skills)
 
