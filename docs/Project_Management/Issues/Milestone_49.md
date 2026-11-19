@@ -1,0 +1,49 @@
+# Milestone M49 - Chroma semantic signatures catalog (working product)
+
+**Type:** Working **product** milestone (not docs-only). See `docs/Project_Management/MILESTONE_POLICY.md`.
+
+**Demoable outcome:** Chroma `cfpb_semantic_signatures` searchable (~2,924 U_sig); depends on M47
+
+**Status: Open.** Stories left to build: 1. Stories already done: 0.
+
+**GitHub Milestone:** M49 - Chroma semantic signatures catalog (working product) (api id 50)
+
+## 1. Build order
+
+| # | Issue | Key | Type | Title |
+|---|---|---|---|---|
+| 1 | #336 | M49-0001 | Story | Working product: Chroma cfpb_semantic_signatures catalog |
+
+## 2. Superpowers workflow
+
+One chat per story. Full **12-step** path (M02 standard). Do **not** abbreviate. Specs → `docs/Superpowers/specs/`; plans → `docs/Superpowers/plans/`.
+
+| Step | Command | What it does |
+|---|---|---|
+| 1 | `/ccaa-story-start N` | Start story |
+| 2 | `/brainstorming Story #N` | Design → Superpowers spec |
+| 3 | `/using-git-worktrees Story #N` | Worktree/branch |
+| 4 | `/writing-plans Story #N` | Plan → Superpowers plans |
+| 5 | `/test-driven-development Story #N` | TDD |
+| 6 | `/subagent-driven-development Story #N` | Implement |
+| 7 | `/ccaa-commit-push N` | After each task |
+| 8 | `/verification-before-completion Story #N` | Prove Done-when |
+| 9 | `/requesting-code-review Story #N` | Review |
+| 10 | `/ccaa-commit-push N` | Review fixes |
+| 11 | `/finishing-a-development-branch Story #N` | Merge/PR |
+| 12 | `/ccaa-story-complete N` | Close story |
+
+| Issue | Step | Command | Status | Started | Completed |
+|---|---|---|---|---|---|
+| #336 | 1 | `/ccaa-story-start 336` | Not started | — | — |
+| #336 | 2 | `/brainstorming Story #336` | Not started | — | — |
+| #336 | 3 | `/using-git-worktrees Story #336` | Not started | — | — |
+| #336 | 4 | `/writing-plans Story #336` | Not started | — | — |
+| #336 | 5 | `/test-driven-development Story #336` | Not started | — | — |
+| #336 | 6 | `/subagent-driven-development Story #336` | Not started | — | — |
+| #336 | 7 | `/ccaa-commit-push 336 (after each task)` | Not started | — | — |
+| #336 | 8 | `/verification-before-completion Story #336` | Not started | — | — |
+| #336 | 9 | `/requesting-code-review Story #336` | Not started | — | — |
+| #336 | 10 | `/ccaa-commit-push 336` | Not started | — | — |
+| #336 | 11 | `/finishing-a-development-branch Story #336` | Not started | — | — |
+| #336 | 12 | `/ccaa-story-complete 336` | Not started | — | — |
