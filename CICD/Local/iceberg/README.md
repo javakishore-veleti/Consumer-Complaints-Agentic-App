@@ -153,6 +153,25 @@ Demo join (Capital One → primary_money_topic) is printed by the prove script.
 
 Verified 2026-11-19: topics=**12**, crosswalk=**55**, semantic_signatures=**2,924**.
 
+## Curated 3m Money Topics (M48-0001 / #326)
+
+Requires refined + taxonomy Mode 2. Joins signatures and assigns `parent_org_id`.
+
+```bash
+npm run local:iceberg:prove-curated-3m
+```
+
+Demo:
+
+```sql
+SELECT primary_money_topic, COUNT(*) AS n
+FROM demo.curated.cfpb_complaints_3m
+GROUP BY primary_money_topic
+ORDER BY n DESC;
+```
+
+Verified 2026-11-19: curated=**1,970,702**; null topics/org=0; Capital One Money Topic group-by works.
+
 ## Airflow DAG (M45-0003 / #322)
 
 DAG id: `hydrate_raw_iceberg_3m` (`Middleware/Airflow-dags/hydrate_raw_iceberg_3m.py`).

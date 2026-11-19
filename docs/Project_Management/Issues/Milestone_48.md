@@ -36,14 +36,14 @@ One chat per story. Full **12-step** path (M02 standard). Do **not** abbreviate.
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
 | #326 | 1 | `/ccaa-story-start 326` | Not started | — | — |
-| #326 | 2 | `/brainstorming Story #326` | Not started | — | — |
-| #326 | 3 | `/using-git-worktrees Story #326` | Not started | — | — |
-| #326 | 4 | `/writing-plans Story #326` | Not started | — | — |
-| #326 | 5 | `/test-driven-development Story #326` | Not started | — | — |
-| #326 | 6 | `/subagent-driven-development Story #326` | Not started | — | — |
-| #326 | 7 | `/ccaa-commit-push 326 (after each task)` | Not started | — | — |
-| #326 | 8 | `/verification-before-completion Story #326` | Not started | — | — |
-| #326 | 9 | `/requesting-code-review Story #326` | Not started | — | — |
-| #326 | 10 | `/ccaa-commit-push 326` | Not started | — | — |
-| #326 | 11 | `/finishing-a-development-branch Story #326` | Not started | — | — |
+| #326 | 2 | `/brainstorming Story #326` | Done | 2026-11-19 15:39 | 2026-11-19 15:44 |
+| #326 | 3 | `/using-git-worktrees Story #326` | Done | 2026-11-19 15:44 | 2026-11-19 15:44 |
+| #326 | 4 | `/writing-plans Story #326` | Done | 2026-11-19 15:44 | 2026-11-19 15:44 |
+| #326 | 5 | `/test-driven-development Story #326` | Done | 2026-11-19 15:44 | 2026-11-19 15:44 |
+| #326 | 6 | `/subagent-driven-development Story #326` | Done | 2026-11-19 15:44 | 2026-11-19 15:44 |
+| #326 | 7 | `/ccaa-commit-push 326 (after each task)` | Done | 2026-11-19 15:44 | 2026-11-19 15:44 |
+| #326 | 8 | `/verification-before-completion Story #326` | Done | 2026-11-19 15:44 | 2026-11-19 15:44 |
+| #326 | 9 | `/requesting-code-review Story #326` | Done | 2026-11-19 15:44 | 2026-11-19 15:44 |
+| #326 | 10 | `/ccaa-commit-push 326` | Done | 2026-11-19 15:44 | 2026-11-19 15:44 |
+| #326 | 11 | `/finishing-a-development-branch Story #326` | In progress | 2026-11-19 15:44 | — |
 | #326 | 12 | `/ccaa-story-complete 326` | Not started | — | — |

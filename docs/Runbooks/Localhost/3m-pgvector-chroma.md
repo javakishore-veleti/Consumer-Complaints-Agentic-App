@@ -59,6 +59,14 @@ npm run local:iceberg:prove-refined-3m
 ```
 
 Demo: `SELECT COUNT(*), COUNT(DISTINCT signature_id) FROM demo.refined.cfpb_complaints_3m;`
+
+Curated Money Topics (M48-0001):
+
+```bash
+npm run local:iceberg:prove-curated-3m
+```
+
+Demo: `SELECT primary_money_topic, COUNT(*) FROM demo.curated.cfpb_complaints_3m GROUP BY 1 ORDER BY 2 DESC;`
 Also ensure local Airflow is up (includes pymongo image):
 
 ```bash
