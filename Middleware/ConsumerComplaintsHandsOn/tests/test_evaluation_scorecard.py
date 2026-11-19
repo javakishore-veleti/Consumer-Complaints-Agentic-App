@@ -34,6 +34,7 @@ def test_golden_scorecard_runs_all_ladder_configs():
         "decompose",
         "reranker",
         "everything",
+        "signatures",
     ]
     assert all(r.queries == 5 for r in rows)
     by = {r.config: r for r in rows}
