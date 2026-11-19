@@ -118,3 +118,116 @@ def ast_to_sql(req: AstToSqlReq) -> str:
 def assert_k_anonymous(req: KAnonReq) -> None:
     if req.count < req.min_n:
         raise ValueError(f"k-anonymity violation: n={req.count} < {req.min_n}")
+
+
+# --- M54 zero-hit relaxation -------------------------------------------------
+
+# Drop order: most specific geo/product first; keep Money Topic when possible.
+_RELAX_DROP_FIELDS = ("zip3", "product", "state", "parent_org_id", "parent_org_name")
+
+
+class RelaxAstReq(NamedTuple):
+    envelope: Mapping[str, Any]
+
+
+class RelaxStep(NamedTuple):
+    step: str
+    reason: str
+    ast: dict[str, Any]
+    sql: str
+
+
+class _CopyAstReq(NamedTuple):
+    envelope: Mapping[str, Any]
+
+
+class _IterAndLeavesReq(NamedTuple):
+    node: Mapping[str, Any]
+
+
+class _DropFieldReq(NamedTuple):
+    node: Mapping[str, Any]
+    field: str
+
+
+def _copy_ast(req: _CopyAstReq) -> dict[str, Any]:
+    import copy
+
+    return copy.deepcopy(dict(req.envelope))
+
+
+def _iter_and_leaves(req: _IterAndLeavesReq) -> list[dict[str, Any]]:
+    node = req.node
+    op = str(node.get("op") or "").upper()
+    if op in LEAF_OPS:
+        return [dict(node)]
+    if op == "AND":
+        out: list[dict[str, Any]] = []
+        for arg in node.get("args") or []:
+            if isinstance(arg, Mapping):
+                out.extend(_iter_and_leaves(_IterAndLeavesReq(arg)))
+        return out
+    return []
+
+
+def _drop_field_from_and(req: _DropFieldReq) -> dict[str, Any] | None:
+    """Return tree with EQ/IN leaves on `field` removed, or None if the leaf itself is dropped."""
+    node = req.node
+    field = req.field
+    op = str(node.get("op") or "").upper()
+    if op in LEAF_OPS:
+        if str(node.get("field") or "") == field:
+            return None
+        return dict(node)
+    if op != "AND":
+        return dict(node)
+    kept: list[Any] = []
+    dropped = False
+    for arg in node.get("args") or []:
+        if not isinstance(arg, Mapping):
+            continue
+        child = _drop_field_from_and(_DropFieldReq(arg, field))
+        if child is None:
+            dropped = True
+            continue
+        kept.append(child)
+    if not dropped:
+        return dict(node)
+    if not kept:
+        return None
+    if len(kept) == 1:
+        return kept[0]
+    return {"op": "AND", "args": kept}
+
+
+def relax_ast(req: RelaxAstReq) -> list[RelaxStep]:
+    """Produce ordered broaden steps (AST + SQL) without executing against a warehouse."""
+    envelope = _copy_ast(_CopyAstReq(req.envelope))
+    tree = envelope.get("filter_tree")
+    if not isinstance(tree, Mapping):
+        return []
+    steps: list[RelaxStep] = []
+    current = envelope
+    for field in _RELAX_DROP_FIELDS:
+        ft = current.get("filter_tree")
+        if not isinstance(ft, Mapping):
+            break
+        leaves = _iter_and_leaves(_IterAndLeavesReq(ft))
+        if not any(str(leaf.get("field") or "") == field for leaf in leaves):
+            continue
+        new_tree = _drop_field_from_and(_DropFieldReq(ft, field))
+        if new_tree is None or new_tree == ft:
+            continue
+        nxt = _copy_ast(_CopyAstReq(current))
+        nxt["filter_tree"] = new_tree
+        sql = ast_to_sql(AstToSqlReq(nxt))
+        steps.append(
+            RelaxStep(
+                step=f"drop_{field}",
+                reason=f"Broaden by removing predicate on {field}",
+                ast=nxt,
+                sql=sql,
+            )
+        )
+        current = nxt
+    return steps

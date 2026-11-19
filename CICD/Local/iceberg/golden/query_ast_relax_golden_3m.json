@@ -1,0 +1,38 @@
+{
+  "suite": "m54-query-ast-relax-3m",
+  "cases": [
+    {
+      "id": "r1-drop-zip3-then-product",
+      "description": "Narrow Capital One Credit Cards + zip3 + product; relax drops zip3 then product",
+      "ast": {
+        "table": "demo.curated.cfpb_complaints_3m",
+        "filter_tree": {
+          "op": "AND",
+          "args": [
+            {
+              "op": "EQ",
+              "field": "parent_org_id",
+              "value": "6d55f403495e51ed7212000a597144abed8a3c310895cb601bea4403339300c6"
+            },
+            {
+              "op": "EQ",
+              "field": "primary_money_topic",
+              "value": "Credit Cards"
+            },
+            {
+              "op": "EQ",
+              "field": "zip3",
+              "value": "750"
+            },
+            {
+              "op": "EQ",
+              "field": "product",
+              "value": "Credit card or prepaid card"
+            }
+          ]
+        }
+      },
+      "expect_steps": ["drop_zip3", "drop_product", "drop_parent_org_id"]
+    }
+  ]
+}

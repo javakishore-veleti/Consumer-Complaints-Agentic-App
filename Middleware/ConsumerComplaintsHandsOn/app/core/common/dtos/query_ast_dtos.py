@@ -8,6 +8,15 @@ from typing import Any
 class QueryAstReq:
     ast: dict[str, Any] | None = None
     execute: bool = False
+    relax: bool = False
+
+
+@dataclass
+class QueryAstRelaxStep:
+    step: str = ""
+    reason: str = ""
+    sql: str = ""
+    ast: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -16,6 +25,7 @@ class QueryAstResp:
     executed: bool = False
     count: int | None = None
     k_anon_ok: bool | None = None
+    relaxation: list[QueryAstRelaxStep] = field(default_factory=list)
     code: int = 0
     error: str = ""
 
