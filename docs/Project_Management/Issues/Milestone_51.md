@@ -4,7 +4,7 @@
 
 **Demoable outcome:** From Admin **Lakehouse**, start separate hydrate workflows; Middleware triggers Airflow; callbacks update status (same loop as Downloads).
 
-**Status: In progress.** Stories left to build: 4. Stories already done: 1.
+**Status: In progress.** Stories left to build: 3. Stories already done: 2.
 
 **GitHub Milestone:** M51 - Admin lakehouse workflows (UI → Middleware → Airflow → status) (api id 52)
 
@@ -65,18 +65,18 @@ One chat per story. Full **12-step** path (M02 standard). Do **not** abbreviate.
 | #341 | 10 | `/ccaa-commit-push 341` | Done | 2026-11-19 16:09 | 2026-11-19 16:09 |
 | #341 | 11 | `/finishing-a-development-branch Story #341` | Done | 2026-11-19 16:09 | 2026-11-19 16:09 |
 | #341 | 12 | `/ccaa-story-complete 341` | Done | 2026-11-19 16:09 | 2026-11-19 16:09 |
-| #342 | 1 | `/ccaa-story-start 342` | Done | 2026-11-19 16:10 | 2026-11-19 16:10 |
-| #342 | 2 | `/brainstorming Story #342` | Done | 2026-11-19 16:10 | 2026-11-19 16:10 |
-| #342 | 3 | `/using-git-worktrees Story #342` | Done | 2026-11-19 16:10 | 2026-11-19 16:10 |
-| #342 | 4 | `/writing-plans Story #342` | Done | 2026-11-19 16:10 | 2026-11-19 16:10 |
-| #342 | 5 | `/test-driven-development Story #342` | Done | 2026-11-19 16:10 | 2026-11-19 16:10 |
-| #342 | 6 | `/subagent-driven-development Story #342` | Done | 2026-11-19 16:10 | 2026-11-19 16:10 |
-| #342 | 7 | `/ccaa-commit-push 342 (after each task)` | Done | 2026-11-19 16:10 | 2026-11-19 16:10 |
-| #342 | 8 | `/verification-before-completion Story #342` | Done | 2026-11-19 16:10 | 2026-11-19 16:10 |
-| #342 | 9 | `/requesting-code-review Story #342` | Done | 2026-11-19 16:10 | 2026-11-19 16:10 |
-| #342 | 10 | `/ccaa-commit-push 342` | Done | 2026-11-19 16:10 | 2026-11-19 16:10 |
-| #342 | 11 | `/finishing-a-development-branch Story #342` | In progress | 2026-11-19 16:10 | — |
-| #342 | 12 | `/ccaa-story-complete 342` | Not started | — | — |
+| #342 | 1 | `/ccaa-story-start 342` | Done | 2026-11-19 16:11 | 2026-11-19 16:11 |
+| #342 | 2 | `/brainstorming Story #342` | Done | 2026-11-19 16:11 | 2026-11-19 16:11 |
+| #342 | 3 | `/using-git-worktrees Story #342` | Done | 2026-11-19 16:11 | 2026-11-19 16:11 |
+| #342 | 4 | `/writing-plans Story #342` | Done | 2026-11-19 16:11 | 2026-11-19 16:11 |
+| #342 | 5 | `/test-driven-development Story #342` | Done | 2026-11-19 16:11 | 2026-11-19 16:11 |
+| #342 | 6 | `/subagent-driven-development Story #342` | Done | 2026-11-19 16:11 | 2026-11-19 16:11 |
+| #342 | 7 | `/ccaa-commit-push 342 (after each task)` | Done | 2026-11-19 16:11 | 2026-11-19 16:11 |
+| #342 | 8 | `/verification-before-completion Story #342` | Done | 2026-11-19 16:11 | 2026-11-19 16:11 |
+| #342 | 9 | `/requesting-code-review Story #342` | Done | 2026-11-19 16:11 | 2026-11-19 16:11 |
+| #342 | 10 | `/ccaa-commit-push 342` | Done | 2026-11-19 16:11 | 2026-11-19 16:11 |
+| #342 | 11 | `/finishing-a-development-branch Story #342` | Done | 2026-11-19 16:11 | 2026-11-19 16:11 |
+| #342 | 12 | `/ccaa-story-complete 342` | Done | 2026-11-19 16:11 | 2026-11-19 16:11 |
 | #343 | 1 | `/ccaa-story-start 343` | Not started | — | — |
 | #343 | 2 | `/brainstorming Story #343` | Not started | — | — |
 | #343 | 3 | `/using-git-worktrees Story #343` | Not started | — | — |
