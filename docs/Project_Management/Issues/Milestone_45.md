@@ -59,16 +59,16 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #320 | 11 | `/finishing-a-development-branch Story #320` | Done | 2026-11-19 12:26 | 2026-11-19 12:27 |
 | #320 | 12 | `/ccaa-story-complete 320` | Done | 2026-11-19 12:27 | 2026-11-19 12:27 |
 | #321 | 1 | `/ccaa-story-start 321` | Not started | — | — |
-| #321 | 2 | `/brainstorming Story #321` | Not started | — | — |
-| #321 | 3 | `/using-git-worktrees Story #321` | Not started | — | — |
-| #321 | 4 | `/writing-plans Story #321` | Not started | — | — |
-| #321 | 5 | `/test-driven-development Story #321` | Not started | — | — |
-| #321 | 6 | `/subagent-driven-development Story #321` | Not started | — | — |
-| #321 | 7 | `/ccaa-commit-push 321 (after each task)` | Not started | — | — |
-| #321 | 8 | `/verification-before-completion Story #321` | Not started | — | — |
-| #321 | 9 | `/requesting-code-review Story #321` | Not started | — | — |
-| #321 | 10 | `/ccaa-commit-push 321` | Not started | — | — |
-| #321 | 11 | `/finishing-a-development-branch Story #321` | Not started | — | — |
+| #321 | 2 | `/brainstorming Story #321` | Done | 2026-11-19 12:27 | 2026-11-19 12:30 |
+| #321 | 3 | `/using-git-worktrees Story #321` | Done | 2026-11-19 12:30 | 2026-11-19 12:30 |
+| #321 | 4 | `/writing-plans Story #321` | Done | 2026-11-19 12:30 | 2026-11-19 12:30 |
+| #321 | 5 | `/test-driven-development Story #321` | Done | 2026-11-19 12:30 | 2026-11-19 12:30 |
+| #321 | 6 | `/subagent-driven-development Story #321` | Done | 2026-11-19 12:30 | 2026-11-19 12:30 |
+| #321 | 7 | `/ccaa-commit-push 321 (after each task)` | Done | 2026-11-19 12:30 | 2026-11-19 12:30 |
+| #321 | 8 | `/verification-before-completion Story #321` | Done | 2026-11-19 12:30 | 2026-11-19 12:30 |
+| #321 | 9 | `/requesting-code-review Story #321` | Done | 2026-11-19 12:30 | 2026-11-19 12:30 |
+| #321 | 10 | `/ccaa-commit-push 321` | Done | 2026-11-19 12:30 | 2026-11-19 12:30 |
+| #321 | 11 | `/finishing-a-development-branch Story #321` | In progress | 2026-11-19 12:30 | — |
 | #321 | 12 | `/ccaa-story-complete 321` | Not started | — | — |
 | #322 | 1 | `/ccaa-story-start 322` | Not started | — | — |
 | #322 | 2 | `/brainstorming Story #322` | Not started | — | — |
