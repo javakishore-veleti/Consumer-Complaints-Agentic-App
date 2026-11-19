@@ -24,7 +24,9 @@
 4. [Apache Iceberg Raw Data Zone (Bronze)](#4-apache-iceberg-raw-data-zone-bronze)
 5. [Refined Data Zone (Silver)](#5-refined-data-zone-silver)
 6. [Curated Data Zone (Gold)](#6-curated-data-zone-gold)
-7. [Document control](#7-document-control)
+7. [Database Taxonomy Control Plane](#7-database-taxonomy-control-plane)
+8. [Mode 2, Vector Store, orchestration & Query AST](#8-mode-2-vector-store-orchestration--query-ast)
+9. [Document control](#9-document-control)
 
 ---
 
@@ -251,14 +253,139 @@ DuckDB / SparkSQL / cloud SQL engines query Curated for exact counts and KPIs �
 
 ---
 
-## 7. Document control
+## 7. Database Taxonomy Control Plane
+
+### 7.1 Principle — database-first, zero flat files at runtime
+
+Runtime taxonomy is **not** YAML/CSV on disk. Registries live in **PostgreSQL** (preferred local + cloud SoR) or **MongoDB** collections with the same logical schemas. Spark joins use **Parquet snapshots** exported from the SoR (broadcast-join guardrail) — never live JDBC from every worker task for 2M-class fan-out.
+
+| Choice | Recommendation |
+|---|---|
+| **Primary SoR** | PostgreSQL (`taxonomy` schema) — relational FKs, migrations, strong typing |
+| **Alt SoR** | MongoDB — document collections mirroring the four registries |
+| **Hot cache** | Redis — signature_id → Money Topics / alias lookup for real-time paths |
+| **Spark join** | Nightly/on-demand Parquet snapshot under object store / Iceberg `demo.taxonomy.*` |
+
+### 7.2 Four registries
+
+| Registry | Cardinality (3m / all) | Role |
+|---|---|---|
+| `money_topics` | **12** / 12 | Canonical CFPB Money Topic labels |
+| `product_crosswalk` | ~**55** / ~**127** | `(product, sub_product)` → primary Money Topic |
+| `organization_aliases` | ~**6k** | Raw company string → `parent_org_id` / canonical name |
+| `semantic_signatures` | **2,924** / **8,438** | One row per 5-field U_sig + Mode 2 labels |
+
+#### `money_topics` (sample)
+
+| Column | Example |
+|---|---|
+| `money_topic_id` | `MT-CREDIT-CARDS` |
+| `name` | `Credit Cards` |
+| `definition_ref` | Official CFPB Money Topic definition URI / text hash |
+
+#### `product_crosswalk` (sample)
+
+| Column | Example |
+|---|---|
+| `product` | `Credit card or prepaid card` |
+| `sub_product` | `General-purpose credit card or charge card` |
+| `primary_money_topic` | `Credit Cards` |
+
+#### `organization_aliases` (sample from Complaint ID **25505474** lineage)
+
+| Column | Example |
+|---|---|
+| `alias_raw` | `CAPITAL ONE` / `Capital One Bank` |
+| `parent_org_id` | `6d55f403495e51ed7212000a597144abed8a3c310895cb601bea4403339300c6` |
+| `canonical_org_name` | `Capital One` |
+
+#### `semantic_signatures` (sample)
+
+| Column | Example |
+|---|---|
+| `signature_id` | SHA-256 of normalized `product\|sub_product\|issue\|sub_issue\|tags` |
+| `primary_money_topic` | `Credit Cards` |
+| `secondary_money_topics` | `\|Fraud & Scams\|` (nullable) |
+| `classification_source` | `mode2-rules-v1` / `mode2-nli-v1` |
+| `tax_version` | `2026.11` |
+
+### 7.3 Population lifecycle
+
+| Phase | What happens | Writes |
+|---|---|---|
+| **Day-1 seed** | Load 12 Money Topics + known crosswalk/alias seeds | `money_topics`, seed rows of `product_crosswalk` / `organization_aliases` |
+| **Silver discovery** | `DISTINCT` product/sub_product + company strings from Refined | Candidate rows → `product_crosswalk` / `organization_aliases` (`NEEDS_REVIEW` until SME) |
+| **Mode 2 cache** | Classify each new U_sig; upsert registry | `semantic_signatures`; Redis hot keys |
+
+No flat-file runtime config is prescribed for these registries.
+
+---
+
+## 8. Mode 2, Vector Store, orchestration & Query AST
+
+### 8.1 Mode 2 hybrid classification (accepted)
+
+| Stage | Behavior |
+|---|---|
+| **1 — Rules** | `product_crosswalk` → `primary_money_topic` |
+| **2 — Overlay** | Keyword / NLI cues on issue/sub_issue/tags for cross-cutting **Fraud & Scams** and **Money Transfers** → flags + optional secondary topics |
+| **3 — Adjudication (later)** | Low-confidence / cache-miss → LLM teacher queue (not required for local MVP) |
+
+**Reject Mode 1** (product 1:1 as Money Topic) — destroys cross-cutting labels. **Reject Mode 3** (classify every complaint row) — cost explosion; ML runs on U_sig only (~3k–8k).
+
+Working product path today: `classifier_version=mode2-rules-v1` (M47); NLI overlay optional upgrade.
+
+### 8.2 Vector DB Store — three compact catalogs
+
+Embeddings target **512-d BGE** with **SQ8** quantization (MVP/CI may use deterministic hash embeddings). Index: **HNSW + cosine**. RAM budget: catalogs only (U_sig / aliases / fingerprints) — **never** 19M complaint narratives.
+
+| Collection | Contents | Local | AWS | Azure | GCP |
+|---|---|---|---|---|---|
+| `cfpb_semantic_signatures` | U_sig text + Money Topic metadata | **Chroma** (`CCA_CHROMA_URL`) | OpenSearch k-NN | Azure AI Search | Vertex Vector Search |
+| `cfpb_organization_aliases` | Alias / parent-org strings | Chroma (follow-on) | OpenSearch | AI Search | Vertex |
+| `cfpb_entity_fingerprints` | Institution × ZIP-3 fingerprints | Chroma (follow-on) | OpenSearch | AI Search | Vertex |
+
+Local working product: Chroma `cfpb_semantic_signatures` from Iceberg taxonomy (M49). JSONL under `CCA_VECTOR_STORE_PATH` remains the Middleware Intellect fallback.
+
+### 8.3 Airflow DAG plane + Redis fast path
+
+| DAG | Purpose |
+|---|---|
+| **DAG 1** | Lift → Raw hydrate (slice) |
+| **DAG 2** | Raw → Refined (+ signature_id / ZIP-3) |
+| **DAG 3** | Taxonomy Mode 2 upsert `semantic_signatures` |
+| **DAG 4** | Refined+registry → Curated; export → Chroma signatures |
+
+**Real-time fast path:** Redis signature / alias hits for portal/API; cache miss enqueues Mode 2 micro-batch — does not block Query AST aggregations on Curated.
+
+Admin-triggerable hydrate workflows (M51) map 1:1 to these stages for the 3m slice.
+
+### 8.4 Neutral Query AST Gateway
+
+FastAPI Middleware exposes `POST /intellect/query-ast`: validate Neutral AST → SparkSQL/DuckDB against `demo.curated.cfpb_complaints_<slice>`; optional execute; **k-anonymity n ≥ 10**. Intellect portal + Risk Radar drill-down consume this gateway (M52–M53). Vector search remains a separate ladder (`POST /intellect/query`).
+
+### 8.5 Master topology (ASCII)
+
+```text
+Lift CSV zip
+  → Raw Iceberg (Bronze)
+  → Refined Iceberg (Silver) ──DISTINCT──► Taxonomy SoR (Postgres/Mongo)
+  → Mode 2 ──upsert──► semantic_signatures ──Parquet snap──► Curated (Gold)
+                                              └─embed──► Chroma / cloud vector catalogs
+Curated ◄── Query AST Gateway (FastAPI) ◄── Intellect / Risk Radar / future B2B
+Redis hot cache ──signature/alias──► Gateway + Mode 2 fast path
+Airflow DAG 1..4 orchestrates hydrate; Admin starts workflows via Middleware
+```
+
+---
+
+## 9. Document control
 
 | Field | Value |
 |---|---|
 | Title | Data Architecture — CCAA Enterprise |
-| Current focus | Lift + Raw (Bronze) + Refined (Silver) + Curated (Gold) |
+| Current focus | Full medallion + Taxonomy Control Plane + Mode 2 / Vectors / DAG / Query AST |
 | Related charter | `docs/Project_Management/PROJECT_CHARTER.md` |
 | Related brainstorming | `docs/Complaints_Data_Classification_Indexing_Brainstorming.md` |
 | Follow-on infra | M40-0002 #311 — Iceberg Spark Docker for Raw Zone |
-| Delivered under | M40-0001 #310 (Lift + Raw); M41-0001 #314 (Refined + Curated) |
-| Next docs | M41-0002 #315 Taxonomy Control Plane; M41-0003 #316 Vectors + Mode 2 + orchestration |
+| Delivered under | M40-0001 #310 (Lift + Raw); M41-0001 #314 (Refined + Curated); M41-0002 #315 (Taxonomy); M41-0003 #316 (Vectors + Mode 2 + orchestration) |
