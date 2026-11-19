@@ -4,7 +4,7 @@
 
 **Demoable outcome:** ≥1 Golden Query AST answered against curated 3m; depends on M48
 
-**Status: Open.** Stories left to build: 1. Stories already done: 0.
+**Status: In progress.** Stories left to build: 1. Stories already done: 0.
 
 **GitHub Milestone:** M50 - Query AST Gateway golden query (working product) (api id 51)
 
@@ -35,8 +35,8 @@ One chat per story. Full **12-step** path (M02 standard). Do **not** abbreviate.
 
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
-| #338 | 1 | `/ccaa-story-start 338` | Not started | — | — |
-| #338 | 2 | `/brainstorming Story #338` | Not started | — | — |
+| #338 | 1 | `/ccaa-story-start 338` | Done | 2026-11-19 15:54 | 2026-11-19 15:54 |
+| #338 | 2 | `/brainstorming Story #338` | In progress | 2026-11-19 15:54 | — |
 | #338 | 3 | `/using-git-worktrees Story #338` | Not started | — | — |
 | #338 | 4 | `/writing-plans Story #338` | Not started | — | — |
 | #338 | 5 | `/test-driven-development Story #338` | Not started | — | — |
