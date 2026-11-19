@@ -54,20 +54,23 @@ def parse_last_int(spark_out: str) -> int:
 def spark_submit_script(
     *,
     script_name: str,
-    run_id: str,
+    run_id: str | None = None,
     extra_args: list[str] | None = None,
     env_exports: dict[str, str] | None = None,
+    pass_run_id: bool = True,
 ) -> str:
     container = spark_container_name()
     scripts = SCRIPTS_IN_CONTAINER
     remote = f"{scripts}/{script_name}"
-    # Fall back: copy not available from Airflow easily; require mounted scripts.
-    args = " ".join(shlex.quote(a) for a in (extra_args or []))
+    args_list = list(extra_args or [])
+    if pass_run_id and run_id is not None:
+        args_list = ["--run-id", run_id, *args_list]
+    args = " ".join(shlex.quote(a) for a in args_list)
     exports = " ".join(f"export {k}={shlex.quote(v)};" for k, v in (env_exports or {}).items())
     cmd = (
         f"{exports} "
         f"export PYTHONPATH={shlex.quote(scripts)}; "
-        f"spark-submit {shlex.quote(remote)} --run-id {shlex.quote(run_id)} {args}"
+        f"spark-submit {shlex.quote(remote)} {args}"
     ).strip()
     out = docker_exec(container, ["bash", "-lc", cmd])
     log.info("spark-submit %s tail: %s", script_name, out[-1500:])
