@@ -107,6 +107,21 @@ Header-map unit check (no Docker):
 bash CICD/Local/iceberg/scripts/verify_hydrate_raw_headers.sh
 ```
 
+## Prove 3m count reconcile (M45-0004 / #323)
+
+```bash
+npm run local:iceberg:prove-raw-3m
+```
+
+Expected PASS line: Lift zip row count equals `SELECT COUNT(*) FROM demo.raw.cfpb_complaints_3m`, mandatory-key bad rows = 0. Evidence file: `runtime_data/tmp/raw-3m-proof-*.txt`.
+
+Verified locally 2026-11-19: **1,970,702** Lift rows → **1,970,702** Iceberg rows; quarantine **0**; bad keys **0**.
+
+```sql
+SELECT COUNT(*) FROM demo.raw.cfpb_complaints_3m;
+-- 1970702
+```
+
 ## Airflow DAG (M45-0003 / #322)
 
 DAG id: `hydrate_raw_iceberg_3m` (`Middleware/Airflow-dags/hydrate_raw_iceberg_3m.py`).

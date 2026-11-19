@@ -43,6 +43,14 @@ npm run local:iceberg:hydrate-raw-3m
 ```
 
 Airflow alternative (after iceberg + Airflow are up; DAG `hydrate_raw_iceberg_3m`): Admin → start workflow, or Airflow UI trigger. Does **not** re-download when Lift 3m zips exist.
+
+Prove Raw 3m count reconcile (M45-0004):
+
+```bash
+npm run local:iceberg:prove-raw-3m
+```
+
+PASS means Lift CSV rows == `demo.raw.cfpb_complaints_3m` COUNT(*) (verified **1,970,702** on 2026-11-19; quarantine 0).
 Also ensure local Airflow is up (includes pymongo image):
 
 ```bash
