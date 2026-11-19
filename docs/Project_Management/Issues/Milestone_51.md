@@ -4,7 +4,7 @@
 
 **Demoable outcome:** From Admin **Lakehouse**, start separate hydrate workflows; Middleware triggers Airflow; callbacks update status (same loop as Downloads).
 
-**Status: Open.** Stories left to build: 5. Stories already done: 0.
+**Status: In progress.** Stories left to build: 5. Stories already done: 0.
 
 **GitHub Milestone:** M51 - Admin lakehouse workflows (UI → Middleware → Airflow → status) (api id 52)
 
@@ -53,8 +53,8 @@ One chat per story. Full **12-step** path (M02 standard). Do **not** abbreviate.
 
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
-| #341 | 1 | `/ccaa-story-start 341` | Not started | — | — |
-| #341 | 2 | `/brainstorming Story #341` | Not started | — | — |
+| #341 | 1 | `/ccaa-story-start 341` | Done | 2026-11-19 16:06 | 2026-11-19 16:06 |
+| #341 | 2 | `/brainstorming Story #341` | In progress | 2026-11-19 16:06 | — |
 | #341 | 3 | `/using-git-worktrees Story #341` | Not started | — | — |
 | #341 | 4 | `/writing-plans Story #341` | Not started | — | — |
 | #341 | 5 | `/test-driven-development Story #341` | Not started | — | — |
