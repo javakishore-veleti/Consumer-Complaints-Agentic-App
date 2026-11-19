@@ -54,11 +54,7 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #314 | 9 | `/requesting-code-review Story #314` | Done | 2026-11-19 17:48 | 2026-11-19 17:48 |
 | #314 | 10 | `/ccaa-commit-push 314` | Done | 2026-11-19 17:48 | 2026-11-19 17:48 |
 | #314 | 11 | `/finishing-a-development-branch Story #314` | Done | 2026-11-19 17:48 | 2026-11-19 17:48 |
-<<<<<<< HEAD
 | #314 | 12 | `/ccaa-story-complete 314` | Done | 2026-11-19 17:48 | 2026-11-19 17:48 |
-=======
-| #314 | 12 | `/ccaa-story-complete 314` | Done | 2026-11-19 17:48 | 2026-11-19 17:48 |
->>>>>>> e275cf2 (M41-0001 #314: complete story)
 | #315 | 1 | `/ccaa-story-start 315` | Not started | — | — |
 | #315 | 2 | `/brainstorming Story #315` | Not started | — | — |
 | #315 | 3 | `/using-git-worktrees Story #315` | Not started | — | — |
