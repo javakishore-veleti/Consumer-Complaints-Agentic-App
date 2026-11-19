@@ -978,6 +978,70 @@
         "title": "MioStatusOut",
         "type": "object"
       },
+      "QueryAstBody": {
+        "properties": {
+          "ast": {
+            "additionalProperties": true,
+            "title": "Ast",
+            "type": "object"
+          },
+          "execute": {
+            "default": false,
+            "title": "Execute",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "ast"
+        ],
+        "title": "QueryAstBody",
+        "type": "object"
+      },
+      "QueryAstOut": {
+        "properties": {
+          "count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Count"
+          },
+          "error": {
+            "default": "",
+            "title": "Error",
+            "type": "string"
+          },
+          "executed": {
+            "default": false,
+            "title": "Executed",
+            "type": "boolean"
+          },
+          "k_anon_ok": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "K Anon Ok"
+          },
+          "sql": {
+            "title": "Sql",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sql"
+        ],
+        "title": "QueryAstOut",
+        "type": "object"
+      },
       "StartWfBody": {
         "additionalProperties": false,
         "properties": {
@@ -1952,6 +2016,47 @@
           }
         },
         "summary": "Query",
+        "tags": [
+          "intellect"
+        ]
+      }
+    },
+    "/intellect/query-ast": {
+      "post": {
+        "operationId": "query_ast_intellect_query_ast_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryAstBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryAstOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Query Ast",
         "tags": [
           "intellect"
         ]

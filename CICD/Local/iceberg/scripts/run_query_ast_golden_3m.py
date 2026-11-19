@@ -14,7 +14,7 @@ SCRIPTS = Path(__file__).resolve().parent
 if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
-from query_ast import assert_k_anonymous, ast_to_sql  # noqa: E402
+from query_ast import AstToSqlReq, KAnonReq, assert_k_anonymous, ast_to_sql  # noqa: E402
 
 
 def _parse_count(spark_out: str) -> int:
@@ -51,7 +51,7 @@ def main() -> int:
     passed = 0
     for case in cases:
         cid = case.get("id")
-        sql = ast_to_sql(case["ast"])
+        sql = ast_to_sql(AstToSqlReq(case["ast"]))
         print(f"CASE {cid}")
         print(f"SQL {sql}")
         out = subprocess.check_output(
@@ -63,7 +63,7 @@ def main() -> int:
         expect = case.get("expect") or {}
         min_count = int(expect.get("min_count") or 10)
         exact = expect.get("exact_count")
-        assert_k_anonymous(n)
+        assert_k_anonymous(KAnonReq(n))
         if n < min_count:
             print(f"FAIL {cid}: n={n} < min_count={min_count}", file=sys.stderr)
             return 1
