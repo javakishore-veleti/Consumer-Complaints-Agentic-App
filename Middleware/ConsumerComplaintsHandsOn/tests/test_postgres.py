@@ -114,6 +114,11 @@ def test_app_wf_dao_works_on_postgres(postgres):
         "download_3_months",
         "download_cfpb_all",
         "filter_cfpb_3_months",
+        "hydrate_chroma_signatures_3m",
+        "hydrate_curated_iceberg_3m",
+        "hydrate_raw_iceberg_3m",
+        "hydrate_refined_iceberg_3m",
+        "hydrate_taxonomy_mode2_3m",
         "index_cfpb_all",
         "index_cfpb_chroma",
         "index_cfpb_pgvector",
@@ -220,7 +225,7 @@ def test_catalog_works_on_postgres(postgres):
         bindings = c.execute(text(f"select count(*) from {SCHEMA_ADMIN}.mios_workflows")).scalar()
         endpoints = c.execute(text(f"select count(*) from {SCHEMA_ADMIN}.app_endpoints")).scalar()
     assert seeded == 5  # four month MIOs + All (0011 / D84)
-    assert bindings == 12  # + 3m ingest/index binds (0023 / M17-0001)
+    assert bindings == 17  # + 3m hydrate_* binds (0026–0030 / M51)
     assert endpoints == 7  # + chroma + redis (0019)
 
     datasets = DaoObjectsFactory.get_dataset_dao()
@@ -443,6 +448,11 @@ def test_wf_list_service_works_on_postgres(postgres):
     assert [e.workflow_name for e in ctx.resp.entries] == [
         "download_cfpb_all",
         "filter_cfpb_3_months",
+        "hydrate_chroma_signatures_3m",
+        "hydrate_curated_iceberg_3m",
+        "hydrate_raw_iceberg_3m",
+        "hydrate_refined_iceberg_3m",
+        "hydrate_taxonomy_mode2_3m",
         "index_cfpb_all",
         "index_cfpb_chroma",
         "index_cfpb_pgvector",

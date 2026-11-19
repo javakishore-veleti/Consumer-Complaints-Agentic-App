@@ -8,6 +8,11 @@ from app.core.dao.objects_factory import DaoObjectsFactory
 
 DOWNLOAD_WF = "download_cfpb_all"
 FILTER_WF = "filter_cfpb_3_months"
+HYDRATE_CHROMA_WF = "hydrate_chroma_signatures_3m"
+HYDRATE_CURATED_WF = "hydrate_curated_iceberg_3m"
+HYDRATE_RAW_WF = "hydrate_raw_iceberg_3m"
+HYDRATE_REFINED_WF = "hydrate_refined_iceberg_3m"
+HYDRATE_TAXONOMY_WF = "hydrate_taxonomy_mode2_3m"
 INGEST_WF = "ingest_cfpb_all"
 INGEST_WRAPPER_WF = "ingest_cfpb_imports_wrapper"
 INDEX_WF = "index_cfpb_all"
@@ -130,6 +135,11 @@ def test_seeded_all_and_3_months_bindings_are_readable(data_dir):
     assert sorted(r.workflow_id for r in three_links.resp.records) == sorted(
         [
             _wf(FILTER_WF),
+            _wf(HYDRATE_CHROMA_WF),
+            _wf(HYDRATE_CURATED_WF),
+            _wf(HYDRATE_RAW_WF),
+            _wf(HYDRATE_REFINED_WF),
+            _wf(HYDRATE_TAXONOMY_WF),
             _wf(INGEST_WRAPPER_WF),
             _wf(INDEX_PG_WF),
             _wf(INDEX_CHROMA_WF),

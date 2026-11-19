@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from typing import NamedTuple
 
 from app.core.dao.impl.mongo.client import get_mongo_db
 from app.core.dao.impl.mongo.docs import MongoDocument
@@ -701,25 +702,26 @@ def ensure_m51_hydrate_refined_iceberg_seed() -> None:
     )
 
 
-def _ensure_m51_hydrate_workflow(
-    *,
-    wf_id: str,
-    bind_id: str,
-    workflow_name: str,
-    lakehouse_zone: str,
-) -> None:
+class _M51HydrateSeed(NamedTuple):
+    wf_id: str
+    bind_id: str
+    workflow_name: str
+    lakehouse_zone: str
+
+
+def _ensure_m51_hydrate_workflow(seed: _M51HydrateSeed) -> None:
     _upsert(
         MongoDocument(
             {
                 "_collection": "app_workflows",
-                "id": wf_id,
-                "workflow_name": workflow_name,
+                "id": seed.wf_id,
+                "workflow_name": seed.workflow_name,
                 "engine_type": "apache_airflow",
-                "engine_workflow_id": workflow_name,
+                "engine_workflow_id": seed.workflow_name,
                 "config": {
                     "dataset_code": "CFPB",
                     "dataset_slice": "3m",
-                    "lakehouse_zone": lakehouse_zone,
+                    "lakehouse_zone": seed.lakehouse_zone,
                 },
                 "enabled": True,
                 "created_at": NOW_M51,
@@ -731,9 +733,9 @@ def _ensure_m51_hydrate_workflow(
         MongoDocument(
             {
                 "_collection": "mios_workflows",
-                "id": bind_id,
+                "id": seed.bind_id,
                 "mio_id": MIO_3_MONTHS_ID,
-                "workflow_id": wf_id,
+                "workflow_id": seed.wf_id,
                 "created_at": NOW_M51,
             }
         )
@@ -746,22 +748,28 @@ def bootstrap_operational_mongo() -> None:
     ensure_m51_hydrate_raw_iceberg_seed()
     ensure_m51_hydrate_refined_iceberg_seed()
     _ensure_m51_hydrate_workflow(
-        wf_id=HYDRATE_TAXONOMY_WF_ID,
-        bind_id=MW_3M_HYDRATE_TAXONOMY_ID,
-        workflow_name="hydrate_taxonomy_mode2_3m",
-        lakehouse_zone="taxonomy",
+        _M51HydrateSeed(
+            HYDRATE_TAXONOMY_WF_ID,
+            MW_3M_HYDRATE_TAXONOMY_ID,
+            "hydrate_taxonomy_mode2_3m",
+            "taxonomy",
+        )
     )
     _ensure_m51_hydrate_workflow(
-        wf_id=HYDRATE_CURATED_WF_ID,
-        bind_id=MW_3M_HYDRATE_CURATED_ID,
-        workflow_name="hydrate_curated_iceberg_3m",
-        lakehouse_zone="curated",
+        _M51HydrateSeed(
+            HYDRATE_CURATED_WF_ID,
+            MW_3M_HYDRATE_CURATED_ID,
+            "hydrate_curated_iceberg_3m",
+            "curated",
+        )
     )
     _ensure_m51_hydrate_workflow(
-        wf_id=HYDRATE_CHROMA_WF_ID,
-        bind_id=MW_3M_HYDRATE_CHROMA_ID,
-        workflow_name="hydrate_chroma_signatures_3m",
-        lakehouse_zone="chroma",
+        _M51HydrateSeed(
+            HYDRATE_CHROMA_WF_ID,
+            MW_3M_HYDRATE_CHROMA_ID,
+            "hydrate_chroma_signatures_3m",
+            "chroma",
+        )
     )
 
 

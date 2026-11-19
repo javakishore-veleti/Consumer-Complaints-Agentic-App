@@ -4,7 +4,7 @@
 
 **Demoable outcome:** From Admin **Lakehouse**, start separate hydrate workflows; Middleware triggers Airflow; callbacks update status (same loop as Downloads).
 
-**Status: Closed.** Stories left to build: 0. Stories already done: 5.
+**Status: Open.** Stories left to build: 1. Stories already done: 5.
 
 **GitHub Milestone:** M51 - Admin lakehouse workflows (UI → Middleware → Airflow → status) (api id 52)
 
@@ -31,6 +31,7 @@ Separate workflows (not one mega-DAG): Raw → Refined → Taxonomy Mode 2 → C
 | 3 | #343 | M51-0003 | Story | Airflow + Admin workflow hydrate_taxonomy_mode2_3m |
 | 4 | #344 | M51-0004 | Story | Airflow + Admin workflow hydrate_curated_iceberg_3m |
 | 5 | #345 | M51-0005 | Story | Airflow + Admin workflow hydrate_chroma_signatures_3m |
+| 6 | #349 | M51-0006 | Story | Fix CI seed expectations for hydrate_* workflows |
 
 ## 2. Superpowers workflow
 
@@ -113,3 +114,15 @@ One chat per story. Full **12-step** path (M02 standard). Do **not** abbreviate.
 | #345 | 10 | `/ccaa-commit-push 345` | Done | 2026-11-19 16:15 | 2026-11-19 16:15 |
 | #345 | 11 | `/finishing-a-development-branch Story #345` | Done | 2026-11-19 16:15 | 2026-11-19 16:15 |
 | #345 | 12 | `/ccaa-story-complete 345` | Done | 2026-11-19 16:15 | 2026-11-19 16:15 |
+| #349 | 1 | `/ccaa-story-start 349` | Done | 2026-11-19 16:20 | 2026-11-19 16:20 |
+| #349 | 2 | `/brainstorming Story #349` | Done | 2026-11-19 16:20 | 2026-11-19 16:20 |
+| #349 | 3 | `/using-git-worktrees Story #349` | Done | 2026-11-19 16:20 | 2026-11-19 16:20 |
+| #349 | 4 | `/writing-plans Story #349` | Done | 2026-11-19 16:20 | 2026-11-19 16:20 |
+| #349 | 5 | `/test-driven-development Story #349` | Done | 2026-11-19 16:20 | 2026-11-19 16:22 |
+| #349 | 6 | `/subagent-driven-development Story #349` | Done | 2026-11-19 16:22 | 2026-11-19 16:22 |
+| #349 | 7 | `/ccaa-commit-push 349 (after each task)` | In progress | 2026-11-19 16:22 | - |
+| #349 | 8 | `/verification-before-completion Story #349` | Planned | - | - |
+| #349 | 9 | `/requesting-code-review Story #349` | Planned | - | - |
+| #349 | 10 | `/ccaa-commit-push 349` | Planned | - | - |
+| #349 | 11 | `/finishing-a-development-branch Story #349` | Planned | - | - |
+| #349 | 12 | `/ccaa-story-complete 349` | Planned | - | - |
