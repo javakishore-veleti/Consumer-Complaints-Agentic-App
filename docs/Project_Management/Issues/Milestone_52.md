@@ -4,7 +4,7 @@
 
 **Demoable outcome:** Intellect runs Query AST against curated 3m via Middleware API (not npm-only prove).
 
-**Status: Open.** Stories left to build: 2. Stories already done: 1.
+**Status: Open.** Stories left to build: 1. Stories already done: 2.
 
 **GitHub Milestone:** M52 - Intellect Query AST over curated lakehouse (api id 53)
 
@@ -73,10 +73,10 @@ One chat per story. Full **12-step** path (M02 standard). Do **not** abbreviate.
 | #353 | 8 | `/verification-before-completion Story #353` | Done | 2026-11-19 17:27 | 2026-11-19 17:27 |
 | #353 | 9 | `/requesting-code-review Story #353` | Done | 2026-11-19 17:27 | 2026-11-19 17:27 |
 | #353 | 10 | `/ccaa-commit-push 353` | Done | 2026-11-19 17:27 | 2026-11-19 17:27 |
-| #353 | 11 | `/finishing-a-development-branch Story #353` | In progress | 2026-11-19 17:27 | - |
-| #353 | 12 | `/ccaa-story-complete 353` | Planned | - | - |
-| #354 | 1 | `/ccaa-story-start 354` | Planned | - | - |
-| #354 | 2 | `/brainstorming Story #354` | Planned | - | - |
+| #353 | 11 | `/finishing-a-development-branch Story #353` | Done | 2026-11-19 17:29 | 2026-11-19 17:29 |
+| #353 | 12 | `/ccaa-story-complete 353` | Done | 2026-11-19 17:29 | 2026-11-19 17:29 |
+| #354 | 1 | `/ccaa-story-start 354` | Done | 2026-11-19 17:29 | 2026-11-19 17:29 |
+| #354 | 2 | `/brainstorming Story #354` | In progress | 2026-11-19 17:29 | - |
 | #354 | 3 | `/using-git-worktrees Story #354` | Planned | - | - |
 | #354 | 4 | `/writing-plans Story #354` | Planned | - | - |
 | #354 | 5 | `/test-driven-development Story #354` | Planned | - | - |
