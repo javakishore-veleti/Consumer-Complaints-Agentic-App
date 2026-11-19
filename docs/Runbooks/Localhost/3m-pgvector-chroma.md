@@ -35,12 +35,14 @@ npm run local:handson:middlware:all:start
 npm run local:portals:all:start
 ```
 
-Iceberg Raw DDL (once per warehouse; idempotent):
+Iceberg Raw DDL (once per warehouse; idempotent) and optional Lift→Raw hydrate:
 
 ```bash
 npm run local:iceberg:apply-raw-ddl
+npm run local:iceberg:hydrate-raw-3m
 ```
 
+Airflow alternative (after iceberg + Airflow are up; DAG `hydrate_raw_iceberg_3m`): Admin → start workflow, or Airflow UI trigger. Does **not** re-download when Lift 3m zips exist.
 Also ensure local Airflow is up (includes pymongo image):
 
 ```bash

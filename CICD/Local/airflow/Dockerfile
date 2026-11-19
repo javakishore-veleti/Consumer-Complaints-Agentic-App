@@ -3,4 +3,4 @@
 FROM apache/airflow:3.4.0
 
 USER airflow
-RUN pip install --no-cache-dir "pymongo>=4.6,<5"
+RUN pip install --no-cache-dir "pymongo>=4.6,<5" "docker>=7.0,<8"
