@@ -4,6 +4,8 @@
 
 **Status: Open.** Stories left to build: 3. Stories already done: 0.
 
+**Product policy (2026-11-19):** Documentation-only milestones are discontinued. Prefer shipping architecture sections as Superpowers brainstorming/plan artifacts inside **product** milestones (M45+). M41 docs may proceed later but **must not block** Raw hydrate (M45) or subsequent working-product milestones.
+
 **GitHub Milestone:** M41 - DataArchitecture full lakehouse (Refined/Curated/Taxonomy/Vectors) (api id 42)
 
 ## 1. Build order

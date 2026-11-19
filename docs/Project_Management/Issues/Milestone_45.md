@@ -1,5 +1,9 @@
 # Milestone M45 - Raw Iceberg ingest (Lift → raw.cfpb_complaints_*)
 
+**Type:** Working **product** milestone (not docs-only).
+
+**Demoable outcome:** Operator can `SELECT COUNT(*) FROM raw.cfpb_complaints_3m` after Lift→Iceberg hydrate and reconcile to ~1.97M.
+
 **Scope:** Implement Lift Zone → Apache Iceberg **Raw hydrate**. M40 (#310/#311) delivered Raw **docs** + Iceberg Spark **Docker** only — ingest was explicitly future. No Refined/Curated. No product/DAG code until each story is `/ccaa-story-start`.
 
 **Status: Open.** Stories left to build: 4. Stories already done: 0.

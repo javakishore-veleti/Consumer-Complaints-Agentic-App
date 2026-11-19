@@ -2,7 +2,7 @@
 
 **Scope:** Board docs only — `docs/Project_Management/Future_Requirements.md`. No Middleware / Portals / DAG / `DataArchitecture.md` edits.
 
-**Status: Open.** Stories left to build: 0 after commit-push (story-complete pending). Stories already done: 0.
+**Status: Closed (docs complete; product milestones are M45+).** Stories left to build: 0 after commit-push (story-complete pending). Stories already done: 0.
 
 **GitHub Milestone:** M44 - Future Requirements board doc (Nightwing gap closure track) (api id 45)
 

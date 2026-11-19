@@ -2,7 +2,7 @@
 
 **Scope:** Board docs only — refresh `PROJECT_CHARTER.md` to align with Mode 2 lakehouse architecture. No product code.
 
-**Status: Open.** Stories left to build: 1 (awaiting commit-push + story-complete). Stories already done: 0.
+**Status: Closed (docs complete; product milestones are M45+).** Stories left to build: 1 (awaiting commit-push + story-complete). Stories already done: 0.
 
 **GitHub Milestone:** M42 - Project Charter refresh (DataArchitecture alignment) (api id 43)
 

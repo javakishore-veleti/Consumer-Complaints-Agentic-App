@@ -277,6 +277,8 @@ Detail lives in `docs/DataArchitecture.md`. Charter-level contract:
 
 Each **project** below becomes one or more GitHub Milestones + `[Story]` issues. No product coding without story-start.
 
+**Milestone rule (2026-11-19):** Every milestone ships a **working product increment** (see `docs/Project_Management/MILESTONE_POLICY.md`). Documentation-only milestones are discontinued; specs/plans live under Superpowers inside product stories.
+
 ### P0 — Charter & board alignment
 
 - Publish / refresh this charter against empirical Mode 2 architecture (#317)

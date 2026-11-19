@@ -2,7 +2,7 @@
 
 **Scope:** Board docs only — `docs/Project_Management/AI_Capabilities_Solutions.md` (Platform / Internal / B2B / Consumer AI). No Middleware / Portals / DAG / `DataArchitecture.md` edits.
 
-**Status: Open.** Stories left to build: 1 (awaiting commit-push + story-complete). Stories already done: 0.
+**Status: Closed (docs complete; product milestones are M45+).** Stories left to build: 1 (awaiting commit-push + story-complete). Stories already done: 0.
 
 **GitHub Milestone:** M43 - AI Capabilities & Solutions board doc (api id 44)
 
