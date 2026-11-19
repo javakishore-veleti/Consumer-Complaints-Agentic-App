@@ -51,8 +51,8 @@ One chat per story. Full **12-step** path (M02 standard). Do **not** abbreviate.
 
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
-| #352 | 1 | `/ccaa-story-start 352` | Planned | - | - |
-| #352 | 2 | `/brainstorming Story #352` | Planned | - | - |
+| #352 | 1 | `/ccaa-story-start 352` | Done | 2026-11-19 17:18 | 2026-11-19 17:18 |
+| #352 | 2 | `/brainstorming Story #352` | In progress | 2026-11-19 17:18 | - |
 | #352 | 3 | `/using-git-worktrees Story #352` | Planned | - | - |
 | #352 | 4 | `/writing-plans Story #352` | Planned | - | - |
 | #352 | 5 | `/test-driven-development Story #352` | Planned | - | - |
