@@ -35,15 +35,15 @@ One chat per story. Full **12-step** path (M02 standard). Do **not** abbreviate.
 
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
-| #336 | 1 | `/ccaa-story-start 336` | Not started | — | — |
-| #336 | 2 | `/brainstorming Story #336` | Not started | — | — |
-| #336 | 3 | `/using-git-worktrees Story #336` | Not started | — | — |
-| #336 | 4 | `/writing-plans Story #336` | Not started | — | — |
-| #336 | 5 | `/test-driven-development Story #336` | Not started | — | — |
-| #336 | 6 | `/subagent-driven-development Story #336` | Not started | — | — |
-| #336 | 7 | `/ccaa-commit-push 336 (after each task)` | Not started | — | — |
-| #336 | 8 | `/verification-before-completion Story #336` | Not started | — | — |
-| #336 | 9 | `/requesting-code-review Story #336` | Not started | — | — |
-| #336 | 10 | `/ccaa-commit-push 336` | Not started | — | — |
-| #336 | 11 | `/finishing-a-development-branch Story #336` | Not started | — | — |
+| #336 | 1 | `/ccaa-story-start 336` | Done | 2026-11-19 15:52 | 2026-11-19 15:52 |
+| #336 | 2 | `/brainstorming Story #336` | Done | 2026-11-19 15:52 | 2026-11-19 15:52 |
+| #336 | 3 | `/using-git-worktrees Story #336` | Done | 2026-11-19 15:52 | 2026-11-19 15:52 |
+| #336 | 4 | `/writing-plans Story #336` | Done | 2026-11-19 15:52 | 2026-11-19 15:52 |
+| #336 | 5 | `/test-driven-development Story #336` | Done | 2026-11-19 15:52 | 2026-11-19 15:52 |
+| #336 | 6 | `/subagent-driven-development Story #336` | Done | 2026-11-19 15:52 | 2026-11-19 15:52 |
+| #336 | 7 | `/ccaa-commit-push 336 (after each task)` | Done | 2026-11-19 15:52 | 2026-11-19 15:52 |
+| #336 | 8 | `/verification-before-completion Story #336` | Done | 2026-11-19 15:52 | 2026-11-19 15:52 |
+| #336 | 9 | `/requesting-code-review Story #336` | Done | 2026-11-19 15:52 | 2026-11-19 15:52 |
+| #336 | 10 | `/ccaa-commit-push 336` | Done | 2026-11-19 15:52 | 2026-11-19 15:52 |
+| #336 | 11 | `/finishing-a-development-branch Story #336` | In progress | 2026-11-19 15:52 | — |
 | #336 | 12 | `/ccaa-story-complete 336` | Not started | — | — |
