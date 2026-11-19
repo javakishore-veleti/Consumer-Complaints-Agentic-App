@@ -2,7 +2,7 @@
 
 **Scope:** Docs only — expand `docs/DataArchitecture.md` with Refined/Curated zones, database-first Taxonomy Control Plane (Postgres/Mongo; zero flat files), Mode 2 classification, Vector DB Store (Chroma + multi-cloud), Airflow DAG plane, and Query AST Gateway. No Middleware/Portals/DAG product code until each story is started.
 
-**Status: Open.** Stories left to build: 3. Stories already done: 0.
+**Status: Open.** Stories left to build: 2. Stories already done: 1.
 
 **Product policy (2026-11-19):** Documentation-only milestones are discontinued. Prefer shipping architecture sections as Superpowers brainstorming/plan artifacts inside **product** milestones (M45+). M41 docs may proceed later but **must not block** Raw hydrate (M45) or subsequent working-product milestones.
 
@@ -43,7 +43,7 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
-| #314 | 1 | `/ccaa-story-start 314` | Done | 2026-11-19 17:46 | 2026-11-19 17:46 |
+| #314 | 1 | `/ccaa-story-start 314` | Done | 2026-11-19 17:46 | 2026-11-19 17:48 |
 | #314 | 2 | `/brainstorming Story #314` | Done | 2026-11-19 17:48 | 2026-11-19 17:48 |
 | #314 | 3 | `/using-git-worktrees Story #314` | Done | 2026-11-19 17:48 | 2026-11-19 17:48 |
 | #314 | 4 | `/writing-plans Story #314` | Done | 2026-11-19 17:48 | 2026-11-19 17:48 |
@@ -54,7 +54,11 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #314 | 9 | `/requesting-code-review Story #314` | Done | 2026-11-19 17:48 | 2026-11-19 17:48 |
 | #314 | 10 | `/ccaa-commit-push 314` | Done | 2026-11-19 17:48 | 2026-11-19 17:48 |
 | #314 | 11 | `/finishing-a-development-branch Story #314` | Done | 2026-11-19 17:48 | 2026-11-19 17:48 |
-| #314 | 12 | `/ccaa-story-complete 314` | In progress | 2026-11-19 17:48 | — |
+<<<<<<< HEAD
+| #314 | 12 | `/ccaa-story-complete 314` | Done | 2026-11-19 17:48 | 2026-11-19 17:48 |
+=======
+| #314 | 12 | `/ccaa-story-complete 314` | Done | 2026-11-19 17:48 | 2026-11-19 17:48 |
+>>>>>>> e275cf2 (M41-0001 #314: complete story)
 | #315 | 1 | `/ccaa-story-start 315` | Not started | — | — |
 | #315 | 2 | `/brainstorming Story #315` | Not started | — | — |
 | #315 | 3 | `/using-git-worktrees Story #315` | Not started | — | — |
