@@ -82,6 +82,10 @@ HYDRATE_RAW_ICEBERG_WF_ID = "e73565a9-73dc-542e-b45d-18c9b6de39cf"
 # uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m51-0001/mios-workflows-3m-hydrate-raw")
 MW_3M_HYDRATE_RAW_ID = "a9d57ca1-63a8-5a7e-8ebb-c742102cc5e7"
 NOW_M51 = datetime(2026, 11, 19, tzinfo=UTC)
+# uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m51-0002/hydrate_refined_iceberg_3m")
+HYDRATE_REFINED_ICEBERG_WF_ID = "e5d00f51-f8af-5055-a153-23426590c86d"
+# uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m51-0002/mios-workflows-3m-hydrate-refined")
+MW_3M_HYDRATE_REFINED_ID = "f26e2cea-3e5c-55cb-9a37-2e2cf6c07572"
 
 COLLECTIONS = (
     "app_workflows",
@@ -657,10 +661,45 @@ def ensure_m51_hydrate_raw_iceberg_seed() -> None:
     )
 
 
+def ensure_m51_hydrate_refined_iceberg_seed() -> None:
+    """Idempotent seed for Admin-triggerable Refined Iceberg hydrate (M51-0002 / #342)."""
+    _upsert(
+        MongoDocument(
+            {
+                "_collection": "app_workflows",
+                "id": HYDRATE_REFINED_ICEBERG_WF_ID,
+                "workflow_name": "hydrate_refined_iceberg_3m",
+                "engine_type": "apache_airflow",
+                "engine_workflow_id": "hydrate_refined_iceberg_3m",
+                "config": {
+                    "dataset_code": "CFPB",
+                    "dataset_slice": "3m",
+                    "lakehouse_zone": "refined",
+                },
+                "enabled": True,
+                "created_at": NOW_M51,
+                "updated_at": NOW_M51,
+            }
+        )
+    )
+    _upsert(
+        MongoDocument(
+            {
+                "_collection": "mios_workflows",
+                "id": MW_3M_HYDRATE_REFINED_ID,
+                "mio_id": MIO_3_MONTHS_ID,
+                "workflow_id": HYDRATE_REFINED_ICEBERG_WF_ID,
+                "created_at": NOW_M51,
+            }
+        )
+    )
+
+
 def bootstrap_operational_mongo() -> None:
     ensure_indexes()
     seed_if_empty()
     ensure_m51_hydrate_raw_iceberg_seed()
+    ensure_m51_hydrate_refined_iceberg_seed()
 
 
 def drop_all_collections() -> None:

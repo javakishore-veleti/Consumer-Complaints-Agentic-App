@@ -65,17 +65,17 @@ One chat per story. Full **12-step** path (M02 standard). Do **not** abbreviate.
 | #341 | 10 | `/ccaa-commit-push 341` | Done | 2026-11-19 16:09 | 2026-11-19 16:09 |
 | #341 | 11 | `/finishing-a-development-branch Story #341` | Done | 2026-11-19 16:09 | 2026-11-19 16:09 |
 | #341 | 12 | `/ccaa-story-complete 341` | Done | 2026-11-19 16:09 | 2026-11-19 16:09 |
-| #342 | 1 | `/ccaa-story-start 342` | Done | 2026-11-19 16:09 | 2026-11-19 16:09 |
-| #342 | 2 | `/brainstorming Story #342` | In progress | 2026-11-19 16:09 | — |
-| #342 | 3 | `/using-git-worktrees Story #342` | Not started | — | — |
-| #342 | 4 | `/writing-plans Story #342` | Not started | — | — |
-| #342 | 5 | `/test-driven-development Story #342` | Not started | — | — |
-| #342 | 6 | `/subagent-driven-development Story #342` | Not started | — | — |
-| #342 | 7 | `/ccaa-commit-push 342 (after each task)` | Not started | — | — |
-| #342 | 8 | `/verification-before-completion Story #342` | Not started | — | — |
-| #342 | 9 | `/requesting-code-review Story #342` | Not started | — | — |
-| #342 | 10 | `/ccaa-commit-push 342` | Not started | — | — |
-| #342 | 11 | `/finishing-a-development-branch Story #342` | Not started | — | — |
+| #342 | 1 | `/ccaa-story-start 342` | Done | 2026-11-19 16:10 | 2026-11-19 16:10 |
+| #342 | 2 | `/brainstorming Story #342` | Done | 2026-11-19 16:10 | 2026-11-19 16:10 |
+| #342 | 3 | `/using-git-worktrees Story #342` | Done | 2026-11-19 16:10 | 2026-11-19 16:10 |
+| #342 | 4 | `/writing-plans Story #342` | Done | 2026-11-19 16:10 | 2026-11-19 16:10 |
+| #342 | 5 | `/test-driven-development Story #342` | Done | 2026-11-19 16:10 | 2026-11-19 16:10 |
+| #342 | 6 | `/subagent-driven-development Story #342` | Done | 2026-11-19 16:10 | 2026-11-19 16:10 |
+| #342 | 7 | `/ccaa-commit-push 342 (after each task)` | Done | 2026-11-19 16:10 | 2026-11-19 16:10 |
+| #342 | 8 | `/verification-before-completion Story #342` | Done | 2026-11-19 16:10 | 2026-11-19 16:10 |
+| #342 | 9 | `/requesting-code-review Story #342` | Done | 2026-11-19 16:10 | 2026-11-19 16:10 |
+| #342 | 10 | `/ccaa-commit-push 342` | Done | 2026-11-19 16:10 | 2026-11-19 16:10 |
+| #342 | 11 | `/finishing-a-development-branch Story #342` | In progress | 2026-11-19 16:10 | — |
 | #342 | 12 | `/ccaa-story-complete 342` | Not started | — | — |
 | #343 | 1 | `/ccaa-story-start 343` | Not started | — | — |
 | #343 | 2 | `/brainstorming Story #343` | Not started | — | — |
