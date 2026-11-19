@@ -35,15 +35,15 @@ One chat per story. Full **12-step** path (M02 standard). Do **not** abbreviate.
 
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
-| #325 | 1 | `/ccaa-story-start 325` | Not started | — | — |
-| #325 | 2 | `/brainstorming Story #325` | Not started | — | — |
-| #325 | 3 | `/using-git-worktrees Story #325` | Not started | — | — |
-| #325 | 4 | `/writing-plans Story #325` | Not started | — | — |
-| #325 | 5 | `/test-driven-development Story #325` | Not started | — | — |
-| #325 | 6 | `/subagent-driven-development Story #325` | Not started | — | — |
-| #325 | 7 | `/ccaa-commit-push 325 (after each task)` | Not started | — | — |
-| #325 | 8 | `/verification-before-completion Story #325` | Not started | — | — |
-| #325 | 9 | `/requesting-code-review Story #325` | Not started | — | — |
-| #325 | 10 | `/ccaa-commit-push 325` | Not started | — | — |
-| #325 | 11 | `/finishing-a-development-branch Story #325` | Done | 2026-11-19 13:02 | 2026-11-19 13:02 |
-| #325 | 12 | `/ccaa-story-complete 325` | Done | 2026-11-19 13:02 | 2026-11-19 13:02 |
+| #325 | 1 | `/ccaa-story-start 325` | Done | 2026-11-19 13:00 | 2026-11-19 13:00 |
+| #325 | 2 | `/brainstorming Story #325` | Done | 2026-11-19 13:00 | 2026-11-19 13:02 |
+| #325 | 3 | `/using-git-worktrees Story #325` | Done | 2026-11-19 13:02 | 2026-11-19 13:02 |
+| #325 | 4 | `/writing-plans Story #325` | Done | 2026-11-19 13:02 | 2026-11-19 13:02 |
+| #325 | 5 | `/test-driven-development Story #325` | Done | 2026-11-19 13:02 | 2026-11-19 13:02 |
+| #325 | 6 | `/subagent-driven-development Story #325` | Done | 2026-11-19 13:02 | 2026-11-19 13:02 |
+| #325 | 7 | `/ccaa-commit-push 325 (after each task)` | Done | 2026-11-19 13:02 | 2026-11-19 13:02 |
+| #325 | 8 | `/verification-before-completion Story #325` | Done | 2026-11-19 13:02 | 2026-11-19 13:02 |
+| #325 | 9 | `/requesting-code-review Story #325` | Done | 2026-11-19 13:02 | 2026-11-19 13:02 |
+| #325 | 10 | `/ccaa-commit-push 325` | Done | 2026-11-19 13:02 | 2026-11-19 13:02 |
+| #325 | 11 | `/finishing-a-development-branch Story #325` | Done | 2026-11-19 13:02 | 2026-11-19 13:03 |
+| #325 | 12 | `/ccaa-story-complete 325` | Done | 2026-11-19 13:02 | 2026-11-19 13:03 |

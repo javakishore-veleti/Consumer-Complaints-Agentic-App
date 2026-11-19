@@ -1,0 +1,14 @@
+[
+  {"topic_id": "auto_loans", "money_topic": "Auto Loans", "sort_order": 1},
+  {"topic_id": "bank_accounts_services", "money_topic": "Bank Accounts & Services", "sort_order": 2},
+  {"topic_id": "credit_cards", "money_topic": "Credit Cards", "sort_order": 3},
+  {"topic_id": "credit_reports_scores", "money_topic": "Credit Reports & Scores", "sort_order": 4},
+  {"topic_id": "debt_collection", "money_topic": "Debt Collection", "sort_order": 5},
+  {"topic_id": "fraud_scams", "money_topic": "Fraud & Scams", "sort_order": 6},
+  {"topic_id": "money_transfers", "money_topic": "Money Transfers", "sort_order": 7},
+  {"topic_id": "mortgages", "money_topic": "Mortgages", "sort_order": 8},
+  {"topic_id": "payday_loans", "money_topic": "Payday Loans", "sort_order": 9},
+  {"topic_id": "prepaid_cards", "money_topic": "Prepaid Cards", "sort_order": 10},
+  {"topic_id": "private_student_loans", "money_topic": "Private Student Loans", "sort_order": 11},
+  {"topic_id": "reverse_mortgages", "money_topic": "Reverse Mortgages", "sort_order": 12}
+]

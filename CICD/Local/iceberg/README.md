@@ -141,6 +141,18 @@ FROM demo.refined.cfpb_complaints_3m;
 
 Verified 2026-11-19: **n=1,970,702**, **u_sig=6,716**, null `signature_id`=0 (matches Raw).
 
+## Taxonomy + Mode 2 (M47-0001 / #325)
+
+Requires refined 3m. Seeds 12 Money Topics, product crosswalk (~55 U_prod), and `semantic_signatures` (~2,924 U_sig).
+
+```bash
+npm run local:iceberg:prove-taxonomy-mode2-3m
+```
+
+Demo join (Capital One → primary_money_topic) is printed by the prove script.
+
+Verified 2026-11-19: topics=**12**, crosswalk=**55**, semantic_signatures=**2,924**.
+
 ## Airflow DAG (M45-0003 / #322)
 
 DAG id: `hydrate_raw_iceberg_3m` (`Middleware/Airflow-dags/hydrate_raw_iceberg_3m.py`).
