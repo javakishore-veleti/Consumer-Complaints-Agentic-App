@@ -66,6 +66,15 @@ Curated Money Topics (M48-0001):
 npm run local:iceberg:prove-curated-3m
 ```
 
+
+Chroma semantic signatures catalog (M49-0001):
+
+```bash
+npm run local:containers:chroma:start
+npm run local:iceberg:hydrate-chroma-signatures-3m
+npm run local:iceberg:prove-chroma-signatures-3m
+```
+
 Demo: `SELECT primary_money_topic, COUNT(*) FROM demo.curated.cfpb_complaints_3m GROUP BY 1 ORDER BY 2 DESC;`
 Also ensure local Airflow is up (includes pymongo image):
 

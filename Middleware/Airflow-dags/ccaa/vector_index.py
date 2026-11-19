@@ -11,6 +11,7 @@ from typing import Any, Callable, Iterable, Protocol
 
 
 DEFAULT_COLLECTION = "complaints"
+SIGNATURE_COLLECTION = "cfpb_semantic_signatures"
 DEFAULT_DIM = 32
 COMPLAINT_ID_FIELD = "Complaint ID"
 DEFAULT_PG_TABLE = "complaint_vectors"
@@ -265,8 +266,15 @@ class ChromaStore:
                 ids: list[str],
                 embeddings: list[list[float]],
                 documents: list[str],
+                metadatas: list[dict[str, Any]] | None = None,
             ) -> None:
-                body = {"ids": ids, "embeddings": embeddings, "documents": documents}
+                body: dict[str, Any] = {
+                    "ids": ids,
+                    "embeddings": embeddings,
+                    "documents": documents,
+                }
+                if metadatas is not None:
+                    body["metadatas"] = metadatas
                 req = urllib.request.Request(
                     f"{self.root}/api/v1/collections/{collection_id}/upsert",
                     data=json.dumps(body).encode("utf-8"),
@@ -274,6 +282,40 @@ class ChromaStore:
                     method="POST",
                 )
                 urllib.request.urlopen(req, timeout=60).read()
+
+            def count(self, collection_id: str) -> int:
+                req = urllib.request.Request(
+                    f"{self.root}/api/v1/collections/{collection_id}/count",
+                    method="GET",
+                )
+                raw = urllib.request.urlopen(req, timeout=30).read()
+                payload = json.loads(raw.decode("utf-8") or "0")
+                if isinstance(payload, dict):
+                    return int(payload.get("count") or payload.get("value") or 0)
+                return int(payload)
+
+            def query(
+                self,
+                collection_id: str,
+                *,
+                query_embeddings: list[list[float]],
+                n_results: int = 3,
+                include: list[str] | None = None,
+            ) -> dict[str, Any]:
+                body = {
+                    "query_embeddings": query_embeddings,
+                    "n_results": n_results,
+                    "include": include
+                    or ["documents", "metadatas", "distances"],
+                }
+                req = urllib.request.Request(
+                    f"{self.root}/api/v1/collections/{collection_id}/query",
+                    data=json.dumps(body).encode("utf-8"),
+                    headers={"Content-Type": "application/json"},
+                    method="POST",
+                )
+                raw = urllib.request.urlopen(req, timeout=60).read()
+                return json.loads(raw.decode("utf-8") or "{}")
 
         return _UrllibClient(self.base_url)
 
@@ -288,8 +330,27 @@ class ChromaStore:
         ids = [str(d["id"]) for d in docs]
         embeddings = [list(d.get("embedding") or []) for d in docs]
         documents = [str(d.get("text") or "") for d in docs]
-        self._http().upsert(self.collection_id, ids, embeddings, documents)
+        metadatas = [dict(d["metadata"]) for d in docs if d.get("metadata") is not None]
+        meta_arg = metadatas if len(metadatas) == len(docs) else None
+        self._http().upsert(
+            self.collection_id, ids, embeddings, documents, metadatas=meta_arg
+        )
         return len(docs)
+
+    def count(self) -> int:
+        if not self.collection_id:
+            self.ensure_schema()
+        return int(self._http().count(self.collection_id))
+
+    def query_text(self, text: str, *, n_results: int = 3) -> dict[str, Any]:
+        if not self.collection_id:
+            self.ensure_schema()
+        emb = hash_embedding(text, dim=DEFAULT_DIM)
+        return self._http().query(
+            self.collection_id,
+            query_embeddings=[emb],
+            n_results=n_results,
+        )
 
 
 class RedisVectorStore:

@@ -135,8 +135,21 @@ class _FakeChromaClient:
         self.collections.append(name)
         return self.FAKE_UUID
 
-    def upsert(self, collection_id: str, ids: list[str], embeddings: list[list[float]], documents: list[str]) -> None:
-        self.upserts.append((collection_id, ids, embeddings, documents))
+    def upsert(
+        self,
+        collection_id: str,
+        ids: list[str],
+        embeddings: list[list[float]],
+        documents: list[str],
+        metadatas: list | None = None,
+    ) -> None:
+        self.upserts.append((collection_id, ids, embeddings, documents, metadatas))
+
+    def count(self, collection_id: str) -> int:
+        return sum(len(u[1]) for u in self.upserts if u[0] == collection_id)
+
+    def query(self, collection_id: str, *, query_embeddings, n_results=3, include=None):
+        return {"ids": [["c1"]], "metadatas": [[{"primary_money_topic": "Credit Cards"}]]}
 
 
 class _FakeRedisClient:

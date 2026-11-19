@@ -172,6 +172,21 @@ ORDER BY n DESC;
 
 Verified 2026-11-19: curated=**1,970,702**; null topics/org=0; Capital One Money Topic group-by works.
 
+
+## Chroma semantic signatures catalog (M49-0001 / #336)
+
+Requires taxonomy Mode 2 (`semantic_signatures` ~2,924). Indexes the **catalog** into Chroma collection `cfpb_semantic_signatures` (not 19M complaint rows). Embeddings: local MVP `hash_embedding`.
+
+```bash
+npm run local:containers:chroma:start
+npm run local:iceberg:hydrate-chroma-signatures-3m
+npm run local:iceberg:prove-chroma-signatures-3m
+```
+
+`CCA_CHROMA_URL` defaults to `http://127.0.0.1:8100`.
+
+Verified 2026-11-19: chroma **cfpb_semantic_signatures**=**2,924** (= taxonomy U_sig); sample query returns `signature_id` + Money Topic metadata.
+
 ## Airflow DAG (M45-0003 / #322)
 
 DAG id: `hydrate_raw_iceberg_3m` (`Middleware/Airflow-dags/hydrate_raw_iceberg_3m.py`).
