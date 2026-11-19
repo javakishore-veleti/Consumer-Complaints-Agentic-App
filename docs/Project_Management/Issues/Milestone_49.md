@@ -4,7 +4,7 @@
 
 **Demoable outcome:** Chroma `cfpb_semantic_signatures` searchable (~2,924 U_sig); depends on M47
 
-**Status: Open.** Stories left to build: 1. Stories already done: 0.
+**Status: Closed.** PR #337 merged; chroma prove PASS (2,924). Stories left to build: 0. Stories already done: 1. Stories left to build: 1. Stories already done: 0.
 
 **GitHub Milestone:** M49 - Chroma semantic signatures catalog (working product) (api id 50)
 
@@ -45,5 +45,5 @@ One chat per story. Full **12-step** path (M02 standard). Do **not** abbreviate.
 | #336 | 8 | `/verification-before-completion Story #336` | Done | 2026-11-19 15:52 | 2026-11-19 15:52 |
 | #336 | 9 | `/requesting-code-review Story #336` | Done | 2026-11-19 15:52 | 2026-11-19 15:52 |
 | #336 | 10 | `/ccaa-commit-push 336` | Done | 2026-11-19 15:52 | 2026-11-19 15:52 |
-| #336 | 11 | `/finishing-a-development-branch Story #336` | In progress | 2026-11-19 15:52 | — |
-| #336 | 12 | `/ccaa-story-complete 336` | Not started | — | — |
+| #336 | 11 | `/finishing-a-development-branch Story #336` | Done | 2026-11-19 15:52 | 2026-11-19 15:52 |
+| #336 | 12 | `/ccaa-story-complete 336` | Done | 2026-11-19 15:52 | 2026-11-19 15:52 |
