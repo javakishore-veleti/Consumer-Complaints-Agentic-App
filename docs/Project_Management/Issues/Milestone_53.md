@@ -63,8 +63,8 @@ One chat per story. Full **12-step** path (M02 standard). Do **not** abbreviate.
 | #359 | 10 | `/ccaa-commit-push 359` | Done | 2026-11-19 17:45 | 2026-11-19 17:45 |
 | #359 | 11 | `/finishing-a-development-branch Story #359` | Done | 2026-11-19 17:45 | 2026-11-19 17:46 |
 | #359 | 12 | `/ccaa-story-complete 359` | Done | 2026-11-19 17:46 | 2026-11-19 17:46 |
-| #360 | 1 | `/ccaa-story-start 360` | Planned | - | - |
-| #360 | 2 | `/brainstorming Story #360` | Planned | - | - |
+| #360 | 1 | `/ccaa-story-start 360` | Done | 2026-11-19 17:49 | 2026-11-19 17:49 |
+| #360 | 2 | `/brainstorming Story #360` | In progress | 2026-11-19 17:49 | - |
 | #360 | 3 | `/using-git-worktrees Story #360` | Planned | - | - |
 | #360 | 4 | `/writing-plans Story #360` | Planned | - | - |
 | #360 | 5 | `/test-driven-development Story #360` | Planned | - | - |
@@ -75,8 +75,8 @@ One chat per story. Full **12-step** path (M02 standard). Do **not** abbreviate.
 | #360 | 10 | `/ccaa-commit-push 360` | Planned | - | - |
 | #360 | 11 | `/finishing-a-development-branch Story #360` | Planned | - | - |
 | #360 | 12 | `/ccaa-story-complete 360` | Planned | - | - |
-| #361 | 1 | `/ccaa-story-start 361` | Planned | - | - |
-| #361 | 2 | `/brainstorming Story #361` | Planned | - | - |
+| #361 | 1 | `/ccaa-story-start 361` | Done | 2026-11-19 17:49 | 2026-11-19 17:49 |
+| #361 | 2 | `/brainstorming Story #361` | In progress | 2026-11-19 17:49 | - |
 | #361 | 3 | `/using-git-worktrees Story #361` | Planned | - | - |
 | #361 | 4 | `/writing-plans Story #361` | Planned | - | - |
 | #361 | 5 | `/test-driven-development Story #361` | Planned | - | - |
