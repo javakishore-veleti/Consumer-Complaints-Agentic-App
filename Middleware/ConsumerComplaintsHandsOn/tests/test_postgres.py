@@ -226,7 +226,7 @@ def test_catalog_works_on_postgres(postgres):
         bindings = c.execute(text(f"select count(*) from {SCHEMA_ADMIN}.mios_workflows")).scalar()
         endpoints = c.execute(text(f"select count(*) from {SCHEMA_ADMIN}.app_endpoints")).scalar()
     assert seeded == 5  # four month MIOs + All (0011 / D84)
-    assert bindings == 17  # + 3m hydrate_* binds (0026–0030 / M51)
+    assert bindings == 18  # + 3m hydrate_* (M51) + apply_iceberg_foundational (M58 / #400)
     assert endpoints == 7  # + chroma + redis (0019)
 
     datasets = DaoObjectsFactory.get_dataset_dao()
