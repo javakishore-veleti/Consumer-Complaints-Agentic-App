@@ -1,0 +1,34 @@
+---
+description: STRICT — no vibe coding anywhere in this project; Superpowers only for product work
+alwaysApply: true
+---
+
+# No vibe coding (hard rule)
+
+**STRICT. NO EXCEPTIONS. Do not wait for the user to restate this.**
+
+This project forbids vibe coding: jumping into product edits from chat intent, “approved” ideas, or partial designs without completing the Superpowers workflow for an open `[Story]` on a real GitHub Milestone.
+
+## What vibe coding means here (banned)
+
+- Editing `Middleware/`, `Portals/`, `CICD/` runtime, `Middleware/Airflow-dags/`, migrations, or feature tests because “it looks right” / “user said yes” / “quick fix”
+- Skipping or rubber-stamping Superpowers steps (brainstorm → worktree → writing-plans → TDD → …)
+- Implementing on `main` while a story worktree/plan exists or should exist
+- Marking Milestone Superpowers rows Done without actually running that skill/step
+- Shipping WIP product code before a written plan exists for the current design
+- Treating design chat approval as permission to code without `/writing-plans` and TDD in the story worktree
+
+## Required path
+
+1. Open `[Story]` on a **real** GitHub Milestone
+2. User runs `/ccaa-story-start N` (agent-created issues alone do **not** authorize code)
+3. Brainstorm → written spec under `docs/Superpowers/specs/` → user reviews
+4. `/writing-plans` → plan file
+5. TDD + implementation **only** in the story worktree/branch
+6. Commit/push via `/ccaa-commit-push` as the story skills require
+
+Also obey `.cursor/rules/no-coding-without-github-issue.mdc` (same gate; fail closed).
+
+## If tempted to “just code”
+
+**Stop.** Fix the board / finish the current Superpowers step. Say what is missing in one short line. Never ask the user to “remind” you about the gate — apply it every turn by default.

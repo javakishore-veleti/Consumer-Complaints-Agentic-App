@@ -19,6 +19,7 @@ from app.core.dao.mio_dataset_dao import MioDatasetDao
 from app.core.dao.mio_ingest_log_dao import MioIngestLogDao
 from app.core.dao.mio_workflow_dao import MioWorkflowDao
 from app.core.dao.transaction_dao import TransactionDao
+from app.core.dao.zone_ingest_log_dao import ZoneIngestLogDao
 
 _DAO_INTERFACES = (
     AppWfDao,
@@ -33,6 +34,7 @@ _DAO_INTERFACES = (
     MioWorkflowDao,
     MioAclDao,
     TransactionDao,
+    ZoneIngestLogDao,
 )
 
 
@@ -80,6 +82,9 @@ class DaoObjectsFactory:
                 from app.core.dao.impl.mongo.mongo_transaction_dao import (
                     MongoTransactionDao,
                 )
+                from app.core.dao.impl.mongo.mongo_zone_ingest_log_dao import (
+                    MongoZoneIngestLogDao,
+                )
 
                 bean_registry.register(AppWfDao, MongoAppWfDao())
                 bean_registry.register(AppWfExecLogDao, MongoAppWfExecLogDao())
@@ -93,6 +98,7 @@ class DaoObjectsFactory:
                 bean_registry.register(MioWorkflowDao, MongoMioWorkflowDao())
                 bean_registry.register(MioAclDao, MongoMioAclDao())
                 bean_registry.register(TransactionDao, MongoTransactionDao())
+                bean_registry.register(ZoneIngestLogDao, MongoZoneIngestLogDao())
             else:
                 from app.core.dao.impl.sqlalchemy_app_endpoint_dao import (
                     SqlAlchemyAppEndpointDao,
@@ -124,6 +130,9 @@ class DaoObjectsFactory:
                 from app.core.dao.impl.sqlalchemy_transaction_dao import (
                     SqlAlchemyTransactionDao,
                 )
+                from app.core.dao.impl.sqlalchemy_zone_ingest_log_dao import (
+                    SqlAlchemyZoneIngestLogDao,
+                )
 
                 bean_registry.register(AppWfDao, SqlAlchemyAppWfDao())
                 bean_registry.register(AppWfExecLogDao, SqlAlchemyAppWfExecLogDao())
@@ -137,6 +146,7 @@ class DaoObjectsFactory:
                 bean_registry.register(MioWorkflowDao, SqlAlchemyMioWorkflowDao())
                 bean_registry.register(MioAclDao, SqlAlchemyMioAclDao())
                 bean_registry.register(TransactionDao, SqlAlchemyTransactionDao())
+                bean_registry.register(ZoneIngestLogDao, SqlAlchemyZoneIngestLogDao())
             DaoObjectsFactory._initialized = True
 
     @staticmethod
@@ -206,3 +216,8 @@ class DaoObjectsFactory:
     def get_transaction_dao() -> TransactionDao:
         DaoObjectsFactory.init()
         return bean_registry.get_one(TransactionDao)  # type: ignore[return-value]
+
+    @staticmethod
+    def get_zone_ingest_log_dao() -> ZoneIngestLogDao:
+        DaoObjectsFactory.init()
+        return bean_registry.get_one(ZoneIngestLogDao)  # type: ignore[return-value]

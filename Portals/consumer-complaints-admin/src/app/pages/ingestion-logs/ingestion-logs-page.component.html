@@ -1,0 +1,86 @@
+<div class="p-4 md:p-6 space-y-4">
+  <div class="flex items-center justify-between gap-3 flex-wrap">
+    <div>
+      <h1 class="text-xl font-semibold text-gray-800 dark:text-white/90">Ingestion Logs — {{ zoneLabel() }}</h1>
+      <p class="text-sm text-gray-500 dark:text-gray-400">
+        Newest first, max {{ pageSize }} rows. Use filters for deeper history.
+      </p>
+    </div>
+    <app-button size="sm" (btnClick)="onRefresh()">Refresh</app-button>
+  </div>
+
+  @if (error()) {
+    <app-alert variant="error" title="Error" [message]="error()" />
+  }
+
+  <form class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3 items-end" (ngSubmit)="onApplyFilters()">
+    <label class="flex flex-col gap-1 text-sm">
+      <span>Start date</span>
+      <input type="date" class="rounded border px-2 py-1.5 dark:bg-gray-900" [(ngModel)]="startDate" name="startDate" />
+    </label>
+    <label class="flex flex-col gap-1 text-sm">
+      <span>Start time</span>
+      <input type="time" class="rounded border px-2 py-1.5 dark:bg-gray-900" [(ngModel)]="startTime" name="startTime" />
+    </label>
+    <label class="flex flex-col gap-1 text-sm">
+      <span>End date</span>
+      <input type="date" class="rounded border px-2 py-1.5 dark:bg-gray-900" [(ngModel)]="endDate" name="endDate" />
+    </label>
+    <label class="flex flex-col gap-1 text-sm">
+      <span>End time</span>
+      <input type="time" class="rounded border px-2 py-1.5 dark:bg-gray-900" [(ngModel)]="endTime" name="endTime" />
+    </label>
+    <label class="flex flex-col gap-1 text-sm">
+      <span>Workflow execution id</span>
+      <input type="text" class="rounded border px-2 py-1.5 dark:bg-gray-900" [(ngModel)]="workflowExecutionId" name="workflowExecutionId" />
+    </label>
+    <label class="flex flex-col gap-1 text-sm">
+      <span>Status</span>
+      <select class="rounded border px-2 py-1.5 dark:bg-gray-900" [(ngModel)]="statusFilter" name="statusFilter">
+        <option value="">Any</option>
+        <option value="pending">pending</option>
+        <option value="in_progress">in_progress</option>
+        <option value="done">done</option>
+        <option value="failed">failed</option>
+      </select>
+    </label>
+    <div class="md:col-span-3 lg:col-span-6">
+      <app-button size="sm" type="submit">Apply filters</app-button>
+    </div>
+  </form>
+
+  @if (loading()) {
+    <p class="text-sm text-gray-500">Loading…</p>
+  } @else {
+    <div class="overflow-x-auto rounded border border-gray-200 dark:border-gray-800">
+      <table class="min-w-full text-sm">
+        <thead class="bg-gray-50 dark:bg-gray-900/40 text-left">
+          <tr>
+            <th class="px-3 py-2">Updated</th>
+            <th class="px-3 py-2">Partition</th>
+            <th class="px-3 py-2">Status</th>
+            <th class="px-3 py-2">Data tech</th>
+            <th class="px-3 py-2">Workflow exec</th>
+            <th class="px-3 py-2">Source → Dest</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows(); track row.id) {
+            <tr class="border-t border-gray-100 dark:border-gray-800">
+              <td class="px-3 py-2 whitespace-nowrap">{{ row.status_updated_on }}</td>
+              <td class="px-3 py-2">{{ row.partition_key }}</td>
+              <td class="px-3 py-2">{{ row.status }}</td>
+              <td class="px-3 py-2">{{ row.data_tech }}</td>
+              <td class="px-3 py-2 font-mono text-xs">{{ row.workflow_execution_id || '—' }}</td>
+              <td class="px-3 py-2 font-mono text-xs">{{ row.source_end_point_id }} → {{ row.dest_end_point_id }}</td>
+            </tr>
+          } @empty {
+            <tr>
+              <td class="px-3 py-4 text-gray-500" colspan="6">No rows.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

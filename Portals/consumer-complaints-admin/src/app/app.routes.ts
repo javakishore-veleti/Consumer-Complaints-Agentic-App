@@ -8,6 +8,7 @@ import { IndexPageComponent } from './pages/datasets/index/index-page.component'
 import { LakehousePageComponent } from './pages/datasets/lakehouse/lakehouse-page.component';
 import { SyncSecretsPageComponent } from './pages/operations/sync-secrets-page.component';
 import { AppEndpointsPageComponent } from './pages/catalog/app-endpoints-page.component';
+import { IngestionLogsPageComponent } from './pages/ingestion-logs/ingestion-logs-page.component';
 
 export const routes: Routes = [
   {
@@ -50,6 +51,17 @@ export const routes: Routes = [
         path: 'app-endpoints',
         component: AppEndpointsPageComponent,
         title: 'App Endpoints | Consumer Complaints Administration',
+      },
+      {
+        path: 'ingestion-logs',
+        children: [
+          { path: '', pathMatch: 'full', redirectTo: 'raw' },
+          {
+            path: ':zone',
+            component: IngestionLogsPageComponent,
+            title: 'Ingestion Logs | Consumer Complaints Administration',
+          },
+        ],
       },
       {
         path: 'operations',

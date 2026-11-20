@@ -279,3 +279,106 @@ class DatasetImportRunTagModel(Base):
     import_run_id: Mapped[str] = mapped_column(String(36), nullable=False)
     tag: Mapped[str] = mapped_column(String(255), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class _ZoneIngestLogMixin:
+    """Shared columns for ingest_log_{raw,refined,curated,taxonomy,chroma} (M55-0011 / #391)."""
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    partition_key: Mapped[str] = mapped_column(String(128), nullable=False)
+    data_tech: Mapped[str] = mapped_column(String(32), nullable=False)
+    source_end_point_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    dest_end_point_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    workflow_execution_id: Mapped[str | None] = mapped_column(String(36))
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    status_on: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    status_updated_on: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    configs_json: Mapped[str | None] = mapped_column(Text)
+
+
+class IngestLogRawModel(_ZoneIngestLogMixin, Base):
+    __tablename__ = "ingest_log_raw"
+    __table_args__ = (
+        UniqueConstraint(
+            "partition_key",
+            "source_end_point_id",
+            "dest_end_point_id",
+            name="uq_ingest_log_raw_partition_endpoints",
+        ),
+        Index("ix_ingest_log_raw_status_updated", "status", "status_updated_on"),
+        Index("ix_ingest_log_raw_workflow_execution_id", "workflow_execution_id"),
+        Index("ix_ingest_log_raw_status_updated_on", "status_updated_on"),
+        {"schema": SCHEMA_ADMIN},
+    )
+
+
+class IngestLogRefinedModel(_ZoneIngestLogMixin, Base):
+    __tablename__ = "ingest_log_refined"
+    __table_args__ = (
+        UniqueConstraint(
+            "partition_key",
+            "source_end_point_id",
+            "dest_end_point_id",
+            name="uq_ingest_log_refined_partition_endpoints",
+        ),
+        Index("ix_ingest_log_refined_status_updated", "status", "status_updated_on"),
+        Index("ix_ingest_log_refined_workflow_execution_id", "workflow_execution_id"),
+        Index("ix_ingest_log_refined_status_updated_on", "status_updated_on"),
+        {"schema": SCHEMA_ADMIN},
+    )
+
+
+class IngestLogCuratedModel(_ZoneIngestLogMixin, Base):
+    __tablename__ = "ingest_log_curated"
+    __table_args__ = (
+        UniqueConstraint(
+            "partition_key",
+            "source_end_point_id",
+            "dest_end_point_id",
+            name="uq_ingest_log_curated_partition_endpoints",
+        ),
+        Index("ix_ingest_log_curated_status_updated", "status", "status_updated_on"),
+        Index("ix_ingest_log_curated_workflow_execution_id", "workflow_execution_id"),
+        Index("ix_ingest_log_curated_status_updated_on", "status_updated_on"),
+        {"schema": SCHEMA_ADMIN},
+    )
+
+
+class IngestLogTaxonomyModel(_ZoneIngestLogMixin, Base):
+    __tablename__ = "ingest_log_taxonomy"
+    __table_args__ = (
+        UniqueConstraint(
+            "partition_key",
+            "source_end_point_id",
+            "dest_end_point_id",
+            name="uq_ingest_log_taxonomy_partition_endpoints",
+        ),
+        Index("ix_ingest_log_taxonomy_status_updated", "status", "status_updated_on"),
+        Index("ix_ingest_log_taxonomy_workflow_execution_id", "workflow_execution_id"),
+        Index("ix_ingest_log_taxonomy_status_updated_on", "status_updated_on"),
+        {"schema": SCHEMA_ADMIN},
+    )
+
+
+class IngestLogChromaModel(_ZoneIngestLogMixin, Base):
+    __tablename__ = "ingest_log_chroma"
+    __table_args__ = (
+        UniqueConstraint(
+            "partition_key",
+            "source_end_point_id",
+            "dest_end_point_id",
+            name="uq_ingest_log_chroma_partition_endpoints",
+        ),
+        Index("ix_ingest_log_chroma_status_updated", "status", "status_updated_on"),
+        Index("ix_ingest_log_chroma_workflow_execution_id", "workflow_execution_id"),
+        Index("ix_ingest_log_chroma_status_updated_on", "status_updated_on"),
+        {"schema": SCHEMA_ADMIN},
+    )
+
+ZONE_INGEST_LOG_MODELS = {
+    "raw": IngestLogRawModel,
+    "refined": IngestLogRefinedModel,
+    "curated": IngestLogCuratedModel,
+    "taxonomy": IngestLogTaxonomyModel,
+    "chroma": IngestLogChromaModel,
+}

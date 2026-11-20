@@ -5,7 +5,9 @@ alwaysApply: true
 
 # No coding without a GitHub issue (hard gate)
 
-**STRICT. NO EXCEPTIONS.** Not for “quick fixes”, “the user approved the idea”, “docs-adjacent product tweaks”, “I’ll open the issue myself and start”, “keep the WIP”, or “Superpowers is overkill”.
+**STRICT. NO EXCEPTIONS. NO VIBE CODING.** Apply every turn without the user restating it. Not for “quick fixes”, “the user approved the idea”, “docs-adjacent product tweaks”, “I’ll open the issue myself and start”, “keep the WIP”, or “Superpowers is overkill”.
+
+Companion rule: `.cursor/rules/no-vibe-coding.mdc`.
 
 ## Before any product code change
 

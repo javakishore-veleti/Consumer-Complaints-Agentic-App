@@ -18,6 +18,7 @@ from app.api.routers.mio_status_api import MioStatusApi
 from app.api.routers.start_wf_api import StartWfApi
 from app.api.routers.wf_exec_callback_api import WfExecCallbackApi
 from app.api.routers.wf_list_api import WfListApi
+from app.api.routers.zone_ingest_log_api import ZoneIngestLogApi
 from app.api.security.callback_secret_auth import CallbackSecretAuth
 from app.core.common.bean_registry import bean_registry
 
@@ -45,6 +46,7 @@ class ApiObjectsFactory:
             app_ep_api = AppEndpointApi()
             intellect_api = IntellectQueryApi()
             dag_ctx_api = DagContextApi()
+            zone_ingest_api = ZoneIngestLogApi()
             bean_registry.register(CallbackSecretAuth, auth)
             bean_registry.register(WfExecCallbackApi, wf_api)
             bean_registry.register(DatasetImportRunCallbackApi, import_run_cb_api)
@@ -56,6 +58,7 @@ class ApiObjectsFactory:
             bean_registry.register(AppEndpointApi, app_ep_api)
             bean_registry.register(IntellectQueryApi, intellect_api)
             bean_registry.register(DagContextApi, dag_ctx_api)
+            bean_registry.register(ZoneIngestLogApi, zone_ingest_api)
 
             app = FastAPI(
                 title="Consumer Complaints Hands-On API",
@@ -71,6 +74,7 @@ class ApiObjectsFactory:
             app.include_router(app_ep_api.router)
             app.include_router(intellect_api.router)
             app.include_router(import_run_api.router)
+            app.include_router(zone_ingest_api.router)
             # Every router an engine calls is protected as a whole by the callback secret (D59).
             app.include_router(wf_api.router, dependencies=[Depends(auth)])
             app.include_router(dag_ctx_api.router, dependencies=[Depends(auth)])

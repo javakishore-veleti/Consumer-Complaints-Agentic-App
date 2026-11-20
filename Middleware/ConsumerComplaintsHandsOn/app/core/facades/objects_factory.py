@@ -18,6 +18,7 @@ from app.core.facades.risk_radar_facade import RiskRadarFacade
 from app.core.facades.start_wf_facade import StartWfFacade
 from app.core.facades.wf_exec_status_facade import WfExecStatusFacade
 from app.core.facades.wf_list_facade import WfListFacade
+from app.core.facades.zone_ingest_log_facade import ZoneIngestLogFacade
 
 
 class FacadesObjectsFactory:
@@ -65,6 +66,9 @@ class FacadesObjectsFactory:
             from app.core.facades.impl.wf_list.wf_list_facade_impl import (
                 WfListFacadeImpl,
             )
+            from app.core.facades.impl.zone_ingest_log_facade_impl import (
+                ZoneIngestLogFacadeImpl,
+            )
 
             bean_registry.register(MioStatusFacade, MioStatusFacadeImpl())
             bean_registry.register(WfExecStatusFacade, WfExecStatusFacadeImpl())
@@ -78,6 +82,7 @@ class FacadesObjectsFactory:
             bean_registry.register(RiskRadarFacade, RiskRadarFacadeImpl())
             bean_registry.register(DatasetImportRunFacade, DatasetImportRunFacadeImpl())
             bean_registry.register(DagContextFacade, DagContextFacadeImpl())
+            bean_registry.register(ZoneIngestLogFacade, ZoneIngestLogFacadeImpl())
             FacadesObjectsFactory._initialized = True
 
     @staticmethod
@@ -139,3 +144,8 @@ class FacadesObjectsFactory:
     def get_dag_context_facade() -> DagContextFacade:
         FacadesObjectsFactory.init()
         return bean_registry.get_one(DagContextFacade)  # type: ignore[return-value]
+
+    @staticmethod
+    def get_zone_ingest_log_facade() -> ZoneIngestLogFacade:
+        FacadesObjectsFactory.init()
+        return bean_registry.get_one(ZoneIngestLogFacade)  # type: ignore[return-value]

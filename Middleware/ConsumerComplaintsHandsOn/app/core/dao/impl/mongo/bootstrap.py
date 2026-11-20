@@ -107,6 +107,11 @@ COLLECTIONS = (
     "mios_workflows",
     "mios_acl",
     "mios_ingest_log",
+    "ingest_log_raw",
+    "ingest_log_refined",
+    "ingest_log_curated",
+    "ingest_log_taxonomy",
+    "ingest_log_chroma",
 )
 
 
@@ -148,6 +153,16 @@ def ensure_indexes() -> None:
         unique=True,
         name="uq_dataset_import_run_tags_run_tag",
     )
+    for zone in ("raw", "refined", "curated", "taxonomy", "chroma"):
+        coll = f"ingest_log_{zone}"
+        db[coll].create_index(
+            [("partition_key", 1), ("source_end_point_id", 1), ("dest_end_point_id", 1)],
+            unique=True,
+            name=f"uq_ingest_log_{zone}_partition_endpoints",
+        )
+        db[coll].create_index([("status", 1), ("status_updated_on", -1)], name=f"ix_ingest_log_{zone}_status_updated")
+        db[coll].create_index("workflow_execution_id", name=f"ix_ingest_log_{zone}_workflow_execution_id")
+        db[coll].create_index([("status_updated_on", -1)], name=f"ix_ingest_log_{zone}_status_updated_on")
 
 
 def _upsert(doc: MongoDocument) -> None:

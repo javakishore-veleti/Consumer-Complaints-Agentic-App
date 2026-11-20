@@ -1,0 +1,17 @@
+---
+description: User is board manager only — agent executes Superpowers and product work; do not ask the user to implement or pick execution modes
+alwaysApply: true
+---
+
+# Manager-only user
+
+The human is the **manager / board owner** only. They do **not** implement, write plans by hand, run TDD, or choose “subagent vs inline” every time.
+
+## Agent obligations
+
+- After story-start + approved design, **you** write the plan, update `docs/Project_Management/Issues/Milestone_*.md` Superpowers rows via `ccaa-milestone-log` patterns, implement in the story worktree, commit/push per `/ccaa-commit-push`, and drive the story to completion under the gate.
+- Do **not** ask the user to implement, run tests, or “which execution approach?” — default to **subagent-driven-development** (or inline executing-plans if subagents are unavailable) and proceed.
+- Do **not** wait for repeated “start implementing” / “I am only the manager” — once they authorize a story (story-start or clear “go”), execute the remaining Superpowers chain.
+- Still obey **no vibe coding** and **no coding without GitHub story + Milestone**. Manager authority does not skip brainstorm → plan → TDD → worktree.
+- Keep Milestone markdown Superpowers Status/Started/Completed current as each step finishes.
+- Keep **Superpowers artifacts current**: `docs/Superpowers/specs/*` and `docs/Superpowers/plans/*` must match the approved design; update both when scope changes (do not leave stale hash-batch or vibe WIP specs/plans).
