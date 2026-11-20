@@ -4,7 +4,7 @@
 
 **Demoable outcome:** Admin **Schemas** starts one Iceberg foundational-schema workflow that applies Raw → Refined → Taxonomy → Curated DDL via Middleware → Airflow → status callback. Postgres app migrate stays on npm. Operator data-plane schema work is UI/DAG, not `npm run local:iceberg:apply-*`.
 
-**Status: Open.** Stories left to build: 1. Stories already done: 0.
+**Status: Closed.** Stories left to build: 0. Stories already done: 1.
 
 **GitHub Milestone:** M58 - Admin Schemas foundational data-plane DDL (api id 59)
 
@@ -34,5 +34,5 @@
 | #400 | 8 | `/verification-before-completion Story #400` | Done | 2026-11-20 11:01 | 2026-11-20 11:01 |
 | #400 | 9 | `/requesting-code-review Story #400` | Done | 2026-11-20 11:01 | 2026-11-20 11:01 |
 | #400 | 10 | `/ccaa-commit-push 400` | Done | 2026-11-20 11:01 | 2026-11-20 11:01 |
-| #400 | 11 | `/finishing-a-development-branch Story #400` | In progress | 2026-11-20 11:01 | - |
-| #400 | 12 | `/ccaa-story-complete 400` | Planned | - | - |
+| #400 | 11 |  | Done | 2026-11-20 11:07 | 2026-11-20 11:07 |
+| #400 | 12 |  | Done | 2026-11-20 11:07 | 2026-11-20 11:07 |
