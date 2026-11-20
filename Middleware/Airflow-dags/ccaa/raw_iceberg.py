@@ -30,18 +30,45 @@ DEFAULT_SPARK_CONTAINER = "cca-spark-iceberg"
 DEFAULT_TARGET_TABLE = "demo.raw.cfpb_complaints_3m"
 
 
-def resolve_lift_root(getenv=os.getenv) -> Path:
+def _lookup_path(name: str, getenv, get_variable) -> str:
+    value = (getenv(name) or "").strip()
+    if value:
+        return value
+    if get_variable is None:
+        return ""
+    try:
+        return str(get_variable(name) or "").strip()
+    except Exception:
+        return ""
+
+
+def resolve_lift_root(getenv=os.getenv, get_variable=None) -> Path:
+    """Lift root or imports landing dir (same Variable as filter_cfpb_*).
+
+    Prefers env, then Airflow Variable — LocalExecutor often has no CCA_* in
+    process env, only Variables from Sync secrets.
+    """
     raw = (
-        (getenv("CCA_LIFT_ZONE") or "").strip()
-        or (getenv("LOCAL_DATA_PATH_CFPB") or "").strip()
+        _lookup_path("CCA_LIFT_ZONE", getenv, get_variable)
+        or _lookup_path("LOCAL_DATA_PATH_CFPB", getenv, get_variable)
         or str(Path.home() / "runtime_data/apps/datasets/CCA/complains_datasets")
     )
     return Path(raw).expanduser()
 
 
+def resolve_imports_dir(lift_root: Path) -> Path:
+    """``LOCAL_DATA_PATH_CFPB`` is the imports landing; ``CCA_LIFT_ZONE`` is parent."""
+    if lift_root.name == "imports":
+        return lift_root
+    nested = lift_root / "imports"
+    if nested.is_dir():
+        return nested
+    return lift_root
+
+
 def find_latest_3m_batch(lift_root: Path) -> Path:
     """Return latest imports/*/dataset dir that has *3_months*.csv.zip."""
-    imports = lift_root / "imports"
+    imports = resolve_imports_dir(lift_root)
     if not imports.is_dir():
         raise FileNotFoundError(f"no imports under {lift_root}")
     latest: Path | None = None

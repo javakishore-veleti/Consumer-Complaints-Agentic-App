@@ -11,6 +11,7 @@ import shlex
 from datetime import datetime
 
 from airflow import DAG
+from airflow.models import Variable
 from airflow.operators.python import PythonOperator
 from airflow.utils.trigger_rule import TriggerRule
 
@@ -61,7 +62,7 @@ def sense_lift_3m(**context) -> dict:
     eid = _execution_id(context)
     if eid:
         report_execution_status(eid, "started", engine_run_id=_engine_run_id(context))
-    lift = resolve_lift_root()
+    lift = resolve_lift_root(get_variable=Variable.get)
     batch = find_latest_3m_batch(lift)
     log.info("sensed lift batch %s", batch)
     return {"lift_root": str(lift), "batch_dir": str(batch)}

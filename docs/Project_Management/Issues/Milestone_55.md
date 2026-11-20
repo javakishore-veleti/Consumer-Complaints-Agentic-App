@@ -48,13 +48,13 @@
 | #372 | 12 | `/ccaa-story-complete 372` | Planned | - | - |
 | #374 | 1 | `/ccaa-story-start 374` | Done | 2026-11-19 20:26 | 2026-11-19 20:26 |
 | #374 | 2 | `/brainstorming Story #374` | Done | 2026-11-19 20:26 | 2026-11-19 20:26 |
-| #374 | 3 | `/using-git-worktrees Story #374` | In progress | 2026-11-19 20:26 | - |
-| #374 | 4 | `/writing-plans Story #374` | Planned | - | - |
-| #374 | 5 | `/test-driven-development Story #374` | Planned | - | - |
-| #374 | 6 | `/subagent-driven-development Story #374` | Planned | - | - |
-| #374 | 7 | `/ccaa-commit-push 374 (after each task)` | Planned | - | - |
-| #374 | 8 | `/verification-before-completion Story #374` | Planned | - | - |
-| #374 | 9 | `/requesting-code-review Story #374` | Planned | - | - |
-| #374 | 10 | `/ccaa-commit-push 374` | Planned | - | - |
-| #374 | 11 | `/finishing-a-development-branch Story #374` | Planned | - | - |
-| #374 | 12 | `/ccaa-story-complete 374` | Planned | - | - |
+| #374 | 3 | `/using-git-worktrees Story #374` | Done | 2026-11-19 20:30 | 2026-11-19 20:30 |
+| #374 | 4 | `/writing-plans Story #374` | Done | 2026-11-19 20:30 | 2026-11-19 20:30 |
+| #374 | 5 | `/test-driven-development Story #374` | Done | 2026-11-19 20:30 | 2026-11-19 20:30 |
+| #374 | 6 | `/subagent-driven-development Story #374` | Done | 2026-11-19 20:30 | 2026-11-19 20:30 |
+| #374 | 7 | `/ccaa-commit-push 374 (after each task)` | Done | 2026-11-19 20:30 | 2026-11-19 20:30 |
+| #374 | 8 | `/verification-before-completion Story #374` | Done | 2026-11-19 20:30 | 2026-11-19 20:30 |
+| #374 | 9 | `/requesting-code-review Story #374` | Done | 2026-11-19 20:30 | 2026-11-19 20:30 |
+| #374 | 10 | `/ccaa-commit-push 374` | Done | 2026-11-19 20:30 | 2026-11-19 20:30 |
+| #374 | 11 | `/finishing-a-development-branch Story #374` | Done | 2026-11-19 20:30 | 2026-11-19 20:30 |
+| #374 | 12 | `/ccaa-story-complete 374` | In progress | 2026-11-19 20:30 | - |
