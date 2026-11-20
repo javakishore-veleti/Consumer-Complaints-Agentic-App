@@ -15,6 +15,22 @@ describe('LakehousePageComponent', () => {
     enabled: true,
   };
 
+  const hydrateChroma = {
+    id: 'w-hydrate-chroma',
+    workflow_name: 'hydrate_chroma_signatures_3m',
+    engine_type: 'apache_airflow',
+    engine_workflow_id: 'hydrate_chroma_signatures_3m',
+    enabled: true,
+  };
+
+  const hydrateCurated = {
+    id: 'w-hydrate-curated',
+    workflow_name: 'hydrate_curated_iceberg_3m',
+    engine_type: 'apache_airflow',
+    engine_workflow_id: 'hydrate_curated_iceberg_3m',
+    enabled: true,
+  };
+
   const filter3m = {
     id: 'w-filter',
     workflow_name: 'filter_cfpb_3_months',
@@ -61,10 +77,37 @@ describe('LakehousePageComponent', () => {
     fixture.detectChanges();
     expect(fixture.debugElement.query(By.css('[data-testid="lakehouse-page"]'))).toBeTruthy();
     const select = fixture.debugElement.query(By.css('[data-testid="mio-workflow-select"]'));
-    expect(select.nativeElement.textContent).toContain('hydrate_raw_iceberg_3m');
+    expect(select.nativeElement.textContent).toContain('1. hydrate_raw_iceberg_3m');
     expect(select.nativeElement.textContent).not.toContain('filter_cfpb_3_months');
     const btn = fixture.debugElement.query(By.css('[data-testid="mio-start-workflow"]'));
     expect(btn.nativeElement.disabled).toBe(false);
+  });
+
+  it('orders hydrate workflows by pipeline sequence and defaults to raw', async () => {
+    const fixture = TestBed.createComponent(LakehousePageComponent);
+    fixture.detectChanges();
+    flushStatus([
+      {
+        id: 'm1',
+        name: 'Customer complaints 3 months 2026',
+        description: null,
+        latest_ingest: null,
+        // Alphabetical would put chroma first — pipeline order must win.
+        allowed_workflows: [hydrateChroma, hydrateCurated, hydrateRaw],
+      },
+    ]);
+    await settle();
+    fixture.detectChanges();
+    const select: HTMLSelectElement = fixture.debugElement.query(
+      By.css('[data-testid="mio-workflow-select"]'),
+    ).nativeElement;
+    const labels = Array.from(select.options).map((o) => o.textContent?.trim());
+    expect(labels).toEqual([
+      '1. hydrate_raw_iceberg_3m',
+      '4. hydrate_curated_iceberg_3m',
+      '5. hydrate_chroma_signatures_3m',
+    ]);
+    expect(select.value).toBe('w-hydrate-raw');
   });
 
   it('disables Start when a hydrate run is already started', async () => {

@@ -94,7 +94,7 @@
                   (change)="onWorkflowChange(mio.id, $event)"
                 >
                   @for (wf of allowedWorkflows(mio); track wf.id) {
-                    <option [value]="wf.id">{{ wf.workflow_name }}</option>
+                    <option [value]="wf.id">{{ workflowOptionLabel(wf) }}</option>
                   }
                 </select>
               </label>
