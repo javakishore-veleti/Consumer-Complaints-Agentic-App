@@ -4,7 +4,7 @@
 
 **Demoable outcome:** `hydrate_*` spark-submit works inside `cca-spark-iceberg` (no `spark-submit: command not found`); Lakehouse dropdown shows pipeline sequence `1.`…`5.` with raw as default; hydrate_raw finds lift batches via Airflow Variable.
 
-**Status: Open.** Stories left to build: 1. Stories already done: 3.
+**Status: Open.** Stories left to build: 1. Stories already done: 8.
 
 **GitHub Milestone:** M55 - Lakehouse Spark PATH hotfix (api id 56)
 
@@ -63,3 +63,4 @@
 | #374 | 12 | `/ccaa-story-complete 374` | Done | 2026-11-19 20:30 | 2026-11-19 20:30 |
 | 7 | #383 | M55-0007 | Story | createOrReplace + execution_id for refined/taxonomy/curated |
 | 8 | #385 | M55-0008 | Story | Curated hydrate OOM — broadcast join + driver memory |
+| 9 | #387 | M55-0009 | Story | Curated still OOMKilled — fit Spark in Docker 8GiB headroom |
