@@ -176,6 +176,32 @@ class MongoAppWfExecLogDao(AppWfExecLogDao):
                 query["engine_type"] = req.engine_type
             if req.mios_ingest_log_id:
                 query["mios_ingest_log_id"] = req.mios_ingest_log_id
+            if req.engine_run_id is not None:
+                query["engine_run_id"] = req.engine_run_id
+            prefixes: list[str] = []
+            if req.workflow_name_prefixes:
+                prefixes.extend(req.workflow_name_prefixes)
+            if req.workflow_name_prefix:
+                prefixes.append(req.workflow_name_prefix)
+            and_clauses: list[dict] = []
+            if prefixes:
+                and_clauses.append(
+                    {"$or": [{"workflow_name": {"$regex": f"^{p}"}} for p in prefixes]}
+                )
+            if req.workflow_name_exclude_prefix:
+                and_clauses.append(
+                    {"workflow_name": {"$not": {"$regex": f"^{req.workflow_name_exclude_prefix}"}}}
+                )
+            if req.requested_after is not None or req.requested_before is not None:
+                bounds: dict = {}
+                if req.requested_after is not None:
+                    bounds["$gte"] = req.requested_after
+                if req.requested_before is not None:
+                    bounds["$lte"] = req.requested_before
+                and_clauses.append({"requested_at": bounds})
+            if and_clauses:
+                existing = [{k: v} for k, v in query.items()]
+                query = {"$and": existing + and_clauses} if existing else {"$and": and_clauses}
             with mongo_unit_of_work(ctx) as uow:
                 docs = uow.find(MongoFindReq(collection=COLL, query=query, sort=[("requested_at", -1), ("id", 1)], skip=req.offset or 0, limit=req.limit,
                 ))

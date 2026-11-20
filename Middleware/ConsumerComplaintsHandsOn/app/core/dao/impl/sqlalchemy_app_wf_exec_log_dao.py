@@ -5,7 +5,7 @@ from copy import deepcopy
 from datetime import datetime, timezone
 from uuid import uuid4
 
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy import update as sql_update
 
 from app.core.common.app_types_constants import ExecStatus
@@ -182,6 +182,25 @@ class SqlAlchemyAppWfExecLogDao(AppWfExecLogDao):
                 query = query.where(AppWfExecLogModel.engine_type == req.engine_type)
             if req.mios_ingest_log_id:
                 query = query.where(AppWfExecLogModel.mios_ingest_log_id == req.mios_ingest_log_id)
+            if req.engine_run_id is not None:
+                query = query.where(AppWfExecLogModel.engine_run_id == req.engine_run_id)
+            prefixes: list[str] = []
+            if req.workflow_name_prefixes:
+                prefixes.extend(req.workflow_name_prefixes)
+            if req.workflow_name_prefix:
+                prefixes.append(req.workflow_name_prefix)
+            if prefixes:
+                query = query.where(
+                    or_(*[AppWfExecLogModel.workflow_name.startswith(p) for p in prefixes])
+                )
+            if req.workflow_name_exclude_prefix:
+                query = query.where(
+                    ~AppWfExecLogModel.workflow_name.startswith(req.workflow_name_exclude_prefix)
+                )
+            if req.requested_after is not None:
+                query = query.where(AppWfExecLogModel.requested_at >= req.requested_after)
+            if req.requested_before is not None:
+                query = query.where(AppWfExecLogModel.requested_at <= req.requested_before)
             query = query.order_by(AppWfExecLogModel.requested_at.desc(), AppWfExecLogModel.id)
             if req.limit is not None:
                 query = query.limit(req.limit)

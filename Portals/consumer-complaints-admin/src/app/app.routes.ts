@@ -9,6 +9,7 @@ import { LakehousePageComponent } from './pages/datasets/lakehouse/lakehouse-pag
 import { SyncSecretsPageComponent } from './pages/operations/sync-secrets-page.component';
 import { AppEndpointsPageComponent } from './pages/catalog/app-endpoints-page.component';
 import { IngestionLogsPageComponent } from './pages/ingestion-logs/ingestion-logs-page.component';
+import { WorkflowExecLogsPageComponent } from './pages/workflow-logs/workflow-exec-logs-page.component';
 
 export const routes: Routes = [
   {
@@ -53,14 +54,33 @@ export const routes: Routes = [
         title: 'App Endpoints | Consumer Complaints Administration',
       },
       {
-        path: 'ingestion-logs',
+        path: 'workflow-logs',
         children: [
-          { path: '', pathMatch: 'full', redirectTo: 'raw' },
+          { path: '', pathMatch: 'full', redirectTo: 'import' },
+          {
+            path: 'import',
+            component: WorkflowExecLogsPageComponent,
+            data: { category: 'import' },
+            title: 'Workflow Logs — DataSets Import | Consumer Complaints Administration',
+          },
+          {
+            path: 'db-ingest',
+            component: WorkflowExecLogsPageComponent,
+            data: { category: 'db_ingest' },
+            title: 'Workflow Logs — DB Ingest | Consumer Complaints Administration',
+          },
           {
             path: ':zone',
             component: IngestionLogsPageComponent,
-            title: 'Ingestion Logs | Consumer Complaints Administration',
+            title: 'Workflow Logs | Consumer Complaints Administration',
           },
+        ],
+      },
+      {
+        path: 'ingestion-logs',
+        children: [
+          { path: '', pathMatch: 'full', redirectTo: '/workflow-logs/raw' },
+          { path: ':zone', redirectTo: '/workflow-logs/:zone' },
         ],
       },
       {

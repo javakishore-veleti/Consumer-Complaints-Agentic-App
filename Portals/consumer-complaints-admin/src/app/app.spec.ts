@@ -76,4 +76,27 @@ describe('AppComponent', () => {
     expect(appEndpoints).toBeTruthy();
     expect(appEndpoints.nativeElement.textContent.trim()).toBe('App Endpoints');
   });
+
+  it('exposes Workflow Logs with Import and DB Ingest subnav', async () => {
+    const fixture = await renderShell();
+    const top = fixture.debugElement.query(By.css('[data-testid="top-nav-workflow-logs"]'));
+    expect(top).toBeTruthy();
+    expect(top.nativeElement.textContent).toContain('Workflow Logs');
+    top.nativeElement.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const importNav = fixture.debugElement.query(
+      By.css('a[data-testid="left-nav-workflow-logs-import"]'),
+    );
+    expect(importNav).toBeTruthy();
+    expect(importNav.nativeElement.textContent.trim()).toBe('DataSets Import');
+
+    const dbNav = fixture.debugElement.query(
+      By.css('a[data-testid="left-nav-workflow-logs-db-ingest"]'),
+    );
+    expect(dbNav).toBeTruthy();
+    expect(dbNav.nativeElement.textContent.trim()).toBe('DB Ingest');
+  });
 });
