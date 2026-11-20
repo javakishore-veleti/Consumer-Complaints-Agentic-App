@@ -18,6 +18,7 @@
 | 2 | #372 | M55-0002 | Story | Number and order Lakehouse hydrate dropdown |
 | 3 | #374 | M55-0003 | Story | hydrate_raw sense_lift uses Variable landing path |
 | 4 | #377 | M55-0004 | Story | Absolute spark-submit in Iceberg hydrate shell scripts |
+| 5 | #379 | M55-0005 | Story | hydrate_raw createOrReplace when table missing |
 
 ## 2. Superpowers workflow
 
