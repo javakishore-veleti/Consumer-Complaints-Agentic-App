@@ -58,6 +58,23 @@ def test_find_latest_3m_batch(tmp_path: Path):
         ],
     )
     assert raw.find_latest_3m_batch(tmp_path) == newer
+    # LOCAL_DATA_PATH_CFPB already points at imports/ (filter landing)
+    assert raw.find_latest_3m_batch(tmp_path / "imports") == newer
+
+
+def test_resolve_lift_root_prefers_variable_over_home_default(tmp_path: Path):
+    landing = tmp_path / "imports"
+    landing.mkdir()
+
+    def getenv(_name: str):
+        return None
+
+    def get_variable(name: str):
+        if name == "LOCAL_DATA_PATH_CFPB":
+            return str(landing)
+        raise KeyError(name)
+
+    assert raw.resolve_lift_root(getenv=getenv, get_variable=get_variable) == landing
 
 
 def test_pre_ingest_gate_ok(tmp_path: Path):
