@@ -25,11 +25,11 @@ echo "==> stage unzip run_id=$RUN_ID"
 STAGE_DIR=$(docker exec -e CCA_LIFT_ZONE_IN_CONTAINER=/lift "$CONTAINER" \
   bash /tmp/stage_unzip_3m.sh "$RUN_ID" | tee /dev/stderr | tail -1)
 
-echo "==> spark-submit hydrate stage=$STAGE_DIR"
+echo "==> /opt/spark/bin/spark-submit hydrate stage=$STAGE_DIR"
 docker exec \
   -e PYTHONPATH=/tmp \
   "$CONTAINER" \
-  spark-submit /tmp/hydrate_raw_3m.py \
+  /opt/spark/bin/spark-submit /tmp/hydrate_raw_3m.py \
     --stage-dir "$STAGE_DIR" \
     --run-id "$RUN_ID" \
     --slice 3m \

@@ -53,7 +53,7 @@ def _docker_export(container: str, host_export: Path) -> None:
             "docker",
             "exec",
             container,
-            "spark-submit",
+            "/opt/spark/bin/spark-submit",
             remote,
             "--out",
             EXPORT_IN_CONTAINER,
