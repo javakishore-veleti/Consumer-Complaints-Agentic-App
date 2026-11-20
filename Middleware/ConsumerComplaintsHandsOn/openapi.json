@@ -1481,6 +1481,273 @@
         ],
         "title": "WfListOut",
         "type": "object"
+      },
+      "ZoneIngestLogClaimIn": {
+        "properties": {
+          "limit": {
+            "default": 5,
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "type": "integer"
+          }
+        },
+        "title": "ZoneIngestLogClaimIn",
+        "type": "object"
+      },
+      "ZoneIngestLogCompleteIn": {
+        "properties": {
+          "configs_json": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Configs Json"
+          },
+          "status": {
+            "enum": [
+              "done",
+              "failed"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "ZoneIngestLogCompleteIn",
+        "type": "object"
+      },
+      "ZoneIngestLogCreateIn": {
+        "properties": {
+          "configs_json": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Configs Json"
+          },
+          "data_tech": {
+            "enum": [
+              "iceberg",
+              "s3",
+              "database"
+            ],
+            "title": "Data Tech",
+            "type": "string"
+          },
+          "dest_end_point_id": {
+            "title": "Dest End Point Id",
+            "type": "string"
+          },
+          "partition_key": {
+            "title": "Partition Key",
+            "type": "string"
+          },
+          "source_end_point_id": {
+            "title": "Source End Point Id",
+            "type": "string"
+          },
+          "workflow_execution_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Workflow Execution Id"
+          }
+        },
+        "required": [
+          "partition_key",
+          "data_tech",
+          "source_end_point_id",
+          "dest_end_point_id"
+        ],
+        "title": "ZoneIngestLogCreateIn",
+        "type": "object"
+      },
+      "ZoneIngestLogOut": {
+        "properties": {
+          "configs_json": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Configs Json"
+          },
+          "data_tech": {
+            "title": "Data Tech",
+            "type": "string"
+          },
+          "dest_end_point_id": {
+            "title": "Dest End Point Id",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "partition_key": {
+            "title": "Partition Key",
+            "type": "string"
+          },
+          "source_end_point_id": {
+            "title": "Source End Point Id",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "status_on": {
+            "format": "date-time",
+            "title": "Status On",
+            "type": "string"
+          },
+          "status_updated_on": {
+            "format": "date-time",
+            "title": "Status Updated On",
+            "type": "string"
+          },
+          "workflow_execution_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Workflow Execution Id"
+          },
+          "zone": {
+            "title": "Zone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "zone",
+          "partition_key",
+          "data_tech",
+          "source_end_point_id",
+          "dest_end_point_id",
+          "status",
+          "status_on",
+          "status_updated_on"
+        ],
+        "title": "ZoneIngestLogOut",
+        "type": "object"
+      },
+      "ZoneIngestLogUpdateIn": {
+        "properties": {
+          "configs_json": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Configs Json"
+          },
+          "data_tech": {
+            "anyOf": [
+              {
+                "enum": [
+                  "iceberg",
+                  "s3",
+                  "database"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Tech"
+          },
+          "dest_end_point_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dest End Point Id"
+          },
+          "partition_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Partition Key"
+          },
+          "source_end_point_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source End Point Id"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "pending",
+                  "in_progress",
+                  "done",
+                  "failed"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "workflow_execution_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Workflow Execution Id"
+          }
+        },
+        "title": "ZoneIngestLogUpdateIn",
+        "type": "object"
       }
     }
   },
@@ -2117,6 +2384,597 @@
         "summary": "Health",
         "tags": [
           "health"
+        ]
+      }
+    },
+    "/ingestion-logs/{zone}": {
+      "get": {
+        "operationId": "list_ingestion_logs__zone__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "zone",
+            "required": true,
+            "schema": {
+              "enum": [
+                "raw",
+                "refined",
+                "curated",
+                "taxonomy",
+                "chroma"
+              ],
+              "title": "Zone",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 30,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": 30,
+              "title": "Limit"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": 0,
+              "title": "Offset"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "partition_key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Partition Key"
+            }
+          },
+          {
+            "in": "query",
+            "name": "workflow_execution_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Workflow Execution Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status_updated_from",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status Updated From"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status_updated_to",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status Updated To"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ZoneIngestLogOut"
+                  },
+                  "title": "Response List Ingestion Logs  Zone  Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List",
+        "tags": [
+          "ingestion-logs"
+        ]
+      },
+      "post": {
+        "operationId": "create_ingestion_logs__zone__post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "zone",
+            "required": true,
+            "schema": {
+              "enum": [
+                "raw",
+                "refined",
+                "curated",
+                "taxonomy",
+                "chroma"
+              ],
+              "title": "Zone",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ZoneIngestLogCreateIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ZoneIngestLogOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create",
+        "tags": [
+          "ingestion-logs"
+        ]
+      }
+    },
+    "/ingestion-logs/{zone}/claim": {
+      "post": {
+        "operationId": "claim_ingestion_logs__zone__claim_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "zone",
+            "required": true,
+            "schema": {
+              "enum": [
+                "raw",
+                "refined",
+                "curated",
+                "taxonomy",
+                "chroma"
+              ],
+              "title": "Zone",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ZoneIngestLogClaimIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ZoneIngestLogOut"
+                  },
+                  "title": "Response Claim Ingestion Logs  Zone  Claim Post",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Claim",
+        "tags": [
+          "ingestion-logs"
+        ]
+      }
+    },
+    "/ingestion-logs/{zone}/{id}": {
+      "delete": {
+        "operationId": "delete_ingestion_logs__zone___id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "zone",
+            "required": true,
+            "schema": {
+              "enum": [
+                "raw",
+                "refined",
+                "curated",
+                "taxonomy",
+                "chroma"
+              ],
+              "title": "Zone",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "title": "Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete",
+        "tags": [
+          "ingestion-logs"
+        ]
+      },
+      "get": {
+        "operationId": "get_ingestion_logs__zone___id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "zone",
+            "required": true,
+            "schema": {
+              "enum": [
+                "raw",
+                "refined",
+                "curated",
+                "taxonomy",
+                "chroma"
+              ],
+              "title": "Zone",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "title": "Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ZoneIngestLogOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get",
+        "tags": [
+          "ingestion-logs"
+        ]
+      },
+      "put": {
+        "operationId": "update_ingestion_logs__zone___id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "zone",
+            "required": true,
+            "schema": {
+              "enum": [
+                "raw",
+                "refined",
+                "curated",
+                "taxonomy",
+                "chroma"
+              ],
+              "title": "Zone",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "title": "Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ZoneIngestLogUpdateIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ZoneIngestLogOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update",
+        "tags": [
+          "ingestion-logs"
+        ]
+      }
+    },
+    "/ingestion-logs/{zone}/{id}/complete": {
+      "post": {
+        "operationId": "complete_ingestion_logs__zone___id__complete_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "zone",
+            "required": true,
+            "schema": {
+              "enum": [
+                "raw",
+                "refined",
+                "curated",
+                "taxonomy",
+                "chroma"
+              ],
+              "title": "Zone",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "title": "Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ZoneIngestLogCompleteIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ZoneIngestLogOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Complete",
+        "tags": [
+          "ingestion-logs"
+        ]
+      }
+    },
+    "/ingestion-logs/{zone}/{id}/reset": {
+      "post": {
+        "operationId": "reset_ingestion_logs__zone___id__reset_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "zone",
+            "required": true,
+            "schema": {
+              "enum": [
+                "raw",
+                "refined",
+                "curated",
+                "taxonomy",
+                "chroma"
+              ],
+              "title": "Zone",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "title": "Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ZoneIngestLogOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Reset",
+        "tags": [
+          "ingestion-logs"
         ]
       }
     },
