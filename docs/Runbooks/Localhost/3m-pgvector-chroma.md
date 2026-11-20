@@ -35,18 +35,7 @@ npm run local:handson:middlware:all:start
 npm run local:portals:all:start
 ```
 
-**Lakehouse / Schemas (data-plane — not required for Mongo → pgvector/Chroma below):** after Iceberg containers + Airflow + migrate + **Sync secrets**, use Admin UI only:
-
-1. **Schemas** → 3-month MIO → `apply_iceberg_foundational_schema` (Raw→Refined→Taxonomy→Curated DDL in one WF).
-2. **Lakehouse** → hydrate workflows (`hydrate_raw_iceberg_3m`, …) as needed.
-
-Do **not** use `npm run local:iceberg:apply-*` / `hydrate-*` for day-to-day ops (those remain for CI/dev). Postgres app schema stays on `npm run local:api:migrate` above.
-
-Also ensure local Airflow is up (includes pymongo image):
-
-```bash
-cd CICD/Local/airflow && docker compose up -d --build
-```
+Postgres app schema stays on `npm run local:api:migrate` above. The postgres/mongodb/chroma npm starts already bring **Airflow** up (with `--build` for the pymongo image); no separate Airflow compose step is required on this happy path.
 
 ### 0.2 Confirm `.env`
 
@@ -79,6 +68,15 @@ Sync secrets so Airflow Variables match. Filtered outputs land under `LOCAL_DATA
 4. Confirm Airflow has `CCA_API_URL=http://host.docker.internal:8000` and `CCA_CALLBACK_SECRET`.
 
 ![Airflow Variables after Sync secrets](assets/airflow-variables-after-sync.png)
+
+### 0.4a Optional — Schemas / Lakehouse (data-plane)
+
+Not required for Mongo → pgvector/Chroma below. After Sync secrets:
+
+1. **Schemas** → 3-month MIO → `apply_iceberg_foundational_schema` (Raw→Refined→Taxonomy→Curated DDL in one WF).
+2. **Lakehouse** → hydrate workflows (`hydrate_raw_iceberg_3m`, …) as needed.
+
+Do **not** use `npm run local:iceberg:apply-*` / `hydrate-*` for day-to-day ops (those remain for CI/dev).
 
 ### 0.5 Confirm DAGs are enabled
 

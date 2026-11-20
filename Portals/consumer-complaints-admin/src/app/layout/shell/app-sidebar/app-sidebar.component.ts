@@ -38,6 +38,18 @@ export class AppSidebarComponent {
       testId: 'nav-dashboard',
     },
     {
+      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M5.25 3.5A.75.75 0 0 0 4.5 4.25v15a.75.75 0 0 0 .75.75h13.5a.75.75 0 0 0 .75-.75v-15a.75.75 0 0 0-.75-.75H5.25Zm.75 1.5h12v12H6v-12Zm2.25 2.25a.75.75 0 0 0 0 1.5h7.5a.75.75 0 0 0 0-1.5h-7.5Zm0 3.5a.75.75 0 0 0 0 1.5h7.5a.75.75 0 0 0 0-1.5h-7.5Zm0 3.5a.75.75 0 0 0 0 1.5H12a.75.75 0 0 0 0-1.5H8.25Z" fill="currentColor"></path></svg>`,
+      name: 'App Endpoints',
+      path: '/app-endpoints',
+      testId: 'left-nav-app-endpoints',
+    },
+    {
+      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M5.25 3.5A.75.75 0 0 0 4.5 4.25v15.5c0 .414.336.75.75.75h13.5a.75.75 0 0 0 .75-.75V4.25a.75.75 0 0 0-.75-.75H5.25Zm.75 1.5h12v14h-12v-14Zm2.25 2.25a.75.75 0 0 0 0 1.5h7.5a.75.75 0 0 0 0-1.5h-7.5Zm0 3a.75.75 0 0 0 0 1.5h7.5a.75.75 0 0 0 0-1.5h-7.5Zm0 3a.75.75 0 0 0 0 1.5h4.5a.75.75 0 0 0 0-1.5h-4.5Z" fill="currentColor"></path></svg>`,
+      name: 'Schemas',
+      path: '/datasets/schemas',
+      testId: 'left-nav-schemas',
+    },
+    {
       icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M3.25 5.5C3.25 4.25736 4.25736 3.25 5.5 3.25H18.5C19.7426 3.25 20.75 4.25736 20.75 5.5V18.5C20.75 19.7426 19.7426 20.75 18.5 20.75H5.5C4.25736 20.75 3.25 19.7426 3.25 18.5V5.5ZM5.5 4.75C5.08579 4.75 4.75 5.08579 4.75 5.5V8.58325L19.25 8.58325V5.5C19.25 5.08579 18.9142 4.75 18.5 4.75H5.5ZM19.25 10.0833H15.416V13.9165H19.25V10.0833ZM13.916 10.0833L10.083 10.0833V13.9165L13.916 13.9165V10.0833ZM8.58301 10.0833H4.75V13.9165H8.58301V10.0833ZM4.75 18.5V15.4165H8.58301V19.25H5.5C5.08579 19.25 4.75 18.9142 4.75 18.5ZM10.083 19.25V15.4165L13.916 15.4165V19.25H10.083ZM15.416 19.25V15.4165H19.25V18.5C19.25 18.9142 18.9142 19.25 18.5 19.25H15.416Z" fill="currentColor"></path></svg>`,
       name: 'DataSets',
       testId: 'top-nav-datasets',
@@ -52,28 +64,16 @@ export class AppSidebarComponent {
       testId: 'left-nav-db-ingest',
     },
     {
-      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M4.5 4.25A.75.75 0 0 1 5.25 3.5h13.5a.75.75 0 0 1 .75.75v15a.75.75 0 0 1-.75.75H5.25a.75.75 0 0 1-.75-.75v-15Zm1.5 1.5v12h12v-12h-12Zm2.25 2.25h7.5a.75.75 0 0 1 0 1.5h-7.5a.75.75 0 0 1 0-1.5Zm0 3.5h7.5a.75.75 0 0 1 0 1.5h-7.5a.75.75 0 0 1 0-1.5Zm0 3.5h5a.75.75 0 0 1 0 1.5h-5a.75.75 0 0 1 0-1.5Z" fill="currentColor"></path></svg>`,
-      name: 'Vector Stores',
-      path: '/datasets/index',
-      testId: 'left-nav-index',
-    },
-    {
       icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M4 4.75A.75.75 0 0 1 4.75 4h14.5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-.75.75H4.75A.75.75 0 0 1 4 9.25v-4.5Zm1.5 1.5v1.5h11.5v-1.5H5.5ZM4 13.75a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-.75.75H4.75a.75.75 0 0 1-.75-.75v-4.5Zm1.5 1.5v1.5h11.5v-1.5H5.5Z" fill="currentColor"></path></svg>`,
       name: 'Lakehouse',
       path: '/datasets/lakehouse',
       testId: 'left-nav-lakehouse',
     },
     {
-      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M5.25 3.5A.75.75 0 0 0 4.5 4.25v15.5c0 .414.336.75.75.75h13.5a.75.75 0 0 0 .75-.75V4.25a.75.75 0 0 0-.75-.75H5.25Zm.75 1.5h12v14h-12v-14Zm2.25 2.25a.75.75 0 0 0 0 1.5h7.5a.75.75 0 0 0 0-1.5h-7.5Zm0 3a.75.75 0 0 0 0 1.5h7.5a.75.75 0 0 0 0-1.5h-7.5Zm0 3a.75.75 0 0 0 0 1.5h4.5a.75.75 0 0 0 0-1.5h-4.5Z" fill="currentColor"></path></svg>`,
-      name: 'Schemas',
-      path: '/datasets/schemas',
-      testId: 'left-nav-schemas',
-    },
-    {
-      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M5.25 3.5A.75.75 0 0 0 4.5 4.25v15a.75.75 0 0 0 .75.75h13.5a.75.75 0 0 0 .75-.75v-15a.75.75 0 0 0-.75-.75H5.25Zm.75 1.5h12v12H6v-12Zm2.25 2.25a.75.75 0 0 0 0 1.5h7.5a.75.75 0 0 0 0-1.5h-7.5Zm0 3.5a.75.75 0 0 0 0 1.5h7.5a.75.75 0 0 0 0-1.5h-7.5Zm0 3.5a.75.75 0 0 0 0 1.5H12a.75.75 0 0 0 0-1.5H8.25Z" fill="currentColor"></path></svg>`,
-      name: 'App Endpoints',
-      path: '/app-endpoints',
-      testId: 'left-nav-app-endpoints',
+      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M4.5 4.25A.75.75 0 0 1 5.25 3.5h13.5a.75.75 0 0 1 .75.75v15a.75.75 0 0 1-.75.75H5.25a.75.75 0 0 1-.75-.75v-15Zm1.5 1.5v12h12v-12h-12Zm2.25 2.25h7.5a.75.75 0 0 1 0 1.5h-7.5a.75.75 0 0 1 0-1.5Zm0 3.5h7.5a.75.75 0 0 1 0 1.5h-7.5a.75.75 0 0 1 0-1.5Zm0 3.5h5a.75.75 0 0 1 0 1.5h-5a.75.75 0 0 1 0-1.5Z" fill="currentColor"></path></svg>`,
+      name: 'Vector Stores',
+      path: '/datasets/index',
+      testId: 'left-nav-index',
     },
     {
       icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M4.5 3.75A.75.75 0 0 1 5.25 3h13.5a.75.75 0 0 1 .75.75v16.5a.75.75 0 0 1-.75.75H5.25a.75.75 0 0 1-.75-.75V3.75Zm1.5 1.5v13.5h12V5.25h-12Zm2.25 2.25a.75.75 0 0 0 0 1.5h7.5a.75.75 0 0 0 0-1.5h-7.5Zm0 3a.75.75 0 0 0 0 1.5h7.5a.75.75 0 0 0 0-1.5h-7.5Zm0 3a.75.75 0 0 0 0 1.5h4.5a.75.75 0 0 0 0-1.5h-4.5Z" fill="currentColor"></path></svg>`,
@@ -109,6 +109,7 @@ export class AppSidebarComponent {
         },
       ],
     },
+
   ];
 
   othersItems: NavItem[] = [];
