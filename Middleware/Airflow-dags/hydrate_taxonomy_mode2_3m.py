@@ -22,7 +22,7 @@ def mark_started(**context) -> None:
 
 
 def hydrate_taxonomy(**context) -> dict:
-    run_id = engine_run_id(context)
+    run_id = execution_id(context) or engine_run_id(context)
     spark_submit_script(
         script_name="hydrate_taxonomy_mode2_3m.py",
         run_id=run_id,

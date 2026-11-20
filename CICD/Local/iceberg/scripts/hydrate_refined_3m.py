@@ -82,8 +82,8 @@ def main() -> int:
         raise SystemExit(f"signature_id null/blank rows={null_sig}")
 
     n = df.count()
-    spark.sql(f"DELETE FROM {args.target_table}")
-    df.writeTo(args.target_table).append()
+    spark.sql("CREATE NAMESPACE IF NOT EXISTS demo.refined")
+    df.writeTo(args.target_table).createOrReplace()
     out = spark.table(args.target_table).count()
     distinct = spark.table(args.target_table).select("signature_id").distinct().count()
     print(

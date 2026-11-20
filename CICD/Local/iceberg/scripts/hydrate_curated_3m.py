@@ -36,8 +36,8 @@ def main() -> int:
             }
         )
     alias_df = spark.createDataFrame(alias_rows)
-    spark.sql("DELETE FROM demo.taxonomy.organization_aliases")
-    alias_df.writeTo("demo.taxonomy.organization_aliases").append()
+    spark.sql("CREATE NAMESPACE IF NOT EXISTS demo.taxonomy")
+    alias_df.writeTo("demo.taxonomy.organization_aliases").createOrReplace()
     print(f"organization_aliases={alias_df.count()}")
 
     def _n(col: str):
@@ -105,8 +105,8 @@ def main() -> int:
     if null_topic:
         raise SystemExit(f"primary_money_topic null/blank={null_topic}")
 
-    spark.sql(f"DELETE FROM {args.target_table}")
-    curated.writeTo(args.target_table).append()
+    spark.sql("CREATE NAMESPACE IF NOT EXISTS demo.curated")
+    curated.writeTo(args.target_table).createOrReplace()
     out = spark.table(args.target_table).count()
     print(f"hydrate_curated rows={n} written={out} run_id={args.run_id}")
     spark.stop()

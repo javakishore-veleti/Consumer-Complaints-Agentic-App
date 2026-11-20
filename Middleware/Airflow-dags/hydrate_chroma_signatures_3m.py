@@ -36,7 +36,7 @@ def mark_started(**context) -> None:
 
 
 def hydrate_chroma(**context) -> dict:
-    run_id = engine_run_id(context)
+    run_id = execution_id(context) or engine_run_id(context)
     container = spark_container_name()
     docker_exec(container, ["rm", "-rf", EXPORT_IN_CONTAINER])
     spark_submit_script(
