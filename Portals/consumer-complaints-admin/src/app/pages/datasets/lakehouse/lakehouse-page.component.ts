@@ -15,8 +15,26 @@ import { SUCCESS } from '../../../core/return-codes';
 
 const RUNNING_STATUSES = new Set(['requested', 'started']);
 
+/** Pipeline order for Lakehouse hydrate (Iceberg stages, then optional Chroma catalog). */
+const HYDRATE_PIPELINE_ORDER: ReadonlyArray<{ match: RegExp; step: number }> = [
+  { match: /^hydrate_raw_iceberg/, step: 1 },
+  { match: /^hydrate_refined_iceberg/, step: 2 },
+  { match: /^hydrate_taxonomy/, step: 3 },
+  { match: /^hydrate_curated_iceberg/, step: 4 },
+  { match: /^hydrate_chroma_signatures/, step: 5 },
+];
+
 function isLakehouseWorkflow(w: MioAllowedWorkflow): boolean {
   return w.workflow_name.startsWith('hydrate_');
+}
+
+function hydratePipelineStep(workflowName: string): number {
+  for (const row of HYDRATE_PIPELINE_ORDER) {
+    if (row.match.test(workflowName)) {
+      return row.step;
+    }
+  }
+  return 99;
 }
 
 @Component({
@@ -39,7 +57,19 @@ export class LakehousePageComponent implements OnInit {
   }
 
   protected allowedWorkflows(mio: MioStatusEntry): MioAllowedWorkflow[] {
-    return (mio.allowed_workflows ?? []).filter((w) => w.enabled && isLakehouseWorkflow(w));
+    return (mio.allowed_workflows ?? [])
+      .filter((w) => w.enabled && isLakehouseWorkflow(w))
+      .slice()
+      .sort(
+        (a, b) =>
+          hydratePipelineStep(a.workflow_name) - hydratePipelineStep(b.workflow_name) ||
+          a.workflow_name.localeCompare(b.workflow_name),
+      );
+  }
+
+  protected workflowOptionLabel(wf: MioAllowedWorkflow): string {
+    const step = hydratePipelineStep(wf.workflow_name);
+    return step < 99 ? `${step}. ${wf.workflow_name}` : wf.workflow_name;
   }
 
   protected selectedWorkflowId(mioId: string): string {
