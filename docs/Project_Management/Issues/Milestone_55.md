@@ -4,7 +4,7 @@
 
 **Demoable outcome:** `hydrate_*` spark-submit works inside `cca-spark-iceberg` (no `spark-submit: command not found`); Lakehouse dropdown shows pipeline sequence `1.`…`5.` with raw as default; hydrate_raw finds lift batches via Airflow Variable.
 
-**Status: Open.** Stories left to build: 7. Stories already done: 4.
+**Status: Open.** Stories left to build: 1. Stories already done: 11.
 
 **GitHub Milestone:** M55 - Lakehouse Spark PATH hotfix (api id 56)
 
@@ -91,6 +91,7 @@
 | #389 | 11 | finishing-a-development-branch | Planned | - | - |
 | #389 | 12 | /ccaa-story-complete 389 | Planned | - | - |
 | 11 | #391 | M55-0011 | Story | Durable zone ingest_log partition queue (claim ≤5) |
+| 12 | #394 | M55-0012 | Story | Workflow Logs UI over exec log (rename Ingestion Logs; Import/DB Ingest) |
 | #391 | 1 | /ccaa-story-start 391 | Done | 2026-11-19 22:10 | 2026-11-19 22:10 |
 | #391 | 2 | brainstorming | Done | 2026-11-19 22:21 | 2026-11-19 22:21 |
 | #391 | 3 | using-git-worktrees | Done | 2026-11-19 22:10 | 2026-11-19 22:10 |
@@ -103,3 +104,15 @@
 | #391 | 10 | /ccaa-commit-push 391 | Done | 2026-11-19 22:47 | 2026-11-19 22:47 |
 | #391 | 11 | finishing-a-development-branch | Done | 2026-11-19 22:47 | 2026-11-19 22:50 |
 | #391 | 12 | /ccaa-story-complete 391 | Done | 2026-11-19 22:50 | 2026-11-19 22:50 |
+| #394 | 1 | `/ccaa-story-start 394` | Done | 2026-11-20 09:54 | 2026-11-20 09:54 |
+| #394 | 2 | `/brainstorming Story #394` | In progress | 2026-11-20 09:54 | - |
+| #394 | 3 | `/using-git-worktrees Story #394` | Planned | - | - |
+| #394 | 4 | `/writing-plans Story #394` | Planned | - | - |
+| #394 | 5 | `/test-driven-development Story #394` | Planned | - | - |
+| #394 | 6 | `/subagent-driven-development Story #394` | Planned | - | - |
+| #394 | 7 | `/ccaa-commit-push 394 (after each task)` | Planned | - | - |
+| #394 | 8 | `/verification-before-completion Story #394` | Planned | - | - |
+| #394 | 9 | `/requesting-code-review Story #394` | Planned | - | - |
+| #394 | 10 | `/ccaa-commit-push 394` | Planned | - | - |
+| #394 | 11 | `/finishing-a-development-branch Story #394` | Planned | - | - |
+| #394 | 12 | `/ccaa-story-complete 394` | Planned | - | - |
