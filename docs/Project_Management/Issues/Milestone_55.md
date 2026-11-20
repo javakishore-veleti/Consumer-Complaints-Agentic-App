@@ -4,7 +4,7 @@
 
 **Demoable outcome:** `hydrate_*` spark-submit works inside `cca-spark-iceberg` (no `spark-submit: command not found`); Lakehouse dropdown shows pipeline sequence `1.`…`5.` with raw as default; hydrate_raw finds lift batches via Airflow Variable.
 
-**Status: Open.** Stories left to build: 1. Stories already done: 11.
+**Status: Closed.** Stories left to build: 0. Stories already done: 12.
 
 **GitHub Milestone:** M55 - Lakehouse Spark PATH hotfix (api id 56)
 
@@ -113,6 +113,6 @@
 | #394 | 7 | `/ccaa-commit-push 394 (after each task)` | Done | 2026-11-20 09:56 | 2026-11-20 10:02 |
 | #394 | 8 | `/verification-before-completion Story #394` | Done | 2026-11-20 10:02 | 2026-11-20 10:02 |
 | #394 | 9 | `/requesting-code-review Story #394` | Done | 2026-11-20 10:02 | 2026-11-20 10:02 |
-| #394 | 10 | `/ccaa-commit-push 394` | In progress | 2026-11-20 10:02 | - |
-| #394 | 11 | `/finishing-a-development-branch Story #394` | Planned | - | - |
-| #394 | 12 | `/ccaa-story-complete 394` | Planned | - | - |
+| #394 | 10 | `/ccaa-commit-push 394` | Done | 2026-11-20 10:02 | 2026-11-20 10:05 |
+| #394 | 11 | `/finishing-a-development-branch Story #394` | Done | 2026-11-20 10:05 | 2026-11-20 10:05 |
+| #394 | 12 | `/ccaa-story-complete 394` | Done | 2026-11-20 10:05 | 2026-11-20 10:05 |
