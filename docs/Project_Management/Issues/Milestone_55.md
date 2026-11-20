@@ -4,7 +4,7 @@
 
 **Demoable outcome:** `hydrate_*` spark-submit works inside `cca-spark-iceberg` (no `spark-submit: command not found`); Lakehouse dropdown shows pipeline sequence `1.`…`5.` with raw as default; hydrate_raw finds lift batches via Airflow Variable.
 
-**Status: Open.** Stories left to build: 2. Stories already done: 1.
+**Status: Open.** Stories left to build: 1. Stories already done: 2.
 
 **GitHub Milestone:** M55 - Lakehouse Spark PATH hotfix (api id 56)
 
@@ -34,10 +34,10 @@
 | #371 | 10 | `/ccaa-commit-push 371` | Done | 2026-11-19 20:01 | 2026-11-19 20:01 |
 | #371 | 11 | `/finishing-a-development-branch Story #371` | Done | 2026-11-19 20:01 | 2026-11-19 20:01 |
 | #371 | 12 | `/ccaa-story-complete 371` | Done | 2026-11-19 20:26 | 2026-11-19 20:26 |
-| #372 | 1 | `/ccaa-story-start 372` | Planned | - | - |
-| #372 | 2 | `/brainstorming Story #372` | Planned | - | - |
-| #372 | 3 | `/using-git-worktrees Story #372` | Planned | - | - |
-| #372 | 4 | `/writing-plans Story #372` | Planned | - | - |
+| #372 | 1 | `/ccaa-story-start 372` | Done | 2026-11-19 20:30 | 2026-11-19 20:30 |
+| #372 | 2 | `/brainstorming Story #372` | Done | 2026-11-19 20:30 | 2026-11-19 20:30 |
+| #372 | 3 | `/using-git-worktrees Story #372` | Done | 2026-11-19 20:30 | 2026-11-19 20:30 |
+| #372 | 4 | `/writing-plans Story #372` | In progress | 2026-11-19 20:30 | - |
 | #372 | 5 | `/test-driven-development Story #372` | Planned | - | - |
 | #372 | 6 | `/subagent-driven-development Story #372` | Planned | - | - |
 | #372 | 7 | `/ccaa-commit-push 372 (after each task)` | Planned | - | - |
@@ -57,4 +57,4 @@
 | #374 | 9 | `/requesting-code-review Story #374` | Done | 2026-11-19 20:30 | 2026-11-19 20:30 |
 | #374 | 10 | `/ccaa-commit-push 374` | Done | 2026-11-19 20:30 | 2026-11-19 20:30 |
 | #374 | 11 | `/finishing-a-development-branch Story #374` | Done | 2026-11-19 20:30 | 2026-11-19 20:30 |
-| #374 | 12 | `/ccaa-story-complete 374` | In progress | 2026-11-19 20:30 | - |
+| #374 | 12 | `/ccaa-story-complete 374` | Done | 2026-11-19 20:30 | 2026-11-19 20:30 |
