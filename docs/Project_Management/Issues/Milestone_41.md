@@ -55,30 +55,30 @@ If a test fails and you do not know why, run `/systematic-debugging Story #N` be
 | #314 | 10 | `/ccaa-commit-push 314` | Done | 2026-11-19 17:48 | 2026-11-19 17:48 |
 | #314 | 11 | `/finishing-a-development-branch Story #314` | Done | 2026-11-19 17:48 | 2026-11-19 17:48 |
 | #314 | 12 | `/ccaa-story-complete 314` | Done | 2026-11-19 17:48 | 2026-11-19 17:48 |
-| #315 | 1 | `/ccaa-story-start 315` | Done | 2026-11-19 17:49 | 2026-11-19 17:49 |
-| #315 | 2 | `/brainstorming Story #315` | Not started | — | — |
-| #315 | 3 | `/using-git-worktrees Story #315` | Not started | — | — |
-| #315 | 4 | `/writing-plans Story #315` | Not started | — | — |
-| #315 | 5 | `/test-driven-development Story #315` | Not started | — | — |
-| #315 | 6 | `/subagent-driven-development Story #315` | Not started | — | — |
-| #315 | 7 | `/ccaa-commit-push 315 (after each task)` | Not started | — | — |
-| #315 | 8 | `/verification-before-completion Story #315` | Not started | — | — |
-| #315 | 9 | `/requesting-code-review Story #315` | Not started | — | — |
-| #315 | 10 | `/ccaa-commit-push 315` | Not started | — | — |
-| #315 | 11 | `/finishing-a-development-branch Story #315` | Not started | — | — |
-| #315 | 12 | `/ccaa-story-complete 315` | Not started | — | — |
-| #316 | 1 | `/ccaa-story-start 316` | Not started | — | — |
-| #316 | 2 | `/brainstorming Story #316` | Not started | — | — |
-| #316 | 3 | `/using-git-worktrees Story #316` | Not started | — | — |
-| #316 | 4 | `/writing-plans Story #316` | Not started | — | — |
-| #316 | 5 | `/test-driven-development Story #316` | Not started | — | — |
-| #316 | 6 | `/subagent-driven-development Story #316` | Not started | — | — |
-| #316 | 7 | `/ccaa-commit-push 316 (after each task)` | Not started | — | — |
-| #316 | 8 | `/verification-before-completion Story #316` | Not started | — | — |
-| #316 | 9 | `/requesting-code-review Story #316` | Not started | — | — |
-| #316 | 10 | `/ccaa-commit-push 316` | Not started | — | — |
-| #316 | 11 | `/finishing-a-development-branch Story #316` | Not started | — | — |
-| #316 | 12 | `/ccaa-story-complete 316` | Not started | — | — |
+| #315 | 1 | `/ccaa-story-start 315` | Done | 2026-11-19 17:49 | 2026-11-19 23:03 |
+| #315 | 2 | `/brainstorming Story #315` | Done | 2026-11-19 23:03 | 2026-11-19 23:03 |
+| #315 | 3 | `/using-git-worktrees Story #315` | Done | 2026-11-19 23:03 | 2026-11-19 23:03 |
+| #315 | 4 | `/writing-plans Story #315` | Done | 2026-11-19 23:03 | 2026-11-19 23:03 |
+| #315 | 5 | `/test-driven-development Story #315` | Done | 2026-11-19 23:03 | 2026-11-19 23:03 |
+| #315 | 6 | `/subagent-driven-development Story #315` | Done | 2026-11-19 23:03 | 2026-11-19 23:03 |
+| #315 | 7 | `/ccaa-commit-push 315 (after each task)` | Done | 2026-11-19 23:03 | 2026-11-19 23:03 |
+| #315 | 8 | `/verification-before-completion Story #315` | Done | 2026-11-19 23:03 | 2026-11-19 23:03 |
+| #315 | 9 | `/requesting-code-review Story #315` | Done | 2026-11-19 23:03 | 2026-11-19 23:03 |
+| #315 | 10 | `/ccaa-commit-push 315` | Done | 2026-11-19 23:03 | 2026-11-19 23:03 |
+| #315 | 11 | `/finishing-a-development-branch Story #315` | Done | 2026-11-19 23:03 | 2026-11-19 23:03 |
+| #315 | 12 | `/ccaa-story-complete 315` | Done | 2026-11-19 23:03 | 2026-11-19 23:03 |
+| #316 | 1 | `/ccaa-story-start 316` | Done | 2026-11-19 23:03 | 2026-11-19 23:03 |
+| #316 | 2 | `/brainstorming Story #316` | Done | 2026-11-19 23:03 | 2026-11-19 23:03 |
+| #316 | 3 | `/using-git-worktrees Story #316` | Done | 2026-11-19 23:03 | 2026-11-19 23:03 |
+| #316 | 4 | `/writing-plans Story #316` | Done | 2026-11-19 23:03 | 2026-11-19 23:03 |
+| #316 | 5 | `/test-driven-development Story #316` | Done | 2026-11-19 23:03 | 2026-11-19 23:03 |
+| #316 | 6 | `/subagent-driven-development Story #316` | Done | 2026-11-19 23:03 | 2026-11-19 23:03 |
+| #316 | 7 | `/ccaa-commit-push 316 (after each task)` | Done | 2026-11-19 23:03 | 2026-11-19 23:03 |
+| #316 | 8 | `/verification-before-completion Story #316` | Done | 2026-11-19 23:03 | 2026-11-19 23:03 |
+| #316 | 9 | `/requesting-code-review Story #316` | Done | 2026-11-19 23:03 | 2026-11-19 23:03 |
+| #316 | 10 | `/ccaa-commit-push 316` | Done | 2026-11-19 23:03 | 2026-11-19 23:03 |
+| #316 | 11 | `/finishing-a-development-branch Story #316` | Done | 2026-11-19 23:03 | 2026-11-19 23:03 |
+| #316 | 12 | `/ccaa-story-complete 316` | Done | 2026-11-19 23:03 | 2026-11-19 23:03 |
 
 ## 3. Empirical calibration (for doc content)
 
