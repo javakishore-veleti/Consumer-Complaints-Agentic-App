@@ -30,7 +30,22 @@ def main() -> int:
     p.add_argument("--signatures-table", default="demo.taxonomy.semantic_signatures")
     p.add_argument("--target-table", default="demo.curated.cfpb_complaints_3m")
     p.add_argument("--run-id", default="manual")
+    # M55-0011: optional partition batch from Middleware claim (≤5 keys). Empty = full table.
+    p.add_argument(
+        "--partition-keys",
+        default="",
+        help="Comma-separated keys from POST /ingestion-logs/curated/claim (max 5)",
+    )
+    p.add_argument(
+        "--num-buckets",
+        type=int,
+        default=20,
+        help="pmod(hash(complaint_id), N) bucket count when --partition-keys is set",
+    )
     args = p.parse_args()
+    partition_keys = [k.strip() for k in args.partition_keys.split(",") if k.strip()]
+    if len(partition_keys) > 5:
+        raise SystemExit("--partition-keys accepts at most 5 keys (Middleware claim cap)")
 
     spark = SparkSession.builder.appName("cca-hydrate-curated-3m").getOrCreate()
     spark.sparkContext.setLogLevel("WARN")
@@ -54,6 +69,11 @@ def main() -> int:
     print(f"organization_aliases={alias_df.count()}")
 
     refined = spark.table(args.refined_table)
+    if partition_keys:
+        # Durable queue: process only claimed hash buckets (M55-0011).
+        bucket = F.pmod(F.hash(F.col("complaint_id").cast("string")), F.lit(int(args.num_buckets)))
+        refined = refined.where(bucket.isin([int(k) for k in partition_keys]))
+        print(f"hydrate_curated partition_keys={partition_keys} num_buckets={args.num_buckets}")
     sigs = spark.table(args.signatures_table)
 
     # Pre-normalize join keys once; broadcast ~3k signature rows.
