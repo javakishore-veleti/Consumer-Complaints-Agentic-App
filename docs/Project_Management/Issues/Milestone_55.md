@@ -19,6 +19,7 @@
 | 3 | #374 | M55-0003 | Story | hydrate_raw sense_lift uses Variable landing path |
 | 4 | #377 | M55-0004 | Story | Absolute spark-submit in Iceberg hydrate shell scripts |
 | 5 | #379 | M55-0005 | Story | hydrate_raw createOrReplace when table missing |
+| 6 | #381 | M55-0006 | Story | Sanitize Airflow run_id for Spark stage paths |
 
 ## 2. Superpowers workflow
 
