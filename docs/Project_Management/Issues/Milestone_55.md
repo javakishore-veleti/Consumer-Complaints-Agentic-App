@@ -105,8 +105,8 @@
 | #391 | 11 | finishing-a-development-branch | Done | 2026-11-19 22:47 | 2026-11-19 22:50 |
 | #391 | 12 | /ccaa-story-complete 391 | Done | 2026-11-19 22:50 | 2026-11-19 22:50 |
 | #394 | 1 | `/ccaa-story-start 394` | Done | 2026-11-20 09:54 | 2026-11-20 09:54 |
-| #394 | 2 | `/brainstorming Story #394` | In progress | 2026-11-20 09:54 | - |
-| #394 | 3 | `/using-git-worktrees Story #394` | Planned | - | - |
+| #394 | 2 | `/brainstorming Story #394` | Done | 2026-11-20 09:54 | 2026-11-20 09:56 |
+| #394 | 3 | `/using-git-worktrees Story #394` | In progress | 2026-11-20 09:56 | - |
 | #394 | 4 | `/writing-plans Story #394` | Planned | - | - |
 | #394 | 5 | `/test-driven-development Story #394` | Planned | - | - |
 | #394 | 6 | `/subagent-driven-development Story #394` | Planned | - | - |
