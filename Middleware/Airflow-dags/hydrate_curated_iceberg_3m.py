@@ -21,7 +21,7 @@ def mark_started(**context) -> None:
 
 
 def hydrate_curated(**context) -> dict:
-    run_id = engine_run_id(context)
+    run_id = execution_id(context) or engine_run_id(context)
     spark_submit_script(script_name="hydrate_curated_3m.py", run_id=run_id)
     return {"run_id": run_id}
 

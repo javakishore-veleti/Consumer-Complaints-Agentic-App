@@ -43,7 +43,8 @@ def docker_exec(container_name: str, cmd: list[str], *, workdir: str | None = No
     out = (out_b or b"").decode("utf-8", errors="replace")
     err = (err_b or b"").decode("utf-8", errors="replace")
     if exit_code != 0:
-        raise RuntimeError(f"docker exec {container_name} failed ({exit_code}): {err or out}")
+        detail = (out[-4000:] + ("\n--- stderr ---\n" + err[-4000:] if err else "")).strip()
+        raise RuntimeError(f"docker exec {container_name} failed ({exit_code}): {detail or err or out}")
     return out
 
 

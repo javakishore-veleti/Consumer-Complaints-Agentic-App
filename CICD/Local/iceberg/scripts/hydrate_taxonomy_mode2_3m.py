@@ -35,8 +35,8 @@ def main() -> int:
     assert len(topics) == 12
     assert {t["money_topic"] for t in topics} == set(MONEY_TOPICS)
     topics_df = spark.createDataFrame(topics)
-    spark.sql("DELETE FROM demo.taxonomy.money_topics")
-    topics_df.writeTo("demo.taxonomy.money_topics").append()
+    spark.sql("CREATE NAMESPACE IF NOT EXISTS demo.taxonomy")
+    topics_df.writeTo("demo.taxonomy.money_topics").createOrReplace()
     print(f"money_topics={topics_df.count()}")
 
     # --- product_crosswalk from refined U_prod ---
@@ -61,8 +61,7 @@ def main() -> int:
             }
         )
     xwalk_df = spark.createDataFrame(xwalk_rows)
-    spark.sql("DELETE FROM demo.taxonomy.product_crosswalk")
-    xwalk_df.writeTo("demo.taxonomy.product_crosswalk").append()
+    xwalk_df.writeTo("demo.taxonomy.product_crosswalk").createOrReplace()
     print(f"product_crosswalk={xwalk_df.count()}")
 
     # --- distinct U_sig (5-field, normalized) + classify ---
@@ -121,8 +120,7 @@ def main() -> int:
     sig_df = spark.createDataFrame(classified, schema=schema).withColumn(
         "_classified_ts", F.to_timestamp(F.col("_classified_ts"))
     )
-    spark.sql("DELETE FROM demo.taxonomy.semantic_signatures")
-    sig_df.writeTo("demo.taxonomy.semantic_signatures").append()
+    sig_df.writeTo("demo.taxonomy.semantic_signatures").createOrReplace()
     n = spark.table("demo.taxonomy.semantic_signatures").count()
     print(f"semantic_signatures={n} run_id={args.run_id}")
     spark.stop()
