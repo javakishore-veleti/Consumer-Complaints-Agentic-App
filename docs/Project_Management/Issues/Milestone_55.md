@@ -90,3 +90,16 @@
 | #389 | 10 | /ccaa-commit-push 389 | Planned | - | - |
 | #389 | 11 | finishing-a-development-branch | Planned | - | - |
 | #389 | 12 | /ccaa-story-complete 389 | Planned | - | - |
+| 11 | #391 | M55-0011 | Story | Curated hydrate ≤5 partition batches |
+| #391 | 1 | /ccaa-story-start 391 | Done | 2026-11-19 22:10 | 2026-11-19 22:10 |
+| #391 | 2 | brainstorming | Done | 2026-11-19 22:10 | 2026-11-19 22:10 |
+| #391 | 3 | using-git-worktrees | Done | 2026-11-19 22:10 | 2026-11-19 22:10 |
+| #391 | 4 | writing-plans | Done | 2026-11-19 22:10 | 2026-11-19 22:10 |
+| #391 | 5 | test-driven-development | In progress | 2026-11-19 22:10 | - |
+| #391 | 6 | subagent-driven-development | Planned | - | - |
+| #391 | 7 | /ccaa-commit-push after every task | Planned | - | - |
+| #391 | 8 | verification-before-completion | Planned | - | - |
+| #391 | 9 | requesting-code-review | Planned | - | - |
+| #391 | 10 | /ccaa-commit-push 391 | Planned | - | - |
+| #391 | 11 | finishing-a-development-branch | Planned | - | - |
+| #391 | 12 | /ccaa-story-complete 391 | Planned | - | - |
