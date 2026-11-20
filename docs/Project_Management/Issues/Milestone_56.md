@@ -4,7 +4,7 @@
 
 **Demoable outcome:** Workflow Logs show which engine ran each execution (Airflow / Spring Batch / Step Functions / BPMN / Spark / EMR) with filter.
 
-**Status: Open.** Stories left to build: 1. Stories already done: 0.
+**Status: Closed.** Stories left to build: 0. Stories already done: 1.
 
 **GitHub Milestone:** M56 - Admin Workflow Logs polish (api id 57)
 
@@ -29,6 +29,6 @@
 | #396 | 7 | `/ccaa-commit-push 396 (after each task)` | Done | 2026-11-20 10:28 | 2026-11-20 10:31 |
 | #396 | 8 | `/verification-before-completion Story #396` | Done | 2026-11-20 10:31 | 2026-11-20 10:31 |
 | #396 | 9 | `/requesting-code-review Story #396` | Done | 2026-11-20 10:31 | 2026-11-20 10:31 |
-| #396 | 10 | `/ccaa-commit-push 396` | In progress | 2026-11-20 10:31 | - |
-| #396 | 11 | `/finishing-a-development-branch Story #396` | Planned | - | - |
-| #396 | 12 | `/ccaa-story-complete 396` | Planned | - | - |
+| #396 | 10 | `/ccaa-commit-push 396` | Done | 2026-11-20 10:31 | 2026-11-20 10:38 |
+| #396 | 11 | `/finishing-a-development-branch Story #396` | Done | 2026-11-20 10:38 | 2026-11-20 10:38 |
+| #396 | 12 | `/ccaa-story-complete 396` | Done | 2026-11-20 10:38 | 2026-11-20 10:38 |
