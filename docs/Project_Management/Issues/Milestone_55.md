@@ -4,7 +4,7 @@
 
 **Demoable outcome:** `hydrate_*` spark-submit works inside `cca-spark-iceberg` (no `spark-submit: command not found`); Lakehouse dropdown shows pipeline sequence `1.`…`5.` with raw as default; hydrate_raw finds lift batches via Airflow Variable.
 
-**Status: Closed.** Stories left to build: 0. Stories already done: 3.
+**Status: Open.** Stories left to build: 1. Stories already done: 3.
 
 **GitHub Milestone:** M55 - Lakehouse Spark PATH hotfix (api id 56)
 
@@ -17,6 +17,7 @@
 | 1 | #371 | M55-0001 | Story | Absolute spark-submit path in lakehouse_spark |
 | 2 | #372 | M55-0002 | Story | Number and order Lakehouse hydrate dropdown |
 | 3 | #374 | M55-0003 | Story | hydrate_raw sense_lift uses Variable landing path |
+| 4 | #377 | M55-0004 | Story | Absolute spark-submit in Iceberg hydrate shell scripts |
 
 ## 2. Superpowers workflow
 
