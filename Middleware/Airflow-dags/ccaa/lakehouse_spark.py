@@ -56,8 +56,18 @@ def parse_last_int(spark_out: str) -> int:
 
 
 def spark_driver_memory() -> str:
-    """Local Spark container default is ~1GiB; curated join needs more headroom."""
-    return (os.environ.get("CCA_SPARK_DRIVER_MEMORY") or "4g").strip() or "4g"
+    """Default 2g: Docker Desktop ~8GiB is shared; 4g tips the VM OOM killer (M55-0009)."""
+    return (os.environ.get("CCA_SPARK_DRIVER_MEMORY") or "2g").strip() or "2g"
+
+
+def spark_submit_conf_flags() -> str:
+    """Spill-friendly defaults for local lakehouse jobs on constrained Docker memory."""
+    confs = [
+        ("spark.sql.shuffle.partitions", "8"),
+        ("spark.sql.adaptive.enabled", "true"),
+        ("spark.driver.maxResultSize", "512m"),
+    ]
+    return " ".join(f"--conf {shlex.quote(f'{k}={v}')}" for k, v in confs)
 
 
 def spark_submit_script(
@@ -82,6 +92,7 @@ def spark_submit_script(
         f"{exports} "
         f"export PYTHONPATH={shlex.quote(scripts)}; "
         f"{SPARK_SUBMIT} --driver-memory {shlex.quote(mem)} "
+        f"{spark_submit_conf_flags()} "
         f"{shlex.quote(remote)} {args}"
     ).strip()
     out = docker_exec(container, ["bash", "-lc", cmd])

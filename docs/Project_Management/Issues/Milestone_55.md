@@ -64,3 +64,16 @@
 | 7 | #383 | M55-0007 | Story | createOrReplace + execution_id for refined/taxonomy/curated |
 | 8 | #385 | M55-0008 | Story | Curated hydrate OOM — broadcast join + driver memory |
 | 9 | #387 | M55-0009 | Story | Curated still OOMKilled — fit Spark in Docker 8GiB headroom |
+
+| #387 | 1 | /ccaa-story-start 387 | Done | 2026-11-19 22:04 | 2026-11-19 22:04 |
+| #387 | 2 | brainstorming | Done | 2026-11-19 22:04 | 2026-11-19 22:04 |
+| #387 | 3 | using-git-worktrees | Done | 2026-11-19 22:04 | 2026-11-19 22:04 |
+| #387 | 4 | writing-plans | Done | 2026-11-19 22:04 | 2026-11-19 22:04 |
+| #387 | 5 | test-driven-development | Done | 2026-11-19 22:04 | 2026-11-19 22:04 |
+| #387 | 6 | subagent-driven-development | Done | 2026-11-19 22:04 | 2026-11-19 22:04 |
+| #387 | 7 | /ccaa-commit-push after every task | Done | 2026-11-19 22:04 | 2026-11-19 22:04 |
+| #387 | 8 | verification-before-completion | Done | 2026-11-19 22:04 | 2026-11-19 22:04 |
+| #387 | 9 | requesting-code-review | Done | 2026-11-19 22:04 | 2026-11-19 22:04 |
+| #387 | 10 | /ccaa-commit-push 387 | In progress | 2026-11-19 22:04 | - |
+| #387 | 11 | finishing-a-development-branch | Planned | - | - |
+| #387 | 12 | /ccaa-story-complete 387 | Planned | - | - |

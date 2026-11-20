@@ -18,8 +18,12 @@ else
   SCRIPTS=/tmp
 fi
 
-DRIVER_MEM="${CCA_SPARK_DRIVER_MEMORY:-4g}"
+# Default 2g — Docker Desktop ~8GiB is shared; 4g often OOMKills the Spark container (M55-0009).
+DRIVER_MEM="${CCA_SPARK_DRIVER_MEMORY:-2g}"
 docker exec -e PYTHONPATH="$SCRIPTS" "$CONTAINER" \
   /opt/spark/bin/spark-submit --driver-memory "$DRIVER_MEM" \
+  --conf spark.sql.shuffle.partitions=8 \
+  --conf spark.sql.adaptive.enabled=true \
+  --conf spark.driver.maxResultSize=512m \
   "$SCRIPTS/hydrate_curated_3m.py" --run-id "$RUN_ID"
 echo "done run_id=$RUN_ID"
