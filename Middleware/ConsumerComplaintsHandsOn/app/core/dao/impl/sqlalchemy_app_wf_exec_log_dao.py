@@ -11,6 +11,7 @@ from sqlalchemy import update as sql_update
 from app.core.common.app_types_constants import ExecStatus
 from app.core.common.dtos.app_wf_exec_log_dtos import AppWfExecLogCtx, AppWfExecLogRecord, AppWfExecLogReq
 from app.core.common.return_codes import CONFLICT, FAILURE, INVALID_INPUT, NOT_FOUND, SUCCESS
+from app.core.common.wf_invocation_chronicle import EMPTY_CHRONICLE, WfInvocationAppendReq, append_invocation
 from app.core.dao.app_wf_exec_log_dao import AppWfExecLogDao
 from app.core.dao.impl.models import AppWfExecLogModel, AppWfModel, MioIngestLogModel
 from app.core.dao.impl.unit_of_work import unit_of_work
@@ -59,6 +60,8 @@ def _to_record(row: AppWfExecLogModel) -> AppWfExecLogRecord:
         status=row.status,
         message=row.message,
         mios_ingest_log_id=row.mios_ingest_log_id,
+        wf_engine_data_json=row.wf_engine_data_json,
+        wf_exec_data_json=row.wf_exec_data_json,
         **times,
     )
 
@@ -74,6 +77,8 @@ def _new_row(workflow: AppWfModel) -> AppWfExecLogModel:
         config_used=deepcopy(workflow.config),  # a copy, so a later edit of the workflow cannot reach this row
         status=ExecStatus.REQUESTED.value,
         requested_at=_now(),
+        wf_engine_data_json=deepcopy(EMPTY_CHRONICLE),
+        wf_exec_data_json=deepcopy(EMPTY_CHRONICLE),
     )
 
 
@@ -161,6 +166,20 @@ class SqlAlchemyAppWfExecLogDao(AppWfExecLogDao):
                 else:
                     for name, value in notes.items():
                         setattr(row, name, value)
+                if req.append_engine_invocation is not None:
+                    row.wf_engine_data_json = append_invocation(
+                        WfInvocationAppendReq(
+                            chronicle=row.wf_engine_data_json,
+                            element=req.append_engine_invocation,
+                        )
+                    )
+                if req.append_exec_invocation is not None:
+                    row.wf_exec_data_json = append_invocation(
+                        WfInvocationAppendReq(
+                            chronicle=row.wf_exec_data_json,
+                            element=req.append_exec_invocation,
+                        )
+                    )
                 session.flush()
                 ctx.resp.records = [_to_record(row)]
             return SUCCESS

@@ -24,6 +24,17 @@ export const ENGINE_TYPE_OPTIONS: { value: string; label: string }[] = [
   { value: 'aws_emr', label: 'AWS EMR' },
 ];
 
+export interface WorkflowLogInvocation {
+  invoked_for: string;
+  invoked_at?: string;
+  invoked_configs?: Record<string, unknown>;
+  invoked_info?: Record<string, unknown>;
+}
+
+export interface WorkflowLogChronicle {
+  invocations?: WorkflowLogInvocation[];
+}
+
 export interface WorkflowLogEntry {
   id: string;
   workflow_id: string;
@@ -39,6 +50,8 @@ export interface WorkflowLogEntry {
   requested_at: string;
   started_at: string | null;
   finished_at: string | null;
+  wf_engine_data_json?: WorkflowLogChronicle | null;
+  wf_exec_data_json?: WorkflowLogChronicle | null;
 }
 
 export interface WorkflowLogsListReq {

@@ -13,7 +13,8 @@ from app.core.common.return_codes import SUCCESS
 class WfExecStatusReq:
     """What the engine reports. A field left as None means "not given". status is started, completed or failed;
     engine_run_id and message go to the execution; rows_loaded, batch_count and increment_marker go to the ingest row
-    (ignored when the execution has none)."""
+    (ignored when the execution has none). invoked_configs / invoked_info append to wf_engine_data_json only when
+    at least one is non-null."""
 
     execution_id: str | None = None
     status: str | None = None
@@ -22,6 +23,8 @@ class WfExecStatusReq:
     rows_loaded: int | None = None
     batch_count: int | None = None
     increment_marker: str | None = None
+    invoked_configs: dict | None = None
+    invoked_info: dict | None = None
 
 
 @dataclass

@@ -3,8 +3,9 @@
 The endpoint takes exactly one request object, never separate arguments (DESIGN.md, D37)."""
 
 from datetime import datetime
-from typing import Literal
+from typing import Annotated, Any, Literal
 
+from fastapi import Body, Path
 from pydantic import BaseModel, ConfigDict, Field
 
 ReportedStatus = Literal["started", "completed", "failed"]
@@ -12,7 +13,8 @@ ReportedStatus = Literal["started", "completed", "failed"]
 
 class WfExecStatusReport(BaseModel):
     """The body: what the engine reports. engine_run_id and message go to the execution; the volume fields go to its
-    MIO ingest row and are ignored when it has none. Unknown fields are refused."""
+    MIO ingest row and are ignored when it has none. Optional invoked_configs / invoked_info append to
+    wf_engine_data_json only when at least one is non-null (M57-0001). Unknown fields are refused."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -22,13 +24,15 @@ class WfExecStatusReport(BaseModel):
     rows_loaded: int | None = Field(default=None, ge=0, strict=True)
     batch_count: int | None = Field(default=None, ge=0, strict=True)
     increment_marker: str | None = Field(default=None, max_length=255)
+    invoked_configs: dict[str, Any] | None = None
+    invoked_info: dict[str, Any] | None = None
 
 
 class WfExecStatusReportReq(BaseModel):
     """The execution id in the path plus the report in the body."""
 
-    execution_id: str
-    body: WfExecStatusReport
+    execution_id: Annotated[str, Path()]
+    body: Annotated[WfExecStatusReport, Body()]
 
 
 class AppWfExecLogOut(BaseModel):
@@ -46,6 +50,8 @@ class AppWfExecLogOut(BaseModel):
     requested_at: datetime
     started_at: datetime | None = None
     finished_at: datetime | None = None
+    wf_engine_data_json: dict[str, Any] | None = None
+    wf_exec_data_json: dict[str, Any] | None = None
 
 
 class MioIngestLogOut(BaseModel):

@@ -187,6 +187,30 @@
             "title": "Status",
             "type": "string"
           },
+          "wf_engine_data_json": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wf Engine Data Json"
+          },
+          "wf_exec_data_json": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wf Exec Data Json"
+          },
           "workflow_id": {
             "title": "Workflow Id",
             "type": "string"
@@ -1372,7 +1396,7 @@
       },
       "WfExecStatusReport": {
         "additionalProperties": false,
-        "description": "The body: what the engine reports. engine_run_id and message go to the execution; the volume fields go to its\nMIO ingest row and are ignored when it has none. Unknown fields are refused.",
+        "description": "The body: what the engine reports. engine_run_id and message go to the execution; the volume fields go to its\nMIO ingest row and are ignored when it has none. Optional invoked_configs / invoked_info append to\nwf_engine_data_json only when at least one is non-null (M57-0001). Unknown fields are refused.",
         "properties": {
           "batch_count": {
             "anyOf": [
@@ -1409,6 +1433,30 @@
               }
             ],
             "title": "Increment Marker"
+          },
+          "invoked_configs": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invoked Configs"
+          },
+          "invoked_info": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invoked Info"
           },
           "message": {
             "anyOf": [
@@ -1569,6 +1617,30 @@
           "status": {
             "title": "Status",
             "type": "string"
+          },
+          "wf_engine_data_json": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wf Engine Data Json"
+          },
+          "wf_exec_data_json": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wf Exec Data Json"
           },
           "workflow_id": {
             "title": "Workflow Id",

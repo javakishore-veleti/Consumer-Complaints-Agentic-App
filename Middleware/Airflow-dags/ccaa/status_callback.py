@@ -63,6 +63,8 @@ def report_execution_status(
     rows_loaded: int | None = None,
     batch_count: int | None = None,
     increment_marker: str | None = None,
+    invoked_configs: dict[str, Any] | None = None,
+    invoked_info: dict[str, Any] | None = None,
     api_base_url: str | None = None,
     callback_secret: str | None = None,
     urlopen: Callable[..., Any] = urllib.request.urlopen,
@@ -98,6 +100,11 @@ def report_execution_status(
         body["batch_count"] = int(batch_count)
     if increment_marker is not None and str(increment_marker).strip():
         body["increment_marker"] = str(increment_marker).strip()[:255]
+    # Only send chronicle JSON when non-null — Middleware appends only when present.
+    if invoked_configs is not None:
+        body["invoked_configs"] = invoked_configs
+    if invoked_info is not None:
+        body["invoked_info"] = invoked_info
 
     url = f"{base}/callbacks/workflow-executions/{execution_id}/status"
     data = json.dumps(body).encode("utf-8")

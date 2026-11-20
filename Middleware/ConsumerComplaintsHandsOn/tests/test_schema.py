@@ -141,6 +141,8 @@ def test_app_workflows_exec_log_table_is_in_the_admin_schema_with_the_expected_c
         "started_at",
         "finished_at",
         "mios_ingest_log_id",
+        "wf_engine_data_json",
+        "wf_exec_data_json",
     }
     assert columns["id"] == ("VARCHAR(36)", 1)
     assert columns["workflow_id"] == ("VARCHAR(36)", 1)

@@ -82,6 +82,33 @@ def test_an_execution_without_an_ingest_returns_a_null_ingest(client, secret, ne
     assert response.json()["execution"]["status"] == "started"
 
 
+def test_status_without_invoked_json_does_not_append_engine_chronicle(client, secret, new_execution):
+    execution_id = new_execution()
+    response = client.post(_url(execution_id), json={"status": "started"}, headers=HEADERS)
+    assert response.status_code == 200
+    chronicle = response.json()["execution"]["wf_engine_data_json"]
+    assert chronicle is None or chronicle.get("invocations") == []
+
+
+def test_status_with_invoked_info_appends_engine_chronicle(client, secret, new_execution):
+    execution_id = new_execution()
+    response = client.post(
+        _url(execution_id),
+        json={
+            "status": "started",
+            "engine_run_id": "run-x",
+            "invoked_info": {"dag_id": "filter_cfpb_3_months", "task": "sense"},
+        },
+        headers=HEADERS,
+    )
+    assert response.status_code == 200
+    invocations = response.json()["execution"]["wf_engine_data_json"]["invocations"]
+    assert len(invocations) == 1
+    assert invocations[0]["invoked_for"] == "started"
+    assert invocations[0]["invoked_info"]["dag_id"] == "filter_cfpb_3_months"
+    assert "invoked_configs" not in invocations[0]
+
+
 def test_a_duplicate_call_is_200_with_the_same_body(client, secret, new_execution, ingest_id):
     execution_id = new_execution(ingest_id)
     first = client.post(_url(execution_id), json={"status": "started"}, headers=HEADERS)

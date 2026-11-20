@@ -8,6 +8,7 @@ from uuid import uuid4
 from app.core.common.app_types_constants import ExecStatus
 from app.core.common.dtos.app_wf_exec_log_dtos import AppWfExecLogCtx, AppWfExecLogRecord, AppWfExecLogReq
 from app.core.common.return_codes import CONFLICT, FAILURE, INVALID_INPUT, NOT_FOUND, SUCCESS
+from app.core.common.wf_invocation_chronicle import EMPTY_CHRONICLE, WfInvocationAppendReq, append_invocation
 from app.core.dao.app_wf_exec_log_dao import AppWfExecLogDao
 from app.core.dao.impl.mongo.docs import MongoDocument
 from app.core.dao.impl.mongo.unit_of_work import (
@@ -47,6 +48,8 @@ def _to_record(doc: MongoDocument) -> AppWfExecLogRecord:
         requested_at=(doc["requested_at"].replace(tzinfo=timezone.utc) if doc["requested_at"].tzinfo is None else doc["requested_at"]),
         started_at=(None if doc.get("started_at") is None else (doc["started_at"].replace(tzinfo=timezone.utc) if doc["started_at"].tzinfo is None else doc["started_at"])),
         finished_at=(None if doc.get("finished_at") is None else (doc["finished_at"].replace(tzinfo=timezone.utc) if doc["finished_at"].tzinfo is None else doc["finished_at"])),
+        wf_engine_data_json=doc.get("wf_engine_data_json"),
+        wf_exec_data_json=doc.get("wf_exec_data_json"),
     )
 
 
@@ -91,6 +94,8 @@ class MongoAppWfExecLogDao(AppWfExecLogDao):
                     "started_at": None,
                     "finished_at": None,
                     "mios_ingest_log_id": ingest_id,
+                    "wf_engine_data_json": deepcopy(EMPTY_CHRONICLE),
+                    "wf_exec_data_json": deepcopy(EMPTY_CHRONICLE),
                 }
                 uow.insert(MongoWriteReq(collection=COLL, doc=MongoDocument(doc)))
                 ctx.resp.records = [_to_record(MongoDocument(doc))]
@@ -155,7 +160,21 @@ class MongoAppWfExecLogDao(AppWfExecLogDao):
                 else:
                     for name, value in notes.items():
                         doc[name] = value
-                    uow.replace(MongoWriteReq(collection=COLL, doc=MongoDocument(doc)))
+                if req.append_engine_invocation is not None:
+                    doc["wf_engine_data_json"] = append_invocation(
+                        WfInvocationAppendReq(
+                            chronicle=doc.get("wf_engine_data_json"),
+                            element=req.append_engine_invocation,
+                        )
+                    )
+                if req.append_exec_invocation is not None:
+                    doc["wf_exec_data_json"] = append_invocation(
+                        WfInvocationAppendReq(
+                            chronicle=doc.get("wf_exec_data_json"),
+                            element=req.append_exec_invocation,
+                        )
+                    )
+                uow.replace(MongoWriteReq(collection=COLL, doc=MongoDocument(doc)))
                 ctx.resp.records = [_to_record(uow.find_one(MongoFindReq(collection=COLL, query={"id": req.id})))]
             return SUCCESS
         except Exception:

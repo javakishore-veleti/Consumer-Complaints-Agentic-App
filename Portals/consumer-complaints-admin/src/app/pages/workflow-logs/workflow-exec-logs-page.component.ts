@@ -1,3 +1,4 @@
+import { JsonPipe } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
@@ -33,7 +34,7 @@ type ColumnSearch = Record<SortKey, string>;
 
 @Component({
   selector: 'app-workflow-exec-logs-page',
-  imports: [AlertComponent, ButtonComponent, FormsModule],
+  imports: [AlertComponent, ButtonComponent, FormsModule, JsonPipe],
   templateUrl: './workflow-exec-logs-page.component.html',
 })
 export class WorkflowExecLogsPageComponent implements OnInit {
@@ -53,6 +54,24 @@ export class WorkflowExecLogsPageComponent implements OnInit {
   protected readonly sortKey = signal<SortKey>('requested_at');
   protected readonly sortDir = signal<'asc' | 'desc'>('desc');
   protected readonly detailRow = signal<WorkflowLogEntry | null>(null);
+  protected readonly engineInvPage = signal(0);
+  protected readonly engineInvPageSize = 10;
+
+  protected readonly engineInvocations = computed(() => {
+    const row = this.detailRow();
+    const list = row?.wf_engine_data_json?.invocations;
+    return Array.isArray(list) ? [...list].reverse() : [];
+  });
+
+  protected readonly pagedEngineInvocations = computed(() => {
+    const all = this.engineInvocations();
+    const start = this.engineInvPage() * this.engineInvPageSize;
+    return all.slice(start, start + this.engineInvPageSize);
+  });
+
+  protected readonly engineInvPageCount = computed(() =>
+    Math.max(1, Math.ceil(this.engineInvocations().length / this.engineInvPageSize) || 1),
+  );
 
   protected startDate = '';
   protected endDate = '';
@@ -141,11 +160,21 @@ export class WorkflowExecLogsPageComponent implements OnInit {
   }
 
   protected openDetail(row: WorkflowLogEntry): void {
+    this.engineInvPage.set(0);
     this.detailRow.set(row);
   }
 
   protected closeDetail(): void {
     this.detailRow.set(null);
+  }
+
+  protected onEngineInvPrev(): void {
+    this.engineInvPage.set(Math.max(0, this.engineInvPage() - 1));
+  }
+
+  protected onEngineInvNext(): void {
+    const max = this.engineInvPageCount() - 1;
+    this.engineInvPage.set(Math.min(max, this.engineInvPage() + 1));
   }
 
   protected sortIndicator(key: SortKey): string {
