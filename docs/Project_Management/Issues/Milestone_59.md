@@ -4,7 +4,7 @@
 
 **Demoable outcome:** Admin sidebar order is Dashboard → App Endpoints → Schemas → DataSets → DB Ingest → Lakehouse → Vector Stores → (Workflow Logs / Operations).
 
-**Status: Open.** Stories left to build: 1. Stories already done: 0.
+**Status: Closed.** Stories left to build: 0. Stories already done: 1.
 
 **GitHub Milestone:** M59 - Admin left-nav order (Schemas / Lakehouse / App Endpoints) (api id 60)
 
@@ -28,5 +28,5 @@
 | #402 | 8 | `/verification-before-completion Story #402` | Done | 2026-11-20 15:43 | 2026-11-20 15:43 |
 | #402 | 9 | `/requesting-code-review Story #402` | Done | 2026-11-20 15:43 | 2026-11-20 15:43 |
 | #402 | 10 | `/ccaa-commit-push 402` | Done | 2026-11-20 15:43 | 2026-11-20 15:43 |
-| #402 | 11 | `/finishing-a-development-branch Story #402` | In progress | 2026-11-20 15:43 | - |
-| #402 | 12 | `/ccaa-story-complete 402` | Planned | - | - |
+| #402 | 11 | `/finishing-a-development-branch Story #402` | Done | 2026-11-20 15:44 | 2026-11-20 15:44 |
+| #402 | 12 | `/ccaa-story-complete 402` | Done | 2026-11-20 15:44 | 2026-11-20 15:44 |
