@@ -19,5 +19,5 @@ else
 fi
 
 docker exec -e PYTHONPATH="$SCRIPTS" "$CONTAINER" \
-  spark-submit "$SCRIPTS/hydrate_refined_3m.py" --run-id "$RUN_ID"
+  /opt/spark/bin/spark-submit "$SCRIPTS/hydrate_refined_3m.py" --run-id "$RUN_ID"
 echo "done run_id=$RUN_ID"

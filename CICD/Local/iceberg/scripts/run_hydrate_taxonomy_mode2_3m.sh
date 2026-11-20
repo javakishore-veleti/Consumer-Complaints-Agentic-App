@@ -29,7 +29,7 @@ else
 fi
 
 docker exec -e PYTHONPATH="$SCRIPTS" "$CONTAINER" \
-  spark-submit "$SCRIPTS/hydrate_taxonomy_mode2_3m.py" \
+  /opt/spark/bin/spark-submit "$SCRIPTS/hydrate_taxonomy_mode2_3m.py" \
     --money-topics-json "$TOPICS" \
     --run-id "$RUN_ID"
 echo "done run_id=$RUN_ID"

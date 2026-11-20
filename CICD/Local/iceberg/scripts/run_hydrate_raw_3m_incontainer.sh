@@ -13,7 +13,7 @@ export CCA_LIFT_ZONE_IN_CONTAINER="${CCA_LIFT_ZONE_IN_CONTAINER:-/lift}"
 STAGE_DIR=$(bash "${SCRIPTS_DIR}/stage_unzip_3m.sh" "$RUN_ID" | tee /dev/stderr | tail -1)
 
 export PYTHONPATH="${SCRIPTS_DIR}:${PYTHONPATH:-}"
-spark-submit "${SCRIPTS_DIR}/hydrate_raw_3m.py" \
+/opt/spark/bin/spark-submit "${SCRIPTS_DIR}/hydrate_raw_3m.py" \
   --stage-dir "$STAGE_DIR" \
   --run-id "$RUN_ID" \
   --slice 3m \

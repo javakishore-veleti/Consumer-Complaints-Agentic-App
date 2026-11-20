@@ -99,7 +99,7 @@ def hydrate_raw(**context) -> dict:
 def dq_checks(**context) -> dict:
     container = spark_container_name()
     table = DEFAULT_TARGET_TABLE
-    count_out = _exec(container, ["spark-sql", "-e", f"SELECT COUNT(*) FROM {table};"])
+    count_out = _exec(container, ["/opt/spark/bin/spark-sql", "-e", f"SELECT COUNT(*) FROM {table};"])
     # spark-sql prints the number on its own line among logs — take last integer token
     digits = [tok for tok in count_out.replace(",", " ").split() if tok.isdigit()]
     if not digits:
@@ -109,7 +109,7 @@ def dq_checks(**context) -> dict:
         raise RuntimeError(f"{table} COUNT(*)={total} — expected > 0")
 
     null_sql = dq_null_check_sql(table)
-    null_out = _exec(container, ["spark-sql", "-e", null_sql + ";"])
+    null_out = _exec(container, ["/opt/spark/bin/spark-sql", "-e", null_sql + ";"])
     log.info("dq null check: %s", null_out[-1000:])
     # Fail if any null_* > 0 appears as non-zero after total in a simple scan:
     # Prefer explicit spark-sql that returns bad count.
@@ -125,7 +125,7 @@ def dq_checks(**context) -> dict:
         )
         + f" AS bad_keys FROM {table}"
     )
-    bad_out = _exec(container, ["spark-sql", "-e", bad_sql + ";"])
+    bad_out = _exec(container, ["/opt/spark/bin/spark-sql", "-e", bad_sql + ";"])
     bad_digits = [tok for tok in bad_out.replace(",", " ").split() if tok.isdigit()]
     bad = int(bad_digits[-1]) if bad_digits else -1
     if bad != 0:
