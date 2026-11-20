@@ -769,3 +769,57 @@ def test_mios_acl_seeded_for_all_and_3_months(data_dir):
         ("814a15b9-246b-5f8f-baef-a3f75a946a72", ALL_MIO_ID, "internal"),
         ("c57c33d4-f3c6-50a9-b614-5f095d4d7134", MIO_3_MONTHS_ID, "internal"),
     ]
+
+
+ZONE_INGEST_LOG_ZONES = ("raw", "refined", "curated", "taxonomy", "chroma")
+ZONE_INGEST_LOG_EXPECTED_COLS = {
+    "id": ("VARCHAR(36)", 1),
+    "partition_key": ("VARCHAR(128)", 1),
+    "data_tech": ("VARCHAR(32)", 1),
+    "source_end_point_id": ("VARCHAR(36)", 1),
+    "dest_end_point_id": ("VARCHAR(36)", 1),
+    "workflow_execution_id": ("VARCHAR(36)", 0),
+    "status": ("VARCHAR(32)", 1),
+    "status_on": ("DATETIME", 1),
+    "status_updated_on": ("DATETIME", 1),
+    "configs_json": ("TEXT", 0),
+}
+
+
+def test_zone_ingest_log_tables_exist_with_expected_columns(data_dir):
+    with _admin_db(data_dir) as db:
+        for zone in ZONE_INGEST_LOG_ZONES:
+            name = f"ingest_log_{zone}"
+            assert db.execute(
+                "select name from sqlite_master where name = ?", (name,)
+            ).fetchall(), name
+            columns = _columns(db, name)
+            assert columns == ZONE_INGEST_LOG_EXPECTED_COLS
+            sql = _table_sql(db, name)
+            assert f"uq_ingest_log_{zone}_partition_endpoints" in sql
+            indexes = {r[1] for r in db.execute(f"pragma index_list({name})")}
+            assert f"ix_ingest_log_{zone}_status_updated" in indexes
+            assert f"ix_ingest_log_{zone}_workflow_execution_id" in indexes
+            assert f"ix_ingest_log_{zone}_status_updated_on" in indexes
+            assert db.execute(f"pragma foreign_key_list({name})").fetchall() == []
+
+
+def test_migration_0031_runs_down_and_up(data_dir):
+    config = Config(str(PROJECT_ROOT / "alembic.ini"))
+    command.downgrade(config, "0030")
+    with _admin_db(data_dir) as db:
+        for zone in ZONE_INGEST_LOG_ZONES:
+            assert (
+                db.execute(
+                    "select name from sqlite_master where name = ?",
+                    (f"ingest_log_{zone}",),
+                ).fetchall()
+                == []
+            )
+    command.upgrade(config, "head")
+    with _admin_db(data_dir) as db:
+        for zone in ZONE_INGEST_LOG_ZONES:
+            assert db.execute(
+                "select name from sqlite_master where name = ?",
+                (f"ingest_log_{zone}",),
+            ).fetchall()
