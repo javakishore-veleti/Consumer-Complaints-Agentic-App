@@ -13,6 +13,7 @@ from app.core.common.singleton import SingletonMeta
 from app.core.common.workflow_log_categories import (
     CATEGORY_FILTERS,
     DISPLAY_STATUS,
+    ENGINE_TYPE_LABELS,
     WORKFLOW_LOG_CATEGORIES,
 )
 from app.core.facades.objects_factory import FacadesObjectsFactory
@@ -26,6 +27,7 @@ class WorkflowLogsApi(metaclass=SingletonMeta):
     def list(self, req: Annotated[WorkflowLogListHttpReq, Depends()]) -> list[WorkflowLogOut]:
         dao_req = AppWfExecLogReq(
             status=req.status,
+            engine_type=req.engine_type,
             engine_run_id=req.engine_run_id,
             requested_after=req.requested_after,
             requested_before=req.requested_before,
@@ -50,6 +52,7 @@ class WorkflowLogsApi(metaclass=SingletonMeta):
                 workflow_id=r.workflow_id,
                 workflow_name=r.workflow_name,
                 engine_type=r.engine_type,
+                engine_label=ENGINE_TYPE_LABELS.get(r.engine_type, r.engine_type),
                 engine_workflow_id=r.engine_workflow_id,
                 engine_run_id=r.engine_run_id,
                 status=r.status,

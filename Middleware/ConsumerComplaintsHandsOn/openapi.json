@@ -1488,6 +1488,10 @@
             "title": "Display Status",
             "type": "string"
           },
+          "engine_label": {
+            "title": "Engine Label",
+            "type": "string"
+          },
           "engine_run_id": {
             "anyOf": [
               {
@@ -1580,6 +1584,7 @@
           "workflow_id",
           "workflow_name",
           "engine_type",
+          "engine_label",
           "engine_workflow_id",
           "status",
           "display_status",
@@ -3373,6 +3378,23 @@
           },
           {
             "in": "query",
+            "name": "engine_type",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 32,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Engine Type"
+            }
+          },
+          {
+            "in": "query",
             "name": "engine_run_id",
             "required": false,
             "schema": {
@@ -3427,8 +3449,8 @@
             "name": "limit",
             "required": false,
             "schema": {
-              "default": 30,
-              "maximum": 30,
+              "default": 60,
+              "maximum": 60,
               "minimum": 1,
               "title": "Limit",
               "type": "integer"

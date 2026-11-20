@@ -9,12 +9,20 @@ from app.core.common.app_types_constants import (
 
 
 def test_engine_type_values_are_the_short_codes():
-    assert EngineType.values() == ["apache_airflow", "aws_step_functions"]
+    assert EngineType.values() == [
+        "apache_airflow",
+        "aws_step_functions",
+        "spring_batch",
+        "bpmn",
+        "spark_job",
+        "aws_emr",
+    ]
 
 
 def test_engine_type_members_are_plain_strings():
     assert EngineType.APACHE_AIRFLOW == "apache_airflow"
     assert "aws_step_functions" in EngineType.values()
+    assert "spring_batch" in EngineType.values()
     assert "bogus" not in EngineType.values()
 
 
