@@ -6,6 +6,7 @@ import { ImportsPageComponent } from './pages/datasets/imports/imports-page.comp
 import { DbIngestPageComponent } from './pages/datasets/db-ingest/db-ingest-page.component';
 import { IndexPageComponent } from './pages/datasets/index/index-page.component';
 import { LakehousePageComponent } from './pages/datasets/lakehouse/lakehouse-page.component';
+import { SchemasPageComponent } from './pages/datasets/schemas/schemas-page.component';
 import { SyncSecretsPageComponent } from './pages/operations/sync-secrets-page.component';
 import { AppEndpointsPageComponent } from './pages/catalog/app-endpoints-page.component';
 import { IngestionLogsPageComponent } from './pages/ingestion-logs/ingestion-logs-page.component';
@@ -45,6 +46,11 @@ export const routes: Routes = [
             path: 'lakehouse',
             component: LakehousePageComponent,
             title: 'Lakehouse | Consumer Complaints Administration',
+          },
+          {
+            path: 'schemas',
+            component: SchemasPageComponent,
+            title: 'Schemas | Consumer Complaints Administration',
           },
         ],
       },

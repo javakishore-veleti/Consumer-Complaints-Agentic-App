@@ -111,6 +111,7 @@ def test_app_wf_dao_works_on_postgres(postgres):
     assert dao.get(fetched) == SUCCESS and fetched.resp.records[0].config == config
     listed = AppWfCtx(req=AppWfReq(engine_type="apache_airflow"))
     assert dao.list(listed) == SUCCESS and [r.workflow_name for r in listed.resp.records] == [
+        "apply_iceberg_foundational_schema",
         "download_3_months",
         "download_cfpb_all",
         "filter_cfpb_3_months",
@@ -446,6 +447,7 @@ def test_wf_list_service_works_on_postgres(postgres):
     ctx = WfListCtx(req=WfListReq())
     assert ServicesObjectsFactory.get_wf_list_service().list(ctx) == SUCCESS
     assert [e.workflow_name for e in ctx.resp.entries] == [
+        "apply_iceberg_foundational_schema",
         "download_cfpb_all",
         "filter_cfpb_3_months",
         "hydrate_chroma_signatures_3m",
