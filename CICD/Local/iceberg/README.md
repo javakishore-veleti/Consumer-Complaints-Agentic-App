@@ -172,6 +172,11 @@ ORDER BY n DESC;
 
 Verified 2026-11-19: curated=**1,970,702**; null topics/org=0; Capital One Money Topic group-by works.
 
+### Docker memory headroom (M55-0009)
+
+Curated hydrate runs Spark inside `cca-spark-iceberg`. Docker Desktop often caps the VM at ~**8 GiB** shared with Airflow, Mongo, Kafka, etc. A **4g** driver can **OOMKill** the Spark container (`exit 137`, `OOMKilled=true`) even when the join itself is correct.
+
+Defaults: `--driver-memory` **2g**, `spark.sql.shuffle.partitions=8`, AQE on. Override with `CCA_SPARK_DRIVER_MEMORY` (e.g. `4g`) only if Docker memory is raised or unused stacks are stopped.
 
 ## Chroma semantic signatures catalog (M49-0001 / #336)
 

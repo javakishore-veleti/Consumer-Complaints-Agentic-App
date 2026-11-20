@@ -34,6 +34,10 @@ def main() -> int:
 
     spark = SparkSession.builder.appName("cca-hydrate-curated-3m").getOrCreate()
     spark.sparkContext.setLogLevel("WARN")
+    # Fit ~8GiB Docker Desktop headroom (M55-0009): fewer shuffle partitions + AQE spill.
+    spark.conf.set("spark.sql.shuffle.partitions", "8")
+    spark.conf.set("spark.sql.adaptive.enabled", "true")
+    spark.conf.set("spark.driver.maxResultSize", "512m")
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
 
     # Seed organization_aliases (tiny; broadcast later for parent-org lookup).
