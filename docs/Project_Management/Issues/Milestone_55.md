@@ -96,10 +96,10 @@
 | #391 | 3 | using-git-worktrees | Done | 2026-11-19 22:10 | 2026-11-19 22:10 |
 | #391 | 4 | writing-plans | Done | 2026-11-19 22:27 | 2026-11-19 22:28 |
 | #391 | 5 | test-driven-development | Done | 2026-11-19 22:28 | 2026-11-19 22:35 |
-| #391 | 6 | subagent-driven-development | In progress | 2026-11-19 22:35 | - |
-| #391 | 7 | /ccaa-commit-push after every task | In progress | 2026-11-19 22:35 | - |
-| #391 | 8 | verification-before-completion | Planned | - | - |
-| #391 | 9 | requesting-code-review | Planned | - | - |
-| #391 | 10 | /ccaa-commit-push 391 | Planned | - | - |
-| #391 | 11 | finishing-a-development-branch | Planned | - | - |
+| #391 | 6 | subagent-driven-development | Done | 2026-11-19 22:35 | 2026-11-19 22:47 |
+| #391 | 7 | /ccaa-commit-push after every task | Done | 2026-11-19 22:35 | 2026-11-19 22:47 |
+| #391 | 8 | verification-before-completion | Done | 2026-11-19 22:47 | 2026-11-19 22:47 |
+| #391 | 9 | requesting-code-review | Done | 2026-11-19 22:47 | 2026-11-19 22:47 |
+| #391 | 10 | /ccaa-commit-push 391 | Done | 2026-11-19 22:47 | 2026-11-19 22:47 |
+| #391 | 11 | finishing-a-development-branch | In progress | 2026-11-19 22:47 | - |
 | #391 | 12 | /ccaa-story-complete 391 | Planned | - | - |
