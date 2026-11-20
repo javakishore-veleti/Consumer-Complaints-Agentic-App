@@ -12,6 +12,9 @@ log = logging.getLogger(__name__)
 
 DEFAULT_SPARK_CONTAINER = "cca-spark-iceberg"
 SCRIPTS_IN_CONTAINER = "/opt/cca/iceberg/scripts"
+# tabulario/spark-iceberg image: spark binaries live here; `bash -lc` drops them from PATH.
+SPARK_SUBMIT = "/opt/spark/bin/spark-submit"
+SPARK_SQL = "/opt/spark/bin/spark-sql"
 
 
 def spark_container_name() -> str:
@@ -70,7 +73,7 @@ def spark_submit_script(
     cmd = (
         f"{exports} "
         f"export PYTHONPATH={shlex.quote(scripts)}; "
-        f"spark-submit {shlex.quote(remote)} {args}"
+        f"{SPARK_SUBMIT} {shlex.quote(remote)} {args}"
     ).strip()
     out = docker_exec(container, ["bash", "-lc", cmd])
     log.info("spark-submit %s tail: %s", script_name, out[-1500:])
@@ -79,5 +82,5 @@ def spark_submit_script(
 
 def count_table(table: str) -> int:
     container = spark_container_name()
-    out = docker_exec(container, ["spark-sql", "-e", f"SELECT COUNT(*) FROM {table};"])
+    out = docker_exec(container, [SPARK_SQL, "-e", f"SELECT COUNT(*) FROM {table};"])
     return parse_last_int(out)
