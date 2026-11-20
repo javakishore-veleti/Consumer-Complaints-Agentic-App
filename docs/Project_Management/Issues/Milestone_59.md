@@ -18,15 +18,15 @@
 
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
-| #402 | 1 |  | Done | 2026-11-20 15:42 | 2026-11-20 15:42 |
-| #402 | 2 |  | Done | 2026-11-20 15:42 | 2026-11-20 15:42 |
-| #402 | 3 |  | Done | 2026-11-20 15:42 | 2026-11-20 15:42 |
-| #402 | 4 |  | Done | 2026-11-20 15:42 | 2026-11-20 15:42 |
-| #402 | 5 |  | Done | 2026-11-20 15:42 | 2026-11-20 15:42 |
-| #402 | 6 |  | In progress | 2026-11-20 15:42 | - |
-| #402 | 7 |  | Planned | - | - |
-| #402 | 8 |  | Planned | - | - |
-| #402 | 9 |  | Planned | - | - |
-| #402 | 10 |  | Planned | - | - |
-| #402 | 11 |  | Planned | - | - |
-| #402 | 12 |  | Planned | - | - |
+| #402 | 1 | `/ccaa-story-start 402` | Done | 2026-11-20 15:42 | 2026-11-20 15:42 |
+| #402 | 2 | `/brainstorming Story #402` | Done | 2026-11-20 15:42 | 2026-11-20 15:42 |
+| #402 | 3 | `/using-git-worktrees Story #402` | Done | 2026-11-20 15:42 | 2026-11-20 15:42 |
+| #402 | 4 | `/writing-plans Story #402` | Done | 2026-11-20 15:42 | 2026-11-20 15:42 |
+| #402 | 5 | `/test-driven-development Story #402` | Done | 2026-11-20 15:42 | 2026-11-20 15:42 |
+| #402 | 6 | `/subagent-driven-development Story #402` | Done | 2026-11-20 15:43 | 2026-11-20 15:43 |
+| #402 | 7 | `/ccaa-commit-push 402 (after each task)` | Done | 2026-11-20 15:43 | 2026-11-20 15:43 |
+| #402 | 8 | `/verification-before-completion Story #402` | Done | 2026-11-20 15:43 | 2026-11-20 15:43 |
+| #402 | 9 | `/requesting-code-review Story #402` | Done | 2026-11-20 15:43 | 2026-11-20 15:43 |
+| #402 | 10 | `/ccaa-commit-push 402` | Done | 2026-11-20 15:43 | 2026-11-20 15:43 |
+| #402 | 11 | `/finishing-a-development-branch Story #402` | In progress | 2026-11-20 15:43 | - |
+| #402 | 12 | `/ccaa-story-complete 402` | Planned | - | - |
