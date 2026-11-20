@@ -8,6 +8,7 @@ from app.core.dao.objects_factory import DaoObjectsFactory
 
 URL = "/workflows"
 SEEDED = [
+    "apply_iceberg_foundational_schema",
     "download_cfpb_all",
     "filter_cfpb_3_months",
     "hydrate_chroma_signatures_3m",

@@ -34,6 +34,8 @@ services:
       - ./notebooks:/home/iceberg/notebooks/notebooks
       # Hydrate scripts (M45-0002/0003) — Airflow docker-exec invokes these in-container.
       - ./scripts:/opt/cca/iceberg/scripts:ro
+      # Foundational DDL SQL (M58-0001 / #400)
+      - ./sql:/opt/cca/iceberg/sql:ro
       # Taxonomy seeds (M47-0001)
       - ./taxonomy:/opt/cca/iceberg/taxonomy:ro
       # Lift Zone: same CCA complains_datasets tree Airflow mounts (imports/ + per-MIO zips).

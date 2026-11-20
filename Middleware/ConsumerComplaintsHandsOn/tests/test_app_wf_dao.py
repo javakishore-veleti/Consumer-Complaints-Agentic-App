@@ -105,6 +105,7 @@ def test_list_is_ordered_by_name_and_filters(data_dir):
     assert dao.list(everything) == SUCCESS
     assert [r.workflow_name for r in everything.resp.records] == [
         "a_flow",
+        "apply_iceberg_foundational_schema",
         "b_flow",
         "c_flow",
         "download_cfpb_all",
@@ -125,6 +126,7 @@ def test_list_is_ordered_by_name_and_filters(data_dir):
     airflow = _ctx(engine_type="apache_airflow")
     assert dao.list(airflow) == SUCCESS and [r.workflow_name for r in airflow.resp.records] == [
         "a_flow",
+        "apply_iceberg_foundational_schema",
         "b_flow",
         "download_cfpb_all",
         "filter_cfpb_3_months",
@@ -245,6 +247,7 @@ def test_a_duplicate_name_that_slips_past_the_pre_check_is_a_conflict(data_dir, 
     listed = _ctx()
     assert dao.list(listed) == SUCCESS
     assert sorted(r.workflow_name for r in listed.resp.records) == [
+        "apply_iceberg_foundational_schema",
         "download_cfpb_all",
         "filter_cfpb_3_months",
         "hydrate_chroma_signatures_3m",

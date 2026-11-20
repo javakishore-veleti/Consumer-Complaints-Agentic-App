@@ -44,6 +44,7 @@ def test_lists_every_seeded_mio_with_null_ingest(client):
         "ingest_cfpb_imports_wrapper",
     ]
     assert [w["workflow_name"] for w in by_name["Customer complaints 3 months 2026"]["allowed_workflows"]] == [
+        "apply_iceberg_foundational_schema",
         "filter_cfpb_3_months",
         "hydrate_chroma_signatures_3m",
         "hydrate_curated_iceberg_3m",

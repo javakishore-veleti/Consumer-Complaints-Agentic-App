@@ -35,54 +35,13 @@ npm run local:handson:middlware:all:start
 npm run local:portals:all:start
 ```
 
-Iceberg Raw DDL (once per warehouse; idempotent) and optional Lift→Raw hydrate:
+**Lakehouse / Schemas (data-plane — not required for Mongo → pgvector/Chroma below):** after Iceberg containers + Airflow + migrate + **Sync secrets**, use Admin UI only:
 
-```bash
-npm run local:iceberg:apply-raw-ddl
-npm run local:iceberg:hydrate-raw-3m
-```
+1. **Schemas** → 3-month MIO → `apply_iceberg_foundational_schema` (Raw→Refined→Taxonomy→Curated DDL in one WF).
+2. **Lakehouse** → hydrate workflows (`hydrate_raw_iceberg_3m`, …) as needed.
 
-Airflow + Admin (M51-0001): after iceberg + Airflow + API migrate, open Admin **Lakehouse**, select `hydrate_raw_iceberg_3m` on the 3-month MIO, Start. Same loop as Downloads (Middleware → Airflow → callback status). Or trigger the DAG in Airflow UI. Does **not** re-download when Lift 3m zips exist.
+Do **not** use `npm run local:iceberg:apply-*` / `hydrate-*` for day-to-day ops (those remain for CI/dev). Postgres app schema stays on `npm run local:api:migrate` above.
 
-Prove Raw 3m count reconcile (M45-0004):
-
-```bash
-npm run local:iceberg:prove-raw-3m
-```
-
-PASS means Lift CSV rows == `demo.raw.cfpb_complaints_3m` COUNT(*) (verified **1,970,702** on 2026-11-19; quarantine 0).
-
-Refined 3m + `signature_id` (M46-0001):
-
-```bash
-npm run local:iceberg:prove-refined-3m
-```
-
-Demo: `SELECT COUNT(*), COUNT(DISTINCT signature_id) FROM demo.refined.cfpb_complaints_3m;`
-
-Curated Money Topics (M48-0001):
-
-```bash
-npm run local:iceberg:prove-curated-3m
-```
-
-
-Chroma semantic signatures catalog (M49-0001):
-
-```bash
-npm run local:containers:chroma:start
-npm run local:iceberg:hydrate-chroma-signatures-3m
-npm run local:iceberg:prove-chroma-signatures-3m
-```
-
-Query AST Gateway golden (M50-0001):
-
-```bash
-npm run local:iceberg:prove-query-ast-golden-3m
-```
-
-
-Demo: `SELECT primary_money_topic, COUNT(*) FROM demo.curated.cfpb_complaints_3m GROUP BY 1 ORDER BY 2 DESC;`
 Also ensure local Airflow is up (includes pymongo image):
 
 ```bash

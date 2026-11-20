@@ -93,6 +93,11 @@ HYDRATE_CURATED_WF_ID = "24e5f80c-68cc-5f99-8f33-2fd3ea48d4b0"
 MW_3M_HYDRATE_CURATED_ID = "e1043a76-3059-57de-945f-a376c6ad3a78"
 HYDRATE_CHROMA_WF_ID = "0663b30e-987d-5938-85d5-cf919bd8f017"
 MW_3M_HYDRATE_CHROMA_ID = "7808b2a0-b480-5ab8-b631-10f32aa82f90"
+# uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m58-0001/apply_iceberg_foundational_schema")
+APPLY_ICEBERG_FOUNDATIONAL_WF_ID = "6b4c8d84-b407-55c6-841b-114d986db58e"
+# uuid.uuid5(uuid.NAMESPACE_URL, "ccaa/m58-0001/mios-workflows-3m-apply-iceberg-foundational")
+MW_3M_APPLY_ICEBERG_FOUNDATIONAL_ID = "570402c8-47f9-5636-a910-4c5c129fd989"
+NOW_M58 = datetime(2026, 11, 20, tzinfo=UTC)
 
 COLLECTIONS = (
     "app_workflows",
@@ -757,10 +762,48 @@ def _ensure_m51_hydrate_workflow(seed: _M51HydrateSeed) -> None:
     )
 
 
+
+def ensure_m58_apply_iceberg_foundational_seed() -> None:
+    """Idempotent seed for Admin Schemas Iceberg foundational DDL (M58-0001 / #400)."""
+    _upsert(
+        MongoDocument(
+            {
+                "_collection": "app_workflows",
+                "id": APPLY_ICEBERG_FOUNDATIONAL_WF_ID,
+                "workflow_name": "apply_iceberg_foundational_schema",
+                "engine_type": "apache_airflow",
+                "engine_workflow_id": "apply_iceberg_foundational_schema",
+                "config": {
+                    "dataset_code": "CFPB",
+                    "dataset_slice": "3m",
+                    "schema_kind": "foundational",
+                    "store": "iceberg",
+                    "zones": ["raw", "refined", "taxonomy", "curated"],
+                },
+                "enabled": True,
+                "created_at": NOW_M58,
+                "updated_at": NOW_M58,
+            }
+        )
+    )
+    _upsert(
+        MongoDocument(
+            {
+                "_collection": "mios_workflows",
+                "id": MW_3M_APPLY_ICEBERG_FOUNDATIONAL_ID,
+                "mio_id": MIO_3_MONTHS_ID,
+                "workflow_id": APPLY_ICEBERG_FOUNDATIONAL_WF_ID,
+                "created_at": NOW_M58,
+            }
+        )
+    )
+
+
 def bootstrap_operational_mongo() -> None:
     ensure_indexes()
     seed_if_empty()
     ensure_m51_hydrate_raw_iceberg_seed()
+    ensure_m58_apply_iceberg_foundational_seed()
     ensure_m51_hydrate_refined_iceberg_seed()
     _ensure_m51_hydrate_workflow(
         _M51HydrateSeed(

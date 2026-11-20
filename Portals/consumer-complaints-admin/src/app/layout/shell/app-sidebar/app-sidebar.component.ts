@@ -64,6 +64,12 @@ export class AppSidebarComponent {
       testId: 'left-nav-lakehouse',
     },
     {
+      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M5.25 3.5A.75.75 0 0 0 4.5 4.25v15.5c0 .414.336.75.75.75h13.5a.75.75 0 0 0 .75-.75V4.25a.75.75 0 0 0-.75-.75H5.25Zm.75 1.5h12v14h-12v-14Zm2.25 2.25a.75.75 0 0 0 0 1.5h7.5a.75.75 0 0 0 0-1.5h-7.5Zm0 3a.75.75 0 0 0 0 1.5h7.5a.75.75 0 0 0 0-1.5h-7.5Zm0 3a.75.75 0 0 0 0 1.5h4.5a.75.75 0 0 0 0-1.5h-4.5Z" fill="currentColor"></path></svg>`,
+      name: 'Schemas',
+      path: '/datasets/schemas',
+      testId: 'left-nav-schemas',
+    },
+    {
       icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M5.25 3.5A.75.75 0 0 0 4.5 4.25v15a.75.75 0 0 0 .75.75h13.5a.75.75 0 0 0 .75-.75v-15a.75.75 0 0 0-.75-.75H5.25Zm.75 1.5h12v12H6v-12Zm2.25 2.25a.75.75 0 0 0 0 1.5h7.5a.75.75 0 0 0 0-1.5h-7.5Zm0 3.5a.75.75 0 0 0 0 1.5h7.5a.75.75 0 0 0 0-1.5h-7.5Zm0 3.5a.75.75 0 0 0 0 1.5H12a.75.75 0 0 0 0-1.5H8.25Z" fill="currentColor"></path></svg>`,
       name: 'App Endpoints',
       path: '/app-endpoints',

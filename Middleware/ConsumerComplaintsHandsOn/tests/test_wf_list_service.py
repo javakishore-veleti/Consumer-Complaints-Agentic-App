@@ -9,6 +9,7 @@ from app.core.facades.objects_factory import FacadesObjectsFactory
 from app.core.services.objects_factory import ServicesObjectsFactory
 
 SEEDED = [
+    "apply_iceberg_foundational_schema",
     "download_cfpb_all",
     "filter_cfpb_3_months",
     "hydrate_chroma_signatures_3m",

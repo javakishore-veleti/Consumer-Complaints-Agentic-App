@@ -43,6 +43,8 @@ MIOS_WORKFLOWS_3M_HYDRATE_TAXONOMY_ID = "c7661b4d-92d2-59eb-b778-f2cde5bf0e56"
 MIOS_WORKFLOWS_3M_HYDRATE_CURATED_ID = "e1043a76-3059-57de-945f-a376c6ad3a78"
 MIOS_WORKFLOWS_3M_HYDRATE_REFINED_ID = "f26e2cea-3e5c-55cb-9a37-2e2cf6c07572"
 MIOS_WORKFLOWS_3M_HYDRATE_RAW_ID = "a9d57ca1-63a8-5a7e-8ebb-c742102cc5e7"
+APPLY_ICEBERG_FOUNDATIONAL_WORKFLOW_ID = "6b4c8d84-b407-55c6-841b-114d986db58e"
+MIOS_WORKFLOWS_3M_APPLY_ICEBERG_FOUNDATIONAL_ID = "570402c8-47f9-5636-a910-4c5c129fd989"
 
 
 def test_schema_names():
@@ -491,7 +493,7 @@ def test_mios_workflows_seed_binds_all_and_3_months_only(data_dir):
             " left join mios_workflows mw on mw.mio_id = m.id"
             " where mw.id is null order by m.name"
         ).fetchall()
-    assert rows == [
+    assert set(rows) == {
         (MIOS_WORKFLOWS_ALL_INGEST_ID, ALL_MIO_ID, INGEST_CFPB_ALL_WORKFLOW_ID),
         (MIOS_WORKFLOWS_ALL_INDEX_ID, ALL_MIO_ID, INDEX_CFPB_ALL_WORKFLOW_ID),
         (MIOS_WORKFLOWS_ALL_INDEX_REDIS_ID, ALL_MIO_ID, INDEX_CFPB_REDIS_WORKFLOW_ID),
@@ -508,8 +510,10 @@ def test_mios_workflows_seed_binds_all_and_3_months_only(data_dir):
         (MIOS_WORKFLOWS_3M_INDEX_CHROMA_ID, MIO_3_MONTHS_ID, INDEX_CFPB_CHROMA_WORKFLOW_ID),
         (MIOS_WORKFLOWS_3M_HYDRATE_REFINED_ID, MIO_3_MONTHS_ID, HYDRATE_REFINED_ICEBERG_3M_WORKFLOW_ID),
         (MIOS_WORKFLOWS_3M_INGEST_WRAPPER_ID, MIO_3_MONTHS_ID, INGEST_CFPB_IMPORTS_WRAPPER_WORKFLOW_ID),
+        (MIOS_WORKFLOWS_3M_APPLY_ICEBERG_FOUNDATIONAL_ID, MIO_3_MONTHS_ID, APPLY_ICEBERG_FOUNDATIONAL_WORKFLOW_ID),
         (MIOS_WORKFLOWS_3M_HYDRATE_RAW_ID, MIO_3_MONTHS_ID, HYDRATE_RAW_ICEBERG_3M_WORKFLOW_ID),
-    ]
+    }
+    assert len(rows) == 18
     assert [r[0] for r in unbound] == [
         "Customer complaints 12 months 2026",
         "Customer complaints 6 months 2026",
@@ -549,7 +553,7 @@ def test_migration_0011_removes_mios_workflows_and_all_mio_on_the_way_down(data_
     with _admin_db(data_dir) as db:
         assert db.execute("select name from sqlite_master where name = 'mios_workflows'").fetchall() != []
         assert db.execute("select id from mios where name = 'Customer complaints all 2026'").fetchone()[0] == ALL_MIO_ID
-        assert db.execute("select count(*) from mios_workflows").fetchone()[0] == 17
+        assert db.execute("select count(*) from mios_workflows").fetchone()[0] == 18
 
 
 APP_ENDPOINT_SOURCE_ID = "ccbce57d-bd9f-56fe-a258-fa2deb9dd393"

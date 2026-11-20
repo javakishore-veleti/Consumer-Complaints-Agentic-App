@@ -25,14 +25,14 @@
 | Issue | Step | Command | Status | Started | Completed |
 |---|---|---|---|---|---|
 | #400 | 1 | `/ccaa-story-start 400` | Done | 2026-11-20 10:53 | 2026-11-20 10:53 |
-| #400 | 2 | `/brainstorming Story #400` | In progress | 2026-11-20 10:53 | - |
-| #400 | 3 | `/using-git-worktrees Story #400` | Planned | - | - |
-| #400 | 4 | `/writing-plans Story #400` | Planned | - | - |
-| #400 | 5 | `/test-driven-development Story #400` | Planned | - | - |
-| #400 | 6 | `/subagent-driven-development Story #400` | Planned | - | - |
-| #400 | 7 | `/ccaa-commit-push 400 (after each task)` | Planned | - | - |
-| #400 | 8 | `/verification-before-completion Story #400` | Planned | - | - |
-| #400 | 9 | `/requesting-code-review Story #400` | Planned | - | - |
-| #400 | 10 | `/ccaa-commit-push 400` | Planned | - | - |
-| #400 | 11 | `/finishing-a-development-branch Story #400` | Planned | - | - |
+| #400 | 2 | `/brainstorming Story #400` | Done | 2026-11-20 10:53 | 2026-11-20 10:56 |
+| #400 | 3 | `/using-git-worktrees Story #400` | Done | 2026-11-20 10:56 | 2026-11-20 10:56 |
+| #400 | 4 | `/writing-plans Story #400` | Done | 2026-11-20 10:56 | 2026-11-20 10:56 |
+| #400 | 5 | `/test-driven-development Story #400` | Done | 2026-11-20 10:56 | 2026-11-20 10:56 |
+| #400 | 6 | `/subagent-driven-development Story #400` | Done | 2026-11-20 10:56 | 2026-11-20 10:56 |
+| #400 | 7 | `/ccaa-commit-push 400 (after each task)` | Done | 2026-11-20 10:56 | 2026-11-20 10:56 |
+| #400 | 8 | `/verification-before-completion Story #400` | Done | 2026-11-20 11:01 | 2026-11-20 11:01 |
+| #400 | 9 | `/requesting-code-review Story #400` | Done | 2026-11-20 11:01 | 2026-11-20 11:01 |
+| #400 | 10 | `/ccaa-commit-push 400` | Done | 2026-11-20 11:01 | 2026-11-20 11:01 |
+| #400 | 11 | `/finishing-a-development-branch Story #400` | In progress | 2026-11-20 11:01 | - |
 | #400 | 12 | `/ccaa-story-complete 400` | Planned | - | - |

@@ -6,6 +6,7 @@ from app.core.common.dtos.mio_workflow_dtos import MioWorkflowCtx, MioWorkflowRe
 from app.core.common.return_codes import CONFLICT, INVALID_INPUT, NOT_FOUND, SUCCESS
 from app.core.dao.objects_factory import DaoObjectsFactory
 
+APPLY_ICEBERG_FOUNDATIONAL_WF = "apply_iceberg_foundational_schema"
 DOWNLOAD_WF = "download_cfpb_all"
 FILTER_WF = "filter_cfpb_3_months"
 HYDRATE_CHROMA_WF = "hydrate_chroma_signatures_3m"
@@ -134,6 +135,7 @@ def test_seeded_all_and_3_months_bindings_are_readable(data_dir):
     )
     assert sorted(r.workflow_id for r in three_links.resp.records) == sorted(
         [
+            _wf(APPLY_ICEBERG_FOUNDATIONAL_WF),
             _wf(FILTER_WF),
             _wf(HYDRATE_CHROMA_WF),
             _wf(HYDRATE_CURATED_WF),
