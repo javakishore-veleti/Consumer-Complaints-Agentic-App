@@ -151,6 +151,7 @@ Each workflow that downloads or ingests data is registered in the database, so t
 | Intellect Query AST over curated | Done M52 (#351 / #352–#354) |
 | Internal Systemic Risk Radar MVP | Done M53 (#358 / #359–#361) |
 | Query AST zero-hit relaxation | Done M54 (#365 / #366–#368) |
+| Lakehouse Spark PATH + sequenced hydrate dropdown + lift Variable | Done M55 (#371 / #372 / #374) |
 | Cloud deployment | Planned M90 (#73; was M06) |
 
 ## 6. Milestones
@@ -169,6 +170,7 @@ Each workflow that downloads or ingests data is registered in the database, so t
 | **M52** | Intellect Query AST over curated lakehouse (#351 / #352–#354) | Done |
 | **M53** | Internal Systemic Risk Radar MVP (#358 / #359–#361) | Done |
 | **M54** | Query AST zero-hit relaxation (#365 / #366–#368) | Done |
+| **M55** | Lakehouse Spark PATH + sequenced dropdown + hydrate lift Variable (#371 / #372 / #374) | Done |
 | **M90** | Cloud deployment (parked; was M06) (#73) | Planned |
 
 ## 7. Open questions
