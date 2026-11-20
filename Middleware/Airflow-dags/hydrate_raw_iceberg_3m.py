@@ -54,7 +54,9 @@ def _exec(container_name: str, cmd: list[str], workdir: str | None = None) -> st
     out = (out_b or b"").decode("utf-8", errors="replace")
     err = (err_b or b"").decode("utf-8", errors="replace")
     if exit_code != 0:
-        raise RuntimeError(f"docker exec {container_name} failed ({exit_code}): {err or out}")
+        # Spark INFO floods stderr; Python tracebacks usually land on stdout — show both tails.
+        detail = (out[-4000:] + ("\n--- stderr ---\n" + err[-4000:] if err else "")).strip()
+        raise RuntimeError(f"docker exec {container_name} failed ({exit_code}): {detail or err or out}")
     return out
 
 
@@ -80,7 +82,8 @@ def run_pre_ingest_gate(**context) -> dict:
 
 
 def hydrate_raw(**context) -> dict:
-    run_id = _engine_run_id(context)
+    # Prefer Middleware execution_id (Admin→API→conf); never Airflow run_id for Spark paths.
+    run_id = _execution_id(context) or _engine_run_id(context)
     container = spark_container_name()
     scripts = "/opt/cca/iceberg/scripts"
     out = _exec(
