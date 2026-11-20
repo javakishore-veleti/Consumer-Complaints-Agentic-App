@@ -128,19 +128,21 @@ def main() -> int:
     g_count = good.count()
     print(f"hydrate slice={args.slice} good={g_count} quarantine={q_count}")
 
-    if q_count > 0:
-        (
-            bad.writeTo(args.quarantine_table)
-            .option("fanout-enabled", "true")
-            .append()
-        )
-        print(f"appended {q_count} rows to {args.quarantine_table}")
+    # Fresh local Iceberg volumes have no demo.raw yet (DDL is optional).
+    spark.sql("CREATE NAMESPACE IF NOT EXISTS demo.raw")
 
-    # Full-slice replace (not dynamic partition overwrite) so partial/smoke runs
-    # cannot leave stale partitions behind when a later full hydrate runs.
-    spark.sql(f"DELETE FROM {args.target_table}")
-    good.writeTo(args.target_table).append()
-    print(f"wrote {g_count} rows to {args.target_table} (delete+append replace)")
+    if q_count > 0:
+        writer = bad.writeTo(args.quarantine_table).option("fanout-enabled", "true")
+        if spark.catalog.tableExists(args.quarantine_table):
+            writer.append()
+        else:
+            writer.create()
+        print(f"wrote {q_count} rows to {args.quarantine_table}")
+
+    # Full-slice replace: createOrReplace works on first run and later re-hydrates
+    # (DELETE FROM fails when the table does not exist yet).
+    good.writeTo(args.target_table).createOrReplace()
+    print(f"wrote {g_count} rows to {args.target_table} (createOrReplace)")
 
     # Quick verify
     total = spark.table(args.target_table).count()
