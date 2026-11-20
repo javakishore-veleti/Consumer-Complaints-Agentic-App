@@ -55,6 +55,11 @@ def parse_last_int(spark_out: str) -> int:
     return int(digits[-1])
 
 
+def spark_driver_memory() -> str:
+    """Local Spark container default is ~1GiB; curated join needs more headroom."""
+    return (os.environ.get("CCA_SPARK_DRIVER_MEMORY") or "4g").strip() or "4g"
+
+
 def spark_submit_script(
     *,
     script_name: str,
@@ -62,6 +67,7 @@ def spark_submit_script(
     extra_args: list[str] | None = None,
     env_exports: dict[str, str] | None = None,
     pass_run_id: bool = True,
+    driver_memory: str | None = None,
 ) -> str:
     container = spark_container_name()
     scripts = SCRIPTS_IN_CONTAINER
@@ -70,11 +76,13 @@ def spark_submit_script(
     if pass_run_id and run_id is not None:
         args_list = ["--run-id", run_id, *args_list]
     args = " ".join(shlex.quote(a) for a in args_list)
+    mem = driver_memory if driver_memory is not None else spark_driver_memory()
     exports = " ".join(f"export {k}={shlex.quote(v)};" for k, v in (env_exports or {}).items())
     cmd = (
         f"{exports} "
         f"export PYTHONPATH={shlex.quote(scripts)}; "
-        f"{SPARK_SUBMIT} {shlex.quote(remote)} {args}"
+        f"{SPARK_SUBMIT} --driver-memory {shlex.quote(mem)} "
+        f"{shlex.quote(remote)} {args}"
     ).strip()
     out = docker_exec(container, ["bash", "-lc", cmd])
     log.info("spark-submit %s tail: %s", script_name, out[-1500:])

@@ -18,6 +18,8 @@ else
   SCRIPTS=/tmp
 fi
 
+DRIVER_MEM="${CCA_SPARK_DRIVER_MEMORY:-4g}"
 docker exec -e PYTHONPATH="$SCRIPTS" "$CONTAINER" \
-  /opt/spark/bin/spark-submit "$SCRIPTS/hydrate_curated_3m.py" --run-id "$RUN_ID"
+  /opt/spark/bin/spark-submit --driver-memory "$DRIVER_MEM" \
+  "$SCRIPTS/hydrate_curated_3m.py" --run-id "$RUN_ID"
 echo "done run_id=$RUN_ID"
