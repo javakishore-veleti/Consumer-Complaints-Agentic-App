@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass
 from datetime import datetime, timezone
+from typing import Any
 from uuid import uuid4
 
 from sqlalchemy import select
@@ -17,6 +19,7 @@ from app.core.common.dtos.zone_ingest_log_dtos import (
     ZONE_INGEST_LOG_ZONES,
     ZoneIngestLogCtx,
     ZoneIngestLogRecord,
+    ZoneIngestLogReq,
 )
 from app.core.common.return_codes import CONFLICT, FAILURE, INVALID_INPUT, NOT_FOUND, SUCCESS
 from app.core.dao.impl.models import ZONE_INGEST_LOG_MODELS
@@ -26,42 +29,49 @@ from app.core.dao.zone_ingest_log_dao import ZoneIngestLogDao
 log = logging.getLogger(__name__)
 
 
+@dataclass
+class _MappedRow:
+    zone: str
+    row: Any
+
+
 def _now() -> datetime:
     return datetime.now(timezone.utc)
 
 
-def _tz(value: datetime | None) -> datetime | None:
-    if value is None:
-        return None
-    return value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value
-
-
-def _to_record(zone: str, row) -> ZoneIngestLogRecord:
+def _to_record(mapped: _MappedRow) -> ZoneIngestLogRecord:
+    row = mapped.row
+    status_on = row.status_on
+    status_updated_on = row.status_updated_on
+    if status_on is not None and status_on.tzinfo is None:
+        status_on = status_on.replace(tzinfo=timezone.utc)
+    if status_updated_on is not None and status_updated_on.tzinfo is None:
+        status_updated_on = status_updated_on.replace(tzinfo=timezone.utc)
     return ZoneIngestLogRecord(
         id=row.id,
-        zone=zone,
+        zone=mapped.zone,
         partition_key=row.partition_key,
         data_tech=row.data_tech,
         source_end_point_id=row.source_end_point_id,
         dest_end_point_id=row.dest_end_point_id,
         workflow_execution_id=row.workflow_execution_id,
         status=row.status,
-        status_on=_tz(row.status_on),
-        status_updated_on=_tz(row.status_updated_on),
+        status_on=status_on,
+        status_updated_on=status_updated_on,
         configs_json=row.configs_json,
     )
 
 
-def _model(zone: str | None):
-    if not zone or zone not in ZONE_INGEST_LOG_ZONES:
+def _model(req: ZoneIngestLogReq):
+    if not req.zone or req.zone not in ZONE_INGEST_LOG_ZONES:
         return None
-    return ZONE_INGEST_LOG_MODELS[zone]
+    return ZONE_INGEST_LOG_MODELS[req.zone]
 
 
 class SqlAlchemyZoneIngestLogDao(ZoneIngestLogDao):
     def create(self, ctx: ZoneIngestLogCtx) -> int:
         req = ctx.req
-        model = _model(req.zone)
+        model = _model(req)
         if model is None:
             return INVALID_INPUT
         if not req.partition_key or not req.source_end_point_id or not req.dest_end_point_id:
@@ -85,7 +95,7 @@ class SqlAlchemyZoneIngestLogDao(ZoneIngestLogDao):
                 )
                 session.add(row)
                 session.flush()
-                ctx.resp.records = [_to_record(req.zone, row)]
+                ctx.resp.records = [_to_record(_MappedRow(zone=req.zone, row=row))]
             return SUCCESS
         except IntegrityError:
             return CONFLICT
@@ -94,15 +104,16 @@ class SqlAlchemyZoneIngestLogDao(ZoneIngestLogDao):
             return FAILURE
 
     def get(self, ctx: ZoneIngestLogCtx) -> int:
-        model = _model(ctx.req.zone)
-        if model is None or not ctx.req.id:
+        req = ctx.req
+        model = _model(req)
+        if model is None or not req.id:
             return INVALID_INPUT
         try:
             with unit_of_work(ctx) as session:
-                row = session.get(model, ctx.req.id)
+                row = session.get(model, req.id)
                 if row is None:
                     return NOT_FOUND
-                ctx.resp.records = [_to_record(ctx.req.zone, row)]
+                ctx.resp.records = [_to_record(_MappedRow(zone=req.zone, row=row))]
             return SUCCESS
         except Exception:
             log.exception("zone ingest_log get failed")
@@ -110,7 +121,7 @@ class SqlAlchemyZoneIngestLogDao(ZoneIngestLogDao):
 
     def list(self, ctx: ZoneIngestLogCtx) -> int:
         req = ctx.req
-        model = _model(req.zone)
+        model = _model(req)
         if model is None:
             return INVALID_INPUT
         if req.limit is not None and (isinstance(req.limit, bool) or not isinstance(req.limit, int) or req.limit < 0):
@@ -141,7 +152,7 @@ class SqlAlchemyZoneIngestLogDao(ZoneIngestLogDao):
                     stmt = stmt.where(model.status_updated_on <= req.status_updated_to)
                 stmt = stmt.order_by(model.status_updated_on.desc(), model.id.desc()).offset(offset).limit(limit)
                 rows = session.scalars(stmt).all()
-                ctx.resp.records = [_to_record(req.zone, row) for row in rows]
+                ctx.resp.records = [_to_record(_MappedRow(zone=req.zone, row=row)) for row in rows]
             return SUCCESS
         except Exception:
             log.exception("zone ingest_log list failed")
@@ -149,7 +160,7 @@ class SqlAlchemyZoneIngestLogDao(ZoneIngestLogDao):
 
     def update(self, ctx: ZoneIngestLogCtx) -> int:
         req = ctx.req
-        model = _model(req.zone)
+        model = _model(req)
         if model is None or not req.id:
             return INVALID_INPUT
         if req.status is not None and req.status not in ZONE_INGEST_LOG_STATUSES:
@@ -179,7 +190,7 @@ class SqlAlchemyZoneIngestLogDao(ZoneIngestLogDao):
                     row.status_on = now
                 row.status_updated_on = now
                 session.flush()
-                ctx.resp.records = [_to_record(req.zone, row)]
+                ctx.resp.records = [_to_record(_MappedRow(zone=req.zone, row=row))]
             return SUCCESS
         except IntegrityError:
             return CONFLICT
@@ -188,12 +199,13 @@ class SqlAlchemyZoneIngestLogDao(ZoneIngestLogDao):
             return FAILURE
 
     def delete(self, ctx: ZoneIngestLogCtx) -> int:
-        model = _model(ctx.req.zone)
-        if model is None or not ctx.req.id:
+        req = ctx.req
+        model = _model(req)
+        if model is None or not req.id:
             return INVALID_INPUT
         try:
             with unit_of_work(ctx) as session:
-                row = session.get(model, ctx.req.id)
+                row = session.get(model, req.id)
                 if row is None:
                     return NOT_FOUND
                 session.delete(row)
@@ -204,7 +216,7 @@ class SqlAlchemyZoneIngestLogDao(ZoneIngestLogDao):
 
     def claim_pending(self, ctx: ZoneIngestLogCtx) -> int:
         req = ctx.req
-        model = _model(req.zone)
+        model = _model(req)
         if model is None:
             return INVALID_INPUT
         raw_limit = CLAIM_LIMIT_MAX if req.claim_limit is None else req.claim_limit
@@ -226,7 +238,7 @@ class SqlAlchemyZoneIngestLogDao(ZoneIngestLogDao):
                     row.status_on = now
                     row.status_updated_on = now
                 session.flush()
-                ctx.resp.records = [_to_record(req.zone, row) for row in rows]
+                ctx.resp.records = [_to_record(_MappedRow(zone=req.zone, row=row)) for row in rows]
             return SUCCESS
         except Exception:
             log.exception("zone ingest_log claim_pending failed")
@@ -234,7 +246,7 @@ class SqlAlchemyZoneIngestLogDao(ZoneIngestLogDao):
 
     def complete(self, ctx: ZoneIngestLogCtx) -> int:
         req = ctx.req
-        model = _model(req.zone)
+        model = _model(req)
         if model is None or not req.id:
             return INVALID_INPUT
         if req.status not in ("done", "failed"):
@@ -251,19 +263,20 @@ class SqlAlchemyZoneIngestLogDao(ZoneIngestLogDao):
                 if req.configs_json is not None:
                     row.configs_json = req.configs_json
                 session.flush()
-                ctx.resp.records = [_to_record(req.zone, row)]
+                ctx.resp.records = [_to_record(_MappedRow(zone=req.zone, row=row))]
             return SUCCESS
         except Exception:
             log.exception("zone ingest_log complete failed")
             return FAILURE
 
     def reset_failed(self, ctx: ZoneIngestLogCtx) -> int:
-        model = _model(ctx.req.zone)
-        if model is None or not ctx.req.id:
+        req = ctx.req
+        model = _model(req)
+        if model is None or not req.id:
             return INVALID_INPUT
         try:
             with unit_of_work(ctx) as session:
-                row = session.get(model, ctx.req.id)
+                row = session.get(model, req.id)
                 if row is None:
                     return NOT_FOUND
                 if row.status != "failed":
@@ -273,7 +286,7 @@ class SqlAlchemyZoneIngestLogDao(ZoneIngestLogDao):
                 row.status_on = now
                 row.status_updated_on = now
                 session.flush()
-                ctx.resp.records = [_to_record(ctx.req.zone, row)]
+                ctx.resp.records = [_to_record(_MappedRow(zone=req.zone, row=row))]
             return SUCCESS
         except Exception:
             log.exception("zone ingest_log reset_failed failed")

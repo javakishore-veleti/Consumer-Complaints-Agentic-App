@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass
 from datetime import UTC, datetime
+from typing import Any
 from uuid import uuid4
 
 from app.core.common.dtos.zone_ingest_log_dtos import (
@@ -14,6 +16,7 @@ from app.core.common.dtos.zone_ingest_log_dtos import (
     ZONE_INGEST_LOG_ZONES,
     ZoneIngestLogCtx,
     ZoneIngestLogRecord,
+    ZoneIngestLogReq,
 )
 from app.core.common.return_codes import CONFLICT, FAILURE, INVALID_INPUT, NOT_FOUND, SUCCESS
 from app.core.dao.impl.mongo.docs import MongoDocument
@@ -29,34 +32,41 @@ from app.core.dao.zone_ingest_log_dao import ZoneIngestLogDao
 log = logging.getLogger(__name__)
 
 
+@dataclass
+class _DocWithZone:
+    zone: str
+    doc: Any
+
+
 def _now() -> datetime:
     return datetime.now(UTC)
 
 
-def _coll(zone: str | None) -> str | None:
-    if not zone or zone not in ZONE_INGEST_LOG_ZONES:
+def _coll(req: ZoneIngestLogReq) -> str | None:
+    if not req.zone or req.zone not in ZONE_INGEST_LOG_ZONES:
         return None
-    return f"ingest_log_{zone}"
+    return f"ingest_log_{req.zone}"
 
 
-def _tz(value: datetime | None) -> datetime | None:
-    if value is None:
-        return None
-    return value.replace(tzinfo=UTC) if value.tzinfo is None else value
-
-
-def _to_record(zone: str, doc: MongoDocument | dict) -> ZoneIngestLogRecord:
+def _to_record(mapped: _DocWithZone) -> ZoneIngestLogRecord:
+    doc = mapped.doc
+    status_on = doc["status_on"]
+    status_updated_on = doc["status_updated_on"]
+    if status_on is not None and getattr(status_on, "tzinfo", None) is None:
+        status_on = status_on.replace(tzinfo=UTC)
+    if status_updated_on is not None and getattr(status_updated_on, "tzinfo", None) is None:
+        status_updated_on = status_updated_on.replace(tzinfo=UTC)
     return ZoneIngestLogRecord(
         id=doc["id"],
-        zone=zone,
+        zone=mapped.zone,
         partition_key=doc["partition_key"],
         data_tech=doc["data_tech"],
         source_end_point_id=doc["source_end_point_id"],
         dest_end_point_id=doc["dest_end_point_id"],
         workflow_execution_id=doc.get("workflow_execution_id"),
         status=doc["status"],
-        status_on=_tz(doc["status_on"]),
-        status_updated_on=_tz(doc["status_updated_on"]),
+        status_on=status_on,
+        status_updated_on=status_updated_on,
         configs_json=doc.get("configs_json"),
     )
 
@@ -64,7 +74,7 @@ def _to_record(zone: str, doc: MongoDocument | dict) -> ZoneIngestLogRecord:
 class MongoZoneIngestLogDao(ZoneIngestLogDao):
     def create(self, ctx: ZoneIngestLogCtx) -> int:
         req = ctx.req
-        coll = _coll(req.zone)
+        coll = _coll(req)
         if coll is None:
             return INVALID_INPUT
         if not req.partition_key or not req.source_end_point_id or not req.dest_end_point_id:
@@ -87,7 +97,7 @@ class MongoZoneIngestLogDao(ZoneIngestLogDao):
         try:
             with mongo_unit_of_work(ctx) as uow:
                 uow.insert(MongoWriteReq(collection=coll, doc=MongoDocument(doc)))
-                ctx.resp.records = [_to_record(req.zone, doc)]
+                ctx.resp.records = [_to_record(_DocWithZone(zone=req.zone, doc=doc))]
             return SUCCESS
         except Exception as exc:
             if is_duplicate_key(exc):
@@ -96,15 +106,16 @@ class MongoZoneIngestLogDao(ZoneIngestLogDao):
             return FAILURE
 
     def get(self, ctx: ZoneIngestLogCtx) -> int:
-        coll = _coll(ctx.req.zone)
-        if coll is None or not ctx.req.id:
+        req = ctx.req
+        coll = _coll(req)
+        if coll is None or not req.id:
             return INVALID_INPUT
         try:
             with mongo_unit_of_work(ctx) as uow:
-                doc = uow.find_one(MongoFindReq(collection=coll, query={"id": ctx.req.id}))
+                doc = uow.find_one(MongoFindReq(collection=coll, query={"id": req.id}))
                 if doc is None:
                     return NOT_FOUND
-                ctx.resp.records = [_to_record(ctx.req.zone, doc)]
+                ctx.resp.records = [_to_record(_DocWithZone(zone=req.zone, doc=doc))]
             return SUCCESS
         except Exception:
             log.exception("mongo zone ingest_log get failed")
@@ -112,7 +123,7 @@ class MongoZoneIngestLogDao(ZoneIngestLogDao):
 
     def list(self, ctx: ZoneIngestLogCtx) -> int:
         req = ctx.req
-        coll = _coll(req.zone)
+        coll = _coll(req)
         if coll is None:
             return INVALID_INPUT
         if req.limit is not None and (isinstance(req.limit, bool) or not isinstance(req.limit, int) or req.limit < 0):
@@ -149,7 +160,7 @@ class MongoZoneIngestLogDao(ZoneIngestLogDao):
                         limit=limit,
                     )
                 )
-                ctx.resp.records = [_to_record(req.zone, d) for d in docs]
+                ctx.resp.records = [_to_record(_DocWithZone(zone=req.zone, doc=d)) for d in docs]
             return SUCCESS
         except Exception:
             log.exception("mongo zone ingest_log list failed")
@@ -157,7 +168,7 @@ class MongoZoneIngestLogDao(ZoneIngestLogDao):
 
     def update(self, ctx: ZoneIngestLogCtx) -> int:
         req = ctx.req
-        coll = _coll(req.zone)
+        coll = _coll(req)
         if coll is None or not req.id:
             return INVALID_INPUT
         if req.status is not None and req.status not in ZONE_INGEST_LOG_STATUSES:
@@ -187,7 +198,7 @@ class MongoZoneIngestLogDao(ZoneIngestLogDao):
                     payload["status_on"] = now
                 payload["status_updated_on"] = now
                 uow.replace(MongoWriteReq(collection=coll, doc=MongoDocument(payload)))
-                ctx.resp.records = [_to_record(req.zone, payload)]
+                ctx.resp.records = [_to_record(_DocWithZone(zone=req.zone, doc=payload))]
             return SUCCESS
         except Exception as exc:
             if is_duplicate_key(exc):
@@ -196,12 +207,13 @@ class MongoZoneIngestLogDao(ZoneIngestLogDao):
             return FAILURE
 
     def delete(self, ctx: ZoneIngestLogCtx) -> int:
-        coll = _coll(ctx.req.zone)
-        if coll is None or not ctx.req.id:
+        req = ctx.req
+        coll = _coll(req)
+        if coll is None or not req.id:
             return INVALID_INPUT
         try:
             with mongo_unit_of_work(ctx) as uow:
-                deleted = uow.delete(MongoDeleteReq(collection=coll, doc_id=ctx.req.id))
+                deleted = uow.delete(MongoDeleteReq(collection=coll, doc_id=req.id))
                 if deleted is None:
                     return NOT_FOUND
             return SUCCESS
@@ -211,7 +223,7 @@ class MongoZoneIngestLogDao(ZoneIngestLogDao):
 
     def claim_pending(self, ctx: ZoneIngestLogCtx) -> int:
         req = ctx.req
-        coll = _coll(req.zone)
+        coll = _coll(req)
         if coll is None:
             return INVALID_INPUT
         raw_limit = CLAIM_LIMIT_MAX if req.claim_limit is None else req.claim_limit
@@ -237,7 +249,7 @@ class MongoZoneIngestLogDao(ZoneIngestLogDao):
                     payload["status_updated_on"] = now
                     uow.replace(MongoWriteReq(collection=coll, doc=MongoDocument(payload)))
                     out.append(payload)
-                ctx.resp.records = [_to_record(req.zone, d) for d in out]
+                ctx.resp.records = [_to_record(_DocWithZone(zone=req.zone, doc=d)) for d in out]
             return SUCCESS
         except Exception:
             log.exception("mongo zone ingest_log claim_pending failed")
@@ -245,7 +257,7 @@ class MongoZoneIngestLogDao(ZoneIngestLogDao):
 
     def complete(self, ctx: ZoneIngestLogCtx) -> int:
         req = ctx.req
-        coll = _coll(req.zone)
+        coll = _coll(req)
         if coll is None or not req.id:
             return INVALID_INPUT
         if req.status not in ("done", "failed"):
@@ -263,19 +275,20 @@ class MongoZoneIngestLogDao(ZoneIngestLogDao):
                 if req.configs_json is not None:
                     payload["configs_json"] = req.configs_json
                 uow.replace(MongoWriteReq(collection=coll, doc=MongoDocument(payload)))
-                ctx.resp.records = [_to_record(req.zone, payload)]
+                ctx.resp.records = [_to_record(_DocWithZone(zone=req.zone, doc=payload))]
             return SUCCESS
         except Exception:
             log.exception("mongo zone ingest_log complete failed")
             return FAILURE
 
     def reset_failed(self, ctx: ZoneIngestLogCtx) -> int:
-        coll = _coll(ctx.req.zone)
-        if coll is None or not ctx.req.id:
+        req = ctx.req
+        coll = _coll(req)
+        if coll is None or not req.id:
             return INVALID_INPUT
         try:
             with mongo_unit_of_work(ctx) as uow:
-                doc = uow.find_one(MongoFindReq(collection=coll, query={"id": ctx.req.id}))
+                doc = uow.find_one(MongoFindReq(collection=coll, query={"id": req.id}))
                 if doc is None:
                     return NOT_FOUND
                 if doc["status"] != "failed":
@@ -286,7 +299,7 @@ class MongoZoneIngestLogDao(ZoneIngestLogDao):
                 payload["status_on"] = now
                 payload["status_updated_on"] = now
                 uow.replace(MongoWriteReq(collection=coll, doc=MongoDocument(payload)))
-                ctx.resp.records = [_to_record(ctx.req.zone, payload)]
+                ctx.resp.records = [_to_record(_DocWithZone(zone=req.zone, doc=payload))]
             return SUCCESS
         except Exception:
             log.exception("mongo zone ingest_log reset_failed failed")

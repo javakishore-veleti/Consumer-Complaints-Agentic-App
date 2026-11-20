@@ -48,6 +48,7 @@ class ZoneIngestLogReq:
 @dataclass
 class ZoneIngestLogResp:
     records: list[ZoneIngestLogRecord] = field(default_factory=list)
+    code: int = 0  # API layer stores facade return code for HTTP mapping
 
 
 @dataclass

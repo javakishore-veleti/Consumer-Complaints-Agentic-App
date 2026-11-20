@@ -1482,7 +1482,8 @@
         "title": "WfListOut",
         "type": "object"
       },
-      "ZoneIngestLogClaimIn": {
+      "ZoneIngestLogClaimBody": {
+        "additionalProperties": false,
         "properties": {
           "limit": {
             "default": 5,
@@ -1492,10 +1493,11 @@
             "type": "integer"
           }
         },
-        "title": "ZoneIngestLogClaimIn",
+        "title": "ZoneIngestLogClaimBody",
         "type": "object"
       },
-      "ZoneIngestLogCompleteIn": {
+      "ZoneIngestLogCompleteBody": {
+        "additionalProperties": false,
         "properties": {
           "configs_json": {
             "anyOf": [
@@ -1520,10 +1522,11 @@
         "required": [
           "status"
         ],
-        "title": "ZoneIngestLogCompleteIn",
+        "title": "ZoneIngestLogCompleteBody",
         "type": "object"
       },
-      "ZoneIngestLogCreateIn": {
+      "ZoneIngestLogCreateBody": {
+        "additionalProperties": false,
         "properties": {
           "configs_json": {
             "anyOf": [
@@ -1575,7 +1578,7 @@
           "source_end_point_id",
           "dest_end_point_id"
         ],
-        "title": "ZoneIngestLogCreateIn",
+        "title": "ZoneIngestLogCreateBody",
         "type": "object"
       },
       "ZoneIngestLogOut": {
@@ -1655,7 +1658,8 @@
         "title": "ZoneIngestLogOut",
         "type": "object"
       },
-      "ZoneIngestLogUpdateIn": {
+      "ZoneIngestLogUpdateBody": {
+        "additionalProperties": false,
         "properties": {
           "configs_json": {
             "anyOf": [
@@ -1746,7 +1750,7 @@
             "title": "Workflow Execution Id"
           }
         },
-        "title": "ZoneIngestLogUpdateIn",
+        "title": "ZoneIngestLogUpdateBody",
         "type": "object"
       }
     }
@@ -2582,7 +2586,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ZoneIngestLogCreateIn"
+                "$ref": "#/components/schemas/ZoneIngestLogCreateBody"
               }
             }
           },
@@ -2641,7 +2645,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ZoneIngestLogClaimIn"
+                "$ref": "#/components/schemas/ZoneIngestLogClaimBody"
               }
             }
           },
@@ -2818,7 +2822,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ZoneIngestLogUpdateIn"
+                "$ref": "#/components/schemas/ZoneIngestLogUpdateBody"
               }
             }
           },
@@ -2886,7 +2890,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ZoneIngestLogCompleteIn"
+                "$ref": "#/components/schemas/ZoneIngestLogCompleteBody"
               }
             }
           },
