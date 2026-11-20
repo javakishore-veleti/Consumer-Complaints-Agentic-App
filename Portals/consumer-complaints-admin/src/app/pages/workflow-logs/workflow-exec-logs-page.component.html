@@ -312,6 +312,59 @@
           <dd class="col-span-2 font-mono text-xs break-all">{{ detail.mios_ingest_log_id || '—' }}</dd>
         </div>
       </dl>
+
+      <div class="mt-5 border-t border-gray-200 pt-4 dark:border-gray-700" data-testid="workflow-engine-invocations">
+        <div class="mb-2 flex items-center justify-between gap-2">
+          <h3 class="text-sm font-semibold text-gray-800 dark:text-white/90">
+            Engine invocations ({{ engineInvocations().length }})
+          </h3>
+          <div class="flex items-center gap-2 text-xs text-gray-500">
+            <span>Page {{ engineInvPage() + 1 }} / {{ engineInvPageCount() }}</span>
+            <app-button
+              size="sm"
+              variant="outline"
+              [disabled]="engineInvPage() === 0"
+              (btnClick)="onEngineInvPrev()"
+              >Prev</app-button
+            >
+            <app-button
+              size="sm"
+              variant="outline"
+              [disabled]="engineInvPage() >= engineInvPageCount() - 1"
+              (btnClick)="onEngineInvNext()"
+              >Next</app-button
+            >
+          </div>
+        </div>
+        @if (pagedEngineInvocations().length === 0) {
+          <p class="text-sm text-gray-500">No engine chronicle entries yet.</p>
+        } @else {
+          <ul class="space-y-3">
+            @for (inv of pagedEngineInvocations(); track $index) {
+              <li class="rounded-lg border border-gray-100 bg-gray-50 p-3 text-xs dark:border-gray-800 dark:bg-white/[0.03]">
+                <div class="mb-1 font-medium">{{ inv.invoked_for }} · {{ inv.invoked_at || '—' }}</div>
+                @if (inv.invoked_info) {
+                  <pre class="overflow-x-auto whitespace-pre-wrap break-all">{{ inv.invoked_info | json }}</pre>
+                }
+                @if (inv.invoked_configs) {
+                  <pre class="mt-1 overflow-x-auto whitespace-pre-wrap break-all opacity-80">{{
+                    inv.invoked_configs | json
+                  }}</pre>
+                }
+              </li>
+            }
+          </ul>
+        }
+      </div>
+
+      @if (detail.wf_exec_data_json?.invocations?.length) {
+        <div class="mt-4 border-t border-gray-200 pt-4 dark:border-gray-700">
+          <h3 class="mb-2 text-sm font-semibold text-gray-800 dark:text-white/90">Middleware exec chronicle</h3>
+          <pre class="overflow-x-auto whitespace-pre-wrap break-all text-xs">{{
+            detail.wf_exec_data_json | json
+          }}</pre>
+        </div>
+      }
     </div>
   </div>
 }

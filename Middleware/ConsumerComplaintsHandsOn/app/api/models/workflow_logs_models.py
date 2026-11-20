@@ -42,3 +42,5 @@ class WorkflowLogOut(BaseModel):
     requested_at: datetime
     started_at: datetime | None = None
     finished_at: datetime | None = None
+    wf_engine_data_json: dict | None = None
+    wf_exec_data_json: dict | None = None

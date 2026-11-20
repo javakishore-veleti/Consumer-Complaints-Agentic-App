@@ -66,9 +66,22 @@ class WfExecStatusServiceImpl(WfExecStatusService):
 
     @staticmethod
     def _update_execution(ctx: WfExecStatusCtx) -> int:
+        from app.core.common.wf_invocation_chronicle import WfInvocationBuildReq, build_invocation_if_payload
+
         req = ctx.req
+        element = build_invocation_if_payload(
+            WfInvocationBuildReq(
+                invoked_for=req.status or "",
+                invoked_configs=req.invoked_configs,
+                invoked_info=req.invoked_info,
+            )
+        )
         change = AppWfExecLogReq(
-            id=req.execution_id, status=req.status, engine_run_id=req.engine_run_id, message=req.message
+            id=req.execution_id,
+            status=req.status,
+            engine_run_id=req.engine_run_id,
+            message=req.message,
+            append_engine_invocation=element,
         )
         dao_ctx = AppWfExecLogCtx(req=change, transaction=ctx.transaction)
         code = DaoObjectsFactory.get_app_wf_exec_log_dao().update(dao_ctx)

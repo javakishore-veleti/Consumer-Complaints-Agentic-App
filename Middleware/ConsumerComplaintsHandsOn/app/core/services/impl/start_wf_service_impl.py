@@ -149,7 +149,27 @@ class StartWfServiceImpl(StartWfService):
         if code != SUCCESS:
             ctx.resp.code = code
             return code
-        ctx.resp.execution_id = exec_ctx.resp.records[0].id
+        execution = exec_ctx.resp.records[0]
+        from app.core.common.wf_invocation_chronicle import WfInvocationBuildReq, build_invocation_if_payload
+
+        start_element = build_invocation_if_payload(
+            WfInvocationBuildReq(
+                invoked_for="started",
+                invoked_info={
+                    "source": "middleware",
+                    "workflow_name": workflow.workflow_name,
+                    "engine_type": workflow.engine_type,
+                    "engine_workflow_id": workflow.engine_workflow_id,
+                },
+                invoked_configs=dag_conf or None,
+            )
+        )
+        if start_element is not None:
+            note = AppWfExecLogCtx(
+                req=AppWfExecLogReq(id=execution.id, append_exec_invocation=start_element)
+            )
+            DaoObjectsFactory.get_app_wf_exec_log_dao().update(note)
+        ctx.resp.execution_id = execution.id
         ctx.resp.engine_type = workflow.engine_type
         ctx.resp.dag_conf = dag_conf
         ctx.resp.code = SUCCESS

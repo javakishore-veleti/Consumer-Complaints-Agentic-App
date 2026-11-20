@@ -62,6 +62,8 @@ class WorkflowLogsApi(metaclass=SingletonMeta):
                 requested_at=r.requested_at,
                 started_at=r.started_at,
                 finished_at=r.finished_at,
+                wf_engine_data_json=r.wf_engine_data_json,
+                wf_exec_data_json=r.wf_exec_data_json,
             )
             for r in ctx.resp.records
         ]

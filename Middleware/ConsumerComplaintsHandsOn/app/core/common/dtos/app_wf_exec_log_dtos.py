@@ -21,6 +21,8 @@ class AppWfExecLogRecord:
     started_at: datetime | None
     finished_at: datetime | None
     mios_ingest_log_id: str | None
+    wf_engine_data_json: dict | None = None
+    wf_exec_data_json: dict | None = None
 
 
 @dataclass
@@ -28,7 +30,8 @@ class AppWfExecLogReq:
     """A field left as None means "not given". id identifies one row. workflow_id is what create needs and list
     filters on; mios_ingest_log_id is optional on create and a list filter; engine_type and status are list filters;
     status, engine_run_id and message are what update changes. List also accepts workflow_name_prefix(es),
-    workflow_name_exclude_prefix, requested_after/before, and engine_run_id exact match."""
+    workflow_name_exclude_prefix, requested_after/before, and engine_run_id exact match.
+    append_engine_invocation / append_exec_invocation: when set, append that element to the JSON chronicle."""
 
     id: str | None = None
     workflow_id: str | None = None
@@ -42,6 +45,8 @@ class AppWfExecLogReq:
     workflow_name_exclude_prefix: str | None = None
     requested_after: datetime | None = None
     requested_before: datetime | None = None
+    append_engine_invocation: dict | None = None
+    append_exec_invocation: dict | None = None
     limit: int | None = None
     offset: int | None = None
 

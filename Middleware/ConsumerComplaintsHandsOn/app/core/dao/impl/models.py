@@ -66,6 +66,9 @@ class AppWfExecLogModel(Base):
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     # The MIO ingest this execution belongs to, or NULL (a workflow without a MIO). No foreign key (D58).
     mios_ingest_log_id: Mapped[str | None] = mapped_column(String(36))
+    # Append-only chronicles (M57-0001 / #398): {"invocations":[...]}
+    wf_engine_data_json: Mapped[dict | None] = mapped_column(JSON(none_as_null=True), nullable=True)
+    wf_exec_data_json: Mapped[dict | None] = mapped_column(JSON(none_as_null=True), nullable=True)
 
 
 class DatasetModel(Base):
