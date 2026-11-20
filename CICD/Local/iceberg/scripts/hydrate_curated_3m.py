@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Refined ⋈ semantic_signatures → curated 3m (M48-0001 / #326)."""
+"""Refined ⋈ semantic_signatures → curated 3m (M48-0001 / #326; OOM fix M55-0008)."""
 
 from __future__ import annotations
 
@@ -8,9 +8,20 @@ from datetime import datetime, timezone
 
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
-from pyspark.sql import types as T
 
-from parent_org import ORG_ALIASES, canonical_parent_org_name, parent_org_id_from_company
+from parent_org import ORG_ALIASES, parent_org_id_from_company
+
+
+def _norm(col: str):
+    """Lower/trim string column for join keys (Spark-native, no Python UDF)."""
+    return F.lower(F.trim(F.coalesce(F.col(col).cast("string"), F.lit(""))))
+
+
+def _company_key(col):
+    """Match parent_org.normalize_company_key in Spark SQL."""
+    s = F.lower(F.trim(F.coalesce(col.cast("string"), F.lit(""))))
+    s = F.regexp_replace(s, r"[^a-z0-9\s]+", " ")
+    return F.trim(F.regexp_replace(s, r"\s+", " "))
 
 
 def main() -> int:
@@ -25,48 +36,67 @@ def main() -> int:
     spark.sparkContext.setLogLevel("WARN")
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
 
-    # Seed organization_aliases
-    alias_rows = []
-    for alias_key, parent_name in ORG_ALIASES.items():
-        alias_rows.append(
-            {
-                "alias_key": alias_key,
-                "parent_org_name": parent_name,
-                "parent_org_id": parent_org_id_from_company(parent_name),
-            }
-        )
+    # Seed organization_aliases (tiny; broadcast later for parent-org lookup).
+    alias_rows = [
+        {
+            "alias_key": alias_key,
+            "parent_org_name": parent_name,
+            "parent_org_id": parent_org_id_from_company(parent_name),
+        }
+        for alias_key, parent_name in ORG_ALIASES.items()
+    ]
     alias_df = spark.createDataFrame(alias_rows)
     spark.sql("CREATE NAMESPACE IF NOT EXISTS demo.taxonomy")
     alias_df.writeTo("demo.taxonomy.organization_aliases").createOrReplace()
     print(f"organization_aliases={alias_df.count()}")
 
-    def _n(col: str):
-        return F.lower(F.trim(F.coalesce(F.col(col).cast("string"), F.lit(""))))
-
     refined = spark.table(args.refined_table)
-    sigs = spark.table(args.signatures_table).alias("s")
+    sigs = spark.table(args.signatures_table)
 
-    r = refined.alias("r")
-    joined = r.join(
-        sigs,
-        (
-            (_n("r.product") == _n("s.product"))
-            & (_n("r.sub_product") == _n("s.sub_product"))
-            & (_n("r.issue") == _n("s.issue"))
-            & (_n("r.sub_issue") == _n("s.sub_issue"))
-            & (_n("r.tags") == _n("s.tags"))
-        ),
-        "inner",
+    # Pre-normalize join keys once; broadcast ~3k signature rows.
+    r = refined.select(
+        "*",
+        _norm("product").alias("_jp"),
+        _norm("sub_product").alias("_jsp"),
+        _norm("issue").alias("_ji"),
+        _norm("sub_issue").alias("_jsi"),
+        _norm("tags").alias("_jt"),
+        _company_key(F.col("company")).alias("_ck"),
+    ).alias("r")
+    s = F.broadcast(
+        sigs.select(
+            "*",
+            _norm("product").alias("_jp"),
+            _norm("sub_product").alias("_jsp"),
+            _norm("issue").alias("_ji"),
+            _norm("sub_issue").alias("_jsi"),
+            _norm("tags").alias("_jt"),
+        )
+    ).alias("s")
+    aliases = F.broadcast(spark.table("demo.taxonomy.organization_aliases")).alias("a")
+
+    joined = (
+        r.join(
+            s,
+            (F.col("r._jp") == F.col("s._jp"))
+            & (F.col("r._jsp") == F.col("s._jsp"))
+            & (F.col("r._ji") == F.col("s._ji"))
+            & (F.col("r._jsi") == F.col("s._jsi"))
+            & (F.col("r._jt") == F.col("s._jt")),
+            "inner",
+        )
+        .join(aliases, F.col("r._ck") == F.col("a.alias_key"), "left")
     )
 
-    # Parent org via Python UDF (alias map is small).
-    @F.udf(returnType=T.StringType())
-    def udf_parent_id(company: str) -> str:
-        return parent_org_id_from_company(company)
-
-    @F.udf(returnType=T.StringType())
-    def udf_parent_name(company: str) -> str:
-        return canonical_parent_org_name(company)
+    fallback_name = F.when(
+        F.trim(F.coalesce(F.col("r.company").cast("string"), F.lit(""))) == "",
+        F.lit("UNKNOWN"),
+    ).otherwise(F.trim(F.col("r.company").cast("string")))
+    parent_name = F.coalesce(F.col("a.parent_org_name"), fallback_name)
+    parent_id = F.coalesce(
+        F.col("a.parent_org_id"),
+        F.sha2(_company_key(parent_name), 256),
+    )
 
     curated = joined.select(
         F.col("r.complaint_id").alias("complaint_id"),
@@ -76,8 +106,8 @@ def main() -> int:
         F.col("r.issue").alias("issue"),
         F.col("r.sub_issue").alias("sub_issue"),
         F.col("r.company").alias("company_raw"),
-        udf_parent_id(F.col("r.company")).alias("parent_org_id"),
-        udf_parent_name(F.col("r.company")).alias("parent_org_name"),
+        parent_id.alias("parent_org_id"),
+        parent_name.alias("parent_org_name"),
         F.col("r.state").alias("state"),
         F.col("r.zip3").alias("zip3"),
         F.col("r.tags").alias("tags"),
@@ -98,17 +128,16 @@ def main() -> int:
         F.to_timestamp(F.lit(ts)).alias("_curated_ts"),
     )
 
-    n = curated.count()
-    null_topic = curated.filter(
-        F.col("primary_money_topic").isNull() | (F.trim(F.col("primary_money_topic")) == "")
-    ).count()
-    if null_topic:
-        raise SystemExit(f"primary_money_topic null/blank={null_topic}")
-
     spark.sql("CREATE NAMESPACE IF NOT EXISTS demo.curated")
     curated.writeTo(args.target_table).createOrReplace()
-    out = spark.table(args.target_table).count()
-    print(f"hydrate_curated rows={n} written={out} run_id={args.run_id}")
+    written = spark.table(args.target_table)
+    out = written.count()
+    null_topic = written.filter(
+        F.col("primary_money_topic").isNull() | (F.trim(F.col("primary_money_topic")) == "")
+    ).limit(1).count()
+    if null_topic:
+        raise SystemExit(f"primary_money_topic null/blank present after write rows={out}")
+    print(f"hydrate_curated rows={out} written={out} run_id={args.run_id}")
     spark.stop()
     return 0
 
