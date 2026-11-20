@@ -1,0 +1,97 @@
+<div class="space-y-6" data-testid="workflow-exec-logs-page">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h1 class="text-xl font-semibold text-gray-800 dark:text-white/90">
+        Workflow Logs — {{ categoryLabel() }}
+      </h1>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        Newest first · max {{ pageSize }} rows · optional Airflow / engine run id
+      </p>
+    </div>
+    <app-button size="sm" variant="outline" (btnClick)="onRefresh()">Refresh</app-button>
+  </div>
+
+  @if (error()) {
+    <app-alert variant="error" title="Error" [message]="error()" />
+  }
+
+  <form
+    class="grid gap-3 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03] md:grid-cols-6"
+    (ngSubmit)="onApplyFilters()"
+  >
+    <label class="text-sm">
+      <span class="mb-1 block text-gray-600 dark:text-gray-400">Start date</span>
+      <input type="date" class="w-full rounded border px-2 py-1.5" [(ngModel)]="startDate" name="startDate" />
+    </label>
+    <label class="text-sm">
+      <span class="mb-1 block text-gray-600 dark:text-gray-400">Start time</span>
+      <input type="time" class="w-full rounded border px-2 py-1.5" [(ngModel)]="startTime" name="startTime" />
+    </label>
+    <label class="text-sm">
+      <span class="mb-1 block text-gray-600 dark:text-gray-400">End date</span>
+      <input type="date" class="w-full rounded border px-2 py-1.5" [(ngModel)]="endDate" name="endDate" />
+    </label>
+    <label class="text-sm">
+      <span class="mb-1 block text-gray-600 dark:text-gray-400">End time</span>
+      <input type="time" class="w-full rounded border px-2 py-1.5" [(ngModel)]="endTime" name="endTime" />
+    </label>
+    <label class="text-sm">
+      <span class="mb-1 block text-gray-600 dark:text-gray-400">Status</span>
+      <select class="w-full rounded border px-2 py-1.5" [(ngModel)]="statusFilter" name="statusFilter">
+        <option value="">Any</option>
+        <option value="requested">requested</option>
+        <option value="started">started</option>
+        <option value="completed">completed</option>
+        <option value="failed">failed</option>
+      </select>
+    </label>
+    <label class="text-sm">
+      <span class="mb-1 block text-gray-600 dark:text-gray-400">Engine run id</span>
+      <input
+        type="text"
+        class="w-full rounded border px-2 py-1.5"
+        [(ngModel)]="engineRunId"
+        name="engineRunId"
+        placeholder="Airflow dag run id"
+      />
+    </label>
+    <div class="md:col-span-6">
+      <app-button size="sm" type="submit">Apply filters</app-button>
+    </div>
+  </form>
+
+  @if (loading()) {
+    <p class="text-sm text-gray-500">Loading…</p>
+  } @else if (rows().length === 0) {
+    <p class="text-sm text-gray-500" data-testid="workflow-exec-logs-empty">No workflow executions match.</p>
+  } @else {
+    <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800">
+      <table class="min-w-full text-left text-sm" data-testid="workflow-exec-logs-table">
+        <thead class="bg-gray-50 text-gray-600 dark:bg-white/[0.03] dark:text-gray-400">
+          <tr>
+            <th class="px-3 py-2 font-medium">Workflow</th>
+            <th class="px-3 py-2 font-medium">Status</th>
+            <th class="px-3 py-2 font-medium">Engine run id</th>
+            <th class="px-3 py-2 font-medium">Requested</th>
+            <th class="px-3 py-2 font-medium">Started</th>
+            <th class="px-3 py-2 font-medium">Finished</th>
+            <th class="px-3 py-2 font-medium">Message</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows(); track row.id) {
+            <tr class="border-t border-gray-100 dark:border-gray-800">
+              <td class="px-3 py-2 font-mono text-xs">{{ row.workflow_name }}</td>
+              <td class="px-3 py-2">{{ row.display_status }}</td>
+              <td class="px-3 py-2 font-mono text-xs">{{ row.engine_run_id || '—' }}</td>
+              <td class="px-3 py-2 whitespace-nowrap">{{ row.requested_at }}</td>
+              <td class="px-3 py-2 whitespace-nowrap">{{ row.started_at || '—' }}</td>
+              <td class="px-3 py-2 whitespace-nowrap">{{ row.finished_at || '—' }}</td>
+              <td class="px-3 py-2 max-w-xs truncate">{{ row.message || '—' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

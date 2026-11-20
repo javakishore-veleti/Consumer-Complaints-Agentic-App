@@ -282,6 +282,41 @@ def test_list_filters_by_workflow_status_and_engine_type(data_dir, monkeypatch):
     assert _list(workflow_id="no-such-workflow") == []
 
 
+def test_list_filters_by_workflow_name_prefix_and_engine_run_id(data_dir, monkeypatch):
+    _one_tick_per_call(monkeypatch)
+    # Unique names (seeded catalog already owns download_cfpb_* / ingest_cfpb_*).
+    download = _workflow("download_cfpb_test_prefix_a", engine_workflow_id="d_a")
+    ingest = _workflow("ingest_cfpb_test_all", engine_workflow_id="i_a")
+    imports = _workflow("ingest_cfpb_imports_test", engine_workflow_id="i_w")
+    a = _execute(download.id)
+    b = _execute(ingest.id)
+    c = _execute(imports.id)
+    assert _update(b.id, status="started", engine_run_id="run-42")[0] == SUCCESS
+
+    assert {r.id for r in _list(workflow_name_prefix="download_cfpb_test")} == {a.id}
+    assert {r.id for r in _list(workflow_name_prefixes=["ingest_cfpb_test", "ingest_cfpb_imports_test"])} == {
+        b.id,
+        c.id,
+    }
+    assert {
+        r.id
+        for r in _list(
+            workflow_name_prefixes=["ingest_cfpb"],
+            workflow_name_exclude_prefix="ingest_cfpb_imports",
+        )
+    } == {b.id}
+    assert [r.id for r in _list(engine_run_id="run-42")] == [b.id]
+
+
+def test_list_filters_by_requested_after_before(data_dir, monkeypatch):
+    _one_tick_per_call(monkeypatch)
+    workflow = _workflow()
+    first, second, third = (_execute(workflow.id) for _ in range(3))
+    mid = second.requested_at
+    assert [r.id for r in _list(requested_after=mid)] == [third.id, second.id]
+    assert [r.id for r in _list(requested_before=mid)] == [second.id, first.id]
+
+
 def test_list_limit_and_offset(data_dir, monkeypatch):
     _one_tick_per_call(monkeypatch)
     workflow = _workflow()

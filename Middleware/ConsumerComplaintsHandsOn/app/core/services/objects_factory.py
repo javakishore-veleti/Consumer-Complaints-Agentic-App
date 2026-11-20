@@ -19,6 +19,7 @@ from app.core.services.start_wf_service import StartWfService
 from app.core.services.wf_exec_status_service import WfExecStatusService
 from app.core.services.wf_list_service import WfListService
 from app.core.services.workflow_engine import WorkflowEngine
+from app.core.services.workflow_logs_service import WorkflowLogsService
 from app.core.services.zone_ingest_log_service import ZoneIngestLogService
 
 
@@ -64,6 +65,9 @@ class ServicesObjectsFactory:
                 WfExecStatusServiceImpl,
             )
             from app.core.services.impl.wf_list_service_impl import WfListServiceImpl
+            from app.core.services.impl.workflow_logs_service_impl import (
+                WorkflowLogsServiceImpl,
+            )
             from app.core.services.impl.zone_ingest_log_service_impl import (
                 ZoneIngestLogServiceImpl,
             )
@@ -82,6 +86,7 @@ class ServicesObjectsFactory:
             bean_registry.register(DatasetImportRunService, DatasetImportRunServiceImpl())
             bean_registry.register(DagContextService, DagContextServiceImpl())
             bean_registry.register(ZoneIngestLogService, ZoneIngestLogServiceImpl())
+            bean_registry.register(WorkflowLogsService, WorkflowLogsServiceImpl())
             ServicesObjectsFactory._initialized = True
 
     @staticmethod
@@ -153,3 +158,8 @@ class ServicesObjectsFactory:
     def get_zone_ingest_log_service() -> ZoneIngestLogService:
         ServicesObjectsFactory.init()
         return bean_registry.get_one(ZoneIngestLogService)  # type: ignore[return-value]
+
+    @staticmethod
+    def get_workflow_logs_service() -> WorkflowLogsService:
+        ServicesObjectsFactory.init()
+        return bean_registry.get_one(WorkflowLogsService)  # type: ignore[return-value]

@@ -106,13 +106,13 @@
 | #391 | 12 | /ccaa-story-complete 391 | Done | 2026-11-19 22:50 | 2026-11-19 22:50 |
 | #394 | 1 | `/ccaa-story-start 394` | Done | 2026-11-20 09:54 | 2026-11-20 09:54 |
 | #394 | 2 | `/brainstorming Story #394` | Done | 2026-11-20 09:54 | 2026-11-20 09:56 |
-| #394 | 3 | `/using-git-worktrees Story #394` | In progress | 2026-11-20 09:56 | - |
-| #394 | 4 | `/writing-plans Story #394` | Planned | - | - |
-| #394 | 5 | `/test-driven-development Story #394` | Planned | - | - |
-| #394 | 6 | `/subagent-driven-development Story #394` | Planned | - | - |
-| #394 | 7 | `/ccaa-commit-push 394 (after each task)` | Planned | - | - |
-| #394 | 8 | `/verification-before-completion Story #394` | Planned | - | - |
-| #394 | 9 | `/requesting-code-review Story #394` | Planned | - | - |
-| #394 | 10 | `/ccaa-commit-push 394` | Planned | - | - |
+| #394 | 3 | `/using-git-worktrees Story #394` | Done | 2026-11-20 09:56 | 2026-11-20 09:56 |
+| #394 | 4 | `/writing-plans Story #394` | Done | 2026-11-20 09:55 | 2026-11-20 09:56 |
+| #394 | 5 | `/test-driven-development Story #394` | Done | 2026-11-20 09:56 | 2026-11-20 10:02 |
+| #394 | 6 | `/subagent-driven-development Story #394` | Done | 2026-11-20 09:56 | 2026-11-20 10:02 |
+| #394 | 7 | `/ccaa-commit-push 394 (after each task)` | Done | 2026-11-20 09:56 | 2026-11-20 10:02 |
+| #394 | 8 | `/verification-before-completion Story #394` | Done | 2026-11-20 10:02 | 2026-11-20 10:02 |
+| #394 | 9 | `/requesting-code-review Story #394` | Done | 2026-11-20 10:02 | 2026-11-20 10:02 |
+| #394 | 10 | `/ccaa-commit-push 394` | In progress | 2026-11-20 10:02 | - |
 | #394 | 11 | `/finishing-a-development-branch Story #394` | Planned | - | - |
 | #394 | 12 | `/ccaa-story-complete 394` | Planned | - | - |

@@ -71,14 +71,24 @@ export class AppSidebarComponent {
     },
     {
       icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M4.5 3.75A.75.75 0 0 1 5.25 3h13.5a.75.75 0 0 1 .75.75v16.5a.75.75 0 0 1-.75.75H5.25a.75.75 0 0 1-.75-.75V3.75Zm1.5 1.5v13.5h12V5.25h-12Zm2.25 2.25a.75.75 0 0 0 0 1.5h7.5a.75.75 0 0 0 0-1.5h-7.5Zm0 3a.75.75 0 0 0 0 1.5h7.5a.75.75 0 0 0 0-1.5h-7.5Zm0 3a.75.75 0 0 0 0 1.5h4.5a.75.75 0 0 0 0-1.5h-4.5Z" fill="currentColor"></path></svg>`,
-      name: 'Ingestion Logs',
-      testId: 'top-nav-ingestion-logs',
+      name: 'Workflow Logs',
+      testId: 'top-nav-workflow-logs',
       subItems: [
-        { name: 'Raw', path: '/ingestion-logs/raw', testId: 'left-nav-ingestion-logs-raw' },
-        { name: 'Refined', path: '/ingestion-logs/refined', testId: 'left-nav-ingestion-logs-refined' },
-        { name: 'Curated', path: '/ingestion-logs/curated', testId: 'left-nav-ingestion-logs-curated' },
-        { name: 'Taxonomy', path: '/ingestion-logs/taxonomy', testId: 'left-nav-ingestion-logs-taxonomy' },
-        { name: 'Chroma', path: '/ingestion-logs/chroma', testId: 'left-nav-ingestion-logs-chroma' },
+        {
+          name: 'DataSets Import',
+          path: '/workflow-logs/import',
+          testId: 'left-nav-workflow-logs-import',
+        },
+        {
+          name: 'DB Ingest',
+          path: '/workflow-logs/db-ingest',
+          testId: 'left-nav-workflow-logs-db-ingest',
+        },
+        { name: 'Raw', path: '/workflow-logs/raw', testId: 'left-nav-workflow-logs-raw' },
+        { name: 'Refined', path: '/workflow-logs/refined', testId: 'left-nav-workflow-logs-refined' },
+        { name: 'Curated', path: '/workflow-logs/curated', testId: 'left-nav-workflow-logs-curated' },
+        { name: 'Taxonomy', path: '/workflow-logs/taxonomy', testId: 'left-nav-workflow-logs-taxonomy' },
+        { name: 'Chroma', path: '/workflow-logs/chroma', testId: 'left-nav-workflow-logs-chroma' },
       ],
     },
     {

@@ -27,7 +27,8 @@ class AppWfExecLogRecord:
 class AppWfExecLogReq:
     """A field left as None means "not given". id identifies one row. workflow_id is what create needs and list
     filters on; mios_ingest_log_id is optional on create and a list filter; engine_type and status are list filters;
-    status, engine_run_id and message are what update changes."""
+    status, engine_run_id and message are what update changes. List also accepts workflow_name_prefix(es),
+    workflow_name_exclude_prefix, requested_after/before, and engine_run_id exact match."""
 
     id: str | None = None
     workflow_id: str | None = None
@@ -36,6 +37,11 @@ class AppWfExecLogReq:
     engine_run_id: str | None = None
     message: str | None = None
     mios_ingest_log_id: str | None = None
+    workflow_name_prefix: str | None = None
+    workflow_name_prefixes: list[str] | None = None
+    workflow_name_exclude_prefix: str | None = None
+    requested_after: datetime | None = None
+    requested_before: datetime | None = None
     limit: int | None = None
     offset: int | None = None
 
