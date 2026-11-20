@@ -70,6 +70,18 @@ export class AppSidebarComponent {
       testId: 'left-nav-app-endpoints',
     },
     {
+      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M4.5 3.75A.75.75 0 0 1 5.25 3h13.5a.75.75 0 0 1 .75.75v16.5a.75.75 0 0 1-.75.75H5.25a.75.75 0 0 1-.75-.75V3.75Zm1.5 1.5v13.5h12V5.25h-12Zm2.25 2.25a.75.75 0 0 0 0 1.5h7.5a.75.75 0 0 0 0-1.5h-7.5Zm0 3a.75.75 0 0 0 0 1.5h7.5a.75.75 0 0 0 0-1.5h-7.5Zm0 3a.75.75 0 0 0 0 1.5h4.5a.75.75 0 0 0 0-1.5h-4.5Z" fill="currentColor"></path></svg>`,
+      name: 'Ingestion Logs',
+      testId: 'top-nav-ingestion-logs',
+      subItems: [
+        { name: 'Raw', path: '/ingestion-logs/raw', testId: 'left-nav-ingestion-logs-raw' },
+        { name: 'Refined', path: '/ingestion-logs/refined', testId: 'left-nav-ingestion-logs-refined' },
+        { name: 'Curated', path: '/ingestion-logs/curated', testId: 'left-nav-ingestion-logs-curated' },
+        { name: 'Taxonomy', path: '/ingestion-logs/taxonomy', testId: 'left-nav-ingestion-logs-taxonomy' },
+        { name: 'Chroma', path: '/ingestion-logs/chroma', testId: 'left-nav-ingestion-logs-chroma' },
+      ],
+    },
+    {
       icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2.25c-2.9 0-5.25 2.35-5.25 5.25v1.1c-1.55.35-2.7 1.74-2.7 3.4v6.5c0 1.93 1.57 3.5 3.5 3.5h9.9c1.93 0 3.5-1.57 3.5-3.5v-6.5c0-1.66-1.15-3.05-2.7-3.4V7.5c0-2.9-2.35-5.25-5.25-5.25Zm-3.75 5.25c0-2.07 1.68-3.75 3.75-3.75s3.75 1.68 3.75 3.75v.75h-7.5V7.5Zm-1.2 2.6h10.9c1.1 0 2 .9 2 2v6.5c0 1.1-.9 2-2 2H7.05c-1.1 0-2-.9-2-2v-6.5c0-1.1.9-2 2-2Z" fill="currentColor"></path></svg>`,
       name: 'Operations',
       testId: 'top-nav-operations',
