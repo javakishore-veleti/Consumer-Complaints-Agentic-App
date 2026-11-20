@@ -13,13 +13,23 @@ export type WorkflowLogCategory =
   | 'taxonomy'
   | 'chroma';
 
-export const WORKFLOW_LOG_PAGE_SIZE = 30;
+export const WORKFLOW_LOG_PAGE_SIZE = 60;
+
+export const ENGINE_TYPE_OPTIONS: { value: string; label: string }[] = [
+  { value: 'apache_airflow', label: 'Apache Airflow' },
+  { value: 'aws_step_functions', label: 'AWS Step Functions' },
+  { value: 'spring_batch', label: 'Spring Batch' },
+  { value: 'bpmn', label: 'BPMN' },
+  { value: 'spark_job', label: 'Spark job' },
+  { value: 'aws_emr', label: 'AWS EMR' },
+];
 
 export interface WorkflowLogEntry {
   id: string;
   workflow_id: string;
   workflow_name: string;
   engine_type: string;
+  engine_label: string;
   engine_workflow_id: string;
   engine_run_id: string | null;
   status: string;
@@ -34,6 +44,7 @@ export interface WorkflowLogEntry {
 export interface WorkflowLogsListReq {
   category?: WorkflowLogCategory;
   status?: string;
+  engine_type?: string;
   engine_run_id?: string;
   requested_after?: string;
   requested_before?: string;
@@ -55,6 +66,7 @@ export async function loadWorkflowLogs(http: HttpClient, ctx: WorkflowLogsCtx): 
     if (ctx.req.offset != null) params = params.set('offset', String(ctx.req.offset));
     if (ctx.req.category) params = params.set('category', ctx.req.category);
     if (ctx.req.status) params = params.set('status', ctx.req.status);
+    if (ctx.req.engine_type) params = params.set('engine_type', ctx.req.engine_type);
     if (ctx.req.engine_run_id) params = params.set('engine_run_id', ctx.req.engine_run_id);
     if (ctx.req.requested_after) params = params.set('requested_after', ctx.req.requested_after);
     if (ctx.req.requested_before) params = params.set('requested_before', ctx.req.requested_before);

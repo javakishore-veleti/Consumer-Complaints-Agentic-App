@@ -1,4 +1,4 @@
-"""HTTP models for GET /workflow-logs (M55-0012 / #394)."""
+"""HTTP models for GET /workflow-logs (M55-0012 / #394; M56-0001 / #396)."""
 
 from __future__ import annotations
 
@@ -17,10 +17,11 @@ class WorkflowLogListHttpReq(BaseModel):
 
     category: WorkflowLogCategory | None = None
     status: str | None = None
+    engine_type: str | None = Field(default=None, max_length=32)
     engine_run_id: str | None = Field(default=None, max_length=128)
     requested_after: datetime | None = None
     requested_before: datetime | None = None
-    limit: int = Field(default=30, ge=1, le=30)
+    limit: int = Field(default=60, ge=1, le=60)
     offset: int = Field(default=0, ge=0)
 
 
@@ -31,6 +32,7 @@ class WorkflowLogOut(BaseModel):
     workflow_id: str
     workflow_name: str
     engine_type: str
+    engine_label: str
     engine_workflow_id: str
     engine_run_id: str | None = None
     status: str

@@ -37,6 +37,15 @@ No new RDBMS columns. Expand `EngineType` enum + `ENGINE_TYPE_LABELS` map for: `
 4. Per-column search inputs under headers: case-insensitive substring filter on loaded rows (client-side).
 5. Eye icon opens modal/card with **all** fields (ids, engine code+label, engine_workflow_id, engine_run_id, statuses, timestamps, message) + **Close**.
 
+### Category mapping fix (bug)
+
+DB Ingest UI starts `ingest_cfpb_imports_wrapper`. That must appear under **Workflow Logs → DB Ingest**, not Import.
+
+| Category | `workflow_name` prefixes |
+|----------|--------------------------|
+| import | `download_cfpb`, `filter_cfpb` |
+| db_ingest | `ingest_cfpb` (includes `ingest_cfpb_imports_wrapper` and `ingest_cfpb_all`) |
+
 Zone partition pages unchanged this story (optional shared page-size constant only if trivial).
 
 ## Acceptance

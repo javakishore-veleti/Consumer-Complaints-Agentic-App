@@ -22,13 +22,13 @@
 |---|---|---|---|---|---|
 | #396 | 1 | `/ccaa-story-start 396` | Done | 2026-11-20 10:25 | 2026-11-20 10:26 |
 | #396 | 2 | `/brainstorming Story #396` | Done | 2026-11-20 10:26 | 2026-11-20 10:27 |
-| #396 | 3 | `/using-git-worktrees Story #396` | In progress | 2026-11-20 10:27 | - |
+| #396 | 3 | `/using-git-worktrees Story #396` | Done | 2026-11-20 10:27 | 2026-11-20 10:28 |
 | #396 | 4 | `/writing-plans Story #396` | Done | 2026-11-20 10:27 | 2026-11-20 10:27 |
-| #396 | 5 | `/test-driven-development Story #396` | Planned | - | - |
-| #396 | 6 | `/subagent-driven-development Story #396` | Planned | - | - |
-| #396 | 7 | `/ccaa-commit-push 396 (after each task)` | Planned | - | - |
-| #396 | 8 | `/verification-before-completion Story #396` | Planned | - | - |
-| #396 | 9 | `/requesting-code-review Story #396` | Planned | - | - |
-| #396 | 10 | `/ccaa-commit-push 396` | Planned | - | - |
+| #396 | 5 | `/test-driven-development Story #396` | Done | 2026-11-20 10:28 | 2026-11-20 10:31 |
+| #396 | 6 | `/subagent-driven-development Story #396` | Done | 2026-11-20 10:28 | 2026-11-20 10:31 |
+| #396 | 7 | `/ccaa-commit-push 396 (after each task)` | Done | 2026-11-20 10:28 | 2026-11-20 10:31 |
+| #396 | 8 | `/verification-before-completion Story #396` | Done | 2026-11-20 10:31 | 2026-11-20 10:31 |
+| #396 | 9 | `/requesting-code-review Story #396` | Done | 2026-11-20 10:31 | 2026-11-20 10:31 |
+| #396 | 10 | `/ccaa-commit-push 396` | In progress | 2026-11-20 10:31 | - |
 | #396 | 11 | `/finishing-a-development-branch Story #396` | Planned | - | - |
 | #396 | 12 | `/ccaa-story-complete 396` | Planned | - | - |

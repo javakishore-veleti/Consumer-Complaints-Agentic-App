@@ -5,7 +5,7 @@
         Workflow Logs — {{ categoryLabel() }}
       </h1>
       <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-        Newest first · max {{ pageSize }} rows · optional Airflow / engine run id
+        Newest first · {{ pageSize }} rows/page · sortable + searchable columns · engine run id optional
       </p>
     </div>
     <app-button size="sm" variant="outline" (btnClick)="onRefresh()">Refresh</app-button>
@@ -46,13 +46,22 @@
       </select>
     </label>
     <label class="text-sm">
+      <span class="mb-1 block text-gray-600 dark:text-gray-400">Workflow engine</span>
+      <select class="w-full rounded border px-2 py-1.5" [(ngModel)]="engineTypeFilter" name="engineTypeFilter">
+        <option value="">Any</option>
+        @for (opt of engineOptions; track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+    </label>
+    <label class="text-sm md:col-span-2">
       <span class="mb-1 block text-gray-600 dark:text-gray-400">Engine run id</span>
       <input
         type="text"
         class="w-full rounded border px-2 py-1.5"
         [(ngModel)]="engineRunId"
         name="engineRunId"
-        placeholder="Airflow dag run id"
+        placeholder="Airflow / Step Functions / EMR run id"
       />
     </label>
     <div class="md:col-span-6">
@@ -60,34 +69,177 @@
     </div>
   </form>
 
+  <div class="flex flex-wrap items-center justify-between gap-2 text-sm text-gray-600 dark:text-gray-400">
+    <span data-testid="workflow-exec-logs-page-info"
+      >Offset {{ pageOffset() }} · showing {{ displayRows().length }} of {{ rawRows().length }} loaded</span
+    >
+    <div class="flex gap-2">
+      <app-button size="sm" variant="outline" [disabled]="pageOffset() === 0 || loading()" (btnClick)="onPrevPage()"
+        >Previous</app-button
+      >
+      <app-button size="sm" variant="outline" [disabled]="!hasNextPage() || loading()" (btnClick)="onNextPage()"
+        >Next</app-button
+      >
+    </div>
+  </div>
+
   @if (loading()) {
     <p class="text-sm text-gray-500">Loading…</p>
-  } @else if (rows().length === 0) {
+  } @else if (displayRows().length === 0) {
     <p class="text-sm text-gray-500" data-testid="workflow-exec-logs-empty">No workflow executions match.</p>
   } @else {
     <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800">
       <table class="min-w-full text-left text-sm" data-testid="workflow-exec-logs-table">
         <thead class="bg-gray-50 text-gray-600 dark:bg-white/[0.03] dark:text-gray-400">
           <tr>
-            <th class="px-3 py-2 font-medium">Workflow</th>
-            <th class="px-3 py-2 font-medium">Status</th>
-            <th class="px-3 py-2 font-medium">Engine run id</th>
-            <th class="px-3 py-2 font-medium">Requested</th>
-            <th class="px-3 py-2 font-medium">Started</th>
-            <th class="px-3 py-2 font-medium">Finished</th>
-            <th class="px-3 py-2 font-medium">Message</th>
+            <th class="px-3 py-2 font-medium">
+              <button type="button" class="hover:underline" (click)="onSort('workflow_name')">
+                Workflow{{ sortIndicator('workflow_name') }}
+              </button>
+            </th>
+            <th class="px-3 py-2 font-medium">
+              <button type="button" class="hover:underline" (click)="onSort('engine_label')">
+                Workflow engine{{ sortIndicator('engine_label') }}
+              </button>
+            </th>
+            <th class="px-3 py-2 font-medium">
+              <button type="button" class="hover:underline" (click)="onSort('display_status')">
+                Status{{ sortIndicator('display_status') }}
+              </button>
+            </th>
+            <th class="px-3 py-2 font-medium">
+              <button type="button" class="hover:underline" (click)="onSort('engine_run_id')">
+                Engine run id{{ sortIndicator('engine_run_id') }}
+              </button>
+            </th>
+            <th class="px-3 py-2 font-medium">
+              <button type="button" class="hover:underline" (click)="onSort('requested_at')">
+                Requested{{ sortIndicator('requested_at') }}
+              </button>
+            </th>
+            <th class="px-3 py-2 font-medium">
+              <button type="button" class="hover:underline" (click)="onSort('started_at')">
+                Started{{ sortIndicator('started_at') }}
+              </button>
+            </th>
+            <th class="px-3 py-2 font-medium">
+              <button type="button" class="hover:underline" (click)="onSort('finished_at')">
+                Completed{{ sortIndicator('finished_at') }}
+              </button>
+            </th>
+            <th class="px-3 py-2 font-medium">
+              <button type="button" class="hover:underline" (click)="onSort('message')">
+                Message{{ sortIndicator('message') }}
+              </button>
+            </th>
+            <th class="px-3 py-2 font-medium">Details</th>
+          </tr>
+          <tr class="border-t border-gray-100 dark:border-gray-800">
+            <th class="px-2 py-1">
+              <input
+                class="w-full rounded border px-1 py-0.5 text-xs"
+                [(ngModel)]="columnSearch.workflow_name"
+                (ngModelChange)="onColumnSearchChange()"
+                name="searchWorkflow"
+                placeholder="Search…"
+              />
+            </th>
+            <th class="px-2 py-1">
+              <input
+                class="w-full rounded border px-1 py-0.5 text-xs"
+                [(ngModel)]="columnSearch.engine_label"
+                (ngModelChange)="onColumnSearchChange()"
+                name="searchEngine"
+                placeholder="Search…"
+              />
+            </th>
+            <th class="px-2 py-1">
+              <input
+                class="w-full rounded border px-1 py-0.5 text-xs"
+                [(ngModel)]="columnSearch.display_status"
+                (ngModelChange)="onColumnSearchChange()"
+                name="searchStatus"
+                placeholder="Search…"
+              />
+            </th>
+            <th class="px-2 py-1">
+              <input
+                class="w-full rounded border px-1 py-0.5 text-xs"
+                [(ngModel)]="columnSearch.engine_run_id"
+                (ngModelChange)="onColumnSearchChange()"
+                name="searchRunId"
+                placeholder="Search…"
+              />
+            </th>
+            <th class="px-2 py-1">
+              <input
+                class="w-full rounded border px-1 py-0.5 text-xs"
+                [(ngModel)]="columnSearch.requested_at"
+                (ngModelChange)="onColumnSearchChange()"
+                name="searchRequested"
+                placeholder="Search…"
+              />
+            </th>
+            <th class="px-2 py-1">
+              <input
+                class="w-full rounded border px-1 py-0.5 text-xs"
+                [(ngModel)]="columnSearch.started_at"
+                (ngModelChange)="onColumnSearchChange()"
+                name="searchStarted"
+                placeholder="Search…"
+              />
+            </th>
+            <th class="px-2 py-1">
+              <input
+                class="w-full rounded border px-1 py-0.5 text-xs"
+                [(ngModel)]="columnSearch.finished_at"
+                (ngModelChange)="onColumnSearchChange()"
+                name="searchCompleted"
+                placeholder="Search…"
+              />
+            </th>
+            <th class="px-2 py-1">
+              <input
+                class="w-full rounded border px-1 py-0.5 text-xs"
+                [(ngModel)]="columnSearch.message"
+                (ngModelChange)="onColumnSearchChange()"
+                name="searchMessage"
+                placeholder="Search…"
+              />
+            </th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
-          @for (row of rows(); track row.id) {
+          @for (row of displayRows(); track row.id) {
             <tr class="border-t border-gray-100 dark:border-gray-800">
               <td class="px-3 py-2 font-mono text-xs">{{ row.workflow_name }}</td>
+              <td class="px-3 py-2" data-testid="workflow-engine-cell">{{ row.engine_label }}</td>
               <td class="px-3 py-2">{{ row.display_status }}</td>
               <td class="px-3 py-2 font-mono text-xs">{{ row.engine_run_id || '—' }}</td>
               <td class="px-3 py-2 whitespace-nowrap">{{ row.requested_at }}</td>
               <td class="px-3 py-2 whitespace-nowrap">{{ row.started_at || '—' }}</td>
               <td class="px-3 py-2 whitespace-nowrap">{{ row.finished_at || '—' }}</td>
               <td class="px-3 py-2 max-w-xs truncate">{{ row.message || '—' }}</td>
+              <td class="px-3 py-2">
+                <button
+                  type="button"
+                  class="inline-flex items-center justify-center rounded p-1.5 text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/10"
+                  data-testid="workflow-log-detail-btn"
+                  title="View details"
+                  (click)="openDetail(row)"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path
+                      d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12s-3.75 6.75-9.75 6.75S2.25 12 2.25 12Z"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                    />
+                    <circle cx="12" cy="12" r="2.75" stroke="currentColor" stroke-width="1.5" />
+                  </svg>
+                  <span class="sr-only">View details</span>
+                </button>
+              </td>
             </tr>
           }
         </tbody>
@@ -95,3 +247,71 @@
     </div>
   }
 </div>
+
+@if (detailRow(); as detail) {
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+    data-testid="workflow-log-detail-modal"
+    (click)="closeDetail()"
+  >
+    <div
+      class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl border border-gray-200 bg-white p-5 shadow-xl dark:border-gray-700 dark:bg-gray-900"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="mb-4 flex items-start justify-between gap-3">
+        <h2 class="text-lg font-semibold text-gray-800 dark:text-white/90">Workflow execution details</h2>
+        <app-button size="sm" variant="outline" (btnClick)="closeDetail()">Close</app-button>
+      </div>
+      <dl class="space-y-2 text-sm">
+        <div class="grid grid-cols-3 gap-2">
+          <dt class="text-gray-500">Workflow</dt>
+          <dd class="col-span-2 font-mono text-xs break-all">{{ detail.workflow_name }}</dd>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <dt class="text-gray-500">Workflow engine</dt>
+          <dd class="col-span-2">{{ detail.engine_label }} ({{ detail.engine_type }})</dd>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <dt class="text-gray-500">Engine workflow id</dt>
+          <dd class="col-span-2 font-mono text-xs break-all">{{ detail.engine_workflow_id }}</dd>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <dt class="text-gray-500">Engine run id</dt>
+          <dd class="col-span-2 font-mono text-xs break-all">{{ detail.engine_run_id || '—' }}</dd>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <dt class="text-gray-500">Status</dt>
+          <dd class="col-span-2">{{ detail.display_status }} ({{ detail.status }})</dd>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <dt class="text-gray-500">Requested</dt>
+          <dd class="col-span-2">{{ detail.requested_at }}</dd>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <dt class="text-gray-500">Started</dt>
+          <dd class="col-span-2">{{ detail.started_at || '—' }}</dd>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <dt class="text-gray-500">Completed</dt>
+          <dd class="col-span-2">{{ detail.finished_at || '—' }}</dd>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <dt class="text-gray-500">Message</dt>
+          <dd class="col-span-2 whitespace-pre-wrap break-words">{{ detail.message || '—' }}</dd>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <dt class="text-gray-500">Execution id</dt>
+          <dd class="col-span-2 font-mono text-xs break-all">{{ detail.id }}</dd>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <dt class="text-gray-500">Workflow id</dt>
+          <dd class="col-span-2 font-mono text-xs break-all">{{ detail.workflow_id }}</dd>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <dt class="text-gray-500">MIO ingest log id</dt>
+          <dd class="col-span-2 font-mono text-xs break-all">{{ detail.mios_ingest_log_id || '—' }}</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+}

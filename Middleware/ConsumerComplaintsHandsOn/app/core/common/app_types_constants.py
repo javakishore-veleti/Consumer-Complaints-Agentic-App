@@ -16,10 +16,14 @@ class AppTypeEnum(str, Enum):
 
 
 class EngineType(AppTypeEnum):
-    """The workflow engines (D52). M02 runs only apache_airflow."""
+    """The workflow engines (D52). Catalog is extensible; M02 runs apache_airflow locally."""
 
     APACHE_AIRFLOW = "apache_airflow"
     AWS_STEP_FUNCTIONS = "aws_step_functions"
+    SPRING_BATCH = "spring_batch"
+    BPMN = "bpmn"
+    SPARK_JOB = "spark_job"
+    AWS_EMR = "aws_emr"
 
 
 class ExecStatus(AppTypeEnum):
