@@ -9,6 +9,7 @@
 **Tech Stack:** FastAPI, Alembic, SQLAlchemy, Pytest, Angular 22 admin, Postgres/SQLite ops store.
 
 **Story:** #391 · **Spec:** `docs/Superpowers/specs/2026-11-19-m55-0011-zone-ingest-log-partition-queue-design.md`  
+<!-- progress: Task1 done; Task2 done 2026-11-19 -->
 **Worktree:** `.worktrees/story/m55-partition-batches` · branch `story/m55-0011-partition-batches`
 
 ## Global Constraints
